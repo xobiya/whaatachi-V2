@@ -42,6 +42,7 @@ export default function AuthModal({
   const [instagramUsername, setInstagramUsername] = useState('');
   const [age, setAge] = useState('');
   const [myGender, setMyGender] = useState<'Male' | 'Female'>('Male');
+  const [lookingFor, setLookingFor] = useState<'Male' | 'Female'>('Female');
   const [selectedIntent, setSelectedIntent] = useState('True Relationship');
   const [city, setCity] = useState('Addis Ababa');
 
@@ -64,6 +65,7 @@ export default function AuthModal({
 
   const handleMyGenderChange = (gender: 'Male' | 'Female') => {
     setMyGender(gender);
+    setLookingFor(gender === 'Male' ? 'Female' : 'Male');
     setSelectedPresetImage(gender === 'Male' ? PRESET_MALE_IMAGES[0] : PRESET_FEMALE_IMAGES[0]);
   };
 
@@ -111,6 +113,7 @@ export default function AuthModal({
       city: city,
       bio: `Hi, I'm looking for an authentic connection on Whaatachi.`,
       gender: myGender,
+      lookingFor,
       image: finalImage,
       status: 'Online',
       relationshipIntent: finalIntent,
@@ -227,7 +230,7 @@ export default function AuthModal({
                   </div>
                 </div>
 
-                <div className="space-y-1.5">
+                <div className="space-y-2">
                   <label className="block text-xs font-bold text-[#1A1118]/70 dark:text-[#FFFCF8]/60 uppercase tracking-wider">Looking For</label>
                   <div className="grid grid-cols-3 gap-2">
                     {intentOptions.map((opt) => (
@@ -237,6 +240,14 @@ export default function AuthModal({
                           : 'bg-white dark:bg-[#1A1118] border-[#EDE6D9] dark:border-[#C9A84C]/15 hover:border-[#C9A84C]/50 text-gray-600 dark:text-gray-400'
                       }`}>
                         <span className="font-semibold">{opt.label}</span>
+                      </button>
+                    ))}
+                  </div>
+                  <label className="block text-xs font-bold text-[#1A1118]/70 dark:text-[#FFFCF8]/60 uppercase tracking-wider pt-0.5">Sex</label>
+                  <div className="grid grid-cols-2 bg-[#F8F4ED] dark:bg-[#1A1118] border border-[#EDE6D9] dark:border-[#C9A84C]/15 rounded-xl p-1 gap-1">
+                    {(['Male', 'Female'] as const).map((s) => (
+                      <button key={s} type="button" onClick={() => setLookingFor(s)} className={`py-2 text-xs font-bold text-center rounded-lg transition-all cursor-pointer ${lookingFor === s ? 'bg-[#8B0020] dark:bg-[#8B0020] text-white' : 'text-gray-500 dark:text-gray-400 hover:text-[#1A1118] dark:hover:text-[#FFFCF8]'}`}>
+                        {s === 'Male' ? 'Men' : 'Women'}
                       </button>
                     ))}
                   </div>

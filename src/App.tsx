@@ -12,6 +12,7 @@ import SuccessStories from './views/SuccessStories';
 import BlogPage from './views/BlogPage';
 import AdminPanel from './views/AdminPanel';
 import SupportPanel from './views/SupportPanel';
+import ProfilePage from './views/ProfilePage';
 import { Profile, PaymentRequest, SuccessStory } from './types';
 import { INITIAL_PROFILES, INITIAL_SUCCESS_STORIES, INITIAL_ARTICLES } from './mockData';
 import { Heart, Sparkles, UserCheck, CheckCircle, ShieldAlert } from 'lucide-react';
@@ -50,6 +51,8 @@ export default function App() {
         setCurrentView('blog');
       } else if (path === '/support') {
         setCurrentView('support');
+      } else if (path === '/profile') {
+        setCurrentView('profile');
       } else if (path === '/') {
         setCurrentView('home');
       }
@@ -188,6 +191,7 @@ export default function App() {
     return saved ? JSON.parse(saved) : INITIAL_SUCCESS_STORIES;
   });
 
+  const [viewingProfile, setViewingProfile] = useState<Profile | null>(null);
   const [activeUnlockTarget, setActiveUnlockTarget] = useState<Profile | null>(null);
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState<boolean>(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState<boolean>(false);
@@ -308,23 +312,25 @@ export default function App() {
 
   // 5. Onboarding: Register custom user profiles
   const handleRegisterUser = (newProfile: Profile) => {
-    setProfiles((prev) => [newProfile, ...prev]);
-    localStorage.setItem('whaatachi_logged_in_user_v1', JSON.stringify(newProfile));
-    setCurrentUser(newProfile);
+    const profileWithLookingFor = { ...newProfile, lookingFor: newProfile.lookingFor || (newProfile.gender === 'Male' ? 'Female' : 'Male') };
+    setProfiles((prev) => [profileWithLookingFor, ...prev]);
+    localStorage.setItem('whaatachi_logged_in_user_v1', JSON.stringify(profileWithLookingFor));
+    setCurrentUser(profileWithLookingFor);
     setIsLoggedIn(true);
-    setUserGender(newProfile.gender);
+    setUserGender(profileWithLookingFor.gender);
     setCurrentView('dashboard');
-    triggerNotification('success', `Welcome ${newProfile.name}! Your premium profile is registered.`);
+    triggerNotification('success', `Welcome ${profileWithLookingFor.name}! Your premium profile is registered.`);
   };
 
   // 6. Onboarding: Sign in user matching name/phone
   const handleSignInUser = (name: string, phone: string) => {
     const found = profiles.find((p) => p.name.toLowerCase() === name.toLowerCase());
     if (found) {
-      localStorage.setItem('whaatachi_logged_in_user_v1', JSON.stringify(found));
-      setCurrentUser(found);
+      const profileWithLookingFor = { ...found, lookingFor: found.lookingFor || (found.gender === 'Male' ? 'Female' : 'Male') };
+      localStorage.setItem('whaatachi_logged_in_user_v1', JSON.stringify(profileWithLookingFor));
+      setCurrentUser(profileWithLookingFor);
       setIsLoggedIn(true);
-      setUserGender(found.gender);
+      setUserGender(profileWithLookingFor.gender);
       setCurrentView('dashboard');
       triggerNotification('success', `Welcome back, ${found.name}!`);
     } else {
@@ -336,6 +342,7 @@ export default function App() {
         city: 'Addis Ababa',
         bio: 'Looking for negative connections or friendships.',
         gender: 'Male',
+        lookingFor: 'Female',
         image: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=500&auto=format&fit=crop&q=80',
         status: 'Online',
         relationshipIntent: 'True Relationship',
@@ -360,12 +367,13 @@ export default function App() {
 
   // 7. Onboarding: Simulated test accounts switcher
   const handleSimulateTestLogin = (profile: Profile) => {
-    localStorage.setItem('whaatachi_logged_in_user_v1', JSON.stringify(profile));
-    setCurrentUser(profile);
+    const profileWithLookingFor = { ...profile, lookingFor: profile.lookingFor || (profile.gender === 'Male' ? 'Female' : 'Male') };
+    localStorage.setItem('whaatachi_logged_in_user_v1', JSON.stringify(profileWithLookingFor));
+    setCurrentUser(profileWithLookingFor);
     setIsLoggedIn(true);
-    setUserGender(profile.gender);
+    setUserGender(profileWithLookingFor.gender);
     setCurrentView('dashboard');
-    triggerNotification('success', `Logged in as test candidate ${profile.name}!`);
+    triggerNotification('success', `Logged in as test candidate ${profileWithLookingFor.name}!`);
   };
 
   // 8. Profile customization handlers
@@ -393,6 +401,21 @@ export default function App() {
     triggerNotification('success', `Your live status is now set to ${newStatus === 'Online' ? 'Active' : newStatus === 'Offline' ? 'Quiet' : 'Recent'}`);
   };
 
+  const handleSaveProfile = (updated: Profile) => {
+    setProfiles((prev) => prev.map(p => p.id === updated.id ? updated : p));
+    if (currentUser?.id === updated.id) {
+      setCurrentUser(updated);
+      localStorage.setItem('whaatachi_logged_in_user_v1', JSON.stringify(updated));
+      setUserGender(updated.gender);
+    }
+    triggerNotification('success', 'Profile updated successfully!');
+  };
+
+  const handleViewProfile = (profile: Profile) => {
+    setViewingProfile(profile);
+    setCurrentView('profile');
+  };
+
   const handleOpenAuth = (tab: 'register' | 'signin' = 'register') => {
     setAuthModalInitialTab(tab);
     setIsAuthModalOpen(true);
@@ -414,6 +437,11 @@ export default function App() {
   const unlockedProfilesList = useMemo(() => {
     return profiles.filter(p => unlockedIds.includes(p.id));
   }, [profiles, unlockedIds]);
+
+  const userLookingFor = useMemo<'Male' | 'Female'>(() => {
+    if (currentUser?.lookingFor) return currentUser.lookingFor;
+    return userGender === 'Male' ? 'Female' : 'Male';
+  }, [currentUser, userGender]);
 
   if (currentView === 'admin') {
     return (
@@ -511,6 +539,20 @@ export default function App() {
           )
         )}
 
+        {/* Profile page */}
+        {currentView === 'profile' && viewingProfile && (
+          <ProfilePage
+            profile={viewingProfile}
+            isUnlocked={unlockedIds.includes(viewingProfile.id)}
+            pendingPayment={allPayments.find(p => p.profileId === viewingProfile.id && p.status === 'Pending')}
+            userGender={userGender}
+            isOwnProfile={currentUser?.id === viewingProfile.id}
+            onBack={() => setCurrentView('dashboard')}
+            onUnlockClick={handleUnlockTrigger}
+            onSaveProfile={handleSaveProfile}
+          />
+        )}
+
         {/* Discover matches dashboard */}
         {currentView === 'dashboard' && (
           <Dashboard
@@ -519,6 +561,9 @@ export default function App() {
             pendingPayments={allPayments}
             onUnlockClick={handleUnlockTrigger}
             userGender={userGender}
+            userLookingFor={userLookingFor}
+            isLoggedIn={isLoggedIn}
+            onViewProfile={handleViewProfile}
           />
         )}
 

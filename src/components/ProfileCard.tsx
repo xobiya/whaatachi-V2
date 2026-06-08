@@ -9,10 +9,11 @@ interface ProfileCardProps {
   pendingPayment: PaymentRequest | undefined;
   onUnlockClick: (profile: Profile) => void;
   userGender: 'Male' | 'Female';
+  onViewProfile?: (profile: Profile) => void;
 }
 
 export default function ProfileCard({
-  profile, isUnlocked, pendingPayment, onUnlockClick, userGender
+  profile, isUnlocked, pendingPayment, onUnlockClick, userGender, onViewProfile
 }: ProfileCardProps) {
 
   return (
@@ -85,16 +86,23 @@ export default function ProfileCard({
               <p className="text-[10px] mt-1">TxID: {pendingPayment.transactionId}</p>
             </div>
           ) : (
-            <button onClick={() => onUnlockClick(profile)} className="w-full py-3 bg-[#8B0020] hover:bg-[#B31B3A] text-white font-bold text-xs rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-[#8B0020]/10">
-              <Lock className="h-3.5 w-3.5" />
-              <span>Unlock Contact</span>
-              {userGender === 'Male' && (
-                <span className="text-[9px] bg-white/20 px-1.5 py-0.5 rounded-md font-extrabold">200 ETB</span>
+            <div className="space-y-2">
+              {onViewProfile && (
+                <button onClick={() => onViewProfile(profile)} className="w-full py-2.5 bg-[#F8F4ED] dark:bg-[#120A0E] hover:bg-[#EDE6D9] dark:hover:bg-[#1A1118] border border-[#EDE6D9] dark:border-[#C9A84C]/15 text-[#1A1118] dark:text-[#FFFCF8] font-bold text-xs rounded-xl transition-all cursor-pointer">
+                  View Profile
+                </button>
               )}
-              {userGender === 'Female' && (
-                <span className="text-[9px] bg-emerald-400/30 px-1.5 py-0.5 rounded-md font-extrabold">FREE</span>
-              )}
-            </button>
+              <button onClick={() => onUnlockClick(profile)} className="w-full py-3 bg-[#8B0020] hover:bg-[#B31B3A] text-white font-bold text-xs rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-[#8B0020]/10">
+                <Lock className="h-3.5 w-3.5" />
+                <span>Unlock Contact</span>
+                {userGender === 'Male' && (
+                  <span className="text-[9px] bg-white/20 px-1.5 py-0.5 rounded-md font-extrabold">200 ETB</span>
+                )}
+                {userGender === 'Female' && (
+                  <span className="text-[9px] bg-emerald-400/30 px-1.5 py-0.5 rounded-md font-extrabold">FREE</span>
+                )}
+              </button>
+            </div>
           )}
         </div>
       </div>

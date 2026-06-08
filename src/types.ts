@@ -5,6 +5,7 @@ export interface Profile {
   city: string;
   bio: string;
   gender: 'Male' | 'Female';
+  lookingFor?: 'Male' | 'Female';
   image: string;
   status: 'Online' | 'Offline' | 'Recently Active';
   relationshipIntent: 'True Relationship' | 'Friendship' | 'Friends with Benefits';
