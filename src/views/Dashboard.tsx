@@ -2,6 +2,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { Search, MapPin, AlertCircle, Star, Sliders, CheckSquare, Square, RefreshCw, Lightbulb, ChevronLeft, ChevronRight, Filter, X } from 'lucide-react';
 import { Profile, PaymentRequest } from '../types';
 import ProfileCard from '../components/ProfileCard';
+import { useAppContext } from '../context/AppContext';
 
 const PRO_TIPS = [
   {
@@ -67,6 +68,7 @@ interface DashboardProps {
 export default function Dashboard({
   profiles, unlockedIds, pendingPayments, onUnlockClick, userGender, userLookingFor, isLoggedIn, onViewProfile
 }: DashboardProps) {
+  const { t } = useAppContext();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCity, setSelectedCity] = useState('All');
   const [filterType, setFilterType] = useState<'all' | 'recent' | 'verified' | 'unlocked'>('all');
@@ -192,17 +194,17 @@ export default function Dashboard({
       <div className="max-w-7xl mx-auto px-4 py-6">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-black text-[#1A1118] dark:text-[#FFFCF8] tracking-tight">Discover</h1>
-            <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{filteredProfiles.length} matches available</p>
+            <h1 className="text-2xl sm:text-3xl font-black text-[#1A1118] dark:text-[#FFFCF8] tracking-tight">{t('dashboard.discover')}</h1>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{filteredProfiles.length} {t('dashboard.matches-available')}</p>
           </div>
           <div className="flex items-center gap-2">
             <button onClick={() => setShowFilters(!showFilters)} className="lg:hidden flex items-center gap-1.5 text-xs font-bold text-[#8B0020] dark:text-[#C9A84C] bg-[#8B0020]/5 dark:bg-[#8B0020]/15 border border-[#8B0020]/20 dark:border-[#C9A84C]/20 rounded-xl px-3.5 py-2.5 cursor-pointer transition-colors">
               <Filter className="h-4 w-4" />
-              Filters
+              {t('dashboard.filters')}
             </button>
             <button onClick={handleResetFilters} className="flex items-center gap-1 text-xs font-bold text-gray-500 dark:text-gray-400 bg-white dark:bg-[#1A1118] border border-[#EDE6D9] dark:border-[#C9A84C]/15 rounded-xl px-3.5 py-2.5 cursor-pointer transition-colors">
               <RefreshCw className="h-3.5 w-3.5" />
-              <span className="hidden sm:inline">Reset</span>
+              <span className="hidden sm:inline">{t('dashboard.reset')}</span>
             </button>
           </div>
         </div>
