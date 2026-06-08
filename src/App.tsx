@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, Suspense, lazy } from 'react';
+import React, { useEffect, useMemo, Suspense, lazy } from 'react';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import PaymentModal from './components/PaymentModal';
@@ -15,58 +15,46 @@ const SupportPanel = lazy(() => import('./views/SupportPanel'));
 const ProfilePage = lazy(() => import('./views/ProfilePage'));
 import { Profile, PaymentRequest, SuccessStory } from './types';
 import { INITIAL_PROFILES, INITIAL_SUCCESS_STORIES, INITIAL_ARTICLES } from './mockData';
-import { Lang } from './i18n';
-import { Heart, Sparkles, UserCheck, CheckCircle, ShieldAlert } from 'lucide-react';
+import { CheckCircle, ShieldAlert } from 'lucide-react';
+import { AppProvider, useAppContext } from './context/AppContext';
 
-export default function App() {
-  const [currentView, setCurrentView] = useState<string>(() => {
-    if (typeof window !== 'undefined' && window.location.pathname === '/admin') {
-      return 'admin';
-    }
-    return 'home';
-  });
-  const [userRole, setUserRole] = useState<'user' | 'admin'>(() => {
-    if (typeof window !== 'undefined' && window.location.pathname === '/admin') {
-      return 'admin';
-    }
-    const saved = localStorage.getItem('whaatachi_admin_auth_v1');
-    return saved === 'true' ? 'admin' : 'user';
-  });
+function AppContent() {
+  const { state, dispatch } = useAppContext();
 
   // Check location on load and handle direct routing pathways
   useEffect(() => {
     const checkPath = () => {
       const path = window.location.pathname;
       if (path === '/admin') {
-        setUserRole('admin');
-        setCurrentView('admin');
+        dispatch({ type: 'SET_USER_ROLE', payload: 'admin' });
+        dispatch({ type: 'SET_CURRENT_VIEW', payload: 'admin' });
       } else if (path === '/history') {
-        setCurrentView('history');
+        dispatch({ type: 'SET_CURRENT_VIEW', payload: 'history' });
       } else if (path === '/dashboard') {
-        setCurrentView('dashboard');
+        dispatch({ type: 'SET_CURRENT_VIEW', payload: 'dashboard' });
       } else if (path === '/faq') {
-        setCurrentView('faq');
+        dispatch({ type: 'SET_CURRENT_VIEW', payload: 'faq' });
       } else if (path === '/stories') {
-        setCurrentView('stories');
+        dispatch({ type: 'SET_CURRENT_VIEW', payload: 'stories' });
       } else if (path === '/blog') {
-        setCurrentView('blog');
+        dispatch({ type: 'SET_CURRENT_VIEW', payload: 'blog' });
       } else if (path === '/support') {
-        setCurrentView('support');
+        dispatch({ type: 'SET_CURRENT_VIEW', payload: 'support' });
       } else if (path === '/profile') {
         const savedUser = localStorage.getItem('whaatachi_logged_in_user_v1');
         if (savedUser) {
           try {
             const parsedUser = JSON.parse(savedUser);
-            setViewingProfile(parsedUser);
-            setCurrentView('profile');
+            dispatch({ type: 'SET_VIEWING_PROFILE', payload: parsedUser });
+            dispatch({ type: 'SET_CURRENT_VIEW', payload: 'profile' });
           } catch (e) {
-            setCurrentView('home');
+            dispatch({ type: 'SET_CURRENT_VIEW', payload: 'home' });
           }
         } else {
-          setCurrentView('home');
+          dispatch({ type: 'SET_CURRENT_VIEW', payload: 'home' });
         }
       } else if (path === '/') {
-        setCurrentView('home');
+        dispatch({ type: 'SET_CURRENT_VIEW', payload: 'home' });
       }
     };
     
@@ -77,171 +65,32 @@ export default function App() {
     };
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
-  }, []);
+  }, [dispatch]);
 
   // Sync currentView back to pathname for clean back/forward routing
   useEffect(() => {
     const currentPath = window.location.pathname;
     let targetPath = '/';
-    if (currentView === 'home') targetPath = '/';
-    else targetPath = `/${currentView}`;
+    if (state.currentView === 'home') targetPath = '/';
+    else targetPath = `/${state.currentView}`;
 
     if (currentPath !== targetPath) {
       window.history.pushState({}, '', targetPath);
     }
-  }, [currentView]);
-  
-  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(() => {
-    return localStorage.getItem('whaatachi_logged_in_user_v1') !== null;
-  });
-  const [currentUser, setCurrentUser] = useState<Profile | null>(() => {
-    const savedUser = localStorage.getItem('whaatachi_logged_in_user_v1');
-    if (savedUser) {
-      try {
-        return JSON.parse(savedUser);
-      } catch (e) {
-        return null;
-      }
-    }
-    return null;
-  });
-  const [userGender, setUserGender] = useState<'Male' | 'Female'>(() => {
-    const savedUser = localStorage.getItem('whaatachi_logged_in_user_v1');
-    if (savedUser) {
-      try {
-        return JSON.parse(savedUser).gender;
-      } catch (e) {
-        return 'Male';
-      }
-    }
-    return 'Male';
-  });
+  }, [state.currentView]);
 
+  // Clear user data on logout
   useEffect(() => {
-    if (!isLoggedIn) {
+    if (!state.isLoggedIn) {
       localStorage.removeItem('whaatachi_logged_in_user_v1');
-      setCurrentUser(null);
+      dispatch({ type: 'SET_CURRENT_USER', payload: null });
     }
-  }, [isLoggedIn]);
-
-  // Dark Mode
-  const [darkMode, setDarkMode] = useState<boolean>(() => {
-    const saved = localStorage.getItem('whaatachi_dark_mode_v1');
-    return saved ? JSON.parse(saved) : true;
-  });
-
-  useEffect(() => {
-    localStorage.setItem('whaatachi_dark_mode_v1', JSON.stringify(darkMode));
-    if (darkMode) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-  }, [darkMode]);
-
-  // Language
-  const [lang, setLang] = useState<Lang>(() => {
-    const saved = localStorage.getItem('whaatachi_lang');
-    return (saved === 'en' || saved === 'am') ? saved : 'en';
-  });
-
-  useEffect(() => {
-    localStorage.setItem('whaatachi_lang', lang);
-    document.documentElement.lang = lang;
-  }, [lang]);
-
-  // Persistence vectors
-  const [profiles, setProfiles] = useState<Profile[]>(() => {
-    const saved = localStorage.getItem('whaatachi_profiles_v1');
-    if (saved) {
-      try {
-        const parsed: Profile[] = JSON.parse(saved);
-        const parsedIds = new Set(parsed.map(p => p.id));
-        const missing = INITIAL_PROFILES.filter(ip => !parsedIds.has(ip.id));
-        if (missing.length > 0) {
-          return [...parsed, ...missing];
-        }
-        return parsed;
-      } catch (e) {
-        return INITIAL_PROFILES;
-      }
-    }
-    return INITIAL_PROFILES;
-  });
-
-  const [unlockedIds, setUnlockedIds] = useState<string[]>(() => {
-    const saved = localStorage.getItem('whaatachi_unlocked_v1');
-    return saved ? JSON.parse(saved) : [];
-  });
-
-  // Pre-seed some default pending payment verifications matching the admin panel mockup
-  const [allPayments, setAllPayments] = useState<PaymentRequest[]>(() => {
-    const saved = localStorage.getItem('whaatachi_payments_v1');
-    if (saved) return JSON.parse(saved);
-
-    return [
-      {
-        id: 'pay-mock-1',
-        profileId: 'p1', // Selamawit Tekle
-        profileName: 'Selamawit Tekle',
-        profileImage: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=500&auto=format&fit=crop&q=80',
-        senderName: 'Abel Mekonnen',
-        senderPhone: '0911223344',
-        transactionId: 'FT2401120015',
-        method: 'CBE Birr',
-        amount: 200,
-        timestamp: 'June 8, 2026 09:30 AM',
-        status: 'Pending'
-      },
-      {
-        id: 'pay-mock-2',
-        profileId: 'p3', // Kidist Hailu
-        profileName: 'Kidist Hailu',
-        profileImage: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=500&auto=format&fit=crop&q=80',
-        senderName: 'Daniel Tadesse',
-        senderPhone: '0922445566',
-        transactionId: 'RE8520359811',
-        method: 'Telebirr',
-        amount: 200,
-        timestamp: 'June 8, 2026 10:15 AM',
-        status: 'Pending'
-      }
-    ];
-  });
-
-  const [stories, setStories] = useState<SuccessStory[]>(() => {
-    const saved = localStorage.getItem('whaatachi_stories_v1');
-    return saved ? JSON.parse(saved) : INITIAL_SUCCESS_STORIES;
-  });
-
-  const [viewingProfile, setViewingProfile] = useState<Profile | null>(null);
-  const [activeUnlockTarget, setActiveUnlockTarget] = useState<Profile | null>(null);
-  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState<boolean>(false);
-  const [isAuthModalOpen, setIsAuthModalOpen] = useState<boolean>(false);
-  const [authModalInitialTab, setAuthModalInitialTab] = useState<'register' | 'signin'>('register');
-  const [showNotification, setShowNotification] = useState<{ type: 'success' | 'info'; text: string } | null>(null);
-
-  // Sync state with client storage
-  useEffect(() => {
-    localStorage.setItem('whaatachi_profiles_v1', JSON.stringify(profiles));
-  }, [profiles]);
-
-  useEffect(() => {
-    localStorage.setItem('whaatachi_unlocked_v1', JSON.stringify(unlockedIds));
-  }, [unlockedIds]);
-
-  useEffect(() => {
-    localStorage.setItem('whaatachi_payments_v1', JSON.stringify(allPayments));
-  }, [allPayments]);
-
-  useEffect(() => {
-    localStorage.setItem('whaatachi_stories_v1', JSON.stringify(stories));
-  }, [stories]);
+  }, [state.isLoggedIn, dispatch]);
 
   // Toast notifications helper
   const triggerNotification = (type: 'success' | 'info', text: string) => {
-    setShowNotification({ type, text });
-    setTimeout(() => setShowNotification(null), 5000);
+    dispatch({ type: 'SET_NOTIFICATION', payload: { type, text } });
+    setTimeout(() => dispatch({ type: 'SET_NOTIFICATION', payload: null }), 5000);
   };
 
   // 1. Submit Payment Receipt
@@ -269,11 +118,10 @@ export default function App() {
       status: amount === 0 ? 'Approved' : 'Pending'
     };
 
-    setAllPayments((prev) => [newRequest, ...prev]);
+    dispatch({ type: 'ADD_PAYMENT', payload: newRequest });
 
     if (amount === 0) {
-      // Free Reveal for females - instantly unlock
-      setUnlockedIds((prev) => [...prev, profileId]);
+      dispatch({ type: 'ADD_UNLOCK', payload: profileId });
       triggerNotification('success', `Success! Profile for ${profileName} has been immediately unlocked for FREE!`);
     } else {
       triggerNotification('info', `Transfer submitted! Reference No. ${transactionId} has been queued for verification.`);
@@ -282,41 +130,26 @@ export default function App() {
 
   // 2. Approve Payment (Admin Function)
   const handleApprovePayment = (paymentId: string) => {
-    const payment = allPayments.find(p => p.id === paymentId);
+    const payment = state.allPayments.find(p => p.id === paymentId);
     if (!payment) return;
 
-    // Set payment status
-    setAllPayments((prev) =>
-      prev.map((p) => (p.id === paymentId ? { ...p, status: 'Approved' } : p))
-    );
+    dispatch({ type: 'UPDATE_PAYMENT', payload: { id: paymentId, status: 'Approved' } });
+    dispatch({ type: 'ADD_UNLOCK', payload: payment.profileId });
 
-    // Add profile ID to target unlocked list
-    setUnlockedIds((prev) => {
-      if (!prev.includes(payment.profileId)) {
-        return [...prev, payment.profileId];
+    const updatedProfiles = state.profiles.map((profile) => {
+      if (profile.name.toLowerCase() === payment.senderName.toLowerCase()) {
+        return { ...profile, verified: true };
       }
-      return prev;
+      return profile;
     });
-
-    // Award verified badge to user who completed their payment verification
-    setProfiles((prev) =>
-      prev.map((profile) => {
-        // If this payment was matching their initial registered profile, verify them
-        if (profile.name.toLowerCase() === payment.senderName.toLowerCase()) {
-          return { ...profile, verified: true };
-        }
-        return profile;
-      })
-    );
+    dispatch({ type: 'SET_PROFILES', payload: updatedProfiles });
 
     triggerNotification('success', `Receipt Approved! Unlocked direct contact for ${payment.profileName}.`);
   };
 
   // 3. Reject Payment (Admin Function)
   const handleRejectPayment = (paymentId: string) => {
-    setAllPayments((prev) =>
-      prev.map((p) => (p.id === paymentId ? { ...p, status: 'Rejected' } : p))
-    );
+    dispatch({ type: 'UPDATE_PAYMENT', payload: { id: paymentId, status: 'Rejected' } });
     triggerNotification('info', 'Receipt rejected/flagged as invalid by moderator.');
   };
 
@@ -329,35 +162,34 @@ export default function App() {
       year,
       image
     };
-    setStories((prev) => [newStory, ...prev]);
+    dispatch({ type: 'ADD_STORY', payload: newStory });
     triggerNotification('success', 'Your story has been saved and is now live!');
   };
 
   // 5. Onboarding: Register custom user profiles
   const handleRegisterUser = (newProfile: Profile) => {
     const profileWithLookingFor = { ...newProfile, lookingFor: newProfile.lookingFor || (newProfile.gender === 'Male' ? 'Female' : 'Male') };
-    setProfiles((prev) => [profileWithLookingFor, ...prev]);
+    dispatch({ type: 'SET_PROFILES', payload: [profileWithLookingFor, ...state.profiles] });
     localStorage.setItem('whaatachi_logged_in_user_v1', JSON.stringify(profileWithLookingFor));
-    setCurrentUser(profileWithLookingFor);
-    setIsLoggedIn(true);
-    setUserGender(profileWithLookingFor.gender);
-    setCurrentView('dashboard');
+    dispatch({ type: 'SET_CURRENT_USER', payload: profileWithLookingFor });
+    dispatch({ type: 'SET_LOGGED_IN', payload: true });
+    dispatch({ type: 'SET_USER_GENDER', payload: profileWithLookingFor.gender });
+    dispatch({ type: 'SET_CURRENT_VIEW', payload: 'dashboard' });
     triggerNotification('success', `Welcome ${profileWithLookingFor.name}! Your premium profile is registered.`);
   };
 
   // 6. Onboarding: Sign in user matching name/phone
   const handleSignInUser = (name: string, phone: string) => {
-    const found = profiles.find((p) => p.name.toLowerCase() === name.toLowerCase());
+    const found = state.profiles.find((p) => p.name.toLowerCase() === name.toLowerCase());
     if (found) {
       const profileWithLookingFor = { ...found, lookingFor: found.lookingFor || (found.gender === 'Male' ? 'Female' : 'Male') };
       localStorage.setItem('whaatachi_logged_in_user_v1', JSON.stringify(profileWithLookingFor));
-      setCurrentUser(profileWithLookingFor);
-      setIsLoggedIn(true);
-      setUserGender(profileWithLookingFor.gender);
-      setCurrentView('dashboard');
+      dispatch({ type: 'SET_CURRENT_USER', payload: profileWithLookingFor });
+      dispatch({ type: 'SET_LOGGED_IN', payload: true });
+      dispatch({ type: 'SET_USER_GENDER', payload: profileWithLookingFor.gender });
+      dispatch({ type: 'SET_CURRENT_VIEW', payload: 'dashboard' });
       triggerNotification('success', `Welcome back, ${found.name}!`);
     } else {
-      // Lazy fallback profile registration so user is never locked out of testing
       const fallbackProfile: Profile = {
         id: `custom-profile-${Date.now()}`,
         name: name,
@@ -378,12 +210,12 @@ export default function App() {
           email: `${name.toLowerCase().replace(/\s+/g, '')}@example.com`
         }
       };
-      setProfiles((prev) => [fallbackProfile, ...prev]);
+      dispatch({ type: 'SET_PROFILES', payload: [fallbackProfile, ...state.profiles] });
       localStorage.setItem('whaatachi_logged_in_user_v1', JSON.stringify(fallbackProfile));
-      setCurrentUser(fallbackProfile);
-      setIsLoggedIn(true);
-      setUserGender(fallbackProfile.gender);
-      setCurrentView('dashboard');
+      dispatch({ type: 'SET_CURRENT_USER', payload: fallbackProfile });
+      dispatch({ type: 'SET_LOGGED_IN', payload: true });
+      dispatch({ type: 'SET_USER_GENDER', payload: fallbackProfile.gender });
+      dispatch({ type: 'SET_CURRENT_VIEW', payload: 'dashboard' });
       triggerNotification('success', `Welcome ${name}! We have prepared a fast track profile for you.`);
     }
   };
@@ -392,97 +224,86 @@ export default function App() {
   const handleSimulateTestLogin = (profile: Profile) => {
     const profileWithLookingFor = { ...profile, lookingFor: profile.lookingFor || (profile.gender === 'Male' ? 'Female' : 'Male') };
     localStorage.setItem('whaatachi_logged_in_user_v1', JSON.stringify(profileWithLookingFor));
-    setCurrentUser(profileWithLookingFor);
-    setIsLoggedIn(true);
-    setUserGender(profileWithLookingFor.gender);
-    setCurrentView('dashboard');
+    dispatch({ type: 'SET_CURRENT_USER', payload: profileWithLookingFor });
+    dispatch({ type: 'SET_LOGGED_IN', payload: true });
+    dispatch({ type: 'SET_USER_GENDER', payload: profileWithLookingFor.gender });
+    dispatch({ type: 'SET_CURRENT_VIEW', payload: 'dashboard' });
     triggerNotification('success', `Logged in as test candidate ${profileWithLookingFor.name}!`);
   };
 
   // 8. Profile customization handlers
   const handleUpdateBio = (newBio: string) => {
-    if (!currentUser) return;
-    const updatedUser = { ...currentUser, bio: newBio };
-    setCurrentUser(updatedUser);
+    if (!state.currentUser) return;
+    const updatedUser = { ...state.currentUser, bio: newBio };
+    dispatch({ type: 'UPDATE_PROFILE', payload: updatedUser });
     localStorage.setItem('whaatachi_logged_in_user_v1', JSON.stringify(updatedUser));
-    
-    setProfiles((prev) => 
-      prev.map(p => p.id === currentUser.id ? updatedUser : p)
-    );
     triggerNotification('success', 'Your profile bio has been updated successfully!');
   };
 
   const handleUpdateStatus = (newStatus: 'Online' | 'Offline' | 'Recently Active') => {
-    if (!currentUser) return;
-    const updatedUser = { ...currentUser, status: newStatus };
-    setCurrentUser(updatedUser);
+    if (!state.currentUser) return;
+    const updatedUser = { ...state.currentUser, status: newStatus };
+    dispatch({ type: 'UPDATE_PROFILE', payload: updatedUser });
     localStorage.setItem('whaatachi_logged_in_user_v1', JSON.stringify(updatedUser));
-
-    setProfiles((prev) => 
-      prev.map(p => p.id === currentUser.id ? updatedUser : p)
-    );
     triggerNotification('success', `Your live status is now set to ${newStatus === 'Online' ? 'Active' : newStatus === 'Offline' ? 'Quiet' : 'Recent'}`);
   };
 
   const handleSaveProfile = (updated: Profile) => {
-    setProfiles((prev) => prev.map(p => p.id === updated.id ? updated : p));
-    if (currentUser?.id === updated.id) {
-      setCurrentUser(updated);
+    dispatch({ type: 'UPDATE_PROFILE', payload: updated });
+    if (state.currentUser?.id === updated.id) {
       localStorage.setItem('whaatachi_logged_in_user_v1', JSON.stringify(updated));
-      setUserGender(updated.gender);
     }
     triggerNotification('success', 'Profile updated successfully!');
   };
 
   const handleViewProfile = (profile: Profile) => {
-    setViewingProfile(profile);
-    setCurrentView('profile');
+    dispatch({ type: 'SET_VIEWING_PROFILE', payload: profile });
+    dispatch({ type: 'SET_CURRENT_VIEW', payload: 'profile' });
   };
 
   const handleOpenAuth = (tab: 'register' | 'signin' = 'register') => {
-    setAuthModalInitialTab(tab);
-    setIsAuthModalOpen(true);
+    dispatch({ type: 'SET_AUTH_MODAL', payload: { open: true, tab } });
   };
 
   const handleUnlockTrigger = (profile: Profile) => {
-    if (!isLoggedIn) {
+    if (!state.isLoggedIn) {
       handleOpenAuth('register');
       return;
     }
-    setActiveUnlockTarget(profile);
-    setIsPaymentModalOpen(true);
+    dispatch({ type: 'SET_UNLOCK_TARGET', payload: profile });
+    dispatch({ type: 'SET_PAYMENT_MODAL', payload: true });
   };
 
   const activePendingPayments = useMemo(() => {
-    return allPayments.filter(p => p.status === 'Pending');
-  }, [allPayments]);
+    return state.allPayments.filter(p => p.status === 'Pending');
+  }, [state.allPayments]);
 
   const unlockedProfilesList = useMemo(() => {
-    return profiles.filter(p => unlockedIds.includes(p.id));
-  }, [profiles, unlockedIds]);
+    return state.profiles.filter(p => state.unlockedIds.includes(p.id));
+  }, [state.profiles, state.unlockedIds]);
 
   const userLookingFor = useMemo<'Male' | 'Female'>(() => {
-    if (currentUser?.lookingFor) return currentUser.lookingFor;
-    return userGender === 'Male' ? 'Female' : 'Male';
-  }, [currentUser, userGender]);
+    if (state.currentUser?.lookingFor) return state.currentUser.lookingFor;
+    return state.userGender === 'Male' ? 'Female' : 'Male';
+  }, [state.currentUser, state.userGender]);
 
-  if (currentView === 'admin') {
+  if (state.currentView === 'admin') {
     return (
       <div className="font-sans">
         <AdminPanel
-          allPayments={allPayments}
-          setAllPayments={setAllPayments}
-          profiles={profiles}
-          setProfiles={setProfiles}
-          stories={stories}
-          setStories={setStories}
+          allPayments={state.allPayments}
+          setAllPayments={(p) => dispatch({ type: 'SET_PAYMENTS', payload: p })}
+          profiles={state.profiles}
+          setProfiles={(p) => dispatch({ type: 'SET_PROFILES', payload: p })}
+          stories={state.stories}
+          setStories={(s) => dispatch({ type: 'SET_STORIES', payload: s })}
           onApprove={handleApprovePayment}
           onReject={handleRejectPayment}
-          setUserRole={setUserRole}
-          setCurrentView={setCurrentView}
-          isLoggedIn={isLoggedIn}
-          darkMode={darkMode}
-          setDarkMode={setDarkMode}
+          setUserRole={(r) => dispatch({ type: 'SET_USER_ROLE', payload: r })}
+          setCurrentView={(v) => dispatch({ type: 'SET_CURRENT_VIEW', payload: v })}
+          isLoggedIn={state.isLoggedIn}
+          darkMode={state.darkMode}
+          setDarkMode={(d) => dispatch({ type: 'SET_DARK_MODE', payload: d })}
         />
       </div>
     );
@@ -493,41 +314,44 @@ export default function App() {
       
       {/* 1. Header with role switches */}
       <Header
-        currentView={currentView}
-        setCurrentView={setCurrentView}
-        userRole={userRole}
-        setUserRole={setUserRole}
-        isLoggedIn={isLoggedIn}
-        setIsLoggedIn={setIsLoggedIn}
-        userGender={userGender}
-        setUserGender={setUserGender}
+        currentView={state.currentView}
+        setCurrentView={(v) => dispatch({ type: 'SET_CURRENT_VIEW', payload: v })}
+        userRole={state.userRole}
+        setUserRole={(r) => dispatch({ type: 'SET_USER_ROLE', payload: r })}
+        isLoggedIn={state.isLoggedIn}
+        setIsLoggedIn={(v) => {
+          dispatch({ type: 'SET_LOGGED_IN', payload: v });
+          if (!v) localStorage.removeItem('whaatachi_logged_in_user_v1');
+        }}
+        userGender={state.userGender}
+        setUserGender={(g) => dispatch({ type: 'SET_USER_GENDER', payload: g })}
         pendingCount={activePendingPayments.length}
-        darkMode={darkMode}
-        setDarkMode={setDarkMode}
-        lang={lang}
-        setLang={setLang}
+        darkMode={state.darkMode}
+        setDarkMode={(d) => dispatch({ type: 'SET_DARK_MODE', payload: d })}
+        lang={state.lang}
+        setLang={(l) => dispatch({ type: 'SET_LANG', payload: l })}
         onOpenAuth={handleOpenAuth}
-        currentUser={currentUser}
+        currentUser={state.currentUser}
       />
 
       {/* 2. Success/Info popups */}
-      {showNotification && (
+      {state.notification && (
         <div 
           className={`fixed top-20 right-5 z-55 max-w-sm p-4 rounded-2xl shadow-xl flex items-start gap-3 border animate-slide-up ${
-            showNotification.type === 'success'
+            state.notification.type === 'success'
               ? 'bg-[#F8F4ED] border-[#C9A84C]/40 text-[#1A1118]'
               : 'bg-[#F8F4ED] border-[#8B0020]/20 text-[#1A1118]'
           }`}
           id="toast-notification"
         >
-          {showNotification.type === 'success' ? (
+          {state.notification.type === 'success' ? (
             <CheckCircle className="h-5 w-5 text-[#C9A84C] shrink-0 mt-0.5" />
           ) : (
             <ShieldAlert className="h-5 w-5 text-[#8B0020] shrink-0 mt-0.5" />
           )}
           <div>
             <p className="font-bold text-xs text-[#8B0020]">Whaatachi</p>
-            <p className="text-[11px] font-medium leading-relaxed mt-0.5 text-gray-700">{showNotification.text}</p>
+            <p className="text-[11px] font-medium leading-relaxed mt-0.5 text-gray-700">{state.notification.text}</p>
           </div>
         </div>
       )}
@@ -537,47 +361,50 @@ export default function App() {
         <Suspense fallback={<div className="flex items-center justify-center py-20" role="status" aria-label="Loading content"><div className="w-8 h-8 border-2 border-[#8B0020] border-t-transparent rounded-full animate-spin" /></div>}>
         
         {/* Landing Home */}
-        {currentView === 'home' && (
-          isLoggedIn ? (
+        {state.currentView === 'home' && (
+          state.isLoggedIn ? (
             <HomeLoggedIn
-              currentUser={currentUser}
+              currentUser={state.currentUser}
               onUpdateBio={handleUpdateBio}
               onUpdateStatus={handleUpdateStatus}
-              unlockedCount={unlockedIds.length}
-              onGoToMatches={() => setCurrentView('dashboard')}
-              onGoToHistory={() => setCurrentView('history')}
+              unlockedCount={state.unlockedIds.length}
+              onGoToMatches={() => dispatch({ type: 'SET_CURRENT_VIEW', payload: 'dashboard' })}
+              onGoToHistory={() => dispatch({ type: 'SET_CURRENT_VIEW', payload: 'history' })}
               onUnlockClick={handleUnlockTrigger}
-              profiles={profiles}
-              unlockedIds={unlockedIds}
+              profiles={state.profiles}
+              unlockedIds={state.unlockedIds}
             />
           ) : (
             <HomeLanding
               onJoinNowClick={(tab) => {
                 handleOpenAuth(tab || 'register');
               }}
-              featuredProfiles={profiles}
-              userGender={userGender}
-              isLoggedIn={isLoggedIn}
-              currentUser={currentUser}
-              onGoToDashboard={() => setCurrentView('dashboard')}
-              onLogout={() => setIsLoggedIn(false)}
+              featuredProfiles={state.profiles}
+              userGender={state.userGender}
+              isLoggedIn={state.isLoggedIn}
+              currentUser={state.currentUser}
+              onGoToDashboard={() => dispatch({ type: 'SET_CURRENT_VIEW', payload: 'dashboard' })}
+              onLogout={() => {
+                dispatch({ type: 'SET_LOGGED_IN', payload: false });
+                localStorage.removeItem('whaatachi_logged_in_user_v1');
+              }}
             />
           )
         )}
 
         {/* Profile page */}
-        {currentView === 'profile' && (viewingProfile || currentUser) && (
+        {state.currentView === 'profile' && (state.viewingProfile || state.currentUser) && (
           <ProfilePage
-            profile={viewingProfile || currentUser!}
-            isUnlocked={viewingProfile ? unlockedIds.includes(viewingProfile.id) : true}
-            pendingPayment={viewingProfile ? allPayments.find(p => p.profileId === viewingProfile.id && p.status === 'Pending') : undefined}
-            userGender={userGender}
-            isOwnProfile={!viewingProfile || currentUser?.id === viewingProfile.id}
+            profile={state.viewingProfile || state.currentUser!}
+            isUnlocked={state.viewingProfile ? state.unlockedIds.includes(state.viewingProfile.id) : true}
+            pendingPayment={state.viewingProfile ? state.allPayments.find(p => p.profileId === state.viewingProfile.id && p.status === 'Pending') : undefined}
+            userGender={state.userGender}
+            isOwnProfile={!state.viewingProfile || state.currentUser?.id === state.viewingProfile.id}
             onBack={() => {
-              if (!viewingProfile || currentUser?.id === viewingProfile.id) {
-                setCurrentView('home');
+              if (!state.viewingProfile || state.currentUser?.id === state.viewingProfile.id) {
+                dispatch({ type: 'SET_CURRENT_VIEW', payload: 'home' });
               } else {
-                setCurrentView('dashboard');
+                dispatch({ type: 'SET_CURRENT_VIEW', payload: 'dashboard' });
               }
             }}
             onUnlockClick={handleUnlockTrigger}
@@ -586,68 +413,68 @@ export default function App() {
         )}
 
         {/* Discover matches dashboard */}
-        {currentView === 'dashboard' && (
+        {state.currentView === 'dashboard' && (
           <Dashboard
-            profiles={profiles}
-            unlockedIds={unlockedIds}
-            pendingPayments={allPayments}
+            profiles={state.profiles}
+            unlockedIds={state.unlockedIds}
+            pendingPayments={state.allPayments}
             onUnlockClick={handleUnlockTrigger}
-            userGender={userGender}
+            userGender={state.userGender}
             userLookingFor={userLookingFor}
-            isLoggedIn={isLoggedIn}
+            isLoggedIn={state.isLoggedIn}
             onViewProfile={handleViewProfile}
           />
         )}
 
         {/* History unlocked vault */}
-        {currentView === 'history' && (
+        {state.currentView === 'history' && (
           <UnlockHistory
             unlockedProfiles={unlockedProfilesList}
-            onBackToFinder={() => setCurrentView('dashboard')}
+            onBackToFinder={() => dispatch({ type: 'SET_CURRENT_VIEW', payload: 'dashboard' })}
             onViewProfile={handleViewProfile}
           />
         )}
 
         {/* FAQ guides */}
-        {currentView === 'faq' && <FAQSection />}
+        {state.currentView === 'faq' && <FAQSection />}
 
         {/* Success Stories submission list */}
-        {currentView === 'stories' && (
+        {state.currentView === 'stories' && (
           <SuccessStories
-            stories={stories}
+            stories={state.stories}
             onAddStory={handleAddStory}
           />
         )}
 
         {/* Educational safety blog */}
-        {currentView === 'blog' && <BlogPage articles={INITIAL_ARTICLES} />}
+        {state.currentView === 'blog' && <BlogPage articles={INITIAL_ARTICLES} />}
 
         {/* Interactive Chat Resolution support */}
-        {currentView === 'support' && <SupportPanel />}
+        {state.currentView === 'support' && <SupportPanel />}
 
       </Suspense>
       </main>
 
       {/* 4. Contact Lock Payment Drawer Modal */}
-      {activeUnlockTarget && (
+      {state.activeUnlockTarget && (
         <PaymentModal
-          profile={activeUnlockTarget}
-          isOpen={isPaymentModalOpen}
+          profile={state.activeUnlockTarget}
+          isOpen={state.isPaymentModalOpen}
           onClose={() => {
-            setIsPaymentModalOpen(false);
-            setActiveUnlockTarget(null);
+            dispatch({ type: 'SET_PAYMENT_MODAL', payload: false });
+            dispatch({ type: 'SET_UNLOCK_TARGET', payload: null });
           }}
           onSubmitPayment={handleSubmitPayment}
-          userGender={userGender}
+          userGender={state.userGender}
         />
       )}
 
       {/* 5. Authentication overlay Modal */}
       <AuthModal
-        isOpen={isAuthModalOpen}
-        onClose={() => setIsAuthModalOpen(false)}
-        initialTab={authModalInitialTab}
-        featuredProfiles={profiles}
+        isOpen={state.isAuthModalOpen}
+        onClose={() => dispatch({ type: 'SET_AUTH_MODAL', payload: { open: false, tab: 'register' } })}
+        initialTab={state.authModalInitialTab}
+        featuredProfiles={state.profiles}
         onRegisterUser={handleRegisterUser}
         onSignInUser={handleSignInUser}
         onSimulateTestLogin={handleSimulateTestLogin}
@@ -655,10 +482,18 @@ export default function App() {
 
       {/* 6. Footer */}
       <Footer 
-        setCurrentView={setCurrentView}
-        isLoggedIn={isLoggedIn}
+        setCurrentView={(v) => dispatch({ type: 'SET_CURRENT_VIEW', payload: v })}
+        isLoggedIn={state.isLoggedIn}
       />
 
     </div>
+  );
+}
+
+export default function App() {
+  return (
+    <AppProvider>
+      <AppContent />
+    </AppProvider>
   );
 }
