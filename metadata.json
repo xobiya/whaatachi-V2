@@ -1,0 +1,6 @@
+{
+  "name": "Whaatachi",
+  "description": "Whaatachi is Ethiopia's safest, highest-integrity community platform for discovering true relationships, authentic friendships, and local connections.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
