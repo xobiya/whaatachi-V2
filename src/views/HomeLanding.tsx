@@ -1,19 +1,19 @@
 import React from 'react';
-import { 
-  Heart, 
-  ShieldCheck, 
-  Zap, 
-  Sparkles, 
-  CheckCircle, 
-  ArrowRight, 
-  UserPlus, 
-  MapPin, 
-  Search, 
-  Users, 
-  Shield, 
-  Play, 
+import {
+  Heart,
+  ShieldCheck,
+  Zap,
+  Sparkles,
+  CheckCircle,
+  ArrowRight,
+  UserPlus,
+  MapPin,
+  Search,
+  Users,
+  Shield,
+  Play,
   MessageSquare,
-  Sparkles as SparklesIcon 
+  Sparkles as SparklesIcon
 } from 'lucide-react';
 import { Profile } from '../types';
 
@@ -38,105 +38,105 @@ export default function HomeLanding({
 }: HomeLandingProps) {
 
   // Safety fallback profiles if featuredProfiles empty or short to match the exact mockup elements (Lili, Abel, Selam, etc.)
-  const activeProfiles = featuredProfiles && featuredProfiles.length >= 6 
-    ? featuredProfiles.slice(0, 6) 
+  const activeProfiles = featuredProfiles && featuredProfiles.length >= 6
+    ? featuredProfiles.slice(0, 6)
     : [
-        {
-          id: 'p1',
-          name: 'Selam',
-          age: 24,
-          city: 'Addis Ababa',
-          image: 'https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=500&auto=format&fit=crop&q=80',
-          relationshipIntent: 'True Relationship',
-          verified: true,
-          status: 'Online',
-          bio: 'Looking for a genuine romantic partner to share beautiful live melodies and coffee session.'
-        },
-        {
-          id: 'p2',
-          name: 'Daniel',
-          age: 27,
-          city: 'Addis Ababa',
-          image: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=500&auto=format&fit=crop&q=80',
-          relationshipIntent: 'Friendship',
-          verified: true,
-          status: 'Online',
-          bio: 'Architect, looking for a sincere dynamic partner to explore beautiful galleries around Bole.'
-        },
-        {
-          id: 'p3',
-          name: 'Maya',
-          age: 22,
-          city: 'Addis Ababa',
-          image: 'https://images.unsplash.com/photo-1589156280159-27698a70f29e?w=500&auto=format&fit=crop&q=80',
-          relationshipIntent: 'Fun',
-          verified: true,
-          status: 'Online',
-          bio: 'Lover of Hawassa lake breeze, morning runs, and playing tennis.'
-        },
-        {
-          id: 'p4',
-          name: 'Abel',
-          age: 29,
-          city: 'Addis Ababa',
-          image: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=500&auto=format&fit=crop&q=80',
-          relationshipIntent: 'True Relationship',
-          verified: true,
-          status: 'Online',
-          bio: 'Business consultant. Passionate about pediatrics development and traditional cooking.'
-        },
-        {
-          id: 'p5',
-          name: 'Lili',
-          age: 25,
-          city: 'Addis Ababa',
-          image: 'https://images.unsplash.com/photo-1507152832244-10d45ee79330?w=500&auto=format&fit=crop&q=80',
-          relationshipIntent: 'Friendship',
-          verified: true,
-          status: 'Online',
-          bio: 'Medical student, passionate child-care worker. Let\'s make beautiful memories.'
-        },
-        {
-          id: 'p6',
-          name: 'Nahom',
-          age: 26,
-          city: 'Addis Ababa',
-          image: 'https://images.unsplash.com/photo-1489980508314-941910ded1f4?w=500&auto=format&fit=crop&q=80',
-          relationshipIntent: 'Fun',
-          verified: true,
-          status: 'Online',
-          bio: 'Passionate salsa trainer and street photographer. Let\'s capture beautiful vibes.'
-        }
-      ];
+      {
+        id: 'p1',
+        name: 'Selam',
+        age: 24,
+        city: 'Addis Ababa',
+        image: 'https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=500&auto=format&fit=crop&q=80',
+        relationshipIntent: 'True Relationship',
+        verified: true,
+        status: 'Online',
+        bio: 'Looking for a genuine romantic partner to share beautiful live melodies and coffee session.'
+      },
+      {
+        id: 'p2',
+        name: 'Daniel',
+        age: 27,
+        city: 'Addis Ababa',
+        image: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=500&auto=format&fit=crop&q=80',
+        relationshipIntent: 'Friendship',
+        verified: true,
+        status: 'Online',
+        bio: 'Architect, looking for a sincere dynamic partner to explore beautiful galleries around Bole.'
+      },
+      {
+        id: 'p3',
+        name: 'Maya',
+        age: 22,
+        city: 'Addis Ababa',
+        image: 'https://images.unsplash.com/photo-1589156280159-27698a70f29e?w=500&auto=format&fit=crop&q=80',
+        relationshipIntent: 'Fun',
+        verified: true,
+        status: 'Online',
+        bio: 'Lover of Hawassa lake breeze, morning runs, and playing tennis.'
+      },
+      {
+        id: 'p4',
+        name: 'Abel',
+        age: 29,
+        city: 'Addis Ababa',
+        image: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=500&auto=format&fit=crop&q=80',
+        relationshipIntent: 'True Relationship',
+        verified: true,
+        status: 'Online',
+        bio: 'Business consultant. Passionate about pediatrics development and traditional cooking.'
+      },
+      {
+        id: 'p5',
+        name: 'Lili',
+        age: 25,
+        city: 'Addis Ababa',
+        image: 'https://images.unsplash.com/photo-1507152832244-10d45ee79330?w=500&auto=format&fit=crop&q=80',
+        relationshipIntent: 'Friendship',
+        verified: true,
+        status: 'Online',
+        bio: 'Medical student, passionate child-care worker. Let\'s make beautiful memories.'
+      },
+      {
+        id: 'p6',
+        name: 'Nahom',
+        age: 26,
+        city: 'Addis Ababa',
+        image: 'https://images.unsplash.com/photo-1489980508314-941910ded1f4?w=500&auto=format&fit=crop&q=80',
+        relationshipIntent: 'Fun',
+        verified: true,
+        status: 'Online',
+        bio: 'Passionate salsa trainer and street photographer. Let\'s capture beautiful vibes.'
+      }
+    ];
 
   return (
     <div className="bg-white dark:bg-[#05060f] text-gray-900 dark:text-gray-100 flex flex-col min-h-screen font-sans selection:bg-pink-600 selection:text-white" id="home-landing-view">
-      
+
       {/* 1. Hero Section with gorgeous happy couple background image */}
       <section className="relative overflow-hidden min-h-[92vh] flex items-center pt-8 pb-16 lg:py-24" id="hero-premium-backdrop-wrapper">
-        
+
         {/* Background Image: Happy Couple with referrerPolicy="no-referrer" to bypass iframe sandboxing restrictions */}
-        <img 
-          src="https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?w=1600&auto=format&fit=crop&q=80" 
+        <img
+          src="assets\Gemini_Generated_Image_oicvomoicvomoicv.png"
           alt="Happy Dating Couple Relations"
           className="absolute inset-0 w-full h-full object-cover object-[center_28%] transition-all duration-700 select-none z-0 pointer-events-none"
           referrerPolicy="no-referrer"
           id="hero-happy-couple-image"
         />
-        
+
         {/* Gradients that guarantee massive readability of the text on the left in both light and dark themes */}
         <div className="absolute inset-0 bg-gradient-to-r from-white via-white/90 to-transparent dark:from-[#05060f] dark:via-[#05060f]/90 dark:to-transparent hidden lg:block z-0 pointer-events-none"></div>
         <div className="absolute inset-0 bg-gradient-to-t from-white via-white/80 to-white/20 dark:from-[#05060f] dark:via-[#05060f]/80 dark:to-[#05060f]/20 lg:hidden z-0 pointer-events-none"></div>
-        
+
         {/* Ambient subtle rose corner glow light */}
         <div className="absolute top-1/4 right-0 w-96 h-96 bg-pink-600/10 rounded-full blur-[120px] pointer-events-none"></div>
 
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 z-10 w-full mt-6">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
-            
+
             {/* Left Column: Bold Headline & Call to action exactly styled with the photo specs */}
             <div className="lg:col-span-7 space-y-7 text-left max-w-2xl mx-auto lg:mx-0 p-4 sm:p-0">
-              
+
               <div className="space-y-2">
                 <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-sans font-black tracking-tight leading-none text-gray-905 dark:text-white">
                   Find People.<br />
@@ -176,7 +176,7 @@ export default function HomeLanding({
                   <UserPlus className="h-4 w-4" />
                   <span>Join Now</span>
                 </button>
-                
+
                 <a
                   href="#how-it-works"
                   className="px-8 py-3.5 bg-transparent border-2 border-gray-400 dark:border-white/60 hover:border-gray-900 dark:hover:border-white text-gray-800 dark:text-white font-bold text-xs sm:text-sm rounded-lg transition-all flex items-center justify-center gap-2 cursor-pointer"
@@ -206,9 +206,9 @@ export default function HomeLanding({
                   </div>
 
                   <div className="flex items-center gap-4">
-                    <img 
-                      src={currentUser.image || "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=150&auto=format&fit=crop&q=85"} 
-                      alt={currentUser.name} 
+                    <img
+                      src={currentUser.image || "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=150&auto=format&fit=crop&q=85"}
+                      alt={currentUser.name}
                       className="w-20 h-20 rounded-xl object-cover border border-pink-500/40 shrink-0"
                       referrerPolicy="no-referrer"
                     />
@@ -232,7 +232,7 @@ export default function HomeLanding({
                       <Sparkles className="h-4 w-4 text-white" />
                       <span>Enter Matching Board</span>
                     </button>
-                    
+
                     <button
                       onClick={onLogout}
                       className="w-full py-2 bg-gray-100 hover:bg-gray-200 dark:bg-white/5 dark:hover:bg-white/10 text-gray-700 dark:text-gray-300 font-bold text-xs rounded-lg transition-colors cursor-pointer"
@@ -244,7 +244,7 @@ export default function HomeLanding({
               ) : (
                 /* Static High fidelity Mockup elements to look premium when logged out */
                 <div className="relative space-y-4">
-                  
+
                   {/* Floating badge for active matching count */}
                   <div className="absolute -top-6 -left-6 bg-white dark:bg-[#0d0e1b] border border-gray-200 dark:border-pink-500/30 p-3 rounded-xl shadow-2xl flex items-center gap-2 transform -rotate-3 z-20">
                     <div className="h-8 w-8 rounded-full bg-pink-500/10 flex items-center justify-center">
@@ -258,9 +258,9 @@ export default function HomeLanding({
 
                   {/* Profile Preview Mini-Card A */}
                   <div className="bg-white/95 dark:bg-[#0b0c15]/90 backdrop-blur-md p-4 rounded-xl border border-gray-200 dark:border-white/5 shadow-2xl flex items-center gap-3 transform -rotate-1 relative hover:rotate-0 transition-transform duration-350 select-none">
-                    <img 
-                      src="https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=150&auto=format&fit=crop&q=80" 
-                      alt="Habesha Girl" 
+                    <img
+                      src="https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=150&auto=format&fit=crop&q=80"
+                      alt="Habesha Girl"
                       className="w-12 h-12 rounded-lg object-cover shrink-0 border border-pink-500/20"
                       referrerPolicy="no-referrer"
                     />
@@ -278,9 +278,9 @@ export default function HomeLanding({
 
                   {/* Profile Preview Mini-Card B */}
                   <div className="bg-white/95 dark:bg-[#0b0c15]/90 backdrop-blur-md p-4 rounded-xl border border-gray-200 dark:border-white/5 shadow-2xl flex items-center gap-3 transform rotate-2 relative hover:rotate-0 transition-transform duration-350 select-none">
-                    <img 
-                      src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=150&auto=format&fit=crop&q=80" 
-                      alt="Habesha Guy" 
+                    <img
+                      src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=150&auto=format&fit=crop&q=80"
+                      alt="Habesha Guy"
                       className="w-12 h-12 rounded-lg object-cover shrink-0 border border-blue-500/20"
                       referrerPolicy="no-referrer"
                     />
@@ -306,16 +306,16 @@ export default function HomeLanding({
       {/* 2. "I'M HERE FOR" Intents block */}
       <section className="py-12 bg-slate-50 dark:bg-[#090a13] border-t border-gray-200 dark:border-white/5 text-center" id="whats-your-vibe">
         <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
-          
+
           <div className="space-y-1 mb-10">
             <span className="text-xs font-bold text-pink-600 dark:text-pink-500 uppercase tracking-[0.2em]">I'M HERE FOR</span>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            
+
             {/* Vibe 1: True Relationship */}
-            <div 
-              onClick={() => onJoinNowClick('register')} 
+            <div
+              onClick={() => onJoinNowClick('register')}
               className="bg-white dark:bg-[#0c0d18] border border-gray-200 dark:border-white/5 hover:border-pink-500/40 p-6 rounded-xl text-center space-y-4 hover:shadow-2xl hover:shadow-pink-500/5 transition-all cursor-pointer group"
             >
               <div className="h-12 w-12 rounded-xl bg-pink-500/10 border border-pink-500/25 flex items-center justify-center mx-auto transition-transform group-hover:scale-110">
@@ -328,8 +328,8 @@ export default function HomeLanding({
             </div>
 
             {/* Vibe 2: Friendship */}
-            <div 
-              onClick={() => onJoinNowClick('register')} 
+            <div
+              onClick={() => onJoinNowClick('register')}
               className="bg-white dark:bg-[#0c0d18] border border-gray-200 dark:border-white/5 hover:border-blue-500/40 p-6 rounded-xl text-center space-y-4 hover:shadow-2xl hover:shadow-blue-500/5 transition-all cursor-pointer group"
             >
               <div className="h-12 w-12 rounded-xl bg-blue-500/10 border border-blue-500/25 flex items-center justify-center mx-auto transition-transform group-hover:scale-110">
@@ -342,8 +342,8 @@ export default function HomeLanding({
             </div>
 
             {/* Vibe 3: Friends with Benefits */}
-            <div 
-              onClick={() => onJoinNowClick('register')} 
+            <div
+              onClick={() => onJoinNowClick('register')}
               className="bg-white dark:bg-[#0c0d18] border border-gray-200 dark:border-white/5 hover:border-yellow-500/40 p-6 rounded-xl text-center space-y-4 hover:shadow-2xl hover:shadow-yellow-500/5 transition-all cursor-pointer group"
             >
               <div className="h-12 w-12 rounded-xl bg-yellow-500/10 border border-yellow-500/25 flex items-center justify-center mx-auto transition-transform group-hover:scale-110">
@@ -363,7 +363,7 @@ export default function HomeLanding({
       {/* 3. "How It Works" Connecting Steps Block */}
       <section className="py-20 bg-white dark:bg-[#05060f] border-t border-gray-200 dark:border-white/5" id="how-it-works">
         <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 text-center">
-          
+
           <div className="inline-block relative mb-14">
             <h2 className="text-3xl font-black text-gray-905 dark:text-white tracking-tight leading-none pb-2">
               How It Works
@@ -373,12 +373,12 @@ export default function HomeLanding({
 
           {/* Dotted Connection Engine Wrapper */}
           <div className="relative">
-            
+
             {/* Horizontal line for desktop layout */}
             <div className="hidden lg:block absolute top-[44px] left-[10%] right-[10%] border-t-2 border-dashed border-gray-200 dark:border-gray-800 z-0"></div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12 sm:gap-8 relative z-10">
-              
+
               {/* Step 1: Create Account */}
               <div className="space-y-4 group">
                 <div className="relative mx-auto h-[88px] w-[88px] rounded-full border border-pink-500/30 bg-white dark:bg-[#0c0d18] flex items-center justify-center transition-all duration-300 group-hover:border-pink-500 group-hover:shadow-lg group-hover:shadow-pink-500/10">
@@ -456,7 +456,7 @@ export default function HomeLanding({
       {/* 4. Complete "Join Whaatachi" Pricing & Trust grid block */}
       <section className="py-20 bg-slate-50 dark:bg-[#080911] border-t border-gray-200 dark:border-white/5" id="join-whaatachi">
         <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
-          
+
           <div className="text-center mb-16">
             <h2 className="text-3xl font-black text-gray-905 dark:text-white tracking-tight leading-none">
               Join Whaatachi
@@ -464,7 +464,7 @@ export default function HomeLanding({
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-            
+
             {/* Gents pricing component (Col span 4) */}
             <div className="lg:col-span-4 bg-white dark:bg-[#0d0e1b] rounded-2xl p-6 border-l-4 border-l-blue-500 border-y border-r border-gray-200 dark:border-white/5 relative flex flex-col justify-between shadow-xl h-full">
               <span className="absolute top-4 right-4 bg-blue-500/10 border border-blue-500/20 text-blue-600 dark:text-blue-400 text-[9px] font-sans font-black uppercase px-2 py-0.5 rounded">
@@ -478,7 +478,7 @@ export default function HomeLanding({
                   <span className="text-5xl font-black text-gray-900 dark:text-white">200</span>
                   <span className="text-lg font-bold text-gray-500 dark:text-gray-450">Birr</span>
                 </div>
-                
+
                 <ul className="space-y-4 text-xs text-gray-650 dark:text-gray-300 pt-2 text-left">
                   <li className="flex items-center gap-2.5">
                     <CheckCircle className="h-4.5 w-4.5 text-blue-500 shrink-0" />
@@ -523,7 +523,7 @@ export default function HomeLanding({
                 <div className="flex items-baseline gap-1.5 pt-1">
                   <span className="text-5xl font-black text-gray-900 dark:text-white">Free</span>
                 </div>
-                
+
                 <ul className="space-y-4 text-xs text-gray-650 dark:text-gray-300 pt-2 text-left">
                   <li className="flex items-center gap-2.5">
                     <CheckCircle className="h-4.5 w-4.5 text-pink-500 shrink-0" />
@@ -558,7 +558,7 @@ export default function HomeLanding({
 
             {/* Corporate/trust values list (Col span 4) */}
             <div className="lg:col-span-4 space-y-6 text-left p-2 sm:p-4 self-center">
-              
+
               {/* Pillar 1: Safe & Secure */}
               <div className="flex gap-4">
                 <div className="h-9 w-9 rounded-full bg-yellow-500/10 border border-yellow-500/25 flex items-center justify-center shrink-0">
@@ -613,14 +613,14 @@ export default function HomeLanding({
       {/* 5. "Featured Members" section matching the exact circular avatar glow sliders */}
       <section className="py-20 bg-white dark:bg-[#05060f] border-t border-gray-200 dark:border-white/5" id="featured-members-onboard">
         <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
-          
+
           <div className="flex justify-between items-end mb-12">
             <div className="text-left space-y-1">
               <h2 className="text-2.5xl font-black text-gray-900 dark:text-white tracking-tight">Featured Members</h2>
               <p className="text-xs text-gray-500 dark:text-gray-400 font-light">Meet some of our newest and most active members</p>
             </div>
-            
-            <button 
+
+            <button
               onClick={() => onJoinNowClick('register')}
               className="px-4 py-2 border border-pink-500/40 hover:border-pink-500 text-pink-600 dark:text-pink-500 text-xs font-bold rounded-full transition-all cursor-pointer"
             >
@@ -631,17 +631,17 @@ export default function HomeLanding({
           {/* Glowing Avatar Profiles Grid */}
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-5">
             {activeProfiles.map((profile) => (
-              <div 
-                key={profile.id} 
+              <div
+                key={profile.id}
                 onClick={() => onJoinNowClick('register')}
                 className="bg-slate-50 dark:bg-[#0c0d18] border border-gray-200 dark:border-white/5 hover:border-pink-500/30 rounded-xl p-4 text-center cursor-pointer transition-all duration-300 hover:shadow-2xl hover:shadow-pink-500/5 group"
               >
                 {/* Image Avatar Container with glowing green indicator */}
                 <div className="relative mx-auto w-24 h-24 mb-4">
-                  <img 
-                    src={profile.image} 
-                    alt={profile.name} 
-                    className="w-full h-full rounded-full object-cover border-2 border-gray-200 dark:border-white/10 group-hover:border-pink-500 transition-colors duration-300" 
+                  <img
+                    src={profile.image}
+                    alt={profile.name}
+                    className="w-full h-full rounded-full object-cover border-2 border-gray-200 dark:border-white/10 group-hover:border-pink-500 transition-colors duration-300"
                     referrerPolicy="no-referrer"
                   />
                   {/* Status Indicator */}
