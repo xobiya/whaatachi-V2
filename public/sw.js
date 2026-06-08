@@ -1,5 +1,5 @@
 const CACHE = 'whaatachi-v1';
-const ASSETS = ['/', '/manifest.json'];
+const ASSETS = ['/', '/index.html', '/manifest.json'];
 
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(ASSETS)));
@@ -17,7 +17,10 @@ self.addEventListener('fetch', (e) => {
       const fetched = fetch(e.request).then((res) => {
         if (res.ok) caches.open(CACHE).then((c) => c.put(e.request, res.clone()));
         return res;
-      }).catch(() => cached);
+      }).catch(() => {
+        if (e.request.mode === 'navigate') return caches.match('/index.html');
+        return cached;
+      });
       return cached || fetched;
     })
   );
