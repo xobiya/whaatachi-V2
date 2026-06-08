@@ -2,9 +2,8 @@ import React, { useEffect, useMemo, Suspense, lazy } from 'react';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import PaymentModal from './components/PaymentModal';
-import HomeLanding from './views/HomeLanding';
-import HomeLoggedIn from './views/HomeLoggedIn';
-import AuthModal from './components/AuthModal';
+import OnboardingFlow from './views/OnboardingFlow';
+import ProfileListing from './views/ProfileListing';
 const Dashboard = lazy(() => import('./views/Dashboard'));
 const UnlockHistory = lazy(() => import('./views/UnlockHistory'));
 const FAQSection = lazy(() => import('./views/FAQSection'));
@@ -32,6 +31,8 @@ function AppContent() {
         dispatch({ type: 'SET_CURRENT_VIEW', payload: 'history' });
       } else if (path === '/dashboard') {
         dispatch({ type: 'SET_CURRENT_VIEW', payload: 'dashboard' });
+      } else if (path === '/browse') {
+        dispatch({ type: 'SET_CURRENT_VIEW', payload: 'browse' });
       } else if (path === '/faq') {
         dispatch({ type: 'SET_CURRENT_VIEW', payload: 'faq' });
       } else if (path === '/stories') {
@@ -57,7 +58,7 @@ function AppContent() {
         dispatch({ type: 'SET_CURRENT_VIEW', payload: 'home' });
       }
     };
-    
+
     checkPath();
 
     const handlePopState = () => {
@@ -72,6 +73,7 @@ function AppContent() {
     const currentPath = window.location.pathname;
     let targetPath = '/';
     if (state.currentView === 'home') targetPath = '/';
+    else if (state.currentView === 'browse') targetPath = '/browse';
     else targetPath = `/${state.currentView}`;
 
     if (currentPath !== targetPath) {
@@ -166,7 +168,7 @@ function AppContent() {
     triggerNotification('success', 'Your story has been saved and is now live!');
   };
 
-  // 5. Onboarding: Register custom user profiles
+  // 5. Onboarding: Register new user from the wizard
   const handleRegisterUser = (newProfile: Profile) => {
     const profileWithLookingFor = { ...newProfile, lookingFor: newProfile.lookingFor || (newProfile.gender === 'Male' ? 'Female' : 'Male') };
     dispatch({ type: 'SET_PROFILES', payload: [profileWithLookingFor, ...state.profiles] });
@@ -174,64 +176,35 @@ function AppContent() {
     dispatch({ type: 'SET_CURRENT_USER', payload: profileWithLookingFor });
     dispatch({ type: 'SET_LOGGED_IN', payload: true });
     dispatch({ type: 'SET_USER_GENDER', payload: profileWithLookingFor.gender });
-    dispatch({ type: 'SET_CURRENT_VIEW', payload: 'dashboard' });
-    triggerNotification('success', `Welcome ${profileWithLookingFor.name}! Your premium profile is registered.`);
+    dispatch({ type: 'SET_CURRENT_VIEW', payload: 'browse' });
+    triggerNotification('success', `Welcome ${profileWithLookingFor.name}! Browse your matches below.`);
   };
 
-  // 6. Onboarding: Sign in user matching name/phone
+  // 6. Quick sign-in (find existing user by name + phone)
   const handleSignInUser = (name: string, phone: string) => {
-    const found = state.profiles.find((p) => p.name.toLowerCase() === name.toLowerCase());
+    // Match by name (case-insensitive), optionally verify phone
+    const found = state.profiles.find(
+      (p) => p.name.toLowerCase() === name.toLowerCase() &&
+             (p.contactInfo.phone === phone || p.contactInfo.phone.replace(/\s/g,'') === phone.replace(/\s/g,''))
+    ) || state.profiles.find(
+      // Fallback: match by name only (phone may have been entered differently)
+      (p) => p.name.toLowerCase() === name.toLowerCase()
+    );
+
     if (found) {
       const profileWithLookingFor = { ...found, lookingFor: found.lookingFor || (found.gender === 'Male' ? 'Female' : 'Male') };
       localStorage.setItem('whaatachi_logged_in_user_v1', JSON.stringify(profileWithLookingFor));
       dispatch({ type: 'SET_CURRENT_USER', payload: profileWithLookingFor });
       dispatch({ type: 'SET_LOGGED_IN', payload: true });
       dispatch({ type: 'SET_USER_GENDER', payload: profileWithLookingFor.gender });
-      dispatch({ type: 'SET_CURRENT_VIEW', payload: 'dashboard' });
-      triggerNotification('success', `Welcome back, ${found.name}!`);
+      dispatch({ type: 'SET_CURRENT_VIEW', payload: 'browse' });
+      triggerNotification('success', `Welcome back, ${found.name}! 👋`);
     } else {
-      const fallbackProfile: Profile = {
-        id: `custom-profile-${Date.now()}`,
-        name: name,
-        age: 24,
-        city: 'Addis Ababa',
-        bio: 'Looking for negative connections or friendships.',
-        gender: 'Male',
-        lookingFor: 'Female',
-        image: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=500&auto=format&fit=crop&q=80',
-        status: 'Online',
-        relationshipIntent: 'True Relationship',
-        interests: ['Ethio Coffee', 'Dating Out'],
-        verified: true,
-        contactInfo: {
-          phone: phone || '0911223344',
-          telegram: name.toLowerCase().replace(/\s+/g, ''),
-          instagram: '',
-          email: `${name.toLowerCase().replace(/\s+/g, '')}@example.com`
-        }
-      };
-      dispatch({ type: 'SET_PROFILES', payload: [fallbackProfile, ...state.profiles] });
-      localStorage.setItem('whaatachi_logged_in_user_v1', JSON.stringify(fallbackProfile));
-      dispatch({ type: 'SET_CURRENT_USER', payload: fallbackProfile });
-      dispatch({ type: 'SET_LOGGED_IN', payload: true });
-      dispatch({ type: 'SET_USER_GENDER', payload: fallbackProfile.gender });
-      dispatch({ type: 'SET_CURRENT_VIEW', payload: 'dashboard' });
-      triggerNotification('success', `Welcome ${name}! We have prepared a fast track profile for you.`);
+      triggerNotification('info', 'No account found with that name and phone. Please create a profile.');
     }
   };
 
-  // 7. Onboarding: Simulated test accounts switcher
-  const handleSimulateTestLogin = (profile: Profile) => {
-    const profileWithLookingFor = { ...profile, lookingFor: profile.lookingFor || (profile.gender === 'Male' ? 'Female' : 'Male') };
-    localStorage.setItem('whaatachi_logged_in_user_v1', JSON.stringify(profileWithLookingFor));
-    dispatch({ type: 'SET_CURRENT_USER', payload: profileWithLookingFor });
-    dispatch({ type: 'SET_LOGGED_IN', payload: true });
-    dispatch({ type: 'SET_USER_GENDER', payload: profileWithLookingFor.gender });
-    dispatch({ type: 'SET_CURRENT_VIEW', payload: 'dashboard' });
-    triggerNotification('success', `Logged in as test candidate ${profileWithLookingFor.name}!`);
-  };
-
-  // 8. Profile customization handlers
+  // 7. Profile customization handlers
   const handleUpdateBio = (newBio: string) => {
     if (!state.currentUser) return;
     const updatedUser = { ...state.currentUser, bio: newBio };
@@ -245,7 +218,7 @@ function AppContent() {
     const updatedUser = { ...state.currentUser, status: newStatus };
     dispatch({ type: 'UPDATE_PROFILE', payload: updatedUser });
     localStorage.setItem('whaatachi_logged_in_user_v1', JSON.stringify(updatedUser));
-    triggerNotification('success', `Your live status is now set to ${newStatus === 'Online' ? 'Active' : newStatus === 'Offline' ? 'Quiet' : 'Recent'}`);
+    triggerNotification('success', `Status set to ${newStatus}`);
   };
 
   const handleSaveProfile = (updated: Profile) => {
@@ -261,13 +234,9 @@ function AppContent() {
     dispatch({ type: 'SET_CURRENT_VIEW', payload: 'profile' });
   };
 
-  const handleOpenAuth = (tab: 'register' | 'signin' = 'register') => {
-    dispatch({ type: 'SET_AUTH_MODAL', payload: { open: true, tab } });
-  };
-
   const handleUnlockTrigger = (profile: Profile) => {
     if (!state.isLoggedIn) {
-      handleOpenAuth('register');
+      dispatch({ type: 'SET_CURRENT_VIEW', payload: 'home' });
       return;
     }
     dispatch({ type: 'SET_UNLOCK_TARGET', payload: profile });
@@ -287,6 +256,7 @@ function AppContent() {
     return state.userGender === 'Male' ? 'Female' : 'Male';
   }, [state.currentUser, state.userGender]);
 
+  // ── Admin Panel (no header/footer) ──
   if (state.currentView === 'admin') {
     return (
       <div className="font-sans">
@@ -309,10 +279,22 @@ function AppContent() {
     );
   }
 
+  // ── Onboarding (no header/footer) — shown when not logged in ──
+  if (!state.isLoggedIn && state.currentView === 'home') {
+    return (
+      <Suspense fallback={<div />}>
+        <OnboardingFlow
+          onComplete={handleRegisterUser}
+          onSignIn={handleSignInUser}
+        />
+      </Suspense>
+    );
+  }
+
   return (
     <div className="flex flex-col min-h-screen bg-[#FFFCF8] dark:bg-[#120A0E] text-[#1A1118] dark:text-[#FFFCF8] transition-colors duration-250" id="main-app-container">
-      
-      {/* 1. Header with role switches */}
+
+      {/* 1. Header */}
       <Header
         currentView={state.currentView}
         setCurrentView={(v) => dispatch({ type: 'SET_CURRENT_VIEW', payload: v })}
@@ -321,7 +303,10 @@ function AppContent() {
         isLoggedIn={state.isLoggedIn}
         setIsLoggedIn={(v) => {
           dispatch({ type: 'SET_LOGGED_IN', payload: v });
-          if (!v) localStorage.removeItem('whaatachi_logged_in_user_v1');
+          if (!v) {
+            localStorage.removeItem('whaatachi_logged_in_user_v1');
+            dispatch({ type: 'SET_CURRENT_VIEW', payload: 'home' });
+          }
         }}
         userGender={state.userGender}
         setUserGender={(g) => dispatch({ type: 'SET_USER_GENDER', payload: g })}
@@ -330,13 +315,13 @@ function AppContent() {
         setDarkMode={(d) => dispatch({ type: 'SET_DARK_MODE', payload: d })}
         lang={state.lang}
         setLang={(l) => dispatch({ type: 'SET_LANG', payload: l })}
-        onOpenAuth={handleOpenAuth}
+        onOpenAuth={() => dispatch({ type: 'SET_CURRENT_VIEW', payload: 'home' })}
         currentUser={state.currentUser}
       />
 
-      {/* 2. Success/Info popups */}
+      {/* 2. Toast notifications */}
       {state.notification && (
-        <div 
+        <div
           className={`fixed top-20 right-5 z-55 max-w-sm p-4 rounded-2xl shadow-xl flex items-start gap-3 border animate-slide-up ${
             state.notification.type === 'success'
               ? 'bg-[#F8F4ED] border-[#C9A84C]/40 text-[#1A1118]'
@@ -356,106 +341,86 @@ function AppContent() {
         </div>
       )}
 
-      {/* 3. Core Tab panels */}
+      {/* 3. Core views */}
       <main className="grow" id="primary-view-stage">
-        <Suspense fallback={<div className="flex items-center justify-center py-20" role="status" aria-label="Loading content"><div className="w-8 h-8 border-2 border-[#8B0020] border-t-transparent rounded-full animate-spin" /></div>}>
-        
-        {/* Landing Home */}
-        {state.currentView === 'home' && (
-          state.isLoggedIn ? (
-            <HomeLoggedIn
+        <Suspense fallback={<div className="flex items-center justify-center py-20"><div className="w-8 h-8 border-2 border-[#8B0020] border-t-transparent rounded-full animate-spin" /></div>}>
+
+          {/* Browse — main post-registration listing */}
+          {(state.currentView === 'home' || state.currentView === 'browse') && state.isLoggedIn && state.currentUser && (
+            <ProfileListing
+              profiles={state.profiles}
               currentUser={state.currentUser}
-              onUpdateBio={handleUpdateBio}
-              onUpdateStatus={handleUpdateStatus}
-              unlockedCount={state.unlockedIds.length}
-              onGoToMatches={() => dispatch({ type: 'SET_CURRENT_VIEW', payload: 'dashboard' })}
-              onGoToHistory={() => dispatch({ type: 'SET_CURRENT_VIEW', payload: 'history' })}
+              unlockedIds={state.unlockedIds}
+              pendingPayments={state.allPayments}
               onUnlockClick={handleUnlockTrigger}
+              onViewProfile={handleViewProfile}
+            />
+          )}
+
+          {/* Profile page */}
+          {state.currentView === 'profile' && (state.viewingProfile || state.currentUser) && (
+            <ProfilePage
+              profile={state.viewingProfile || state.currentUser!}
+              isUnlocked={state.viewingProfile ? state.unlockedIds.includes(state.viewingProfile.id) : true}
+              pendingPayment={state.viewingProfile ? state.allPayments.find(p => p.profileId === state.viewingProfile!.id && p.status === 'Pending') : undefined}
+              userGender={state.userGender}
+              isOwnProfile={!state.viewingProfile || state.currentUser?.id === state.viewingProfile.id}
+              onBack={() => {
+                if (!state.viewingProfile || state.currentUser?.id === state.viewingProfile.id) {
+                  dispatch({ type: 'SET_CURRENT_VIEW', payload: 'browse' });
+                } else {
+                  dispatch({ type: 'SET_CURRENT_VIEW', payload: 'browse' });
+                }
+              }}
+              onUnlockClick={handleUnlockTrigger}
+              onSaveProfile={handleSaveProfile}
+            />
+          )}
+
+          {/* Discover dashboard (optional advanced browse) */}
+          {state.currentView === 'dashboard' && (
+            <Dashboard
               profiles={state.profiles}
               unlockedIds={state.unlockedIds}
-            />
-          ) : (
-            <HomeLanding
-              onJoinNowClick={(tab) => {
-                handleOpenAuth(tab || 'register');
-              }}
-              featuredProfiles={state.profiles}
+              pendingPayments={state.allPayments}
+              onUnlockClick={handleUnlockTrigger}
               userGender={state.userGender}
+              userLookingFor={userLookingFor}
               isLoggedIn={state.isLoggedIn}
-              currentUser={state.currentUser}
-              onGoToDashboard={() => dispatch({ type: 'SET_CURRENT_VIEW', payload: 'dashboard' })}
-              onLogout={() => {
-                dispatch({ type: 'SET_LOGGED_IN', payload: false });
-                localStorage.removeItem('whaatachi_logged_in_user_v1');
-              }}
+              onViewProfile={handleViewProfile}
             />
-          )
-        )}
+          )}
 
-        {/* Profile page */}
-        {state.currentView === 'profile' && (state.viewingProfile || state.currentUser) && (
-          <ProfilePage
-            profile={state.viewingProfile || state.currentUser!}
-            isUnlocked={state.viewingProfile ? state.unlockedIds.includes(state.viewingProfile.id) : true}
-            pendingPayment={state.viewingProfile ? state.allPayments.find(p => p.profileId === state.viewingProfile.id && p.status === 'Pending') : undefined}
-            userGender={state.userGender}
-            isOwnProfile={!state.viewingProfile || state.currentUser?.id === state.viewingProfile.id}
-            onBack={() => {
-              if (!state.viewingProfile || state.currentUser?.id === state.viewingProfile.id) {
-                dispatch({ type: 'SET_CURRENT_VIEW', payload: 'home' });
-              } else {
-                dispatch({ type: 'SET_CURRENT_VIEW', payload: 'dashboard' });
-              }
-            }}
-            onUnlockClick={handleUnlockTrigger}
-            onSaveProfile={handleSaveProfile}
-          />
-        )}
+          {/* History */}
+          {state.currentView === 'history' && (
+            <UnlockHistory
+              unlockedProfiles={unlockedProfilesList}
+              onBackToFinder={() => dispatch({ type: 'SET_CURRENT_VIEW', payload: 'browse' })}
+              onViewProfile={handleViewProfile}
+            />
+          )}
 
-        {/* Discover matches dashboard */}
-        {state.currentView === 'dashboard' && (
-          <Dashboard
-            profiles={state.profiles}
-            unlockedIds={state.unlockedIds}
-            pendingPayments={state.allPayments}
-            onUnlockClick={handleUnlockTrigger}
-            userGender={state.userGender}
-            userLookingFor={userLookingFor}
-            isLoggedIn={state.isLoggedIn}
-            onViewProfile={handleViewProfile}
-          />
-        )}
+          {/* FAQ */}
+          {state.currentView === 'faq' && <FAQSection />}
 
-        {/* History unlocked vault */}
-        {state.currentView === 'history' && (
-          <UnlockHistory
-            unlockedProfiles={unlockedProfilesList}
-            onBackToFinder={() => dispatch({ type: 'SET_CURRENT_VIEW', payload: 'dashboard' })}
-            onViewProfile={handleViewProfile}
-          />
-        )}
+          {/* Success Stories */}
+          {state.currentView === 'stories' && (
+            <SuccessStories
+              stories={state.stories}
+              onAddStory={handleAddStory}
+            />
+          )}
 
-        {/* FAQ guides */}
-        {state.currentView === 'faq' && <FAQSection />}
+          {/* Blog */}
+          {state.currentView === 'blog' && <BlogPage articles={INITIAL_ARTICLES} />}
 
-        {/* Success Stories submission list */}
-        {state.currentView === 'stories' && (
-          <SuccessStories
-            stories={state.stories}
-            onAddStory={handleAddStory}
-          />
-        )}
+          {/* Support */}
+          {state.currentView === 'support' && <SupportPanel />}
 
-        {/* Educational safety blog */}
-        {state.currentView === 'blog' && <BlogPage articles={INITIAL_ARTICLES} />}
-
-        {/* Interactive Chat Resolution support */}
-        {state.currentView === 'support' && <SupportPanel />}
-
-      </Suspense>
+        </Suspense>
       </main>
 
-      {/* 4. Contact Lock Payment Drawer Modal */}
+      {/* 4. Payment modal */}
       {state.activeUnlockTarget && (
         <PaymentModal
           profile={state.activeUnlockTarget}
@@ -469,23 +434,11 @@ function AppContent() {
         />
       )}
 
-      {/* 5. Authentication overlay Modal */}
-      <AuthModal
-        isOpen={state.isAuthModalOpen}
-        onClose={() => dispatch({ type: 'SET_AUTH_MODAL', payload: { open: false, tab: 'register' } })}
-        initialTab={state.authModalInitialTab}
-        featuredProfiles={state.profiles}
-        onRegisterUser={handleRegisterUser}
-        onSignInUser={handleSignInUser}
-        onSimulateTestLogin={handleSimulateTestLogin}
-      />
-
-      {/* 6. Footer */}
-      <Footer 
+      {/* 5. Footer */}
+      <Footer
         setCurrentView={(v) => dispatch({ type: 'SET_CURRENT_VIEW', payload: v })}
         isLoggedIn={state.isLoggedIn}
       />
-
     </div>
   );
 }

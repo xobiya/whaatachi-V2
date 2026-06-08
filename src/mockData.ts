@@ -29,7 +29,7 @@ const MALE_IMAGES = [
 ];
 
 const CITIES = ['Addis Ababa', 'Adama', 'Hawassa', 'Bahir Dar', 'Dire Dawa', 'Gondar', 'Mekelle', 'Jimma', 'Dessie', 'Harar'];
-const INTENTS: ('True Relationship' | 'Friendship' | 'Friends with Benefits')[] = ['True Relationship', 'Friendship', 'Friends with Benefits'];
+const INTENTS: ('True Relationship' | 'Friendship' | 'Friends with Benefits' | 'Only Sex')[] = ['True Relationship', 'Friendship', 'Friends with Benefits', 'Only Sex'];
 const INTERESTS_POOL = [
   'Coffee Ceremony', 'Macchiato', 'Technology', 'Literature', 'Jazz', 'Hiking',
   'Photography', 'Art Galleries', 'Traditional Food', 'Fitness', 'Philosophy',
