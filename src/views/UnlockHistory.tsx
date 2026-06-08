@@ -74,13 +74,13 @@ export default function UnlockHistory({ unlockedProfiles, onBackToFinder }: Unlo
                     </a>
 
                     {profile.contactInfo.instagram && (
-                      <a href={`https://instagram.com/${profile.contactInfo.instagram.replace('@', '')}`} target="_blank" rel="noreferrer" className="flex items-center gap-3 p-2.5 bg-[#F8F4ED] dark:bg-[#120A0E] hover:bg-pink-50 dark:hover:bg-pink-900/10 border border-[#EDE6D9] dark:border-[#C9A84C]/10 rounded-xl text-xs text-gray-700 dark:text-gray-300 transition-colors cursor-pointer group">
-                        <div className="bg-pink-100 dark:bg-pink-900/30 text-pink-700 dark:text-pink-400 p-2 rounded-lg shrink-0 group-hover:bg-pink-200 dark:group-hover:bg-pink-800/40 transition-colors">
+                      <a href={`https://instagram.com/${profile.contactInfo.instagram.replace('@', '')}`} target="_blank" rel="noreferrer" className="flex items-center gap-3 p-2.5 bg-[#F8F4ED] dark:bg-[#120A0E] hover:bg-[#8B0020]/5 dark:hover:bg-[#8B0020]/20 border border-[#EDE6D9] dark:border-[#C9A84C]/10 rounded-xl text-xs text-gray-700 dark:text-gray-300 transition-colors cursor-pointer group">
+                        <div className="bg-[#8B0020]/10 dark:bg-[#8B0020]/30 text-[#8B0020] dark:text-[#C9A84C] p-2 rounded-lg shrink-0 group-hover:bg-[#8B0020]/20 dark:group-hover:bg-[#8B0020]/40 transition-colors">
                           <Instagram className="h-4 w-4" />
                         </div>
                         <div>
                           <p className="text-[10px] text-gray-400 dark:text-gray-500 font-bold uppercase tracking-widest">Instagram</p>
-                          <p className="font-bold text-pink-600 dark:text-pink-400 mt-0.5">{profile.contactInfo.instagram}</p>
+                          <p className="font-bold text-[#8B0020] dark:text-[#C9A84C] mt-0.5">{profile.contactInfo.instagram}</p>
                         </div>
                       </a>
                     )}

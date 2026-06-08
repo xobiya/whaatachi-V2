@@ -2,325 +2,165 @@ import { Profile, SuccessStory, Article } from './types';
 
 const asset = (file: string) => `/assets/${file}`;
 
-export const INITIAL_PROFILES: Profile[] = [
-  {
-    id: 'p1',
-    name: 'Selamawit Tekle',
-    age: 24,
-    city: 'Addis Ababa',
-    bio: 'Software engineer by day, macchiato enthusiast by night. I am looking for someone who loves deep conversations, good music, and traditional Ethiopian coffee ceremonies.',
-    gender: 'Female',
-    image: asset('Gemini_Generated_Image_48jenf48jenf48je.png'),
-    status: 'Online',
-    relationshipIntent: 'True Relationship',
-    interests: ['Macchiato', 'Technology', 'Jazz', 'Literature'],
-    verified: true,
-    contactInfo: {
-      phone: '+251 911 234 567',
-      telegram: '@selam_tech',
-      instagram: '@selamawit_tekle',
-      email: 'selamawit.tekle@example.com'
-    }
-  },
-  {
-    id: 'p2',
-    name: 'Abel Mekonnen',
-    age: 27,
-    city: 'Addis Ababa',
-    bio: 'Architect sketching my way through Addis. I appreciate structural beauty, classical art, and cultural journeys. Let\'s explore the art galleries around Bole together!',
-    gender: 'Male',
-    image: asset('Gemini_Generated_Image_f05mrgf05mrgf05m.png'),
-    status: 'Online',
-    relationshipIntent: 'True Relationship',
-    interests: ['Architecture', 'Art Galleries', 'Hiking', 'Photography'],
-    verified: true,
-    contactInfo: {
-      phone: '+251 922 456 789',
-      telegram: '@abel_sketches',
-      instagram: '@abel_mekonnen',
-      email: 'abel.mekonnen@example.com'
-    }
-  },
-  {
-    id: 'p3',
-    name: 'Kidist Hailu',
-    age: 26,
-    city: 'Hawassa',
-    bio: 'Lover of the Hawassa lake views, morning runs, and local fish cutlets. Genuine warmth and honesty are what I look for. Always happy to talk about business and philosophy.',
-    gender: 'Female',
-    image: asset('Gemini_Generated_Image_4zte6t4zte6t4zte.png'),
-    status: 'Recently Active',
-    relationshipIntent: 'True Relationship',
-    interests: ['Lake Walks', 'Business', 'Philosophy', 'Fitness'],
-    verified: true,
-    contactInfo: {
-      phone: '+251 912 789 123',
-      telegram: '@kidu_hailu',
-      instagram: '@kidist_hailu',
-      email: 'kidist.hailu@example.com'
-    }
-  },
-  {
-    id: 'p4',
-    name: 'Daniel Tadesse',
-    age: 29,
-    city: 'Adama',
-    bio: 'Business consultant splitting my time between Adama and Addis. Love road trips, acoustic live bands, and playing tennis. Looking for a genuine partner to build a future with.',
-    gender: 'Male',
-    image: asset('Gemini_Generated_Image_rj3k3urj3k3urj3k.png'),
-    status: 'Online',
-    relationshipIntent: 'True Relationship',
-    interests: ['Road Trips', 'Tennis', 'Acoustic Bands', 'Consulting'],
-    verified: false,
-    contactInfo: {
-      phone: '+251 915 222 333',
-      telegram: '@daniel_consult',
-      instagram: '@daniel_tadesse',
-      email: 'daniel.tadesse@example.com'
-    }
-  },
-  {
-    id: 'p5',
-    name: 'Helen Gebru',
-    age: 23,
-    city: 'Bahir Dar',
-    bio: 'Medical student passionate about pediatric care and local volunteer work. Let\'s go for an afternoon boat ride on Lake Tana and explore the historic monasteries.',
-    gender: 'Female',
-    image: asset('Gemini_Generated_Image_69df6669df6669df.png'),
-    status: 'Online',
-    relationshipIntent: 'Friendship',
-    interests: ['Medicine', 'Volunteering', 'Boat Rides', 'History'],
-    verified: true,
-    contactInfo: {
-      phone: '+251 916 333 444',
-      telegram: '@helen_gebru',
-      instagram: '@helen_gebru',
-      email: 'helen.gebru@example.com'
-    }
-  },
-  {
-    id: 'p6',
-    name: 'Nahom Girma',
-    age: 25,
-    city: 'Dire Dawa',
-    bio: 'Software engineer and street photographer. I love the nostalgic train station aesthetic in Dire Dawa. Looking for dynamic connections that can turn into something beautiful.',
-    gender: 'Male',
-    image: asset('photo_2026-06-08_16-58-42.jpg'),
-    status: 'Recently Active',
-    relationshipIntent: 'Friends with Benefits',
-    interests: ['Photography', 'Coding', 'Street Food', 'Retro Vibes'],
-    verified: true,
-    contactInfo: {
-      phone: '+251 919 444 555',
-      telegram: '@nahom_girma',
-      instagram: '@nahom_girma',
-      email: 'nahom.girma@example.com'
-    }
-  },
-  {
-    id: 'p7',
-    name: 'Bethel Elias',
-    age: 22,
-    city: 'Addis Ababa',
-    bio: 'Graphic designer and content creator. I love exploring new cafes in Bole and digital illustration. Seeking someone with open views and similar high energy!',
-    gender: 'Female',
-    image: asset('ChatGPT Image Jun 8, 2026, 03_15_56 PM.png'),
-    status: 'Offline',
-    relationshipIntent: 'Friends with Benefits',
-    interests: ['Content Creation', 'Bole Cafes', 'Design', 'Active Outings'],
-    verified: false,
-    contactInfo: {
-      phone: '+251 920 111 222',
-      telegram: '@bethel_create',
-      instagram: '@bethel_elias',
-      email: 'bethel.elias@example.com'
-    }
-  },
-  {
-    id: 'p8',
-    name: 'Samuel Solomon',
-    age: 31,
-    city: 'Gondar',
-    bio: 'Restaurateur and history buff raised around the beautiful castles of Gondar. I love hosting people, preparing traditional cuisine, and having intelligent debates.',
-    gender: 'Male',
-    image: 'https://images.unsplash.com/photo-1566492031773-4f4e44671857?w=500&auto=format&fit=crop&q=80',
-    status: 'Recently Active',
-    relationshipIntent: 'True Relationship',
-    interests: ['History', 'Castle Architecture', 'Traditional Food', 'Cooking'],
-    verified: true,
-    contactInfo: {
-      phone: '+251 924 999 888',
-      telegram: '@sam_gondar',
-      instagram: '@sam_gondar',
-      email: 'sam.solomon@example.com'
-    }
-  },
-  {
-    id: 'p9',
-    name: 'Hana Kassa',
-    age: 25,
-    city: 'Addis Ababa',
-    bio: 'Professional dancer and yoga instructor. I love the expressive rhythm of traditional Eskesta and modern fusion. Always radiating positive vibes.',
-    gender: 'Female',
-    image: 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=500&auto=format&fit=crop&q=80',
-    status: 'Online',
-    relationshipIntent: 'Friendship',
-    interests: ['Eskesta', 'Yoga', 'Raw Vegan', 'Spirituality'],
-    verified: true,
-    contactInfo: {
-      phone: '+251 910 888 777',
-      telegram: '@hana_dancer',
-      instagram: '@hana_kassa',
-      email: 'hana.kassa@example.com'
-    }
-  },
-  {
-    id: 'p10',
-    name: 'Elias Shiferaw',
-    age: 28,
-    city: 'Addis Ababa',
-    bio: 'Salsa instructor and foodie. Life should be lived dynamic and colorful! Looking for a dance partner and potentially a life partner. Fluent in three languages.',
-    gender: 'Male',
-    image: asset('Gemini_Generated_Image_oicvomoicvomoicv.png'),
-    status: 'Online',
-    relationshipIntent: 'Friendship',
-    interests: ['Salsa', 'Socializing', 'Cooking Class', 'Languages'],
-    verified: true,
-    contactInfo: {
-      phone: '+251 917 555 777',
-      telegram: '@elias_salsa',
-      instagram: '@elias_shiferaw',
-      email: 'elias.shiferaw@example.com'
-    }
-  },
-  {
-    id: 'p11',
-    name: 'Martha Tesfaye',
-    age: 25,
-    city: 'Addis Ababa',
-    bio: 'Marketing manager and passionate weekend baker. Love exploring independent books and hiking in Entoto Park. Looking for a high-integrity partner.',
-    gender: 'Female',
-    image: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=500&auto=format&fit=crop&q=80',
-    status: 'Online',
-    relationshipIntent: 'True Relationship',
-    interests: ['Entoto Hiking', 'Baking', 'Marketing', 'Book Clubs'],
-    verified: true,
-    contactInfo: {
-      phone: '+251 911 888 999',
-      telegram: '@martha_tesfaye',
-      instagram: '@martha_tesfaye',
-      email: 'martha.tesfaye@example.com'
-    }
-  },
-  {
-    id: 'p12',
-    name: 'Yohannes Bekele',
-    age: 28,
-    city: 'Addis Ababa',
-    bio: 'Tech start-up founder and double macchiato enthusiast. When not building, I enjoy playing acoustic guitar and walking in Bole. Seeking a smart, kind partner.',
-    gender: 'Male',
-    image: 'https://images.unsplash.com/photo-1501196354995-cbb51c65aaea?w=500&auto=format&fit=crop&q=80',
-    status: 'Recently Active',
-    relationshipIntent: 'True Relationship',
-    interests: ['Startups', 'Acoustic Guitar', 'Bole Walks', 'Double Espresso'],
-    verified: true,
-    contactInfo: {
-      phone: '+251 930 444 222',
-      telegram: '@yohannes_b',
-      instagram: '@yohannes_bekele',
-      email: 'yohannes@example.com'
-    }
-  },
-  {
-    id: 'p13',
-    name: 'Tigist Alene',
-    age: 26,
-    city: 'Bahir Dar',
-    bio: 'Lover of Lake Tana lakeside breeze, traditional shekla tibs, and local Ethiopian development. Let\'s grab a fresh mango juice and trace our beautiful histories!',
-    gender: 'Female',
-    image: 'https://images.unsplash.com/photo-1523824921871-d6f1a15151f1?w=500&auto=format&fit=crop&q=80',
-    status: 'Online',
-    relationshipIntent: 'True Relationship',
-    interests: ['Lake Breeze', 'Traditional Food', 'Mango Juice', 'History'],
-    verified: true,
-    contactInfo: {
-      phone: '+251 918 333 999',
-      telegram: '@tigist_alene',
-      instagram: '@tigist_alene',
-      email: 'tigist@example.com'
-    }
-  },
-  {
-    id: 'p14',
-    name: 'Michael Tsegaye',
-    age: 29,
-    city: 'Hawassa',
-    bio: 'Environmental scientist and amateur cyclist. I love early morning rides around Hawassa lake. Seeking a sincere, values-oriented companion.',
-    gender: 'Male',
-    image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=500&auto=format&fit=crop&q=80',
-    status: 'Recently Active',
-    relationshipIntent: 'True Relationship',
-    interests: ['Cycling', 'Hawassa Lake', 'Conservation', 'Acoustic Music'],
-    verified: true,
-    contactInfo: {
-      phone: '+251 925 101 202',
-      telegram: '@miki_tsegaye',
-      instagram: '@michael_tsegaye',
-      email: 'miki@example.com'
-    }
-  },
-  {
-    id: 'p15',
-    name: 'Eden Girma',
-    age: 24,
-    city: 'Addis Ababa',
-    bio: 'Anesthesiology resident. Life is simple: I highly value loyalty, honest conversations, and traditional coffee ceremonies with friends.',
-    gender: 'Female',
-    image: 'https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?w=500&auto=format&fit=crop&q=80',
-    status: 'Online',
-    relationshipIntent: 'True Relationship',
-    interests: ['Coffee Ceremony', 'Family Values', 'Laughter', 'Classical Music'],
-    verified: true,
-    contactInfo: {
-      phone: '+251 912 404 505',
-      telegram: '@eden_girma',
-      instagram: '@eden_girma',
-      email: 'eden@example.com'
-    }
-  },
-  {
-    id: 'p16',
-    name: 'Bereket Kebede',
-    age: 30,
-    city: 'Adama',
-    bio: 'Civil engineer. Designing connections is my daytime profession, finding a beautiful life companion is my ultimate dream.',
-    gender: 'Male',
-    image: 'https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?w=500&auto=format&fit=crop&q=80',
-    status: 'Online',
-    relationshipIntent: 'True Relationship',
-    interests: ['Road Trips', 'Cultural Music', 'Civil Design', 'Family First'],
-    verified: true,
-    contactInfo: {
-      phone: '+251 916 220 330',
-      telegram: '@bereket_k',
-      instagram: '@bereket_kebede',
-      email: 'bereket@example.com'
-    }
-  }
+const FEMALE_IMAGES = [
+  asset('Gemini_Generated_Image_48jenf48jenf48je.png'),
+  asset('Gemini_Generated_Image_4zte6t4zte6t4zte.png'),
+  asset('Gemini_Generated_Image_69df6669df6669df.png'),
+  asset('ChatGPT Image Jun 8, 2026, 03_15_56 PM.png'),
+  'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=500&auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?w=500&auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=500&auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1523824921871-d6f1a15151f1?w=500&auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=500&auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=500&auto=format&fit=crop&q=80',
 ];
+
+const MALE_IMAGES = [
+  asset('Gemini_Generated_Image_f05mrgf05mrgf05m.png'),
+  asset('Gemini_Generated_Image_rj3k3urj3k3urj3k.png'),
+  asset('photo_2026-06-08_16-58-42.jpg'),
+  asset('Gemini_Generated_Image_oicvomoicvomoicv.png'),
+  'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=500&auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1501196354995-cbb51c65aaea?w=500&auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1566492031773-4f4e44671857?w=500&auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=500&auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?w=500&auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=500&auto=format&fit=crop&q=80',
+];
+
+const CITIES = ['Addis Ababa', 'Adama', 'Hawassa', 'Bahir Dar', 'Dire Dawa', 'Gondar', 'Mekelle', 'Jimma', 'Dessie', 'Harar'];
+const INTENTS: ('True Relationship' | 'Friendship' | 'Friends with Benefits')[] = ['True Relationship', 'Friendship', 'Friends with Benefits'];
+const INTERESTS_POOL = [
+  'Coffee Ceremony', 'Macchiato', 'Technology', 'Literature', 'Jazz', 'Hiking',
+  'Photography', 'Art Galleries', 'Traditional Food', 'Fitness', 'Philosophy',
+  'Business', 'Road Trips', 'Tennis', 'Volunteering', 'History',
+  'Cooking', 'Content Creation', 'Bole Cafes', 'Design',
+  'Lake Walks', 'Acoustic Music', 'Family Values', 'Travel',
+  'Music', 'Dancing', 'Reading', 'Movies', 'Fashion', 'Sports'
+];
+const STATUSES: ('Online' | 'Offline' | 'Recently Active')[] = ['Online', 'Offline', 'Recently Active'];
+
+const femaleNames = [
+  'Selamawit Tekle', 'Kidist Hailu', 'Helen Gebru', 'Bethel Elias',
+  'Hana Kassa', 'Martha Tesfaye', 'Tigist Alene', 'Eden Girma',
+  'Meron Alemu', 'Tsion Wondimu', 'Birtukan Desta', 'Mahlet Ayele',
+  'Frehiwot Eshetu', 'Ruth Getachew', 'Sosina Tadesse', 'Likina Amare',
+  'Bethlehem Assefa', 'Mekdes Hailu', 'Yordanos Mengistu', 'Hiwot Belay'
+];
+
+const maleNames = [
+  'Abel Mekonnen', 'Daniel Tadesse', 'Nahom Girma', 'Samuel Solomon',
+  'Elias Shiferaw', 'Yohannes Bekele', 'Michael Tsegaye', 'Bereket Kebede',
+  'Dawit Haile', 'Henok Tesfaye', 'Binyam Alemu', 'Yonas Gebre',
+  'Ermias Wondimu', 'Mikiyas Tadesse', 'Nebiyu Fekadu', 'Kalkidan Hailu',
+  'Biruk Assefa', 'Surafel Girma', 'Natnael Abebe', 'Yared Getachew'
+];
+
+function shuffleArray<T>(arr: T[]): T[] {
+  const copy = [...arr];
+  for (let i = copy.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [copy[i], copy[j]] = [copy[j], copy[i]];
+  }
+  return copy;
+}
+
+function pickRandom<T>(arr: T[]): T {
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+
+function pickRandomN<T>(arr: T[], n: number): T[] {
+  return shuffleArray(arr).slice(0, n);
+}
+
+function generateProfiles(): Profile[] {
+  const profiles: Profile[] = [];
+
+  femaleNames.forEach((name, i) => {
+    const id = `f${i + 1}`;
+    profiles.push({
+      id,
+      name,
+      age: 21 + Math.floor(Math.random() * 12),
+      city: pickRandom(CITIES),
+      bio: pickRandom([
+        `I love exploring new cafes in Addis and meeting genuine people. Looking for someone who values real connection.`,
+        `Passionate about my career and culture. Looking for a true gentleman who respects traditions.`,
+        `Coffee lover, book enthusiast, and weekend hiker. Let's share stories over macchiato.`,
+        `Family-oriented professional looking for a serious relationship built on trust and respect.`,
+        `Adventurous spirit who loves traveling across Ethiopia's beautiful landscapes. Seeking a partner in crime.`,
+        `Creative soul who enjoys art, music, and deep conversations. Let's explore Bole together.`,
+        `Faith-driven woman looking for a God-fearing man for a lasting relationship.`,
+        `Foodie who loves traditional Ethiopian cuisine and trying new restaurants. Looking for someone to share meals with.`,
+        `Yoga enthusiast and wellness coach. Seeking a balanced, healthy relationship.`,
+        `Dedicated professional who also values quality time with family. Looking for my missing piece.`,
+      ]),
+      gender: 'Female',
+      image: FEMALE_IMAGES[i % FEMALE_IMAGES.length],
+      status: pickRandom(STATUSES),
+      relationshipIntent: pickRandom(INTENTS),
+      interests: pickRandomN(INTERESTS_POOL, 3),
+      verified: Math.random() > 0.3,
+      contactInfo: {
+        phone: `+251 91${String(Math.floor(1000000 + Math.random() * 9000000)).padStart(7, '0')}`,
+        telegram: `@${name.split(' ')[0].toLowerCase()}_${String(Math.floor(Math.random() * 1000))}`,
+        instagram: `@${name.split(' ')[0].toLowerCase()}_eth`,
+        email: `${name.split(' ')[0].toLowerCase()}.${name.split(' ')[1].toLowerCase()}@example.com`,
+      }
+    });
+  });
+
+  maleNames.forEach((name, i) => {
+    const id = `m${i + 1}`;
+    profiles.push({
+      id,
+      name,
+      age: 22 + Math.floor(Math.random() * 14),
+      city: pickRandom(CITIES),
+      bio: pickRandom([
+        `Hardworking professional looking for a genuine connection. I appreciate honesty and good conversation over coffee.`,
+        `Entrepreneur by day, music lover by night. Seeking a smart, kind woman to share life with.`,
+        `Sports enthusiast and fitness lover. Looking for someone who values health and happiness.`,
+        `Engineer with a passion for travel and photography. Let's explore Ethiopia together.`,
+        `Family man at heart. Looking for a serious relationship that leads to marriage.`,
+        `Creative professional who enjoys art galleries, live music, and Ethiopian cuisine.`,
+        `Ambitious and driven, but know how to relax. Looking for a partner who balances work and life.`,
+        `Simple guy who values loyalty, respect, and good vibes. Let's start with coffee and see where it goes.`,
+        `Tech startup founder who also loves traditional coffee ceremonies. Seeking a genuine connection.`,
+        `Adventure seeker who loves road trips to Lalibela and the Northern Mountains. Join me!`,
+      ]),
+      gender: 'Male',
+      image: MALE_IMAGES[i % MALE_IMAGES.length],
+      status: pickRandom(STATUSES),
+      relationshipIntent: pickRandom(INTENTS),
+      interests: pickRandomN(INTERESTS_POOL, 3),
+      verified: Math.random() > 0.3,
+      contactInfo: {
+        phone: `+251 91${String(Math.floor(1000000 + Math.random() * 9000000)).padStart(7, '0')}`,
+        telegram: `@${name.split(' ')[0].toLowerCase()}_${String(Math.floor(Math.random() * 1000))}`,
+        instagram: `@${name.split(' ')[0].toLowerCase()}_eth`,
+        email: `${name.split(' ')[0].toLowerCase()}.${name.split(' ')[1].toLowerCase()}@example.com`,
+      }
+    });
+  });
+
+  return profiles;
+}
+
+export const INITIAL_PROFILES: Profile[] = generateProfiles();
 
 export const INITIAL_SUCCESS_STORIES: SuccessStory[] = [
   {
     id: 's1',
     coupleNames: 'Selam & Dawit',
-    story: 'We met on Whaatachi in late 2024. After chatting for two weeks about our mutual interest in architecture and Addis Ababa cafe culture, we met up for a traditional coffee date at Tomoca in Bole. Fast forward to today, we are engaged to be married in December!',
+    story: 'We met on Whaatachi in late 2024. After chatting for two weeks about architecture and Addis cafe culture, we met for coffee at Tomoca in Bole. Now we are engaged!',
     year: '2025',
     image: 'https://images.unsplash.com/photo-1501196354995-cbb51c65aaea?w=600&auto=format&fit=crop&q=80'
   },
   {
     id: 's2',
     coupleNames: 'Hana & Michael',
-    story: 'I was skeptical about online dating in Ethiopia at first, but Whaatachi felt secure because of the payment moderation. Michael verified his profile using his Telebirr payment and reached out to me. We connected instantly over our love for volunteer work.',
+    story: 'I was skeptical about online dating in Ethiopia, but Whaatachi felt secure. Michael verified his profile through Telebirr payment and reached out. We connected over volunteer work.',
     year: '2024',
     image: 'https://images.unsplash.com/photo-1464746133101-a2c3f88e0dd9?w=600&auto=format&fit=crop&q=80'
   }
@@ -335,33 +175,27 @@ export const INITIAL_ARTICLES: Article[] = [
     readTime: '6 min read',
     date: 'June 5, 2026',
     image: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=600&auto=format&fit=crop&q=80',
-    content: `Dating in Ethiopia has traditionally been built on community connections and introductions through mutual friends. However, in the modern era of fast-paced cities like Addis Ababa, Adama, and Hawassa, young professionals are increasingly turning to dedicated platforms to find meaningful relationships.
-
-### The Power of Online Safety
-In the digital space, safety remains the highest concern. This is why trusted identity verification is paramount. When entering online dating:
-- **Always look for Verified Badges**: Verification ensures the other user is committed.
-- **First Dates in Public Places**: Opt for well-known cafes like Tomoca, Garden of Pizza, or traditional Habesha restaurants.
-- **Keep contact unlocking respectful**: Only unlock contacts of matches whose profiles genuinely resonate with you.`
+    content: 'Dating in Ethiopia has traditionally been built on community connections. However, in the modern era of fast-paced cities like Addis Ababa, young professionals are increasingly turning to dedicated platforms to find meaningful relationships.'
   },
   {
     id: 'a2',
     title: 'Staying Safe While Connecting Online',
-    excerpt: 'Essential digital safety tips tailored specifically for dating platforms in metropolitan Ethiopian cities.',
+    excerpt: 'Essential digital safety tips tailored for dating platforms in Ethiopian cities.',
     category: 'Safety First',
     readTime: '4 min read',
     date: 'May 28, 2026',
     image: 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=600&auto=format&fit=crop&q=80',
-    content: 'Connecting with people online is exciting, but it must be coupled with street-smart digital hygiene. Never share your direct Bank Account or Telebirr PIN with anyone calling you from the platform. Authentic admins will NEVER ask for your temporary OTP or security keys.'
+    content: 'Never share your bank account or Telebirr PIN with anyone. Authentic admins will never ask for your OTP or security keys.'
   },
   {
     id: 'a3',
     title: 'The Perfect Initial Habesha Coffee Date Checklist',
-    excerpt: 'Simple, low-pressure steps to transition your digital chat into a comfortable, cultural real-life meeting.',
+    excerpt: 'Simple, low-pressure steps to transition your digital chat into a comfortable real-life meeting.',
     category: 'Dating Tips',
     readTime: '5 min read',
     date: 'April 12, 2026',
     image: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=600&auto=format&fit=crop&q=80',
-    content: 'Taking the conversation off-screen is a major step. Keep it casual! A low-pressure afternoon macchiato is far better than a heavy formal dinner. Give each other space, respect boundaries, and focus on laughing together.'
+    content: 'Keep it casual! A low-pressure afternoon macchiato is far better than a formal dinner. Respect boundaries and focus on laughing together.'
   }
 ];
 
@@ -371,15 +205,15 @@ export const FAQS = [
     items: [
       {
         question: 'Why is there a payment for men but not women?',
-        answer: 'To ensure a high safety ratio, reduce spam accounts, and filter for genuine gentlemen who are serious about finding real relationships. This tiny 200 Birr fee acts as a quality verification barrier, making our workspace extremely pleasant and safe for everyone.'
+        answer: 'To ensure a high safety ratio, reduce spam, and filter for genuine gentlemen. The 200 Birr fee acts as a quality barrier, making our platform safe for everyone.'
       },
       {
-        question: 'What are the accepted payment methods?',
-        answer: 'We securely accept Telebirr and CBE Birr. In the Payment portal, copy our merchant account details, send the payment, and copy-paste your Transaction ID for lightning-fast verification.'
+        question: 'What payment methods are accepted?',
+        answer: 'We accept Telebirr and CBE Birr. Copy our merchant account details, send the payment, and paste your Transaction ID for verification.'
       },
       {
-        question: 'How long does the payment verification take?',
-        answer: 'Our mod team reviews submissions 24/7. Typically, your account gets verified and activated in less than 15-30 minutes of transaction submission. You will see a tracker on your submission log.'
+        question: 'How long does verification take?',
+        answer: 'Our team reviews submissions 24/7. Accounts are typically verified within 15-30 minutes.'
       }
     ]
   },
@@ -387,12 +221,12 @@ export const FAQS = [
     category: 'Profile & Verification',
     items: [
       {
-        question: 'What does the Verified badge signify?',
-        answer: 'It represents that the user\'s identity or payment context has been approved by our admin moderation desk, confirming they are a real person physically located in Ethiopia.'
+        question: 'What does the Verified badge mean?',
+        answer: 'It means the user has been approved by our admin team as a real person physically located in Ethiopia.'
       },
       {
-        question: 'Can I change my location and intent settings?',
-        answer: 'Yes! Simply navigate to "My Profile" tab in your dashboard sidebar to update your current city, intent, age, and interests instantly.'
+        question: 'Can I change my location and intent?',
+        answer: 'Yes! Go to your profile dashboard to update your city, intent, age, and interests.'
       }
     ]
   },
@@ -401,11 +235,11 @@ export const FAQS = [
     items: [
       {
         question: 'How does Contact Unlocking work?',
-        answer: 'Once you hit "Unlock Contact", you will be shown our payment modal. After submitting proof of payment, the profile owner is notified and their direct Habesha Telegram/Phone digits are made visible in your "Unlock History" tab permanently.'
+        answer: 'Click "Unlock Contact", submit payment proof, and the profile\'s phone, Telegram, and Instagram appear in your Unlock History permanently.'
       },
       {
-        question: 'Is my personal data safe with Whaatachi?',
-        answer: 'Absolutely. Your phone and Telegram credentials are encrypted and strictly guarded. They are ONLY revealed to verified candidates whom you choose to unlock or who unlock you under complete security.'
+        question: 'Is my data safe?',
+        answer: 'Absolutely. Your phone and Telegram are encrypted. They are only revealed to verified members you choose to unlock.'
       }
     ]
   }

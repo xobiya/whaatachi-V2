@@ -70,7 +70,7 @@ export default function Dashboard({
   const [filterType, setFilterType] = useState<'all' | 'recent' | 'verified' | 'unlocked'>('all');
   const [ageRange, setAgeRange] = useState<number>(35);
   const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
-  const [selectedGenderFilter, setSelectedGenderFilter] = useState<'All' | 'Male' | 'Female'>(() =>
+  const [selectedSexFilter, setSelectedSexFilter] = useState<'Male' | 'Female'>(() =>
     userGender === 'Male' ? 'Female' : 'Male'
   );
 
@@ -110,7 +110,7 @@ export default function Dashboard({
     setFilterType('all');
     setAgeRange(35);
     setSelectedInterests([]);
-    setSelectedGenderFilter(userGender === 'Male' ? 'Female' : 'Male');
+    setSelectedSexFilter(userGender === 'Male' ? 'Female' : 'Male');
   };
 
   const filteredProfiles = useMemo(() => {
@@ -133,11 +133,11 @@ export default function Dashboard({
 
       const matchesInterests = selectedInterests.length === 0 ||
                                profile.interests.some(interest => selectedInterests.includes(interest));
-      const matchesGender = selectedGenderFilter === 'All' || profile.gender === selectedGenderFilter;
+      const matchesGender = profile.gender === selectedSexFilter;
 
       return matchesSearch && matchesCity && matchesIntent && matchesAge && matchesCategory && matchesInterests && matchesGender;
     });
-  }, [profiles, searchQuery, selectedCity, selectedIntent, filterType, ageRange, selectedInterests, unlockedIds, selectedGenderFilter]);
+  }, [profiles, searchQuery, selectedCity, selectedIntent, filterType, ageRange, selectedInterests, unlockedIds, selectedSexFilter]);
 
   return (
     <div className="bg-[#FFFCF8] dark:bg-[#120A0E] py-10 transition-colors duration-200">
@@ -168,13 +168,13 @@ export default function Dashboard({
             </h3>
 
             <div className="space-y-2">
-              <label className="block text-xs font-bold text-[#1A1118]/70 dark:text-[#FFFCF8]/60 uppercase tracking-wider">Looking For</label>
-              <div className="grid grid-cols-3 bg-[#F8F4ED] dark:bg-[#120A0E] border border-[#EDE6D9] dark:border-[#C9A84C]/10 rounded-xl p-1 gap-1">
-                {['All', 'Men', 'Women'].map((genderOption) => {
-                  const isSelect = (genderOption === 'All' && selectedGenderFilter === 'All') || (genderOption === 'Men' && selectedGenderFilter === 'Male') || (genderOption === 'Women' && selectedGenderFilter === 'Female');
+              <label className="block text-xs font-bold text-[#1A1118]/70 dark:text-[#FFFCF8]/60 uppercase tracking-wider">Sex</label>
+              <div className="grid grid-cols-2 bg-[#F8F4ED] dark:bg-[#120A0E] border border-[#EDE6D9] dark:border-[#C9A84C]/10 rounded-xl p-1 gap-1">
+                {['Men', 'Women'].map((sexOption) => {
+                  const isSelect = (sexOption === 'Men' && selectedSexFilter === 'Male') || (sexOption === 'Women' && selectedSexFilter === 'Female');
                   return (
-                    <button key={genderOption} type="button" onClick={() => setSelectedGenderFilter(genderOption === 'All' ? 'All' : (genderOption === 'Men' ? 'Male' : 'Female'))} className={`py-1.5 text-center text-[10px] font-bold rounded-lg transition-all cursor-pointer ${isSelect ? 'bg-[#8B0020] text-white' : 'text-gray-500 dark:text-gray-400 hover:text-[#1A1118] dark:hover:text-[#FFFCF8]'}`}>
-                      {genderOption}
+                    <button key={sexOption} type="button" onClick={() => setSelectedSexFilter(sexOption === 'Men' ? 'Male' : 'Female')} className={`py-1.5 text-center text-[10px] font-bold rounded-lg transition-all cursor-pointer ${isSelect ? 'bg-[#8B0020] text-white' : 'text-gray-500 dark:text-gray-400 hover:text-[#1A1118] dark:hover:text-[#FFFCF8]'}`}>
+                      {sexOption}
                     </button>
                   );
                 })}
