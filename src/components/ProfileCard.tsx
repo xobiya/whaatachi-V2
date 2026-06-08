@@ -19,8 +19,11 @@ export default function ProfileCard({
   return (
     <div className="bg-white dark:bg-[#1A1118] rounded-2xl border border-[#EDE6D9] dark:border-[#C9A84C]/10 overflow-hidden shadow-sm hover:shadow-xl hover:border-[#C9A84C]/40 dark:hover:border-[#C9A84C]/30 transition-all duration-500 flex flex-col h-full group">
 
-      <div className="relative pt-[120%] w-full bg-gray-100 dark:bg-[#120A0E] overflow-hidden">
-        <img src={profile.image} alt={profile.name} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" referrerPolicy="no-referrer" />
+      <div 
+        onClick={onViewProfile ? () => onViewProfile(profile) : undefined}
+        className={`relative pt-[120%] w-full bg-gray-100 dark:bg-[#120A0E] overflow-hidden ${onViewProfile ? 'cursor-pointer' : ''}`}
+      >
+        <img src={profile.image} alt={profile.name} loading="lazy" className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" referrerPolicy="no-referrer" />
         <div className="absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-black/70 to-transparent"></div>
 
         <div className="absolute top-3 left-3 flex gap-1.5">
@@ -29,7 +32,7 @@ export default function ProfileCard({
         </div>
 
         <div className="absolute bottom-3 left-3 right-3 text-white">
-          <p className="text-lg font-bold">{profile.name}, {profile.age}</p>
+          <p className="text-lg font-bold group-hover:underline">{profile.name}, {profile.age}</p>
           <p className="text-xs text-white/70 flex items-center gap-1 mt-0.5">
             <MapPin className="h-3 w-3" />
             {profile.city}, Ethiopia

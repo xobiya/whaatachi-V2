@@ -16,11 +16,13 @@ interface HomeLoggedInProps {
   onUnlockClick: (profile: Profile) => void;
   profiles: Profile[];
   unlockedIds: string[];
+  onViewProfile?: (profile: Profile) => void;
 }
 
 export default function HomeLoggedIn({
   currentUser, onUpdateBio, onUpdateStatus, unlockedCount,
-  onGoToMatches, onGoToHistory, onUnlockClick, profiles, unlockedIds
+  onGoToMatches, onGoToHistory, onUnlockClick, profiles, unlockedIds,
+  onViewProfile
 }: HomeLoggedInProps) {
   const user: Profile = currentUser || {
     id: 'placeholder-usr',
@@ -165,16 +167,24 @@ export default function HomeLoggedIn({
             </div>
 
             <div className="flex flex-col items-center text-center space-y-3">
-              <div className="relative">
-                <img src={user.image} alt={user.name} className="w-24 h-24 rounded-2xl object-cover border-2 border-[#C9A84C]/50 shadow-md" referrerPolicy="no-referrer" />
+              <button
+                type="button"
+                onClick={() => onViewProfile?.(user)}
+                className="relative group cursor-pointer hover:opacity-90 transition-opacity"
+              >
+                <img src={user.image} alt={user.name} className="w-24 h-24 rounded-2xl object-cover border-2 border-[#C9A84C]/50 shadow-md group-hover:border-[#C9A84C] transition-colors" referrerPolicy="no-referrer" />
                 <span className="absolute -bottom-1 -right-1 bg-emerald-500 border-2 border-white dark:border-[#120A0E] inline-block w-4 h-4 rounded-full"></span>
-              </div>
+              </button>
 
-              <div>
-                <div className="flex items-center justify-center gap-1">
+              <div className="text-center">
+                <button
+                  type="button"
+                  onClick={() => onViewProfile?.(user)}
+                  className="flex items-center justify-center gap-1 hover:text-[#8B0020] dark:hover:text-[#C9A84C] transition-colors mx-auto"
+                >
                   <h4 className="text-base font-black text-[#1A1118] dark:text-[#FFFCF8]">{user.name}, {user.age}</h4>
                   <ShieldCheck className="h-4.5 w-4.5 text-[#C9A84C] fill-[#C9A84C]/25 shrink-0" />
-                </div>
+                </button>
                 <p className="text-xs text-gray-500 dark:text-gray-400 flex items-center justify-center gap-1 mt-0.5">
                   <MapPin className="h-3.5 w-3.5 text-[#8B0020] dark:text-[#C9A84C] shrink-0" />
                   <span>{user.city}</span>
@@ -279,7 +289,10 @@ export default function HomeLoggedIn({
                   const isUnlockedStatus = unlockedIds.includes(profile.id);
                   return (
                     <div key={profile.id} className="bg-white dark:bg-[#1A1118] border border-[#EDE6D9] dark:border-[#C9A84C]/10 rounded-2xl overflow-hidden shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow group duration-200">
-                      <div className="relative pt-[100%] bg-gray-100 dark:bg-[#120A0E] overflow-hidden">
+                      <div 
+                        onClick={() => onViewProfile?.(profile)}
+                        className="relative pt-[100%] bg-gray-100 dark:bg-[#120A0E] overflow-hidden cursor-pointer"
+                      >
                         <img src={profile.image} alt={profile.name} className="absolute inset-0 w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-300" referrerPolicy="no-referrer" />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent"></div>
 
@@ -295,7 +308,7 @@ export default function HomeLoggedIn({
                         )}
 
                         <div className="absolute bottom-3 left-3 right-3 text-white">
-                          <p className="font-extrabold text-base leading-tight">
+                          <p className="font-extrabold text-base leading-tight hover:underline">
                             {profile.name}, {profile.age}
                           </p>
                           <p className="text-[10px] text-white/70 flex items-center gap-0.5 mt-0.5 font-light">

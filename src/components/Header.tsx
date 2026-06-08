@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Heart, Menu, X, User, LogOut, Crown, ChevronDown, Moon, Sun } from 'lucide-react';
 import { Profile } from '../types';
+import type { Lang } from '../i18n';
 
 interface HeaderProps {
   currentView: string;
@@ -14,15 +15,20 @@ interface HeaderProps {
   pendingCount: number;
   darkMode: boolean;
   setDarkMode: (value: boolean) => void;
+  lang: Lang;
+  setLang: (lang: Lang) => void;
   onOpenAuth?: (tab?: 'register' | 'signin') => void;
   currentUser?: Profile | null;
+  onViewProfile?: (profile: Profile) => void;
 }
 
 export default function Header({
   currentView, setCurrentView,
   isLoggedIn, setIsLoggedIn,
   darkMode, setDarkMode,
-  onOpenAuth, currentUser
+  lang, setLang,
+  onOpenAuth, currentUser,
+  onViewProfile
 }: HeaderProps) {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -60,9 +66,21 @@ export default function Header({
             <button onClick={() => setDarkMode(!darkMode)} className="p-2 text-[#EDE6D9]/50 hover:text-[#C9A84C] transition-colors cursor-pointer" title={darkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}>
               {darkMode ? <Sun className="h-4.5 w-4.5" /> : <Moon className="h-4.5 w-4.5" />}
             </button>
+            <button onClick={() => setLang(lang === 'en' ? 'am' : 'en')} className="px-2.5 py-1.5 text-[10px] font-bold text-[#EDE6D9]/70 hover:text-[#C9A84C] border border-[#C9A84C]/20 hover:border-[#C9A84C]/60 rounded-lg transition-all cursor-pointer" title={lang === 'en' ? 'አማርኛ' : 'English'}>
+              {lang === 'en' ? 'አማ' : 'EN'}
+            </button>
             {isLoggedIn ? (
               <div className="flex items-center gap-3">
-                <div className="flex items-center gap-2 bg-[#FFFCF8]/5 border border-[#C9A84C]/20 rounded-full px-3 py-1.5">
+                <button
+                  onClick={() => {
+                    if (currentUser && onViewProfile) {
+                      onViewProfile(currentUser);
+                    } else {
+                      handleNav('profile');
+                    }
+                  }}
+                  className="flex items-center gap-2 bg-[#FFFCF8]/5 border border-[#C9A84C]/20 rounded-full px-3 py-1.5 hover:bg-[#FFFCF8]/10 transition-colors cursor-pointer text-left focus:outline-hidden"
+                >
                   {currentUser?.image ? (
                     <img src={currentUser.image} alt="" className="w-7 h-7 rounded-full object-cover border border-[#C9A84C]/30" referrerPolicy="no-referrer" />
                   ) : (
@@ -72,7 +90,7 @@ export default function Header({
                   )}
                   <span className="text-xs font-bold text-[#FFFCF8] max-w-[100px] truncate">{currentUser?.name || 'User'}</span>
                   <ChevronDown className="h-3 w-3 text-[#C9A84C]" />
-                </div>
+                </button>
                 <button onClick={() => { setIsLoggedIn(false); setCurrentView('home'); }} className="p-2 text-[#EDE6D9]/50 hover:text-[#C9A84C] transition-colors cursor-pointer">
                   <LogOut className="h-4 w-4" />
                 </button>
@@ -89,9 +107,12 @@ export default function Header({
           </div>
 
           {/* Mobile */}
-          <div className="flex lg:hidden items-center gap-2">
+          <div className="flex lg:hidden items-center gap-1.5">
             <button onClick={() => setDarkMode(!darkMode)} className="p-2 text-[#EDE6D9]/50 hover:text-[#C9A84C] transition-colors cursor-pointer" title={darkMode ? 'Light' : 'Dark'}>
               {darkMode ? <Sun className="h-4.5 w-4.5" /> : <Moon className="h-4.5 w-4.5" />}
+            </button>
+            <button onClick={() => setLang(lang === 'en' ? 'am' : 'en')} className="px-2 py-1 text-[9px] font-bold text-[#EDE6D9]/70 hover:text-[#C9A84C] border border-[#C9A84C]/20 hover:border-[#C9A84C]/60 rounded-lg transition-all cursor-pointer">
+              {lang === 'en' ? 'አማ' : 'EN'}
             </button>
             {!isLoggedIn && (
               <button onClick={() => onOpenAuth?.('register')} className="px-4 py-1.5 bg-[#8B0020] text-white text-xs font-bold rounded-lg cursor-pointer">
@@ -121,9 +142,24 @@ export default function Header({
               </button>
             ))}
             {isLoggedIn ? (
-              <button onClick={() => { setIsLoggedIn(false); setIsOpen(false); setCurrentView('home'); }} className="w-full text-left px-3 py-2 rounded-lg text-sm font-semibold text-[#EDE6D9]/70 hover:bg-[#FFFCF8]/5">
-                Sign Out
-              </button>
+              <>
+                <button
+                  onClick={() => {
+                    setIsOpen(false);
+                    if (currentUser && onViewProfile) {
+                      onViewProfile(currentUser);
+                    } else {
+                      handleNav('profile');
+                    }
+                  }}
+                  className={`block w-full text-left px-3 py-2 rounded-lg text-sm font-semibold ${currentView === 'profile' ? 'bg-[#8B0020]/30 text-[#C9A84C]' : 'text-[#EDE6D9]/70 hover:bg-[#FFFCF8]/5'}`}
+                >
+                  My Profile
+                </button>
+                <button onClick={() => { setIsLoggedIn(false); setIsOpen(false); setCurrentView('home'); }} className="w-full text-left px-3 py-2 rounded-lg text-sm font-semibold text-[#EDE6D9]/70 hover:bg-[#FFFCF8]/5">
+                  Sign Out
+                </button>
+              </>
             ) : (
               <button onClick={() => { setIsOpen(false); onOpenAuth?.('register'); }} className="w-full text-left px-3 py-2 rounded-lg text-sm font-bold text-[#C9A84C] hover:bg-[#FFFCF8]/5">
                 Create Profile

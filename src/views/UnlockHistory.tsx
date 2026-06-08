@@ -5,9 +5,10 @@ import { Profile } from '../types';
 interface UnlockHistoryProps {
   unlockedProfiles: Profile[];
   onBackToFinder: () => void;
+  onViewProfile?: (profile: Profile) => void;
 }
 
-export default function UnlockHistory({ unlockedProfiles, onBackToFinder }: UnlockHistoryProps) {
+export default function UnlockHistory({ unlockedProfiles, onBackToFinder, onViewProfile }: UnlockHistoryProps) {
   return (
     <div className="bg-[#FFFCF8] dark:bg-[#120A0E] py-12 min-h-screen transition-colors duration-200">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -34,10 +35,13 @@ export default function UnlockHistory({ unlockedProfiles, onBackToFinder }: Unlo
             {unlockedProfiles.map((profile) => (
               <div key={profile.id} className="bg-white dark:bg-[#1A1118] border border-[#EDE6D9] dark:border-[#C9A84C]/10 hover:border-emerald-300 dark:hover:border-emerald-700 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
                 <div>
-                  <div className="flex items-center gap-3.5 pb-4 border-b border-[#EDE6D9] dark:border-[#C9A84C]/10">
-                    <img src={profile.image} alt={profile.name} className="w-14 h-14 rounded-full object-cover ring-2 ring-emerald-500/25" referrerPolicy="no-referrer" />
+                  <div 
+                    onClick={() => onViewProfile?.(profile)}
+                    className="flex items-center gap-3.5 pb-4 border-b border-[#EDE6D9] dark:border-[#C9A84C]/10 cursor-pointer group"
+                  >
+                    <img src={profile.image} alt={profile.name} loading="lazy" className="w-14 h-14 rounded-full object-cover ring-2 ring-emerald-500/25 group-hover:ring-emerald-500 transition-all" referrerPolicy="no-referrer" />
                     <div>
-                      <h3 className="font-bold text-[#1A1118] dark:text-[#FFFCF8] text-base flex items-center gap-1">
+                      <h3 className="font-bold text-[#1A1118] dark:text-[#FFFCF8] text-base flex items-center gap-1 group-hover:text-[#8B0020] dark:group-hover:text-[#C9A84C] hover:underline transition-colors">
                         {profile.name}
                         {profile.verified && <ShieldCheck className="h-4 w-4 text-[#C9A84C]" title="Verified Member" />}
                       </h3>

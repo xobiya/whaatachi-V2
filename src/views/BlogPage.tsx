@@ -78,7 +78,7 @@ export default function BlogPage({ articles }: BlogPageProps) {
                   <div className={`relative bg-[#EDE6D9] dark:bg-[#1A1118] shrink-0 ${
                     isHeroIdx ? 'h-64 md:h-auto md:w-1/2' : 'pt-[60%]'
                   }`}>
-                    <img src={article.image} alt={article.title} className="absolute inset-0 w-full h-full object-cover" referrerPolicy="no-referrer" />
+                    <img src={article.image} alt={article.title} loading="lazy" className="absolute inset-0 w-full h-full object-cover" referrerPolicy="no-referrer" />
                     <span className="absolute top-4 left-4 bg-[#1A1118]/70 backdrop-blur-xs text-white text-[10px] font-bold px-2.5 py-1 rounded-md">
                       {article.category}
                     </span>

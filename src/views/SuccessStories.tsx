@@ -60,7 +60,7 @@ export default function SuccessStories({ stories, onAddStory }: SuccessStoriesPr
           {stories.map((storyItem) => (
             <div key={storyItem.id} className="bg-white dark:bg-[#1A1118] border border-[#EDE6D9] dark:border-[#C9A84C]/10 rounded-3xl overflow-hidden shadow-sm hover:shadow-md transition-all flex flex-col sm:flex-row">
               <div className="relative w-full sm:w-2/5 h-48 sm:h-auto shrink-0 bg-[#EDE6D9] dark:bg-[#1A1118]">
-                <img src={storyItem.image} alt={storyItem.coupleNames} className="absolute inset-0 w-full h-full object-cover" referrerPolicy="no-referrer" />
+                <img src={storyItem.image} alt={storyItem.coupleNames} loading="lazy" className="absolute inset-0 w-full h-full object-cover" referrerPolicy="no-referrer" />
                 <span className="absolute top-3 left-3 bg-[#8B0020] text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
                   Joined {storyItem.year}
                 </span>
@@ -134,7 +134,7 @@ export default function SuccessStories({ stories, onAddStory }: SuccessStoriesPr
                       <button type="button" key={idx} onClick={() => setSelectedPresetImage(preset.url)} className={`relative rounded-xl overflow-hidden pt-[60%] border-2 cursor-pointer transition-all ${
                         isSelected ? 'border-[#8B0020] dark:border-[#C9A84C] scale-95 ring-2 ring-[#8B0020]/30 dark:ring-[#C9A84C]/30' : 'border-[#EDE6D9] dark:border-[#C9A84C]/10 opacity-60'
                       }`}>
-                        <img src={preset.url} alt={preset.label} className="absolute inset-0 w-full h-full object-cover" referrerPolicy="no-referrer" />
+                        <img src={preset.url} alt={preset.label} loading="lazy" className="absolute inset-0 w-full h-full object-cover" referrerPolicy="no-referrer" />
                       </button>
                     );
                   })}

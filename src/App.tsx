@@ -1,20 +1,21 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, Suspense, lazy } from 'react';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import PaymentModal from './components/PaymentModal';
 import HomeLanding from './views/HomeLanding';
 import HomeLoggedIn from './views/HomeLoggedIn';
 import AuthModal from './components/AuthModal';
-import Dashboard from './views/Dashboard';
-import UnlockHistory from './views/UnlockHistory';
-import FAQSection from './views/FAQSection';
-import SuccessStories from './views/SuccessStories';
-import BlogPage from './views/BlogPage';
-import AdminPanel from './views/AdminPanel';
-import SupportPanel from './views/SupportPanel';
-import ProfilePage from './views/ProfilePage';
+const Dashboard = lazy(() => import('./views/Dashboard'));
+const UnlockHistory = lazy(() => import('./views/UnlockHistory'));
+const FAQSection = lazy(() => import('./views/FAQSection'));
+const SuccessStories = lazy(() => import('./views/SuccessStories'));
+const BlogPage = lazy(() => import('./views/BlogPage'));
+const AdminPanel = lazy(() => import('./views/AdminPanel'));
+const SupportPanel = lazy(() => import('./views/SupportPanel'));
+const ProfilePage = lazy(() => import('./views/ProfilePage'));
 import { Profile, PaymentRequest, SuccessStory } from './types';
 import { INITIAL_PROFILES, INITIAL_SUCCESS_STORIES, INITIAL_ARTICLES } from './mockData';
+import { Lang } from './i18n';
 import { Heart, Sparkles, UserCheck, CheckCircle, ShieldAlert } from 'lucide-react';
 
 export default function App() {
@@ -52,7 +53,18 @@ export default function App() {
       } else if (path === '/support') {
         setCurrentView('support');
       } else if (path === '/profile') {
-        setCurrentView('profile');
+        const savedUser = localStorage.getItem('whaatachi_logged_in_user_v1');
+        if (savedUser) {
+          try {
+            const parsedUser = JSON.parse(savedUser);
+            setViewingProfile(parsedUser);
+            setCurrentView('profile');
+          } catch (e) {
+            setCurrentView('home');
+          }
+        } else {
+          setCurrentView('home');
+        }
       } else if (path === '/') {
         setCurrentView('home');
       }
@@ -115,7 +127,7 @@ export default function App() {
   // Dark Mode
   const [darkMode, setDarkMode] = useState<boolean>(() => {
     const saved = localStorage.getItem('whaatachi_dark_mode_v1');
-    return saved ? JSON.parse(saved) : true; // default to dark mode like in elegant designs!
+    return saved ? JSON.parse(saved) : true;
   });
 
   useEffect(() => {
@@ -126,6 +138,17 @@ export default function App() {
       document.documentElement.classList.remove('dark');
     }
   }, [darkMode]);
+
+  // Language
+  const [lang, setLang] = useState<Lang>(() => {
+    const saved = localStorage.getItem('whaatachi_lang');
+    return (saved === 'en' || saved === 'am') ? saved : 'en';
+  });
+
+  useEffect(() => {
+    localStorage.setItem('whaatachi_lang', lang);
+    document.documentElement.lang = lang;
+  }, [lang]);
 
   // Persistence vectors
   const [profiles, setProfiles] = useState<Profile[]>(() => {
@@ -481,6 +504,8 @@ export default function App() {
         pendingCount={activePendingPayments.length}
         darkMode={darkMode}
         setDarkMode={setDarkMode}
+        lang={lang}
+        setLang={setLang}
         onOpenAuth={handleOpenAuth}
         currentUser={currentUser}
       />
@@ -509,6 +534,7 @@ export default function App() {
 
       {/* 3. Core Tab panels */}
       <main className="grow" id="primary-view-stage">
+        <Suspense fallback={<div className="flex items-center justify-center py-20" role="status" aria-label="Loading content"><div className="w-8 h-8 border-2 border-[#8B0020] border-t-transparent rounded-full animate-spin" /></div>}>
         
         {/* Landing Home */}
         {currentView === 'home' && (
@@ -540,14 +566,20 @@ export default function App() {
         )}
 
         {/* Profile page */}
-        {currentView === 'profile' && viewingProfile && (
+        {currentView === 'profile' && (viewingProfile || currentUser) && (
           <ProfilePage
-            profile={viewingProfile}
-            isUnlocked={unlockedIds.includes(viewingProfile.id)}
-            pendingPayment={allPayments.find(p => p.profileId === viewingProfile.id && p.status === 'Pending')}
+            profile={viewingProfile || currentUser!}
+            isUnlocked={viewingProfile ? unlockedIds.includes(viewingProfile.id) : true}
+            pendingPayment={viewingProfile ? allPayments.find(p => p.profileId === viewingProfile.id && p.status === 'Pending') : undefined}
             userGender={userGender}
-            isOwnProfile={currentUser?.id === viewingProfile.id}
-            onBack={() => setCurrentView('dashboard')}
+            isOwnProfile={!viewingProfile || currentUser?.id === viewingProfile.id}
+            onBack={() => {
+              if (!viewingProfile || currentUser?.id === viewingProfile.id) {
+                setCurrentView('home');
+              } else {
+                setCurrentView('dashboard');
+              }
+            }}
             onUnlockClick={handleUnlockTrigger}
             onSaveProfile={handleSaveProfile}
           />
@@ -572,6 +604,7 @@ export default function App() {
           <UnlockHistory
             unlockedProfiles={unlockedProfilesList}
             onBackToFinder={() => setCurrentView('dashboard')}
+            onViewProfile={handleViewProfile}
           />
         )}
 
@@ -592,6 +625,7 @@ export default function App() {
         {/* Interactive Chat Resolution support */}
         {currentView === 'support' && <SupportPanel />}
 
+      </Suspense>
       </main>
 
       {/* 4. Contact Lock Payment Drawer Modal */}

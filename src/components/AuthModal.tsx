@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { X, AlertCircle, User, Phone, Send, UserPlus, Camera, MapPin, MessageCircle, Instagram } from 'lucide-react';
 import { Profile } from '../types';
+import { sanitizeInput, sanitizePhone, sanitizeTelegram, sanitizeInstagram } from '../utils/sanitize';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -106,11 +107,17 @@ export default function AuthModal({
       finalIntent = 'Friendship';
     }
 
+    const safeName = sanitizeInput(fullName);
+    const safePhone = sanitizePhone(phoneNumber);
+    const safeTelegram = sanitizeTelegram(telegramUsername);
+    const safeInstagram = sanitizeInstagram(instagramUsername);
+    const safeCity = sanitizeInput(city);
+
     const newProfile: Profile = {
       id: `custom-profile-${Date.now()}`,
-      name: fullName.trim(),
+      name: safeName,
       age: ageNum,
-      city: city,
+      city: safeCity,
       bio: `Hi, I'm looking for an authentic connection on Whaatachi.`,
       gender: myGender,
       lookingFor,
@@ -120,10 +127,10 @@ export default function AuthModal({
       interests: ['Coffee & Chat', 'Dinner Out', 'Night Life', 'Ethio Arts'],
       verified: false,
       contactInfo: {
-        phone: phoneNumber.trim(),
-        telegram: telegramUsername.trim().replace('@', '') || fullName.toLowerCase().replace(/\s+/g, ''),
-        instagram: instagramUsername.trim().replace('@', '') || '',
-        email: `${fullName.toLowerCase().replace(/\s+/g, '')}@example.com`
+        phone: safePhone,
+        telegram: safeTelegram.replace('@', '') || safeName.toLowerCase().replace(/\s+/g, ''),
+        instagram: safeInstagram.replace('@', '') || '',
+        email: `${safeName.toLowerCase().replace(/\s+/g, '')}@example.com`
       }
     };
 
@@ -295,7 +302,7 @@ export default function AuthModal({
                     <div className="flex gap-2">
                       {(myGender === 'Male' ? PRESET_MALE_IMAGES : PRESET_FEMALE_IMAGES).slice(0, 3).map((url, idx) => (
                         <button key={idx} type="button" onClick={() => { setSelectedPresetImage(url); setPhotoSource('preset'); }} className={`w-14 h-14 rounded-full overflow-hidden border-2 cursor-pointer transition-all shrink-0 ${photoSource === 'preset' && selectedPresetImage === url ? 'border-[#8B0020] dark:border-[#C9A84C] scale-105 shadow-sm' : 'border-transparent opacity-70 hover:opacity-100'}`}>
-                          <img src={url} alt="" className="w-full h-full object-cover" />
+                          <img src={url} alt="" loading="lazy" className="w-full h-full object-cover" />
                         </button>
                       ))}
                     </div>
@@ -307,7 +314,7 @@ export default function AuthModal({
                   </div>
                   {photoSource === 'upload' && localUploadedImage && (
                     <div className="mt-1">
-                      <img src={localUploadedImage} alt="Preview" className="w-14 h-14 rounded-full object-cover border-2 border-[#C9A84C]" />
+                      <img src={localUploadedImage} alt="Preview" loading="lazy" className="w-14 h-14 rounded-full object-cover border-2 border-[#C9A84C]" />
                     </div>
                   )}
                 </div>
