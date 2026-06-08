@@ -97,7 +97,7 @@ export default function ProfileCard({
               )}
               <button onClick={() => onUnlockClick(profile)} className="w-full py-3 bg-[#8B0020] hover:bg-[#B31B3A] text-white font-bold text-xs rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-[#8B0020]/10">
                 <Lock className="h-3.5 w-3.5" />
-                <span>Unlock Contact</span>
+                <span>See Contact</span>
                 {userGender === 'Male' && (
                   <span className="text-[9px] bg-white/20 px-1.5 py-0.5 rounded-md font-extrabold">200 ETB</span>
                 )}

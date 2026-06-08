@@ -3,12 +3,13 @@ export interface Profile {
   name: string;
   age: number;
   city: string;
+  address?: string;
   bio: string;
   gender: 'Male' | 'Female';
   lookingFor?: 'Male' | 'Female';
   image: string;
   status: 'Online' | 'Offline' | 'Recently Active';
-  relationshipIntent: 'True Relationship' | 'Friendship' | 'Friends with Benefits';
+  relationshipIntent: 'True Relationship' | 'Friendship' | 'Friends with Benefits' | 'Only Sex';
   interests: string[];
   verified: boolean;
   contactInfo: {

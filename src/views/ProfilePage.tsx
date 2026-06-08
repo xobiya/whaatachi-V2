@@ -313,7 +313,8 @@ export default function ProfilePage({ profile, isUnlocked, pendingPayment, userG
                 >
                   <option value="True Relationship">True Relationship</option>
                   <option value="Friendship">Friendship</option>
-                  <option value="Casual Connection">Casual Connection</option>
+                  <option value="Friends with Benefits">Friends with Benefits</option>
+                  <option value="Only Sex">Only Sex</option>
                 </select>
               </div>
 
@@ -533,12 +534,12 @@ export default function ProfilePage({ profile, isUnlocked, pendingPayment, userG
                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 font-light">Direct phone number, Telegram, Instagram & Email details are secured</p>
               </div>
               
-              <button 
-                onClick={() => onUnlockClick(profile)} 
+              <button
+                onClick={() => onUnlockClick(profile)}
                 className="w-full py-3.5 bg-[#8B0020] hover:bg-[#B31B3A] text-white font-extrabold text-xs rounded-xl shadow-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-[#8B0020]/20"
               >
                 <Lock className="h-4 w-4" />
-                <span>Unlock Contact Details</span>
+                <span>See Contact Details</span>
                 {userGender === 'Male' && <span className="text-[9px] bg-white/20 px-1.5 py-0.5 rounded-md font-extrabold ml-1">200 ETB</span>}
                 {userGender === 'Female' && <span className="text-[9px] bg-emerald-400/30 px-1.5 py-0.5 rounded-md font-extrabold ml-1">FREE</span>}
               </button>

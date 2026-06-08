@@ -54,11 +54,8 @@ export default function Header({
 
           {/* Desktop Nav */}
           <div className="hidden lg:flex items-center gap-6">
-            <button onClick={() => handleNav('home')} className={`text-sm font-semibold transition-colors cursor-pointer ${currentView === 'home' ? 'text-[#C9A84C]' : 'text-[#EDE6D9]/70 hover:text-[#FFFCF8]'}`}>Home</button>
-            <button onClick={() => handleNav('dashboard')} className={`text-sm font-semibold transition-colors cursor-pointer ${currentView === 'dashboard' ? 'text-[#C9A84C]' : 'text-[#EDE6D9]/70 hover:text-[#FFFCF8]'}`}>Browse</button>
-            <button onClick={() => handleNav('faq')} className={`text-sm font-semibold transition-colors cursor-pointer ${currentView === 'faq' ? 'text-[#C9A84C]' : 'text-[#EDE6D9]/70 hover:text-[#FFFCF8]'}`}>How It Works</button>
-            <button onClick={() => handleNav('stories')} className={`text-sm font-semibold transition-colors cursor-pointer ${currentView === 'stories' ? 'text-[#C9A84C]' : 'text-[#EDE6D9]/70 hover:text-[#FFFCF8]'}`}>Success Stories</button>
-            <button onClick={() => handleNav('support')} className={`text-sm font-semibold transition-colors cursor-pointer ${currentView === 'support' ? 'text-[#C9A84C]' : 'text-[#EDE6D9]/70 hover:text-[#FFFCF8]'}`}>Support</button>
+            <button onClick={() => handleNav('browse')} className={`text-sm font-semibold transition-colors cursor-pointer ${currentView === 'browse' || currentView === 'home' ? 'text-[#C9A84C]' : 'text-[#EDE6D9]/70 hover:text-[#FFFCF8]'}`}>Matches</button>
+            <button onClick={() => handleNav('history')} className={`text-sm font-semibold transition-colors cursor-pointer ${currentView === 'history' ? 'text-[#C9A84C]' : 'text-[#EDE6D9]/70 hover:text-[#FFFCF8]'}`}>Unlocked</button>
           </div>
 
           {/* Right Side */}
@@ -131,11 +128,8 @@ export default function Header({
         <div className="lg:hidden bg-[#1A1118] border-t border-[#C9A84C]/10">
           <div className="px-4 py-4 space-y-2">
             {[
-              { label: 'Home', view: 'home' },
-              { label: 'Browse Profiles', view: 'dashboard' },
-              { label: 'How It Works', view: 'faq' },
-              { label: 'Success Stories', view: 'stories' },
-              { label: 'Support', view: 'support' },
+              { label: 'Matches', view: 'browse' },
+              { label: 'Unlocked', view: 'history' },
             ].map((link) => (
               <button key={link.view} onClick={() => handleNav(link.view)} className={`block w-full text-left px-3 py-2 rounded-lg text-sm font-semibold ${currentView === link.view ? 'bg-[#8B0020]/30 text-[#C9A84C]' : 'text-[#EDE6D9]/70 hover:bg-[#FFFCF8]/5'}`}>
                 {link.label}
