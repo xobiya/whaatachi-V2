@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { BookOpen, Calendar, Clock, Send, CheckCircle, Search, Sparkles } from 'lucide-react';
+import { useAppContext } from '../context/AppContext';
 import { Article } from '../types';
 
 interface BlogPageProps {
@@ -11,6 +12,7 @@ export default function BlogPage({ articles }: BlogPageProps) {
   const [subscriptionEmail, setSubscriptionEmail] = useState('');
   const [subscribed, setSubscribed] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const { t } = useAppContext();
 
   const handleSubscribe = (e: React.FormEvent) => {
     e.preventDefault();
@@ -36,13 +38,13 @@ export default function BlogPage({ articles }: BlogPageProps) {
         <div className="text-center space-y-3">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#8B0020]/5 dark:bg-[#8B0020]/15 border border-[#8B0020]/20 dark:border-[#C9A84C]/30 text-[#8B0020] dark:text-[#C9A84C] text-xs font-semibold">
             <BookOpen className="h-4 w-4 text-[#C9A84C]" />
-            <span>Dating Advice & Safety Guide</span>
+            <span>{t('blog.badge')}</span>
           </div>
           <h1 className="text-3xl sm:text-4xl font-extrabold text-[#1A1118] dark:text-[#FFFCF8] tracking-tight leading-none">
-            The Digital Courtship Guide
+            {t('blog.title')}
           </h1>
           <p className="text-sm text-gray-500 dark:text-gray-400 max-w-lg mx-auto font-light leading-relaxed">
-            Safety tips, coffee date checklists, and insights for young professionals in Ethiopia.
+            {t('blog.desc')}
           </p>
         </div>
 
@@ -62,7 +64,7 @@ export default function BlogPage({ articles }: BlogPageProps) {
 
           <div className="relative w-full md:w-72">
             <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
-            <input type="text" placeholder="Search articles..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="w-full bg-[#F8F4ED]/50 dark:bg-[#120A0E] hover:bg-white dark:hover:bg-[#1A1118] text-gray-800 dark:text-[#FFFCF8] border border-[#EDE6D9] dark:border-[#C9A84C]/15 focus:border-[#8B0020] dark:focus:border-[#C9A84C] rounded-xl pl-9 pr-3 py-2 text-xs outline-hidden" />
+            <input type="text" placeholder={t('blog.search')} value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="w-full bg-[#F8F4ED]/50 dark:bg-[#120A0E] hover:bg-white dark:hover:bg-[#1A1118] text-gray-800 dark:text-[#FFFCF8] border border-[#EDE6D9] dark:border-[#C9A84C]/15 focus:border-[#8B0020] dark:focus:border-[#C9A84C] rounded-xl pl-9 pr-3 py-2 text-xs outline-hidden" />
           </div>
         </div>
 
@@ -119,10 +121,10 @@ export default function BlogPage({ articles }: BlogPageProps) {
                     <div className="pt-4 border-t border-[#EDE6D9] dark:border-[#C9A84C]/10 mt-6 flex justify-between items-center">
                       <span className="text-[10px] font-extrabold text-[#8B0020] dark:text-[#C9A84C] uppercase tracking-widest flex items-center gap-1">
                         <Sparkles className="h-3.5 w-3.5 text-[#C9A84C]" />
-                        Editorial
+                        {t('blog.editorial')}
                       </span>
                       <button className="text-[11px] font-bold text-gray-500 dark:text-gray-400 hover:text-[#8B0020] dark:hover:text-[#C9A84C] hover:underline cursor-pointer transition-colors">
-                        Read Full Article
+                        {t('blog.read-full')}
                       </button>
                     </div>
                   </div>
@@ -132,29 +134,29 @@ export default function BlogPage({ articles }: BlogPageProps) {
           </div>
         ) : (
           <div className="bg-white dark:bg-[#1A1118] border border-[#EDE6D9] dark:border-[#C9A84C]/10 rounded-2xl py-12 text-center text-gray-500 dark:text-gray-400 font-light text-xs max-w-md mx-auto">
-            No articles match your filters. Try different categories.
+            {t('blog.no-results')}
           </div>
         )}
 
         <div className="bg-[#F8F4ED] dark:bg-[#1A1118] border border-[#EDE6D9] dark:border-[#C9A84C]/10 rounded-3xl p-6 sm:p-10 max-w-3xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6 shadow-sm transition-colors">
           <div className="space-y-2 text-center md:text-left">
-            <h3 className="font-extrabold text-[#1A1118] dark:text-[#FFFCF8] text-xl leading-none">Get Safety Alerts Monthly</h3>
+            <h3 className="font-extrabold text-[#1A1118] dark:text-[#FFFCF8] text-xl leading-none">{t('blog.subscribe-title')}</h3>
             <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed font-light">
-              Receive tips on avoiding spam, dating spot checks, and exclusive match alerts.
+              {t('blog.subscribe-desc')}
             </p>
           </div>
 
           {subscribed ? (
             <div className="bg-white dark:bg-[#120A0E] border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-400 px-6 py-4 rounded-2xl text-xs font-semibold flex items-center gap-2 shadow-sm animate-fade-in">
               <CheckCircle className="h-5 w-5 text-emerald-600 dark:text-emerald-400 shrink-0" />
-              <span>Subscribed!</span>
+              <span>{t('blog.subscribed')}</span>
             </div>
           ) : (
             <form onSubmit={handleSubscribe} className="flex gap-2 w-full md:w-auto shrink-0 max-w-sm">
               <input type="email" required placeholder="e.g. sam@example.com" value={subscriptionEmail} onChange={(e) => setSubscriptionEmail(e.target.value)} className="grow border border-[#EDE6D9] dark:border-[#C9A84C]/15 rounded-xl px-3.5 py-2.5 text-xs focus:outline-hidden focus:border-[#8B0020] dark:focus:border-[#C9A84C] bg-white dark:bg-[#120A0E] text-gray-800 dark:text-[#FFFCF8] min-w-0" />
               <button type="submit" className="px-4 py-2.5 bg-[#8B0020] hover:bg-[#B31B3A] text-white text-xs font-bold rounded-xl flex items-center gap-1.5 cursor-pointer shrink-0 transition-colors">
                 <Send className="h-3.5 w-3.5" />
-                <span>Subscribe</span>
+                <span>{t('blog.subscribe-btn')}</span>
               </button>
             </form>
           )}

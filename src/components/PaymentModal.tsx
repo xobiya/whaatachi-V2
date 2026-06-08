@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { X, Copy, Check, ShieldAlert, CheckCircle, Upload, ArrowRight, DollarSign } from 'lucide-react';
 import { Profile } from '../types';
+import { useAppContext } from '../context/AppContext';
 
 interface PaymentModalProps {
   profile: Profile;
@@ -22,6 +23,7 @@ interface PaymentModalProps {
 export default function PaymentModal({
   profile, isOpen, onClose, onSubmitPayment, userGender
 }: PaymentModalProps) {
+  const { t } = useAppContext();
   const [copiedText, setCopiedText] = useState<'tele' | 'cbe' | null>(null);
   const [senderName, setSenderName] = useState('');
   const [senderPhone, setSenderPhone] = useState('');
@@ -49,15 +51,15 @@ export default function PaymentModal({
 
     if (userGender === 'Male') {
       if (!senderName.trim()) {
-        setError('Please enter your full name as on bank receipt.');
+        setError(t('payment.error-name'));
         return;
       }
       if (!senderPhone.trim()) {
-        setError('Please enter your contact phone number.');
+        setError(t('payment.error-phone'));
         return;
       }
       if (!transactionId.trim() || transactionId.length < 6) {
-        setError('Please enter a valid Transaction ID (at least 6 characters).');
+        setError(t('payment.error-txid'));
         return;
       }
 
@@ -69,7 +71,7 @@ export default function PaymentModal({
       }, 1200);
     } else {
       if (!senderPhone.trim()) {
-        setError('Please enter your phone number.');
+        setError(t('payment.error-phone-female'));
         return;
       }
       setSubmitting(true);
@@ -95,8 +97,8 @@ export default function PaymentModal({
 
           <div className="bg-[#8B0020] px-6 py-4 flex items-center justify-between text-white shrink-0">
             <div>
-              <h3 className="text-base sm:text-lg font-bold">Unlock {profile.name}'s Contact</h3>
-              <p className="text-[10px] sm:text-[11px] text-[#F0D4D4] font-medium">Get phone, Telegram & Instagram instantly</p>
+              <h3 className="text-base sm:text-lg font-bold">{t('payment.title').replace('{name}', profile.name)}</h3>
+              <p className="text-[10px] sm:text-[11px] text-[#F0D4D4] font-medium">{t('payment.subtitle')}</p>
             </div>
             <button onClick={onClose} className="p-1 rounded-full text-white/80 hover:text-white hover:bg-white/10 transition-colors cursor-pointer">
               <X className="h-5 w-5" />
@@ -116,15 +118,15 @@ export default function PaymentModal({
                 <div className="bg-[#C9A84C]/5 border border-[#C9A84C]/20 rounded-xl p-4 text-[#1A1118] dark:text-[#FFFCF8] flex items-start gap-3">
                   <CheckCircle className="h-5 w-5 text-[#C9A84C] mt-0.5 shrink-0" />
                   <div>
-                    <h4 className="font-bold text-sm">Free for Women</h4>
+                    <h4 className="font-bold text-sm">{t('payment.free-title')}</h4>
                     <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed mt-1">
-                      Whaatachi is completely free for women. Submit your phone below for instant access.
+                      {t('payment.free-desc')}
                     </p>
                   </div>
                 </div>
 
                 <div className="space-y-3">
-                  <label className="block text-xs font-bold text-[#1A1118]/70 dark:text-[#FFFCF8]/60 uppercase tracking-wider">Your Phone Number</label>
+                  <label className="block text-xs font-bold text-[#1A1118]/70 dark:text-[#FFFCF8]/60 uppercase tracking-wider">{t('payment.your-phone')}</label>
                   <input type="text" required placeholder="+251 900 000 000" value={senderPhone} onChange={(e) => setSenderPhone(e.target.value)} className="w-full rounded-xl border border-[#EDE6D9] dark:border-[#C9A84C]/15 p-3 text-sm text-gray-900 dark:text-[#FFFCF8] focus:outline-hidden focus:border-[#8B0020] dark:focus:border-[#C9A84C] focus:ring-1 focus:ring-[#8B0020]/20 dark:focus:ring-[#C9A84C]/20 bg-white dark:bg-[#1A1118]" />
                 </div>
               </div>
@@ -136,8 +138,8 @@ export default function PaymentModal({
                       <DollarSign className="h-5 w-5" />
                     </div>
                     <div>
-                      <p className="text-[10px] text-gray-500 dark:text-gray-400 font-bold uppercase tracking-wider">One-Time Unlock</p>
-                      <p className="text-sm font-bold text-[#1A1118] dark:text-[#FFFCF8]">Pay & Connect Instantly</p>
+                      <p className="text-[10px] text-gray-500 dark:text-gray-400 font-bold uppercase tracking-wider">{t('payment.unlock-fee')}</p>
+                      <p className="text-sm font-bold text-[#1A1118] dark:text-[#FFFCF8]">{t('payment.pay-connect')}</p>
                     </div>
                   </div>
                   <div className="text-right">
@@ -151,19 +153,19 @@ export default function PaymentModal({
                 </p>
 
                 <div className="bg-[#F8F4ED] dark:bg-[#1A1118] border border-[#EDE6D9] dark:border-[#C9A84C]/15 rounded-xl p-4 space-y-3">
-                  <h4 className="text-xs font-bold text-[#1A1118] dark:text-[#FFFCF8] uppercase tracking-wider">1. Send {activeFee} ETB to:</h4>
+                  <h4 className="text-xs font-bold text-[#1A1118] dark:text-[#FFFCF8] uppercase tracking-wider">{t('payment.send-to').replace('{fee}', activeFee.toString())}</h4>
 
                   <div className="flex items-center justify-between p-2.5 bg-white dark:bg-[#120A0E] border border-[#EDE6D9] dark:border-[#C9A84C]/10 rounded-lg">
                     <div className="flex items-center gap-2">
                       <span className="w-8 h-8 rounded-md bg-blue-600 text-white font-extrabold flex items-center justify-center text-[10px] shrink-0">TELE</span>
                       <div className="text-xs">
-                        <p className="font-bold text-gray-800 dark:text-[#FFFCF8]">Merchant: <span className="text-blue-600">0900123456</span></p>
+                        <p className="font-bold text-gray-800 dark:text-[#FFFCF8]">{t('payment.merchant').split('{number}')[0]}<span className="text-blue-600">0900123456</span>{t('payment.merchant').split('{number}')[1]}</p>
                         <p className="text-[10px] text-gray-500 dark:text-gray-400">Whaatachi PLC</p>
                       </div>
                     </div>
                     <button type="button" onClick={() => handleCopy('0900123456', 'tele')} className="text-[10px] font-semibold text-[#8B0020] dark:text-[#C9A84C] hover:text-[#B31B3A] dark:hover:text-[#E0C878] hover:bg-[#8B0020]/5 dark:hover:bg-[#C9A84C]/10 p-1.5 rounded-md flex items-center gap-1 cursor-pointer transition-colors">
                       {copiedText === 'tele' ? <Check className="h-3 w-3 text-green-600" /> : <Copy className="h-3 w-3" />}
-                      <span>{copiedText === 'tele' ? 'Copied' : 'Copy'}</span>
+                      <span>{copiedText === 'tele' ? t('payment.copied') : t('payment.copy')}</span>
                     </button>
                   </div>
 
@@ -171,42 +173,42 @@ export default function PaymentModal({
                     <div className="flex items-center gap-2">
                       <span className="w-8 h-8 rounded-md bg-purple-700 text-white font-extrabold flex items-center justify-center text-[10px] shrink-0">CBE</span>
                       <div className="text-xs">
-                        <p className="font-bold text-gray-800 dark:text-[#FFFCF8]">Account: <span className="text-purple-700">1000123456789</span></p>
+                        <p className="font-bold text-gray-800 dark:text-[#FFFCF8]">{t('payment.account').split('{number}')[0]}<span className="text-purple-700">1000123456789</span>{t('payment.account').split('{number}')[1]}</p>
                         <p className="text-[10px] text-gray-500 dark:text-gray-400">Samuel S. (Whaatachi)</p>
                       </div>
                     </div>
                     <button type="button" onClick={() => handleCopy('1000123456789', 'cbe')} className="text-[10px] font-semibold text-[#8B0020] dark:text-[#C9A84C] hover:text-[#B31B3A] dark:hover:text-[#E0C878] hover:bg-[#8B0020]/5 dark:hover:bg-[#C9A84C]/10 p-1.5 rounded-md flex items-center gap-1 cursor-pointer transition-colors">
                       {copiedText === 'cbe' ? <Check className="h-3 w-3 text-green-600" /> : <Copy className="h-3 w-3" />}
-                      <span>{copiedText === 'cbe' ? 'Copied' : 'Copy'}</span>
+                      <span>{copiedText === 'cbe' ? t('payment.copied') : t('payment.copy')}</span>
                     </button>
                   </div>
                 </div>
 
                 <div className="space-y-4 pt-1">
-                  <h4 className="text-xs font-bold text-[#1A1118] dark:text-[#FFFCF8] uppercase tracking-wider">2. Submit Payment Proof:</h4>
+                  <h4 className="text-xs font-bold text-[#1A1118] dark:text-[#FFFCF8] uppercase tracking-wider">{t('payment.submit-proof')}</h4>
 
                   <div className="grid grid-cols-2 gap-2">
                     <button type="button" onClick={() => setMethod('Telebirr')} className={`p-2.5 border rounded-lg font-semibold cursor-pointer transition-colors ${method === 'Telebirr' ? 'border-blue-600 bg-blue-50 dark:bg-blue-900/20 text-blue-800 dark:text-blue-300' : 'border-[#EDE6D9] dark:border-[#C9A84C]/15 hover:border-gray-300 text-gray-600 dark:text-gray-400 dark:hover:text-[#FFFCF8]'}`}>
-                      Telebirr
+                      {t('payment.teleBirr')}
                     </button>
                     <button type="button" onClick={() => setMethod('CBE Birr')} className={`p-2.5 border rounded-lg font-semibold cursor-pointer transition-colors ${method === 'CBE Birr' ? 'border-purple-600 bg-purple-50 dark:bg-purple-900/20 text-purple-800 dark:text-purple-300' : 'border-[#EDE6D9] dark:border-[#C9A84C]/15 hover:border-gray-300 text-gray-600 dark:text-gray-400 dark:hover:text-[#FFFCF8]'}`}>
-                      CBE Birr
+                      {t('payment.cbeBirr')}
                     </button>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div className="space-y-1">
-                      <label className="text-[10px] font-bold text-[#1A1118]/70 dark:text-[#FFFCF8]/60 uppercase">Full Name</label>
+                      <label className="text-[10px] font-bold text-[#1A1118]/70 dark:text-[#FFFCF8]/60 uppercase">{t('payment.full-name')}</label>
                       <input type="text" required placeholder="e.g. Samuel Girma" value={senderName} onChange={(e) => setSenderName(e.target.value)} className="w-full bg-white dark:bg-[#1A1118] text-gray-900 dark:text-[#FFFCF8] border border-[#EDE6D9] dark:border-[#C9A84C]/15 p-2.5 rounded-lg text-xs focus:outline-hidden focus:border-[#8B0020] dark:focus:border-[#C9A84C]" />
                     </div>
                     <div className="space-y-1">
-                      <label className="text-[10px] font-bold text-[#1A1118]/70 dark:text-[#FFFCF8]/60 uppercase">Your Phone</label>
+                      <label className="text-[10px] font-bold text-[#1A1118]/70 dark:text-[#FFFCF8]/60 uppercase">{t('payment.your-phone-label')}</label>
                       <input type="text" required placeholder="0911234567" value={senderPhone} onChange={(e) => setSenderPhone(e.target.value)} className="w-full bg-white dark:bg-[#1A1118] text-gray-900 dark:text-[#FFFCF8] border border-[#EDE6D9] dark:border-[#C9A84C]/15 p-2.5 rounded-lg text-xs focus:outline-hidden focus:border-[#8B0020] dark:focus:border-[#C9A84C]" />
                     </div>
                   </div>
 
                   <div className="space-y-1">
-                    <label className="text-[10px] font-bold text-[#1A1118]/70 dark:text-[#FFFCF8]/60 uppercase">Transaction ID</label>
+                    <label className="text-[10px] font-bold text-[#1A1118]/70 dark:text-[#FFFCF8]/60 uppercase">{t('payment.transaction-id')}</label>
                     <input type="text" required placeholder="e.g. FT2315354922" value={transactionId} onChange={(e) => setTransactionId(e.target.value)} className="w-full bg-white dark:bg-[#1A1118] text-gray-900 dark:text-[#FFFCF8] border border-[#EDE6D9] dark:border-[#C9A84C]/15 p-2.5 rounded-lg font-mono text-xs uppercase focus:outline-hidden focus:border-[#8B0020] dark:focus:border-[#C9A84C]" />
                   </div>
 
@@ -214,12 +216,12 @@ export default function PaymentModal({
                     <div className="flex items-center gap-2">
                       <Upload className="h-5 w-5 text-gray-400" />
                       <div>
-                        <p className="font-bold text-gray-700 dark:text-gray-300">Upload Slip</p>
-                        <p className="text-[10px] text-gray-400">Optional screenshot</p>
+                        <p className="font-bold text-gray-700 dark:text-gray-300">{t('payment.upload-slip')}</p>
+                        <p className="text-[10px] text-gray-400">{t('payment.optional-screenshot')}</p>
                       </div>
                     </div>
                     <span className="bg-white dark:bg-[#120A0E] border border-[#EDE6D9] dark:border-[#C9A84C]/10 rounded-md px-2 py-1 font-semibold text-gray-500 dark:text-gray-400 cursor-pointer hover:bg-gray-50 dark:hover:bg-[#1A1118] text-[10px]">
-                      Choose
+                      {t('payment.choose')}
                     </span>
                   </div>
                 </div>
@@ -228,10 +230,10 @@ export default function PaymentModal({
 
             <button type="submit" disabled={submitting} className="w-full py-3.5 bg-[#8B0020] hover:bg-[#B31B3A] text-white rounded-xl text-sm font-bold shadow-lg shadow-[#8B0020]/20 transition-all flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer shrink-0">
               {submitting ? (
-                <span>Verifying transaction...</span>
+                <span>{t('payment.verifying')}</span>
               ) : (
                 <>
-                  <span>{userGender === 'Female' ? 'Verify & Get Free Contact' : `Pay ${activeFee} ETB & Unlock Contact`}</span>
+                  <span>{userGender === 'Female' ? t('payment.verify-free') : t('payment.pay-unlock').replace('{fee}', activeFee.toString())}</span>
                   <ArrowRight className="h-4.5 w-4.5" />
                 </>
               )}

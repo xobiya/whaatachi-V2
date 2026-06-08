@@ -1,6 +1,7 @@
 import React from 'react';
 import { Heart, ShieldCheck, Users, Sparkles, ArrowRight, ChevronRight, Lock, Phone, MessageCircle, Star, CheckCircle, Crown, MapPin } from 'lucide-react';
 import { Profile } from '../types';
+import { useAppContext } from '../context/AppContext';
 
 const asset = (file: string) => `/assets/${file}`;
 
@@ -22,6 +23,7 @@ const featured = [
 ];
 
 export default function HomeLanding({ onJoinNowClick, onGoToDashboard }: HomeLandingProps) {
+  const { t } = useAppContext();
   return (
     <div className="bg-[#FFFCF8] dark:bg-[#120A0E] text-gray-900 dark:text-[#FFFCF8] min-h-screen font-sans transition-colors duration-200">
 
@@ -35,38 +37,38 @@ export default function HomeLanding({ onJoinNowClick, onGoToDashboard }: HomeLan
           <div className="max-w-2xl">
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#C9A84C]/30 bg-[#C9A84C]/10 text-[#C9A84C] text-xs font-semibold tracking-wider uppercase mb-6 animate-slide-up">
               <Crown className="h-3.5 w-3.5" />
-              Ethiopia's Premium Dating Platform
+              {t('home.hero.badge')}
             </div>
             <h1 className="text-5xl sm:text-6xl lg:text-7xl font-black text-[#FFFCF8] leading-[1.05] tracking-tight animate-slide-up stagger-1">
-              Find Your Match
+              {t('home.hero.title')}
               <br />
-              <span className="text-[#C9A84C]">in Ethiopia</span>
+              <span className="text-[#C9A84C]">{t('home.hero.subtitle')}</span>
             </h1>
             <p className="text-lg sm:text-xl text-[#EDE6D9]/80 mt-4 max-w-lg font-light tracking-wide animate-slide-up stagger-2">
-              Relationship, Dating & Private Connections — trusted by thousands across Ethiopia.
+              {t('home.hero.desc')}
             </p>
             <div className="flex flex-wrap gap-4 mt-8 animate-slide-up stagger-3">
               <button onClick={() => onJoinNowClick('register')} className="px-8 py-3.5 bg-[#8B0020] hover:bg-[#B31B3A] text-white font-bold text-sm rounded-lg shadow-xl shadow-[#8B0020]/20 transition-all flex items-center gap-2 cursor-pointer hover:-translate-y-0.5">
                 <Heart className="h-4 w-4" />
-                Create Profile
+                {t('nav.create-profile')}
               </button>
               <button onClick={() => { const el = document.getElementById('browse-profiles'); el?.scrollIntoView({ behavior: 'smooth' }); }} className="px-8 py-3.5 border-2 border-[#C9A84C]/40 hover:border-[#C9A84C] text-[#FFFCF8] font-bold text-sm rounded-lg transition-all flex items-center gap-2 cursor-pointer">
-                Browse Profiles
+                {t('nav.browse-profiles')}
                 <ChevronRight className="h-4 w-4" />
               </button>
             </div>
             <div className="flex gap-6 mt-10 animate-slide-up stagger-4">
               <div className="flex items-center gap-2 text-[#EDE6D9]/60 text-xs">
                 <ShieldCheck className="h-4 w-4 text-[#C9A84C]" />
-                Verified Members
+                {t('home.hero.verified')}
               </div>
               <div className="flex items-center gap-2 text-[#EDE6D9]/60 text-xs">
                 <Heart className="h-4 w-4 text-[#C9A84C]" />
-                12K+ Matches
+                {t('home.hero.matches-count')}
               </div>
               <div className="flex items-center gap-2 text-[#EDE6D9]/60 text-xs">
                 <Users className="h-4 w-4 text-[#C9A84C]" />
-                Private & Safe
+                {t('home.hero.safe')}
               </div>
             </div>
           </div>
@@ -76,15 +78,15 @@ export default function HomeLanding({ onJoinNowClick, onGoToDashboard }: HomeLan
       <section className="py-20 bg-[#FFFCF8] dark:bg-[#120A0E]">
         <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
           <div className="text-center mb-12">
-            <span className="text-xs font-bold text-[#8B0020] dark:text-[#C9A84C] uppercase tracking-[0.25em]">I'm Here For</span>
-            <h2 className="text-3xl font-black text-[#1A1118] dark:text-[#FFFCF8] mt-2">What Are You Looking For?</h2>
+            <span className="text-xs font-bold text-[#8B0020] dark:text-[#C9A84C] uppercase tracking-[0.25em]">{t('home.looking-for')}</span>
+            <h2 className="text-3xl font-black text-[#1A1118] dark:text-[#FFFCF8] mt-2">{t('home.looking-for')}</h2>
           </div>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
             {[
-              { icon: '❤️', label: 'Relationship', desc: 'Serious commitment' },
-              { icon: '💕', label: 'Dating', desc: 'Explore compatibility' },
-              { icon: '🤝', label: 'Open Connection', desc: 'Mutually consensual' },
-              { icon: '🔥', label: 'Casual', desc: 'No strings attached' },
+              { icon: '❤️', label: t('home.looking-for.relationship'), desc: t('home.looking-for.serious') },
+              { icon: '💕', label: t('home.looking-for.dating'), desc: t('home.looking-for.explore') },
+              { icon: '🤝', label: t('home.looking-for.open-connection'), desc: t('home.looking-for.mutual') },
+              { icon: '🔥', label: t('home.looking-for.casual'), desc: t('home.looking-for.no-strings') },
             ].map((item) => (
               <button key={item.label} onClick={() => onJoinNowClick('register')} className="group bg-white dark:bg-[#1A1118] border border-[#EDE6D9] dark:border-[#C9A84C]/10 hover:border-[#C9A84C]/50 rounded-2xl p-6 text-center transition-all cursor-pointer hover:shadow-xl hover:shadow-[#C9A84C]/5 hover:-translate-y-1">
                 <div className="text-4xl mb-4 group-hover:scale-110 transition-transform duration-300">{item.icon}</div>
@@ -103,11 +105,11 @@ export default function HomeLanding({ onJoinNowClick, onGoToDashboard }: HomeLan
             <div className="flex gap-3">
               <button onClick={() => onJoinNowClick('register')} className="px-10 py-3.5 bg-[#1A1118] dark:bg-[#8B0020] text-[#FFFCF8] rounded-xl font-bold text-sm hover:bg-[#8B0020] dark:hover:bg-[#B31B3A] transition-all cursor-pointer shadow-lg flex items-center gap-2">
                 <Users className="h-4 w-4" />
-                Women
+                {t('home.looking-for.women')}
               </button>
               <button onClick={() => onJoinNowClick('register')} className="px-10 py-3.5 bg-white dark:bg-[#1A1118] border-2 border-[#EDE6D9] dark:border-[#C9A84C]/20 text-[#1A1118] dark:text-[#FFFCF8] rounded-xl font-bold text-sm hover:border-[#C9A84C] transition-all cursor-pointer flex items-center gap-2">
                 <Users className="h-4 w-4" />
-                Men
+                {t('home.looking-for.men')}
               </button>
             </div>
           </div>
@@ -118,11 +120,11 @@ export default function HomeLanding({ onJoinNowClick, onGoToDashboard }: HomeLan
         <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
           <div className="flex justify-between items-end mb-10">
             <div>
-              <span className="text-xs font-bold text-[#8B0020] dark:text-[#C9A84C] uppercase tracking-[0.25em]">Featured Members</span>
-              <h2 className="text-3xl font-black text-[#1A1118] dark:text-[#FFFCF8] mt-2">Active Singles Near You</h2>
+              <span className="text-xs font-bold text-[#8B0020] dark:text-[#C9A84C] uppercase tracking-[0.25em]">{t('home.featured.badge')}</span>
+              <h2 className="text-3xl font-black text-[#1A1118] dark:text-[#FFFCF8] mt-2">{t('home.featured')}</h2>
             </div>
             <button onClick={() => onJoinNowClick('register')} className="hidden sm:flex items-center gap-1 text-sm font-bold text-[#8B0020] dark:text-[#C9A84C] hover:text-[#B31B3A] dark:hover:text-[#E0C878] transition-colors cursor-pointer">
-              View All <ArrowRight className="h-4 w-4" />
+              {t('home.featured.view-all')} <ArrowRight className="h-4 w-4" />
             </button>
           </div>
 
@@ -157,7 +159,7 @@ export default function HomeLanding({ onJoinNowClick, onGoToDashboard }: HomeLan
                   </div>
                   <button onClick={() => onJoinNowClick('register')} className="w-full py-3 bg-[#8B0020] hover:bg-[#B31B3A] text-white font-bold text-xs rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-[#8B0020]/10">
                     <Lock className="h-3.5 w-3.5" />
-                    Unlock Contact
+                    {t('profile.unlock')}
                   </button>
                 </div>
               </div>
@@ -170,26 +172,26 @@ export default function HomeLanding({ onJoinNowClick, onGoToDashboard }: HomeLan
         <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
           <div className="text-center mb-12">
             <span className="text-xs font-bold text-[#C9A84C] uppercase tracking-[0.25em]">Simple Pricing</span>
-            <h2 className="text-3xl font-black text-[#FFFCF8] mt-2">Pay Only When You Connect</h2>
-            <p className="text-[#EDE6D9]/60 mt-2 text-sm max-w-md mx-auto">No monthly fees. Just a one-time unlock per contact.</p>
+            <h2 className="text-3xl font-black text-[#FFFCF8] mt-2">{t('home.pricing.title')}</h2>
+            <p className="text-[#EDE6D9]/60 mt-2 text-sm max-w-md mx-auto">{t('home.pricing.subtitle')}</p>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-4xl mx-auto">
             <div className="bg-[#FFFCF8] rounded-3xl p-8 border border-[#C9A84C]/20 shadow-2xl relative">
-              <div className="absolute top-0 right-0 bg-[#C9A84C] text-[#1A1118] text-[10px] font-black px-3 py-1 rounded-bl-2xl rounded-tr-3xl uppercase tracking-wider">Popular</div>
+              <div className="absolute top-0 right-0 bg-[#C9A84C] text-[#1A1118] text-[10px] font-black px-3 py-1 rounded-bl-2xl rounded-tr-3xl uppercase tracking-wider">{t('home.pricing.popular')}</div>
               <div className="flex items-center gap-3 mb-6">
                 <div className="w-12 h-12 rounded-full bg-[#8B0020]/10 flex items-center justify-center">
                   <Crown className="h-6 w-6 text-[#8B0020]" />
                 </div>
                 <div>
-                  <h3 className="text-xl font-black text-[#1A1118]">For Men</h3>
-                  <p className="text-xs text-gray-500">Full access to all women profiles</p>
+                  <h3 className="text-xl font-black text-[#1A1118]">{t('home.for-men')}</h3>
+                  <p className="text-xs text-gray-500">{t('home.pricing.full-access')}</p>
                 </div>
               </div>
               <div className="flex items-baseline gap-1 mb-6">
                 <span className="text-5xl font-black text-[#1A1118]">200</span>
                 <span className="text-lg font-bold text-gray-500">ETB</span>
-                <span className="text-xs text-gray-400 ml-2">per unlock</span>
+                <span className="text-xs text-gray-400 ml-2">{t('home.pricing.per-unlock')}</span>
               </div>
               <ul className="space-y-3 text-sm text-gray-600 mb-8">
                 {['View phone, Telegram & Instagram', 'Verified female profiles only', 'Secure Telebirr & CBE Birr', '24/7 support', 'No subscription required'].map((item) => (
@@ -200,7 +202,7 @@ export default function HomeLanding({ onJoinNowClick, onGoToDashboard }: HomeLan
                 ))}
               </ul>
               <button onClick={() => onJoinNowClick('register')} className="w-full py-3.5 bg-[#8B0020] hover:bg-[#B31B3A] text-white font-bold rounded-xl transition-all cursor-pointer shadow-lg">
-                Create Profile — Pay When Ready
+                {t('home.pricing.create-btn')}
               </button>
             </div>
 
@@ -210,8 +212,8 @@ export default function HomeLanding({ onJoinNowClick, onGoToDashboard }: HomeLan
                   <Star className="h-6 w-6 text-[#C9A84C]" />
                 </div>
                 <div>
-                  <h3 className="text-xl font-black text-[#1A1118]">For Women</h3>
-                  <p className="text-xs text-gray-500">Free — always</p>
+                  <h3 className="text-xl font-black text-[#1A1118]">{t('home.for-women')}</h3>
+                  <p className="text-xs text-gray-500">{t('home.pricing.free-access')}</p>
                 </div>
               </div>
               <div className="flex items-baseline gap-1 mb-6">
@@ -226,14 +228,14 @@ export default function HomeLanding({ onJoinNowClick, onGoToDashboard }: HomeLan
                 ))}
               </ul>
               <button onClick={() => onJoinNowClick('register')} className="w-full py-3.5 bg-[#1A1118] hover:bg-[#8B0020] text-white font-bold rounded-xl transition-all cursor-pointer">
-                Join Free
+                {t('home.pricing.join-free')}
               </button>
             </div>
           </div>
 
           <div className="flex justify-center gap-4 mt-8 text-xs text-[#EDE6D9]/50">
-            <span className="flex items-center gap-1.5"><ShieldCheck className="h-3.5 w-3.5 text-[#C9A84C]" /> Paid via Telebirr</span>
-            <span className="flex items-center gap-1.5"><ShieldCheck className="h-3.5 w-3.5 text-[#C9A84C]" /> Paid via CBE Birr</span>
+            <span className="flex items-center gap-1.5"><ShieldCheck className="h-3.5 w-3.5 text-[#C9A84C]" /> {t('home.pricing.teleBirr')}</span>
+            <span className="flex items-center gap-1.5"><ShieldCheck className="h-3.5 w-3.5 text-[#C9A84C]" /> {t('home.pricing.cbeBirr')}</span>
           </div>
         </div>
       </section>
@@ -241,14 +243,14 @@ export default function HomeLanding({ onJoinNowClick, onGoToDashboard }: HomeLan
       <section className="py-16 bg-[#F8F4ED] dark:bg-[#1A1118]">
         <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
           <div className="text-center mb-10">
-            <h2 className="text-2xl font-black text-[#1A1118] dark:text-[#FFFCF8]">Why Trust Whaatachi</h2>
+            <h2 className="text-2xl font-black text-[#1A1118] dark:text-[#FFFCF8]">{t('home.trust.title')}</h2>
           </div>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
             {[
-              { icon: Lock, title: 'Private Contacts', desc: 'Your info is hidden until you choose to share' },
-              { icon: ShieldCheck, title: 'Verified Profiles', desc: 'Every member is manually verified' },
-              { icon: Heart, title: 'Secure Payment', desc: 'Safe Telebirr & CBE Birr transactions' },
-              { icon: Users, title: 'Fake Account Removal', desc: 'Zero tolerance for spam or bots' },
+              { icon: Lock, title: t('home.trust.private'), desc: t('home.trust.private-desc') },
+              { icon: ShieldCheck, title: t('home.trust.verified'), desc: t('home.trust.verified-desc') },
+              { icon: Heart, title: t('home.trust.secure'), desc: t('home.trust.secure-desc') },
+              { icon: Users, title: t('home.trust.fake-removal'), desc: t('home.trust.fake-removal-desc') },
             ].map((item) => (
               <div key={item.title} className="bg-white dark:bg-[#1A1118] rounded-2xl p-6 border border-[#EDE6D9] dark:border-[#C9A84C]/10 text-center hover:shadow-lg dark:hover:shadow-[#C9A84C]/5 transition-all">
                 <div className="w-12 h-12 rounded-full bg-[#8B0020]/5 dark:bg-[#8B0020]/15 flex items-center justify-center mx-auto mb-4">

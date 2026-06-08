@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { ArrowLeft, MapPin, ShieldCheck, Phone, MessageCircle, Instagram, Mail, Lock, Sparkles, Star, Crown, Heart, Edit3, Check, X, Plus, User, Camera, Calendar } from 'lucide-react';
 import { Profile, PaymentRequest } from '../types';
+import { useAppContext } from '../context/AppContext';
 
 const ALL_INTERESTS = [
   'Coffee Ceremony', 'Macchiato', 'Technology', 'Literature', 'Jazz', 'Hiking',
@@ -37,6 +38,7 @@ interface ProfilePageProps {
 }
 
 export default function ProfilePage({ profile, isUnlocked, pendingPayment, userGender, isOwnProfile, onBack, onUnlockClick, onSaveProfile }: ProfilePageProps) {
+  const { t } = useAppContext();
   const [editing, setEditing] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -137,7 +139,7 @@ export default function ProfilePage({ profile, isUnlocked, pendingPayment, userG
             className="flex items-center gap-1.5 px-4 py-2 bg-[#8B0020] hover:bg-[#B31B3A] text-white font-extrabold text-xs rounded-xl shadow-md transition-all cursor-pointer"
           >
             <Edit3 className="h-4 w-4" />
-            <span>Edit Profile</span>
+            <span>{t('profile.edit-profile')}</span>
           </button>
         )}
       </div>
@@ -162,7 +164,7 @@ export default function ProfilePage({ profile, isUnlocked, pendingPayment, userG
               {editing && (
                 <div className="absolute inset-0 bg-black/55 flex flex-col items-center justify-center text-white text-[10px] font-bold gap-1 transition-opacity">
                   <Camera className="h-5 w-5 text-[#C9A84C]" />
-                  <span>Upload Photo</span>
+                  <span>{t('profile.upload-photo')}</span>
                 </div>
               )}
             </div>
@@ -239,19 +241,19 @@ export default function ProfilePage({ profile, isUnlocked, pendingPayment, userG
           <div className="bg-white dark:bg-[#1A1118] border border-[#EDE6D9] dark:border-[#C9A84C]/10 rounded-2xl p-5 shadow-sm space-y-4">
             <h3 className="text-xs font-bold text-[#1A1118] dark:text-[#FFFCF8] uppercase tracking-wider flex items-center gap-1.5">
               <Camera className="h-4 w-4 text-[#8B0020] dark:text-[#C9A84C]" />
-              <span>Change Profile Picture</span>
+              <span>{t('profile.change-photo')}</span>
             </h3>
             
             <div className="space-y-3">
               <div className="flex flex-col items-start gap-2">
-                <p className="text-[10px] text-gray-400 dark:text-gray-500 font-bold uppercase">Upload a new photo:</p>
+                <p className="text-[10px] text-gray-400 dark:text-gray-500 font-bold uppercase">{t('profile.upload-new')}</p>
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
                   className="px-4 py-2.5 bg-[#F8F4ED] dark:bg-[#120A0E] border border-[#EDE6D9] dark:border-[#C9A84C]/15 rounded-xl text-xs font-bold text-gray-700 dark:text-[#FFFCF8] hover:border-[#8B0020] dark:hover:border-[#C9A84C] transition-all cursor-pointer flex items-center gap-1.5"
                 >
                   <Camera className="h-4 w-4" />
-                  Select File
+                  {t('profile.select-file')}
                 </button>
               </div>
             </div>
@@ -263,12 +265,12 @@ export default function ProfilePage({ profile, isUnlocked, pendingPayment, userG
           <div className="bg-white dark:bg-[#1A1118] border border-[#EDE6D9] dark:border-[#C9A84C]/10 rounded-2xl p-5 shadow-sm space-y-4">
             <h3 className="text-xs font-bold text-[#1A1118] dark:text-[#FFFCF8] uppercase tracking-wider flex items-center gap-1.5">
               <Crown className="h-4 w-4 text-[#8B0020] dark:text-[#C9A84C]" />
-              <span>Basic Settings</span>
+              <span>{t('profile.basic-settings')}</span>
             </h3>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1.5">
-                <label className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase">My Gender</label>
+                <label className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase">{t('profile.my-gender')}</label>
                 <select 
                   value={editGender} 
                   onChange={(e) => {
@@ -284,7 +286,7 @@ export default function ProfilePage({ profile, isUnlocked, pendingPayment, userG
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase">Looking For</label>
+                <label className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase">{t('profile.looking-for')}</label>
                 <select 
                   value={editLookingFor} 
                   onChange={(e) => setEditLookingFor(e.target.value as 'Male' | 'Female')} 
@@ -296,7 +298,7 @@ export default function ProfilePage({ profile, isUnlocked, pendingPayment, userG
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase">Relationship Intent</label>
+                <label className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase">{t('profile.relationship-intent')}</label>
                 <select 
                   value={editRelationshipIntent} 
                   onChange={(e) => setEditRelationshipIntent(e.target.value)} 
@@ -310,7 +312,7 @@ export default function ProfilePage({ profile, isUnlocked, pendingPayment, userG
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase">Live Activity Status</label>
+                <label className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase">{t('profile.live-status')}</label>
                 <select 
                   value={editStatus} 
                   onChange={(e) => setEditStatus(e.target.value as Profile['status'])} 
@@ -329,7 +331,7 @@ export default function ProfilePage({ profile, isUnlocked, pendingPayment, userG
         <div className="bg-white dark:bg-[#1A1118] border border-[#EDE6D9] dark:border-[#C9A84C]/10 rounded-2xl p-5 shadow-sm space-y-3">
           <div className="flex items-center gap-2 border-b border-[#EDE6D9] dark:border-[#C9A84C]/5 pb-2">
             <Heart className="h-4.5 w-4.5 text-[#8B0020] dark:text-[#C9A84C]" />
-            <h2 className="text-xs font-bold text-[#1A1118] dark:text-[#FFFCF8] uppercase tracking-wider">About</h2>
+            <h2 className="text-xs font-bold text-[#1A1118] dark:text-[#FFFCF8] uppercase tracking-wider">{t('profile.about')}</h2>
           </div>
           {editing ? (
             <textarea 
@@ -366,7 +368,7 @@ export default function ProfilePage({ profile, isUnlocked, pendingPayment, userG
 
           {/* Interests */}
           <div>
-            <p className="text-[10px] font-bold text-[#1A1118]/70 dark:text-[#FFFCF8]/60 uppercase tracking-wider mb-2">Interests & Hobbies</p>
+            <p className="text-[10px] font-bold text-[#1A1118]/70 dark:text-[#FFFCF8]/60 uppercase tracking-wider mb-2">{t('profile.interests-hobbies')}</p>
             {editing ? (
               <div className="space-y-3">
                 <div className="flex flex-wrap gap-1.5">
@@ -380,7 +382,7 @@ export default function ProfilePage({ profile, isUnlocked, pendingPayment, userG
                   ))}
                 </div>
                 <div className="border-t border-[#EDE6D9] dark:border-[#C9A84C]/10 pt-2.5">
-                  <p className="text-[10px] text-gray-400 dark:text-gray-500 font-bold mb-1.5">Select and add interests:</p>
+                  <p className="text-[10px] text-gray-400 dark:text-gray-500 font-bold mb-1.5">{t('profile.select-add-interests')}</p>
                   <div className="flex flex-wrap gap-1.5 max-h-[120px] overflow-y-auto p-1 bg-[#F8F4ED]/30 dark:bg-[#120A0E]/30 rounded-xl border border-[#EDE6D9]/50 dark:border-transparent">
                     {ALL_INTERESTS.filter(i => !editInterests.includes(i)).map((interest) => (
                       <button key={interest} onClick={() => toggleEditInterest(interest)} className="bg-[#F8F4ED] dark:bg-[#120A0E] text-gray-500 dark:text-gray-400 hover:text-[#8B0020] dark:hover:text-[#C9A84C] text-[10.5px] px-2.5 py-1 rounded-full border border-[#EDE6D9] dark:border-[#C9A84C]/10 hover:border-[#8B0020]/30 dark:hover:border-[#C9A84C]/40 transition-colors cursor-pointer">
@@ -407,13 +409,13 @@ export default function ProfilePage({ profile, isUnlocked, pendingPayment, userG
         <div className="bg-white dark:bg-[#1A1118] border border-[#EDE6D9] dark:border-[#C9A84C]/10 rounded-2xl p-5 shadow-sm space-y-4">
           <div className="flex items-center gap-2 border-b border-[#EDE6D9] dark:border-[#C9A84C]/5 pb-2">
             <Crown className="h-4.5 w-4.5 text-[#8B0020] dark:text-[#C9A84C]" />
-            <h2 className="text-xs font-bold text-[#1A1118] dark:text-[#FFFCF8] uppercase tracking-wider">Contact Information</h2>
+            <h2 className="text-xs font-bold text-[#1A1118] dark:text-[#FFFCF8] uppercase tracking-wider">{t('profile.contact-info')}</h2>
           </div>
 
           {editing ? (
             <div className="space-y-4">
               <div className="space-y-1">
-                <label className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase">Phone Number</label>
+                <label className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase">{t('profile.phone')}</label>
                 <div className="relative">
                   <Phone className="absolute left-3.5 top-3.5 h-4 w-4 text-gray-400" />
                   <input 
@@ -427,7 +429,7 @@ export default function ProfilePage({ profile, isUnlocked, pendingPayment, userG
               </div>
 
               <div className="space-y-1">
-                <label className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase">Telegram Username</label>
+                <label className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase">{t('profile.telegram')}</label>
                 <div className="relative">
                   <MessageCircle className="absolute left-3.5 top-3.5 h-4 w-4 text-gray-400" />
                   <input 
@@ -441,7 +443,7 @@ export default function ProfilePage({ profile, isUnlocked, pendingPayment, userG
               </div>
 
               <div className="space-y-1">
-                <label className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase">Instagram Username (Optional)</label>
+                <label className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase">{t('profile.instagram')}</label>
                 <div className="relative">
                   <Instagram className="absolute left-3.5 top-3.5 h-4 w-4 text-gray-400" />
                   <input 
@@ -455,7 +457,7 @@ export default function ProfilePage({ profile, isUnlocked, pendingPayment, userG
               </div>
 
               <div className="space-y-1">
-                <label className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase">Email Address</label>
+                <label className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase">{t('profile.email')}</label>
                 <div className="relative">
                   <Mail className="absolute left-3.5 top-3.5 h-4 w-4 text-gray-400" />
                   <input 
@@ -475,7 +477,7 @@ export default function ProfilePage({ profile, isUnlocked, pendingPayment, userG
                   <Phone className="h-4 w-4" />
                 </div>
                 <div>
-                  <p className="text-[9px] text-gray-400 dark:text-gray-500 font-bold uppercase tracking-widest">Phone</p>
+                  <p className="text-[9px] text-gray-400 dark:text-gray-500 font-bold uppercase tracking-widest">{t('profile.phone')}</p>
                   <a href={`tel:${profile.contactInfo.phone}`} className="font-bold text-gray-800 dark:text-[#FFFCF8] text-xs sm:text-sm hover:underline">{profile.contactInfo.phone}</a>
                 </div>
               </div>
@@ -485,7 +487,7 @@ export default function ProfilePage({ profile, isUnlocked, pendingPayment, userG
                   <MessageCircle className="h-4 w-4" />
                 </div>
                 <div>
-                  <p className="text-[9px] text-gray-400 dark:text-gray-500 font-bold uppercase tracking-widest">Telegram</p>
+                  <p className="text-[9px] text-gray-400 dark:text-gray-500 font-bold uppercase tracking-widest">{t('profile.telegram')}</p>
                   <a href={`https://t.me/${profile.contactInfo.telegram.replace('@', '')}`} target="_blank" rel="noreferrer" className="font-bold text-sky-600 dark:text-sky-400 text-xs sm:text-sm hover:underline">{profile.contactInfo.telegram}</a>
                 </div>
               </div>
@@ -496,7 +498,7 @@ export default function ProfilePage({ profile, isUnlocked, pendingPayment, userG
                     <Instagram className="h-4 w-4" />
                   </div>
                   <div>
-                    <p className="text-[9px] text-gray-400 dark:text-gray-500 font-bold uppercase tracking-widest">Instagram</p>
+                    <p className="text-[9px] text-gray-400 dark:text-gray-500 font-bold uppercase tracking-widest">{t('profile.instagram')}</p>
                     <a href={`https://instagram.com/${profile.contactInfo.instagram.replace('@', '')}`} target="_blank" rel="noreferrer" className="font-bold text-[#8B0020] dark:text-[#C9A84C] text-xs sm:text-sm hover:underline">{profile.contactInfo.instagram}</a>
                   </div>
                 </div>
@@ -507,22 +509,22 @@ export default function ProfilePage({ profile, isUnlocked, pendingPayment, userG
                   <Mail className="h-4 w-4" />
                 </div>
                 <div>
-                  <p className="text-[9px] text-gray-400 dark:text-gray-500 font-bold uppercase tracking-widest">Email</p>
+                  <p className="text-[9px] text-gray-400 dark:text-gray-500 font-bold uppercase tracking-widest">{t('profile.email')}</p>
                   <a href={`mailto:${profile.contactInfo.email}`} className="font-bold text-gray-800 dark:text-[#FFFCF8] text-xs sm:text-sm truncate hover:underline">{profile.contactInfo.email}</a>
                 </div>
               </div>
             </div>
           ) : pendingPayment ? (
             <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700/30 rounded-xl p-4 text-xs text-amber-800 dark:text-amber-300 text-center animate-pulse">
-              <span className="font-bold">Verification Pending</span>
-              <p className="text-[10px] mt-1">Transaction {pendingPayment.transactionId} is being reviewed</p>
+              <span className="font-bold">{t('profile.verify-pending')}</span>
+              <p className="text-[10px] mt-1">{t('profile.verify-pending-desc').replace('{txId}', pendingPayment.transactionId)}</p>
             </div>
           ) : (
             <div className="text-center space-y-4">
               <div className="bg-[#F8F4ED] dark:bg-[#120A0E] border border-[#EDE6D9] dark:border-[#C9A84C]/10 rounded-xl p-6">
                 <Lock className="h-10 w-10 text-[#8B0020] dark:text-[#C9A84C] mx-auto mb-3 animate-bounce" />
-                <p className="text-sm font-bold text-[#1A1118] dark:text-[#FFFCF8]">Contact Details Locked</p>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 font-light">Direct phone number, Telegram, Instagram & Email details are secured</p>
+                <p className="text-sm font-bold text-[#1A1118] dark:text-[#FFFCF8]">{t('profile.contact-locked')}</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 font-light">{t('profile.contact-locked-desc')}</p>
               </div>
               
               <button
@@ -530,9 +532,9 @@ export default function ProfilePage({ profile, isUnlocked, pendingPayment, userG
                 className="w-full py-3.5 bg-[#8B0020] hover:bg-[#B31B3A] text-white font-extrabold text-xs rounded-xl shadow-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-[#8B0020]/20"
               >
                 <Lock className="h-4 w-4" />
-                <span>See Contact Details</span>
+                <span>{t('profile.see-contact-btn')}</span>
                 {userGender === 'Male' && <span className="text-[9px] bg-white/20 px-1.5 py-0.5 rounded-md font-extrabold ml-1">200 ETB</span>}
-                {userGender === 'Female' && <span className="text-[9px] bg-emerald-400/30 px-1.5 py-0.5 rounded-md font-extrabold ml-1">FREE</span>}
+                {userGender === 'Female' && <span className="text-[9px] bg-emerald-400/30 px-1.5 py-0.5 rounded-md font-extrabold ml-1">{t('profile.free-badge')}</span>}
               </button>
             </div>
           )}
@@ -549,7 +551,7 @@ export default function ProfilePage({ profile, isUnlocked, pendingPayment, userG
             className="flex-1 py-3 bg-[#F8F4ED] dark:bg-[#120A0E] border border-[#EDE6D9] dark:border-[#C9A84C]/15 text-[#1A1118] dark:text-[#FFFCF8] font-bold text-xs rounded-xl hover:bg-[#EDE6D9] transition-all cursor-pointer flex items-center justify-center gap-1.5"
           >
             <X className="h-4 w-4" />
-            Cancel
+            {t('profile.cancel')}
           </button>
           <button 
             type="button"
@@ -557,7 +559,7 @@ export default function ProfilePage({ profile, isUnlocked, pendingPayment, userG
             className="flex-1 py-3 bg-[#8B0020] hover:bg-[#B31B3A] text-white font-extrabold text-xs rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1.5 shadow-md shadow-[#8B0020]/15"
           >
             <Check className="h-4 w-4" />
-            Save Profile
+            {t('profile.save-profile')}
           </button>
         </div>
       )}

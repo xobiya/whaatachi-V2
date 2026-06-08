@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Heart, Sparkles, ThumbsUp, CheckSquare, Star } from 'lucide-react';
+import { useAppContext } from '../context/AppContext';
 import { SuccessStory } from '../types';
 
 interface SuccessStoriesProps {
@@ -14,6 +15,7 @@ export default function SuccessStories({ stories, onAddStory }: SuccessStoriesPr
   const [selectedPresetImage, setSelectedPresetImage] = useState('https://images.unsplash.com/photo-1501196354995-cbb51c65aaea?w=600&auto=format&fit=crop&q=80');
   const [submitted, setSubmitted] = useState(false);
   const [likesCount, setLikesCount] = useState<Record<string, number>>({});
+  const { t } = useAppContext();
 
   const handleLike = (storyId: string) => {
     setLikesCount(prev => ({
@@ -46,13 +48,13 @@ export default function SuccessStories({ stories, onAddStory }: SuccessStoriesPr
         <div className="text-center space-y-3">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#8B0020]/5 dark:bg-[#8B0020]/15 border border-[#8B0020]/20 dark:border-[#C9A84C]/30 text-[#8B0020] dark:text-[#C9A84C] text-xs font-semibold">
             <Heart className="h-4 w-4 text-[#C9A84C] fill-[#C9A84C]" />
-            <span>Success Stories</span>
+            <span>{t('stories.title')}</span>
           </div>
           <h1 className="text-3xl sm:text-4xl font-extrabold text-[#1A1118] dark:text-[#FFFCF8] tracking-tight leading-none">
-            Love Found Its Way
+            {t('stories.heading')}
           </h1>
           <p className="text-sm text-gray-500 dark:text-gray-400 max-w-lg mx-auto font-light leading-relaxed">
-            Real couples who found each other through Whaatachi's secure network.
+            {t('stories.desc')}
           </p>
         </div>
 
@@ -62,7 +64,7 @@ export default function SuccessStories({ stories, onAddStory }: SuccessStoriesPr
               <div className="relative w-full sm:w-2/5 h-48 sm:h-auto shrink-0 bg-[#EDE6D9] dark:bg-[#1A1118]">
                 <img src={storyItem.image} alt={storyItem.coupleNames} loading="lazy" className="absolute inset-0 w-full h-full object-cover" referrerPolicy="no-referrer" />
                 <span className="absolute top-3 left-3 bg-[#8B0020] text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
-                  Joined {storyItem.year}
+                  {t('stories.joined').replace('{year}', storyItem.year)}
                 </span>
               </div>
 
@@ -79,10 +81,10 @@ export default function SuccessStories({ stories, onAddStory }: SuccessStoriesPr
                 <div className="pt-4 border-t border-[#EDE6D9] dark:border-[#C9A84C]/10 mt-4 flex items-center justify-between">
                   <button onClick={() => handleLike(storyItem.id)} className="flex items-center gap-1.5 text-xs text-[#8B0020] dark:text-[#C9A84C] font-bold bg-[#8B0020]/5 dark:bg-[#8B0020]/15 border border-[#8B0020]/20 dark:border-[#C9A84C]/30 hover:bg-[#8B0020]/10 dark:hover:bg-[#8B0020]/25 rounded-lg px-2.5 py-1.5 transition-colors cursor-pointer">
                     <ThumbsUp className="h-4 w-4" />
-                    <span>Like ({likesCount[storyItem.id] || 0})</span>
+                    <span>{t('stories.like').replace('{count}', String(likesCount[storyItem.id] || 0))}</span>
                   </button>
                   <span className="text-[10px] text-gray-400 dark:text-gray-500 font-bold uppercase tracking-wider">
-                    Verified Match
+                    {t('stories.verified-match')}
                   </span>
                 </div>
               </div>
@@ -92,25 +94,25 @@ export default function SuccessStories({ stories, onAddStory }: SuccessStoriesPr
 
         <div className="bg-white dark:bg-[#1A1118] border border-[#EDE6D9] dark:border-[#C9A84C]/10 rounded-3xl p-6 sm:p-10 max-w-2xl mx-auto shadow-sm">
           <div className="text-center mb-8 space-y-2">
-            <h2 className="text-xl sm:text-2xl font-black text-[#1A1118] dark:text-[#FFFCF8]">Share Your Story</h2>
-            <p className="text-xs text-gray-500 dark:text-gray-400 font-light">Did you meet on Whaatachi? Share your journey!</p>
+            <h2 className="text-xl sm:text-2xl font-black text-[#1A1118] dark:text-[#FFFCF8]">{t('stories.share-title')}</h2>
+            <p className="text-xs text-gray-500 dark:text-gray-400 font-light">{t('stories.share-desc')}</p>
           </div>
 
           {submitted ? (
             <div className="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 rounded-2xl p-6 text-center space-y-3 animate-fade-in">
               <CheckSquare className="h-10 w-10 text-emerald-600 dark:text-emerald-400 mx-auto" />
-              <h4 className="font-bold text-lg">Story Submitted!</h4>
-              <p className="text-xs text-emerald-600 dark:text-emerald-400 leading-relaxed">Thank you for sharing! Your story is now live.</p>
+              <h4 className="font-bold text-lg">{t('stories.submitted-title')}</h4>
+              <p className="text-xs text-emerald-600 dark:text-emerald-400 leading-relaxed">{t('stories.submitted-desc')}</p>
             </div>
           ) : (
             <form onSubmit={handleFormSubmit} className="space-y-5">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1.5 text-xs">
-                  <label className="font-bold text-[#1A1118]/70 dark:text-[#FFFCF8]/60 uppercase">Couple Names</label>
+                  <label className="font-bold text-[#1A1118]/70 dark:text-[#FFFCF8]/60 uppercase">{t('stories.couple-names')}</label>
                   <input type="text" required placeholder="e.g. Selam & Dawit" value={coupleNames} onChange={(e) => setCoupleNames(e.target.value)} className="w-full border border-[#EDE6D9] dark:border-[#C9A84C]/15 rounded-xl p-3 bg-[#F8F4ED]/50 dark:bg-[#120A0E] text-gray-800 dark:text-[#FFFCF8] text-xs" />
                 </div>
                 <div className="space-y-1.5 text-xs">
-                  <label className="font-bold text-[#1A1118]/70 dark:text-[#FFFCF8]/60 uppercase">Year Met</label>
+                  <label className="font-bold text-[#1A1118]/70 dark:text-[#FFFCF8]/60 uppercase">{t('stories.year-met')}</label>
                   <select value={year} onChange={(e) => setYear(e.target.value)} className="w-full border border-[#EDE6D9] dark:border-[#C9A84C]/15 rounded-xl p-3 bg-[#F8F4ED]/50 dark:bg-[#120A0E] text-gray-800 dark:text-[#FFFCF8] text-xs">
                     <option value="2026">2026</option>
                     <option value="2025">2025</option>
@@ -121,12 +123,12 @@ export default function SuccessStories({ stories, onAddStory }: SuccessStoriesPr
               </div>
 
               <div className="space-y-1.5 text-xs">
-                <label className="font-bold text-[#1A1118]/70 dark:text-[#FFFCF8]/60 uppercase">Your Love Story</label>
+                <label className="font-bold text-[#1A1118]/70 dark:text-[#FFFCF8]/60 uppercase">{t('stories.your-story')}</label>
                 <textarea rows={4} required placeholder="How did you connect? Where was your first date?" value={story} onChange={(e) => setStory(e.target.value)} className="w-full border border-[#EDE6D9] dark:border-[#C9A84C]/15 rounded-xl p-3 bg-[#F8F4ED]/50 dark:bg-[#120A0E] text-gray-800 dark:text-[#FFFCF8] text-xs leading-relaxed" />
               </div>
 
               <div className="space-y-2 text-xs">
-                <label className="font-bold text-[#1A1118]/70 dark:text-[#FFFCF8]/60 uppercase">Select Photo</label>
+                <label className="font-bold text-[#1A1118]/70 dark:text-[#FFFCF8]/60 uppercase">{t('stories.select-photo')}</label>
                 <div className="grid grid-cols-3 gap-3">
                   {imagePresets.map((preset, idx) => {
                     const isSelected = selectedPresetImage === preset.url;
@@ -143,7 +145,7 @@ export default function SuccessStories({ stories, onAddStory }: SuccessStoriesPr
 
               <button type="submit" className="w-full py-3.5 bg-[#8B0020] hover:bg-[#B31B3A] text-white rounded-xl text-xs font-bold shadow-md hover:shadow-lg transition-all cursor-pointer flex items-center justify-center gap-2">
                 <Star className="h-4 w-4 text-[#C9A84C]" />
-                Publish Story
+                {t('stories.publish')}
               </button>
             </form>
           )}

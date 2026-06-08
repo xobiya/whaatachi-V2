@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { Search, HelpCircle, ChevronDown, ChevronUp, Mail, Phone, Sparkles } from 'lucide-react';
+import { useAppContext } from '../context/AppContext';
 import { FAQS } from '../mockData';
 
 export default function FAQSection() {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState<string>('all');
   const [expandedIndex, setExpandedIndex] = useState<string | null>(null);
+  const { t } = useAppContext();
 
   const toggleAccordion = (id: string) => {
     if (expandedIndex === id) {
@@ -43,16 +45,16 @@ export default function FAQSection() {
             <span>Whaatachi Help Desk</span>
           </div>
           <h1 className="text-3xl sm:text-4xl font-extrabold text-[#1A1118] dark:text-[#FFFCF8] tracking-tight leading-none">
-            How Can We Assist You?
+            {t('faq.title')}
           </h1>
           <p className="text-sm text-gray-500 dark:text-gray-400 max-w-lg mx-auto font-light leading-relaxed">
-            Search our guides on safety verifications, CBE transfers, and private matching.
+            {t('faq.desc')}
           </p>
         </div>
 
         <div className="relative max-w-2xl mx-auto">
           <Search className="absolute left-4 top-3.5 h-5 w-5 text-gray-400" />
-          <input type="text" placeholder="Search (e.g. CBE, Telebirr, Refund, Verification)..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="w-full bg-white dark:bg-[#1A1118] border border-[#EDE6D9] dark:border-[#C9A84C]/15 text-gray-800 dark:text-[#FFFCF8] pl-11 pr-4 py-3 rounded-2xl shadow-sm outline-hidden focus:border-[#8B0020] dark:focus:border-[#C9A84C] focus:ring-1 focus:ring-[#8B0020]/20 dark:focus:ring-[#C9A84C]/20 text-sm" />
+          <input type="text" placeholder={t('faq.search-placeholder')} value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="w-full bg-white dark:bg-[#1A1118] border border-[#EDE6D9] dark:border-[#C9A84C]/15 text-gray-800 dark:text-[#FFFCF8] pl-11 pr-4 py-3 rounded-2xl shadow-sm outline-hidden focus:border-[#8B0020] dark:focus:border-[#C9A84C] focus:ring-1 focus:ring-[#8B0020]/20 dark:focus:ring-[#C9A84C]/20 text-sm" />
         </div>
 
         <div className="flex justify-center items-center gap-2 overflow-x-auto pb-1 max-w-full no-scrollbar">
@@ -62,7 +64,7 @@ export default function FAQSection() {
                 ? 'bg-[#8B0020] border-[#8B0020] text-white shadow-sm'
                 : 'bg-white dark:bg-[#1A1118] border-[#EDE6D9] dark:border-[#C9A84C]/15 text-gray-600 dark:text-gray-400 hover:border-gray-300'
             }`}>
-              {cat === 'all' ? 'All Topics' : cat}
+              {cat === 'all' ? t('faq.all-topics') : cat}
             </button>
           ))}
         </div>
@@ -97,27 +99,27 @@ export default function FAQSection() {
             })
           ) : (
             <div className="bg-white dark:bg-[#1A1118] border border-[#EDE6D9] dark:border-[#C9A84C]/10 rounded-2xl py-12 text-center text-gray-500 dark:text-gray-400 font-light text-xs">
-              No matching questions found in category.
+              {t('faq.no-results')}
             </div>
           )}
         </div>
 
         <div className="bg-[#1A1118] rounded-3xl p-8 text-center text-white space-y-6 shadow-md relative overflow-hidden">
           <div className="space-y-2 relative z-10">
-            <h3 className="text-xl font-bold">Still Have Questions?</h3>
+            <h3 className="text-xl font-bold">{t('faq.cta-title')}</h3>
             <p className="text-xs text-[#EDE6D9]/70 font-light leading-relaxed max-w-md mx-auto">
-              Our regional support team provides 24/7 resolution for CBE/Telebirr transfers or profile verification.
+              {t('faq.cta-desc')}
             </p>
           </div>
 
           <div className="flex flex-col sm:flex-row justify-center items-center gap-4 relative z-10 text-xs">
             <a href="mailto:support@whaatachi.com" className="w-full sm:w-auto px-6 py-3 bg-[#8B0020] hover:bg-[#B31B3A] text-white font-bold rounded-xl flex items-center justify-center gap-1.5 transition-colors cursor-pointer">
               <Mail className="h-4 w-4 text-[#C9A84C]" />
-              Email Support
+              {t('faq.email-support')}
             </a>
             <a href="tel:+251900123456" className="w-full sm:w-auto px-6 py-3 bg-[#C9A84C] hover:bg-[#E0C878] text-[#1A1118] font-bold rounded-xl flex items-center justify-center gap-1.5 transition-colors cursor-pointer">
               <Phone className="h-4 w-4" />
-              Call: +251 900 123 456
+              {t('faq.call').replace('{number}', '+251 900 123 456')}
             </a>
           </div>
         </div>
