@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { ArrowLeft, MapPin, ShieldCheck, Phone, MessageCircle, Instagram, Mail, Lock, Sparkles, Star, Crown, Heart, Edit3, Check, X, Plus, User, Camera, Calendar } from 'lucide-react';
 import { Profile, PaymentRequest } from '../types';
 
@@ -38,6 +38,7 @@ interface ProfilePageProps {
 
 export default function ProfilePage({ profile, isUnlocked, pendingPayment, userGender, isOwnProfile, onBack, onUnlockClick, onSaveProfile }: ProfilePageProps) {
   const [editing, setEditing] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Form states to edit the WHOLE data
   const [editName, setEditName] = useState(profile.name);
@@ -108,12 +109,15 @@ export default function ProfilePage({ profile, isUnlocked, pendingPayment, userG
     }
   };
 
-  const handlePresetSelect = (url: string) => {
-    setEditImage(url);
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => setEditImage(ev.target?.result as string);
+    reader.readAsDataURL(file);
   };
 
   const cities = ['Addis Ababa', 'Adama', 'Hawassa', 'Bahir Dar', 'Dire Dawa', 'Gondar'];
-  const presetPhotos = editGender === 'Female' ? PRESET_FEMALE_IMAGES : PRESET_MALE_IMAGES;
 
   return (
     <div className="bg-[#FFFCF8] dark:bg-[#120A0E] min-h-screen transition-colors duration-200 pb-20">
@@ -145,7 +149,10 @@ export default function ProfilePage({ profile, isUnlocked, pendingPayment, userG
           
           {/* Avatar Container in Profile Size */}
           <div className="relative group">
-            <div className="w-32 h-32 sm:w-36 h-36 rounded-full overflow-hidden border-4 border-[#C9A84C] dark:border-[#C9A84C]/80 shadow-lg relative bg-gray-100 dark:bg-[#120A0E]">
+            <div 
+              className={`w-32 h-32 sm:w-36 h-36 rounded-full overflow-hidden border-4 border-[#C9A84C] dark:border-[#C9A84C]/80 shadow-lg relative bg-gray-100 dark:bg-[#120A0E] ${editing ? 'cursor-pointer' : ''}`}
+              onClick={editing ? () => fileInputRef.current?.click() : undefined}
+            >
               <img 
                 src={editing ? editImage : profile.image} 
                 alt={editing ? editName : profile.name} 
@@ -153,12 +160,13 @@ export default function ProfilePage({ profile, isUnlocked, pendingPayment, userG
                 referrerPolicy="no-referrer"
               />
               {editing && (
-                <div className="absolute inset-0 bg-black/55 flex flex-col items-center justify-center text-white text-[10px] font-bold gap-1 cursor-pointer transition-opacity">
+                <div className="absolute inset-0 bg-black/55 flex flex-col items-center justify-center text-white text-[10px] font-bold gap-1 transition-opacity">
                   <Camera className="h-5 w-5 text-[#C9A84C]" />
-                  <span>Choose Preset Below</span>
+                  <span>Upload Photo</span>
                 </div>
               )}
             </div>
+            {editing && <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />}
             
             {/* Status indicator badge */}
             <span className={`absolute bottom-2 right-2 border-2 border-white dark:border-[#1A1118] w-4 h-4 rounded-full ${
@@ -226,7 +234,7 @@ export default function ProfilePage({ profile, isUnlocked, pendingPayment, userG
           </div>
         </div>
 
-        {/* Edit Photo Presets Section */}
+        {/* Edit Photo Upload Section */}
         {editing && (
           <div className="bg-white dark:bg-[#1A1118] border border-[#EDE6D9] dark:border-[#C9A84C]/10 rounded-2xl p-5 shadow-sm space-y-4">
             <h3 className="text-xs font-bold text-[#1A1118] dark:text-[#FFFCF8] uppercase tracking-wider flex items-center gap-1.5">
@@ -235,33 +243,16 @@ export default function ProfilePage({ profile, isUnlocked, pendingPayment, userG
             </h3>
             
             <div className="space-y-3">
-              <div>
-                <p className="text-[10px] text-gray-400 dark:text-gray-500 font-bold mb-1.5 uppercase">Choose a preset photo:</p>
-                <div className="flex gap-2">
-                  {presetPhotos.map((url, idx) => (
-                    <button 
-                      key={idx} 
-                      type="button" 
-                      onClick={() => handlePresetSelect(url)}
-                      className={`w-14 h-14 rounded-lg overflow-hidden border-2 transition-all cursor-pointer shrink-0 ${
-                        editImage === url ? 'border-[#8B0020] dark:border-[#C9A84C] scale-95 shadow-md' : 'border-[#EDE6D9] dark:border-transparent opacity-70 hover:opacity-100'
-                      }`}
-                    >
-                      <img src={url} alt="" className="w-full h-full object-cover" />
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div>
-                <p className="text-[10px] text-gray-400 dark:text-gray-500 font-bold mb-1.5 uppercase">Or paste image URL:</p>
-                <input 
-                  type="text" 
-                  value={editImage} 
-                  onChange={(e) => setEditImage(e.target.value)} 
-                  className="w-full text-xs p-2.5 border border-[#EDE6D9] dark:border-[#C9A84C]/15 rounded-xl bg-[#F8F4ED]/50 dark:bg-[#120A0E] text-gray-800 dark:text-[#FFFCF8] focus:outline-hidden"
-                  placeholder="https://images.unsplash.com/..."
-                />
+              <div className="flex flex-col items-start gap-2">
+                <p className="text-[10px] text-gray-400 dark:text-gray-500 font-bold uppercase">Upload a new photo:</p>
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="px-4 py-2.5 bg-[#F8F4ED] dark:bg-[#120A0E] border border-[#EDE6D9] dark:border-[#C9A84C]/15 rounded-xl text-xs font-bold text-gray-700 dark:text-[#FFFCF8] hover:border-[#8B0020] dark:hover:border-[#C9A84C] transition-all cursor-pointer flex items-center gap-1.5"
+                >
+                  <Camera className="h-4 w-4" />
+                  Select File
+                </button>
               </div>
             </div>
           </div>

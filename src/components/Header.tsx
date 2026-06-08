@@ -93,13 +93,10 @@ export default function Header({
                 </button>
               </div>
             ) : (
-              <>
-                <button onClick={() => onOpenAuth?.('signin')} className="text-sm font-semibold text-[#EDE6D9]/70 hover:text-[#FFFCF8] transition-colors cursor-pointer">Sign In</button>
-                <button onClick={() => onOpenAuth?.('register')} className="px-5 py-2 bg-[#8B0020] hover:bg-[#B31B3A] text-white text-sm font-bold rounded-lg transition-all cursor-pointer flex items-center gap-1.5 shadow-lg shadow-[#8B0020]/20">
-                  <Crown className="h-4 w-4" />
-                  Create Profile
-                </button>
-              </>
+              <button onClick={() => onOpenAuth?.('register')} className="px-5 py-2 bg-[#8B0020] hover:bg-[#B31B3A] text-white text-sm font-bold rounded-lg transition-all cursor-pointer flex items-center gap-1.5 shadow-lg shadow-[#8B0020]/20">
+                <Crown className="h-4 w-4" />
+                Create Profile
+              </button>
             )}
           </div>
 

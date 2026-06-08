@@ -60,9 +60,6 @@ const INTENT_OPTIONS: { value: Intent; emoji: string; desc: string }[] = [
 const STEP_LABELS = ['What you want', 'Looking for', 'Your Profile'];
 
 export default function OnboardingFlow({ onComplete, onSignIn }: OnboardingFlowProps) {
-  // 'register' | 'signin'
-  const [mode, setMode] = useState<'register' | 'signin'>('register');
-
   // Registration wizard
   const [step, setStep] = useState(1);
   const [selectedIntent, setSelectedIntent] = useState<Intent | null>(null);
@@ -72,12 +69,6 @@ export default function OnboardingFlow({ onComplete, onSignIn }: OnboardingFlowP
     city: 'Addis Ababa', address: '', image: '', gender: 'Male',
   });
   const [regErrors, setRegErrors] = useState<Partial<RegFormData>>({});
-
-  // Sign-in form
-  const [siName, setSiName] = useState('');
-  const [siPhone, setSiPhone] = useState('');
-  const [siErrors, setSiErrors] = useState<{ name?: string; phone?: string }>({});
-  const [siError, setSiError] = useState('');
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -95,6 +86,7 @@ export default function OnboardingFlow({ onComplete, onSignIn }: OnboardingFlowP
     if (!form.telegram.trim())                                   e.telegram = 'Telegram username is required';
     if (!form.city)                                              e.city    = 'City is required';
     if (!form.address.trim())                                    e.address = 'Area / Location is required';
+    if (!form.image)                                             e.image   = 'Profile photo is required';
     setRegErrors(e);
     return Object.keys(e).length === 0;
   };
@@ -109,8 +101,7 @@ export default function OnboardingFlow({ onComplete, onSignIn }: OnboardingFlowP
 
   const handleRegSubmit = () => {
     if (!validateReg()) return;
-    const presets = form.gender === 'Male' ? PRESET_MALE_IMAGES : PRESET_FEMALE_IMAGES;
-    const finalImage = form.image || presets[0];
+    const finalImage = form.image;
     const tg = form.telegram.startsWith('@') ? form.telegram : `@${form.telegram}`;
     const ig = form.instagram ? (form.instagram.startsWith('@') ? form.instagram : `@${form.instagram}`) : '';
 
@@ -132,17 +123,6 @@ export default function OnboardingFlow({ onComplete, onSignIn }: OnboardingFlowP
     });
   };
 
-  const handleSignIn = () => {
-    const e: { name?: string; phone?: string } = {};
-    if (!siName.trim())  e.name  = 'Name is required';
-    if (!siPhone.trim()) e.phone = 'Phone number is required';
-    setSiErrors(e);
-    if (Object.keys(e).length > 0) return;
-    setSiError('');
-    onSignIn(siName.trim(), siPhone.trim());
-  };
-
-  const presets = form.gender === 'Male' ? PRESET_MALE_IMAGES : PRESET_FEMALE_IMAGES;
 
   /* ────────────────────────────── RENDER ────────────────────────────── */
   return (
@@ -159,107 +139,8 @@ export default function OnboardingFlow({ onComplete, onSignIn }: OnboardingFlowP
         <span className="text-2xl font-black text-[#FFFCF8] tracking-tight">Whaatachi</span>
       </div>
 
-      {/* Mode toggle tabs */}
-      <div className="flex rounded-2xl border border-[#FFFCF8]/8 bg-[#FFFCF8]/3 p-1 mb-6 z-10">
-        <button
-          id="tab-register"
-          onClick={() => { setMode('register'); setSiError(''); }}
-          className={`flex items-center gap-1.5 px-5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-            mode === 'register'
-              ? 'bg-[#8B0020] text-white shadow-md shadow-[#8B0020]/30'
-              : 'text-[#FFFCF8]/40 hover:text-[#FFFCF8]/70'
-          }`}
-        >
-          <UserPlus className="h-3.5 w-3.5" /> Create Profile
-        </button>
-        <button
-          id="tab-signin"
-          onClick={() => { setMode('signin'); }}
-          className={`flex items-center gap-1.5 px-5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-            mode === 'signin'
-              ? 'bg-[#8B0020] text-white shadow-md shadow-[#8B0020]/30'
-              : 'text-[#FFFCF8]/40 hover:text-[#FFFCF8]/70'
-          }`}
-        >
-          <LogIn className="h-3.5 w-3.5" /> Sign In
-        </button>
-      </div>
-
-      {/* ══════════ SIGN IN PANEL ══════════ */}
-      {mode === 'signin' && (
-        <div className="w-full max-w-sm bg-[#1A1118]/80 backdrop-blur-xl border border-[#C9A84C]/10 rounded-3xl p-8 shadow-2xl z-10">
-          <h2 className="text-2xl font-black text-[#FFFCF8] mb-1">Welcome Back</h2>
-          <p className="text-sm text-[#EDE6D9]/50 mb-7">Enter your registered name &amp; phone to continue</p>
-
-          <div className="space-y-4">
-            {/* Name */}
-            <div>
-              <label className="block text-[10px] font-bold text-[#FFFCF8]/50 uppercase tracking-wider mb-1.5">Full Name *</label>
-              <div className="relative">
-                <User className="absolute left-3.5 top-3.5 h-4 w-4 text-[#FFFCF8]/30" />
-                <input
-                  id="signin-name"
-                  type="text"
-                  value={siName}
-                  onChange={e => { setSiName(e.target.value); setSiErrors(p => ({ ...p, name: undefined })); setSiError(''); }}
-                  onKeyDown={e => e.key === 'Enter' && handleSignIn()}
-                  placeholder="Your registered full name"
-                  className={`w-full pl-10 pr-4 py-3 bg-[#FFFCF8]/5 border ${
-                    siErrors.name ? 'border-red-500' : 'border-[#FFFCF8]/10'
-                  } rounded-xl text-sm text-[#FFFCF8] placeholder:text-[#FFFCF8]/25 focus:outline-none focus:border-[#C9A84C]/60 transition-colors`}
-                />
-              </div>
-              {siErrors.name && <p className="text-red-400 text-[10px] mt-1">{siErrors.name}</p>}
-            </div>
-
-            {/* Phone */}
-            <div>
-              <label className="block text-[10px] font-bold text-[#FFFCF8]/50 uppercase tracking-wider mb-1.5">Phone Number *</label>
-              <div className="relative">
-                <Phone className="absolute left-3.5 top-3.5 h-4 w-4 text-[#FFFCF8]/30" />
-                <input
-                  id="signin-phone"
-                  type="tel"
-                  value={siPhone}
-                  onChange={e => { setSiPhone(e.target.value); setSiErrors(p => ({ ...p, phone: undefined })); setSiError(''); }}
-                  onKeyDown={e => e.key === 'Enter' && handleSignIn()}
-                  placeholder="+251 9XX XXX XXX"
-                  className={`w-full pl-10 pr-4 py-3 bg-[#FFFCF8]/5 border ${
-                    siErrors.phone ? 'border-red-500' : 'border-[#FFFCF8]/10'
-                  } rounded-xl text-sm text-[#FFFCF8] placeholder:text-[#FFFCF8]/25 focus:outline-none focus:border-[#C9A84C]/60 transition-colors`}
-                />
-              </div>
-              {siErrors.phone && <p className="text-red-400 text-[10px] mt-1">{siErrors.phone}</p>}
-            </div>
-
-            {/* Server-level error */}
-            {siError && (
-              <div className="bg-red-500/10 border border-red-500/30 rounded-xl px-4 py-3 text-red-400 text-xs font-medium">
-                {siError}
-              </div>
-            )}
-
-            <button
-              id="signin-submit-btn"
-              onClick={handleSignIn}
-              className="w-full py-3.5 bg-[#8B0020] hover:bg-[#B31B3A] text-white font-bold rounded-xl flex items-center justify-center gap-2 transition-all cursor-pointer shadow-lg shadow-[#8B0020]/20 mt-2"
-            >
-              <LogIn className="h-4 w-4" /> Sign In
-            </button>
-          </div>
-
-          <p className="mt-6 text-center text-[#FFFCF8]/30 text-xs">
-            No account yet?{' '}
-            <button onClick={() => setMode('register')} className="text-[#C9A84C] font-bold hover:underline cursor-pointer">
-              Create a profile
-            </button>
-          </p>
-        </div>
-      )}
-
       {/* ══════════ REGISTRATION WIZARD ══════════ */}
-      {mode === 'register' && (
-        <>
+      <>
           {/* Step indicator */}
           <div className="flex items-center gap-0 mb-6 z-10">
             {STEP_LABELS.map((label, idx) => {
@@ -407,9 +288,9 @@ export default function OnboardingFlow({ onComplete, onSignIn }: OnboardingFlowP
                     ))}
                   </div>
 
-                  {/* Profile Photo */}
+                   {/* Profile Photo */}
                   <div>
-                    <label className="block text-[10px] font-bold text-[#FFFCF8]/50 uppercase tracking-wider mb-2">Profile Photo</label>
+                    <label className="block text-[10px] font-bold text-[#FFFCF8]/50 uppercase tracking-wider mb-2">Profile Photo *</label>
                     <div className="flex items-center gap-3">
                       <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-[#C9A84C]/30 bg-[#FFFCF8]/5 shrink-0">
                         {form.image
@@ -418,26 +299,19 @@ export default function OnboardingFlow({ onComplete, onSignIn }: OnboardingFlowP
                         }
                       </div>
                       <div className="flex-1">
-                        <p className="text-[10px] text-[#FFFCF8]/40 mb-1.5">Choose a preset or upload your own</p>
-                        <div className="flex gap-1.5 flex-wrap">
-                          {presets.map((url, i) => (
-                            <button
-                              key={i} type="button" onClick={() => setField('image', url)}
-                              className={`w-9 h-9 rounded-lg overflow-hidden border-2 transition-all cursor-pointer ${form.image === url ? 'border-[#C9A84C] scale-95' : 'border-transparent opacity-60 hover:opacity-100'}`}
-                            >
-                              <img src={url} alt="" className="w-full h-full object-cover" />
-                            </button>
-                          ))}
-                          <button
-                            type="button" onClick={() => fileInputRef.current?.click()}
-                            className="w-9 h-9 rounded-lg border-2 border-dashed border-[#FFFCF8]/20 flex items-center justify-center text-[#FFFCF8]/30 hover:border-[#C9A84C]/50 hover:text-[#C9A84C] transition-all cursor-pointer"
-                          >
-                            <Camera className="h-4 w-4" />
-                          </button>
-                        </div>
+                        <p className="text-[10px] text-[#FFFCF8]/40 mb-1.5">Upload a profile photo to verify your identity</p>
+                        <button
+                          type="button"
+                          onClick={() => fileInputRef.current?.click()}
+                          className="px-4 py-2 bg-[#FFFCF8]/5 border border-[#FFFCF8]/10 rounded-xl text-xs font-bold text-[#FFFCF8] hover:border-[#C9A84C]/60 hover:text-[#C9A84C] transition-all cursor-pointer flex items-center gap-1.5"
+                        >
+                          <Camera className="h-4 w-4" />
+                          Upload Photo
+                        </button>
                         <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
                       </div>
                     </div>
+                    {regErrors.image && <p className="text-red-400 text-[10px] mt-1">{regErrors.image}</p>}
                   </div>
 
                   {/* Name */}
@@ -579,7 +453,6 @@ export default function OnboardingFlow({ onComplete, onSignIn }: OnboardingFlowP
             )}
           </div>
         </>
-      )}
     </div>
   );
 }
