@@ -39,17 +39,17 @@ const PRO_TIPS = [
 const getTagBadgeStyles = (color: string) => {
   switch (color) {
     case 'pink':
-      return 'bg-pink-50 text-pink-700 border-pink-100 dark:bg-pink-950/30 dark:text-pink-400 dark:border-pink-900/30';
+      return 'bg-[#8B0020]/5 text-[#8B0020] border-[#8B0020]/20';
     case 'amber':
-      return 'bg-amber-50 text-amber-700 border-amber-100 dark:bg-amber-955/35 dark:text-amber-400 dark:border-amber-900/30';
+      return 'bg-amber-50 text-amber-700 border-amber-200';
     case 'blue':
-      return 'bg-blue-50 text-blue-700 border-blue-105 dark:bg-blue-950/30 dark:text-blue-400 dark:border-blue-900/30';
+      return 'bg-blue-50 text-blue-700 border-blue-200';
     case 'emerald':
-      return 'bg-emerald-50 text-emerald-700 border-emerald-110 dark:bg-emerald-955/30 dark:text-emerald-400 dark:border-emerald-900/30';
+      return 'bg-emerald-50 text-emerald-700 border-emerald-200';
     case 'purple':
-      return 'bg-purple-50 text-purple-700 border-purple-100 dark:bg-purple-950/30 dark:text-purple-400 dark:border-purple-900/30';
+      return 'bg-purple-50 text-purple-700 border-purple-200';
     default:
-      return 'bg-gray-50 text-gray-700 border-gray-100 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700';
+      return 'bg-gray-50 text-gray-700 border-gray-200';
   }
 };
 
@@ -163,26 +163,22 @@ export default function Dashboard({
   }, [profiles, searchQuery, selectedCity, selectedIntent, filterType, ageRange, selectedInterests, unlockedIds, selectedGenderFilter]);
 
   return (
-    <div className="bg-gray-50 dark:bg-slate-950 py-10 transition-colors duration-200" id="discover-dashboard-view">
+    <div className="bg-[#FFFCF8] py-10" id="discover-dashboard-view">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
-        {/* Header Title */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
           <div>
-            <h1 className="text-3xl font-extrabold text-gray-950 dark:text-white tracking-tight flex items-center gap-2">
-              Discover Authentic Connections
+            <h1 className="text-3xl font-black text-[#1A1118] tracking-tight">
+              Discover Connections
             </h1>
-            <p className="text-xs text-gray-500 dark:text-slate-400 font-light mt-1">
-              Find serious, verified Habesha matches sharing your interests and regional location.
+            <p className="text-xs text-gray-500 mt-1">
+              Find verified Ethiopian singles near you
             </p>
           </div>
 
-          <button
-            onClick={handleResetFilters}
-            className="flex items-center gap-1 text-xs font-bold text-pink-600 hover:text-pink-750 bg-pink-50 dark:bg-pink-950/30 border border-pink-100 dark:border-pink-900/30 rounded-lg px-3.5 py-2 cursor-pointer transition-colors shrink-0"
-          >
-            <RefreshCw className="h-3.5 w-3.5 animate-spin-slow" />
-            Reset Filters
+          <button onClick={handleResetFilters} className="flex items-center gap-1 text-xs font-bold text-[#8B0020] bg-[#8B0020]/5 border border-[#8B0020]/20 rounded-lg px-3.5 py-2 cursor-pointer transition-colors shrink-0">
+            <RefreshCw className="h-3.5 w-3.5" />
+            Reset
           </button>
         </div>
 
@@ -190,35 +186,19 @@ export default function Dashboard({
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 items-start">
           
           {/* Sidebar controls */}
-          <div className="col-span-1 bg-white dark:bg-slate-900 border border-gray-150 dark:border-slate-800 rounded-2xl p-5 space-y-6 shadow-3xs lg:sticky lg:top-20 transition-colors">
-            <h3 className="text-sm font-extrabold text-gray-900 dark:text-white flex items-center gap-2 uppercase tracking-wider pb-3 border-b border-gray-100 dark:border-slate-800">
-              <Sliders className="h-4.5 w-4.5 text-pink-500" />
-              Advanced Filters
+          <div className="col-span-1 bg-white border border-[#EDE6D9] rounded-2xl p-5 space-y-6 shadow-sm lg:sticky lg:top-20">
+            <h3 className="text-sm font-bold text-[#1A1118] flex items-center gap-2 uppercase tracking-wider pb-3 border-b border-[#EDE6D9]">
+              <Sliders className="h-4.5 w-4.5 text-[#8B0020]" />
+              Filters
             </h3>
 
-            {/* Gender Switcher filter */}
             <div className="space-y-2">
-              <label className="block text-xs font-bold text-gray-700 dark:text-slate-350 uppercase tracking-wider">Candidate Gender</label>
-              <div className="grid grid-cols-3 bg-gray-50 dark:bg-slate-850 border border-gray-150 dark:border-slate-800 rounded-xl p-1 gap-1">
+              <label className="block text-xs font-bold text-[#1A1118]/70 uppercase tracking-wider">Looking For</label>
+              <div className="grid grid-cols-3 bg-[#F8F4ED] border border-[#EDE6D9] rounded-xl p-1 gap-1">
                 {['All', 'Men', 'Women'].map((genderOption) => {
-                  const isSelect = 
-                    (genderOption === 'All' && selectedGenderFilter === 'All') ||
-                    (genderOption === 'Men' && selectedGenderFilter === 'Male') ||
-                    (genderOption === 'Women' && selectedGenderFilter === 'Female');
-                  
+                  const isSelect = (genderOption === 'All' && selectedGenderFilter === 'All') || (genderOption === 'Men' && selectedGenderFilter === 'Male') || (genderOption === 'Women' && selectedGenderFilter === 'Female');
                   return (
-                    <button
-                      key={genderOption}
-                      type="button"
-                      onClick={() => {
-                        setSelectedGenderFilter(genderOption === 'All' ? 'All' : (genderOption === 'Men' ? 'Male' : 'Female'));
-                      }}
-                      className={`py-1.5 text-center text-[10px] font-bold rounded-lg transition-all cursor-pointer ${
-                        isSelect
-                          ? 'bg-pink-500 text-white shadow-xs'
-                          : 'text-gray-500 dark:text-slate-400 hover:text-black dark:hover:text-white'
-                      }`}
-                    >
+                    <button key={genderOption} type="button" onClick={() => setSelectedGenderFilter(genderOption === 'All' ? 'All' : (genderOption === 'Men' ? 'Male' : 'Female'))} className={`py-1.5 text-center text-[10px] font-bold rounded-lg transition-all cursor-pointer ${isSelect ? 'bg-[#8B0020] text-white' : 'text-gray-500 hover:text-[#1A1118]'}`}>
                       {genderOption}
                     </button>
                   );
@@ -226,51 +206,29 @@ export default function Dashboard({
               </div>
             </div>
 
-            {/* Location selector */}
             <div className="space-y-2">
-              <label className="block text-xs font-bold text-gray-700 dark:text-slate-350 uppercase tracking-wider">Ethiopian City</label>
+              <label className="block text-xs font-bold text-[#1A1118]/70 uppercase tracking-wider">City</label>
               <div className="relative">
-                <MapPin className="absolute left-3 top-3 h-4.5 w-4.5 text-gray-400 dark:text-slate-500" />
-                <select
-                  value={selectedCity}
-                  onChange={(e) => setSelectedCity(e.target.value)}
-                  className="w-full pl-9 pr-4 py-2 border border-gray-200 dark:border-slate-750 hover:border-gray-300 dark:hover:border-slate-650 rounded-xl bg-gray-50/50 dark:bg-slate-850 text-sm text-gray-800 dark:text-slate-200 focus:outline-hidden focus:border-pink-500"
-                >
-                  {cities.map((city) => (
-                    <option key={city} value={city} className="bg-white dark:bg-slate-900 text-gray-800 dark:text-slate-200">{city}</option>
-                  ))}
+                <MapPin className="absolute left-3 top-3 h-4.5 w-4.5 text-gray-400" />
+                <select value={selectedCity} onChange={(e) => setSelectedCity(e.target.value)} className="w-full pl-9 pr-4 py-2 border border-[#EDE6D9] rounded-xl bg-white text-sm text-gray-800 focus:outline-hidden focus:border-[#8B0020]">
+                  {cities.map((city) => (<option key={city} value={city}>{city}</option>))}
                 </select>
               </div>
             </div>
 
-            {/* Intent selector */}
             <div className="space-y-2">
-              <label className="block text-xs font-bold text-gray-700 dark:text-slate-350 uppercase tracking-wider">Matching Rhythm</label>
-              <select
-                value={selectedIntent}
-                onChange={(e) => setSelectedIntent(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-200 dark:border-slate-755 hover:border-gray-300 dark:hover:border-slate-650 rounded-xl bg-gray-50/50 dark:bg-slate-850 text-sm text-gray-850 dark:text-slate-200 focus:outline-hidden focus:border-pink-500"
-              >
-                {intents.map((intent) => (
-                  <option key={intent} value={intent} className="bg-white dark:bg-slate-900 text-gray-800 dark:text-slate-200">{intent === 'All' ? 'All Intents' : intent}</option>
-                ))}
+              <label className="block text-xs font-bold text-[#1A1118]/70 uppercase tracking-wider">Intent</label>
+              <select value={selectedIntent} onChange={(e) => setSelectedIntent(e.target.value)} className="w-full px-4 py-2 border border-[#EDE6D9] rounded-xl bg-white text-sm text-gray-800 focus:outline-hidden focus:border-[#8B0020]">
+                {intents.map((intent) => (<option key={intent} value={intent}>{intent === 'All' ? 'All Intents' : intent}</option>))}
               </select>
             </div>
 
-            {/* Age Range scale */}
             <div className="space-y-2">
               <div className="flex justify-between items-center">
-                <label className="text-xs font-bold text-gray-700 dark:text-slate-350 uppercase tracking-wider">Maximum Age</label>
-                <span className="text-xs font-bold text-pink-600 bg-pink-50 dark:bg-pink-950/40 border border-pink-100 dark:border-pink-900/30 px-2 py-0.5 rounded-md">{ageRange} Years</span>
+                <label className="text-xs font-bold text-[#1A1118]/70 uppercase tracking-wider">Max Age</label>
+                <span className="text-xs font-bold text-[#8B0020] bg-[#8B0020]/5 border border-[#8B0020]/20 px-2 py-0.5 rounded-md">{ageRange}</span>
               </div>
-              <input
-                type="range"
-                min="18"
-                max="50"
-                value={ageRange}
-                onChange={(e) => setAgeRange(Number(e.target.value))}
-                className="w-full accent-pink-600 dark:accent-pink-500 h-1.5 bg-gray-200 dark:bg-slate-800 rounded-lg appearance-none cursor-pointer"
-              />
+              <input type="range" min="18" max="50" value={ageRange} onChange={(e) => setAgeRange(Number(e.target.value))} className="w-full accent-[#8B0020] h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer" />
               <div className="flex justify-between text-[10px] text-gray-400 dark:text-slate-500 font-medium">
                 <span>18</span>
                 <span>35</span>
@@ -278,24 +236,14 @@ export default function Dashboard({
               </div>
             </div>
 
-            {/* Interests checklist */}
             <div className="space-y-3 pt-2">
-              <label className="block text-xs font-bold text-gray-700 dark:text-slate-350 uppercase tracking-wider">Tag Interests</label>
-              <div className="max-h-[160px] overflow-y-auto space-y-1.5 scrollbar-thin pr-1 border border-gray-100 dark:border-slate-800 p-2.5 rounded-xl bg-gray-50/50 dark:bg-slate-850/50">
+              <label className="block text-xs font-bold text-[#1A1118]/70 uppercase tracking-wider">Interests</label>
+              <div className="max-h-[160px] overflow-y-auto space-y-1.5 pr-1 border border-[#EDE6D9] p-2.5 rounded-xl bg-[#F8F4ED]/50">
                 {allInterests.map((interest) => {
                   const isChecked = selectedInterests.includes(interest);
                   return (
-                    <button
-                      key={interest}
-                      type="button"
-                      onClick={() => toggleInterest(interest)}
-                      className="flex items-center gap-2.5 w-full text-left text-xs text-gray-600 dark:text-slate-300 hover:text-gray-900 dark:hover:text-slate-100 py-1 cursor-pointer transition-colors font-medium"
-                    >
-                      {isChecked ? (
-                        <CheckSquare className="h-4.5 w-4.5 text-pink-500 shrink-0" />
-                      ) : (
-                        <Square className="h-4.5 w-4.5 text-gray-300 dark:text-slate-650 shrink-0" />
-                      )}
+                    <button key={interest} type="button" onClick={() => toggleInterest(interest)} className="flex items-center gap-2.5 w-full text-left text-xs text-gray-600 hover:text-[#1A1118] py-1 cursor-pointer transition-colors font-medium">
+                      {isChecked ? <CheckSquare className="h-4.5 w-4.5 text-[#8B0020] shrink-0" /> : <Square className="h-4.5 w-4.5 text-gray-300 shrink-0" />}
                       <span>{interest}</span>
                     </button>
                   );
@@ -303,14 +251,13 @@ export default function Dashboard({
               </div>
             </div>
 
-            {/* Update Profile Reminder block */}
-            <div className="bg-gradient-to-r from-pink-50 to-rose-50 dark:from-pink-950/20 dark:to-rose-955/10 rounded-2xl p-4 border border-pink-100 dark:border-pink-900/30">
-              <p className="text-[11px] font-extrabold text-pink-800 dark:text-pink-300 uppercase tracking-widest flex items-center gap-1.5 mb-1.5">
-                <Star className="h-3.5 w-3.5 fill-pink-500 text-pink-500" />
+            <div className="bg-[#F8F4ED] rounded-2xl p-4 border border-[#C9A84C]/20">
+              <p className="text-[11px] font-bold text-[#8B0020] uppercase tracking-widest flex items-center gap-1.5 mb-1.5">
+                <Star className="h-3.5 w-3.5 text-[#C9A84C]" />
                 Want more matches?
               </p>
-              <p className="text-[10px] text-pink-650/95 dark:text-pink-350/90 leading-relaxed font-light">
-                Keep your profile description active & verify your bank transfer code to boost system matching weights!
+              <p className="text-[10px] text-gray-600 leading-relaxed">
+                Keep your profile active & verify your payment to unlock more connections.
               </p>
             </div>
 
@@ -320,24 +267,19 @@ export default function Dashboard({
           <div className="col-span-1 lg:col-span-3 space-y-6">
             
             {/* Contextual rotating 'Pro Tip' box */}
-            <div className="bg-white dark:bg-slate-900 border border-gray-150 dark:border-slate-800/80 rounded-2xl p-5 shadow-3xs relative overflow-hidden transition-all" id="dashboard-pro-tip-carousel">
-              {/* Subtle ambient lightbulb icon background */}
-              <div className="absolute -right-2 -bottom-2 text-pink-500/5 dark:text-pink-500/[0.025] transform rotate-12 pointer-events-none select-none">
+            <div className="bg-white border border-[#EDE6D9] rounded-2xl p-5 shadow-sm relative overflow-hidden transition-all" id="dashboard-pro-tip-carousel">
+              <div className="absolute -right-2 -bottom-2 text-[#C9A84C]/5 transform rotate-12 pointer-events-none select-none">
                 <Lightbulb className="h-32 w-32" />
               </div>
 
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-gray-100 dark:border-slate-800/60 pb-3 mb-3">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#EDE6D9] pb-3 mb-3">
                 <div className="flex items-center gap-2">
-                  <div className="p-1.5 bg-pink-50 dark:bg-pink-950/30 rounded-lg text-pink-600 dark:text-pink-400 shrink-0">
+                  <div className="p-1.5 bg-[#8B0020]/5 rounded-lg text-[#8B0020] shrink-0">
                     <Lightbulb className="h-4.5 w-4.5" />
                   </div>
                   <div>
-                    <h3 className="text-xs font-bold text-gray-900 dark:text-white uppercase tracking-wider font-sans">
-                      Whaatachi Dashboard Pro-Tips
-                    </h3>
-                    <p className="text-[10px] text-gray-400 dark:text-slate-500 font-light font-mono">
-                      Rotating contextual guidance for Habesha singles
-                    </p>
+                    <h3 className="text-xs font-bold text-[#1A1118] uppercase tracking-wider">Pro Tips</h3>
+                    <p className="text-[10px] text-gray-400">Rotating guidance for better connections</p>
                   </div>
                 </div>
 
@@ -387,74 +329,35 @@ export default function Dashboard({
 
             {/* Search inputs bar */}
             <div className="relative">
-              <Search className="absolute left-4 top-3.5 h-5 w-5 text-gray-400 dark:text-slate-500" />
-              <input
-                type="text"
-                placeholder="Search candidates by name, location, interests, or bio..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-white dark:bg-slate-900 border border-gray-150 dark:border-slate-800 pl-11 pr-4 py-3.5 rounded-2xl shadow-3xs outline-hidden focus:border-pink-500 focus:ring-1 focus:ring-pink-500 text-sm text-gray-850 dark:text-white dark:placeholder-slate-500 transition-colors"
-              />
+              <Search className="absolute left-4 top-3.5 h-5 w-5 text-gray-400" />
+              <input type="text" placeholder="Search by name, city, or interests..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="w-full bg-white border border-[#EDE6D9] pl-11 pr-4 py-3.5 rounded-2xl shadow-sm outline-hidden focus:border-[#8B0020] focus:ring-1 focus:ring-[#8B0020]/20 text-sm text-gray-800" />
             </div>
 
-            {/* Horizontal filter chips slider */}
             <div className="flex items-center gap-2 overflow-x-auto pb-1 max-w-full no-scrollbar">
-              <button
-                onClick={() => setFilterType('all')}
-                className={`px-4 py-2 rounded-xl text-xs font-bold shrink-0 transition-all cursor-pointer border ${
-                  filterType === 'all'
-                    ? 'bg-gray-900 border-gray-900 dark:bg-white dark:border-white text-white dark:text-slate-950'
-                    : 'bg-white dark:bg-slate-900 border-gray-200 dark:border-slate-800 text-gray-600 dark:text-slate-300 hover:border-gray-300 dark:hover:border-slate-700'
-                }`}
-              >
-                All Profiles ({profiles.length})
+              <button onClick={() => setFilterType('all')} className={`px-4 py-2 rounded-xl text-xs font-bold shrink-0 transition-all cursor-pointer border ${filterType === 'all' ? 'bg-[#1A1118] border-[#1A1118] text-white' : 'bg-white border-[#EDE6D9] text-gray-600 hover:border-gray-300'}`}>
+                All ({profiles.length})
               </button>
-              
-              <button
-                onClick={() => setFilterType('recent')}
-                className={`px-4 py-2 rounded-xl text-xs font-bold shrink-0 transition-all cursor-pointer border ${
-                  filterType === 'recent'
-                    ? 'bg-gray-900 border-gray-900 dark:bg-white dark:border-white text-white dark:text-slate-950'
-                    : 'bg-white dark:bg-slate-900 border-gray-200 dark:border-slate-800 text-gray-600 dark:text-slate-300 hover:border-gray-300 dark:hover:border-slate-700'
-                }`}
-              >
-                ⚡ Recently Active
+              <button onClick={() => setFilterType('recent')} className={`px-4 py-2 rounded-xl text-xs font-bold shrink-0 transition-all cursor-pointer border ${filterType === 'recent' ? 'bg-[#1A1118] border-[#1A1118] text-white' : 'bg-white border-[#EDE6D9] text-gray-600 hover:border-gray-300'}`}>
+                ⚡ Active
               </button>
-
-              <button
-                onClick={() => setFilterType('verified')}
-                className={`px-4 py-2 rounded-xl text-xs font-bold shrink-0 transition-all cursor-pointer border ${
-                  filterType === 'verified'
-                    ? 'bg-gray-900 border-gray-900 dark:bg-white dark:border-white text-white dark:text-slate-950'
-                    : 'bg-white dark:bg-slate-900 border-gray-200 dark:border-slate-800 text-gray-600 dark:text-slate-300 hover:border-gray-300 dark:hover:border-slate-700'
-                }`}
-              >
-                🛡️ Verified Only
+              <button onClick={() => setFilterType('verified')} className={`px-4 py-2 rounded-xl text-xs font-bold shrink-0 transition-all cursor-pointer border ${filterType === 'verified' ? 'bg-[#1A1118] border-[#1A1118] text-white' : 'bg-white border-[#EDE6D9] text-gray-600 hover:border-gray-300'}`}>
+                Verified
               </button>
-
               {unlockedIds.length > 0 && (
-                <button
-                  onClick={() => setFilterType('unlocked')}
-                  className={`px-4 py-2 rounded-xl text-xs font-bold shrink-0 transition-all cursor-pointer border ${
-                    filterType === 'unlocked'
-                      ? 'bg-emerald-600 border-emerald-600 text-white'
-                      : 'bg-white dark:bg-slate-900 border-gray-200 dark:border-slate-800 text-emerald-700 dark:text-emerald-400 hover:border-emerald-350 dark:hover:border-slate-700'
-                  }`}
-                >
-                  🔓 Unlocked Contacts ({unlockedIds.length})
+                <button onClick={() => setFilterType('unlocked')} className={`px-4 py-2 rounded-xl text-xs font-bold shrink-0 transition-all cursor-pointer border ${filterType === 'unlocked' ? 'bg-emerald-600 border-emerald-600 text-white' : 'bg-white border-[#EDE6D9] text-emerald-700 hover:border-emerald-300'}`}>
+                  Unlocked ({unlockedIds.length})
                 </button>
               )}
             </div>
 
-            {/* Quick gender help banner */}
-            <div className="bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-900/30 rounded-xl p-3 text-blue-850 dark:text-blue-300 text-[11px] leading-relaxed flex items-start gap-2.5">
-              <AlertCircle className="h-4.5 w-4.5 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5" />
+            <div className="bg-[#F8F4ED] border border-[#EDE6D9] rounded-xl p-3 text-gray-700 text-xs leading-relaxed flex items-start gap-2.5">
+              <AlertCircle className="h-4 w-4 text-[#C9A84C] shrink-0 mt-0.5" />
               <div>
-                <span className="font-bold">Viewing as: {userGender} candidate.</span>{' '}
+                <span className="font-bold">Viewing as {userGender}.</span>{' '}
                 {userGender === 'Male' ? (
-                  <span>Men cover a 200 ETB fee. To see what Whaatachi looks like as a female user (free instant reveals), toggle the Gender switcher in the header!</span>
+                  <span>Men pay 200 ETB per unlock. Women get free access.</span>
                 ) : (
-                  <span>Women can unlock any contact profile details for completely FREE. Explore without transaction thresholds.</span>
+                  <span>Women unlock contacts for free. No payment needed.</span>
                 )}
               </div>
             </div>
@@ -482,19 +385,12 @@ export default function Dashboard({
               </div>
             ) : (
               // Empty search state
-              <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-2xl py-16 px-4 text-center max-w-xl mx-auto space-y-3 transition-colors">
-                <div className="bg-gray-100 dark:bg-slate-800 text-gray-400 dark:text-slate-500 p-4 rounded-full w-14 h-14 flex items-center justify-center mx-auto text-xl font-bold">
-                  ?
-                </div>
-                <h3 className="font-bold text-gray-900 dark:text-white text-lg">No Matching Cohorts Found</h3>
-                <p className="text-xs text-gray-500 dark:text-slate-400 font-light max-w-sm mx-auto leading-relaxed">
-                  Try relaxing your structural side selectors, resetting maximum age scale, or checking different Ethiopian locations.
-                </p>
-                <button
-                  onClick={handleResetFilters}
-                  className="px-4 py-2.5 bg-gradient-to-r from-pink-600 to-rose-500 text-white font-semibold text-xs rounded-lg shadow-xs hover:shadow-md cursor-pointer transition-all"
-                >
-                  Show All Active Profiles
+              <div className="bg-white border border-[#EDE6D9] rounded-2xl py-16 px-4 text-center max-w-xl mx-auto space-y-3">
+                <div className="bg-[#F8F4ED] text-gray-400 p-4 rounded-full w-14 h-14 flex items-center justify-center mx-auto text-xl font-bold">?</div>
+                <h3 className="font-bold text-[#1A1118] text-lg">No Matches Found</h3>
+                <p className="text-xs text-gray-500 max-w-sm mx-auto leading-relaxed">Try different filters or locations.</p>
+                <button onClick={handleResetFilters} className="px-4 py-2.5 bg-[#8B0020] hover:bg-[#B31B3A] text-white font-semibold text-xs rounded-lg shadow-sm cursor-pointer transition-all">
+                  Show All Profiles
                 </button>
               </div>
             )}

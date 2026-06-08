@@ -344,6 +344,7 @@ export default function App() {
         contactInfo: {
           phone: phone || '0911223344',
           telegram: name.toLowerCase().replace(/\s+/g, ''),
+          instagram: '',
           email: `${name.toLowerCase().replace(/\s+/g, '')}@example.com`
         }
       };
@@ -399,8 +400,8 @@ export default function App() {
 
   const handleUnlockTrigger = (profile: Profile) => {
     if (!isLoggedIn) {
-      setIsLoggedIn(true);
-      setCurrentView('dashboard');
+      handleOpenAuth('register');
+      return;
     }
     setActiveUnlockTarget(profile);
     setIsPaymentModalOpen(true);
@@ -416,7 +417,7 @@ export default function App() {
 
   if (currentView === 'admin') {
     return (
-      <div className={darkMode ? 'dark font-sans' : 'font-sans'}>
+      <div className="font-sans">
         <AdminPanel
           allPayments={allPayments}
           setAllPayments={setAllPayments}
@@ -437,7 +438,7 @@ export default function App() {
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50 dark:bg-slate-950 text-gray-800 dark:text-slate-100 transition-colors duration-250" id="main-app-container">
+    <div className="flex flex-col min-h-screen bg-[#FFFCF8] text-[#1A1118] transition-colors duration-250" id="main-app-container">
       
       {/* 1. Header with role switches */}
       <Header
@@ -459,21 +460,21 @@ export default function App() {
       {/* 2. Success/Info popups */}
       {showNotification && (
         <div 
-          className={`fixed top-20 right-5 z-55 max-w-sm p-4 rounded-2xl shadow-xl flex items-start gap-3 border ${
+          className={`fixed top-20 right-5 z-55 max-w-sm p-4 rounded-2xl shadow-xl flex items-start gap-3 border animate-slide-up ${
             showNotification.type === 'success'
-              ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
-              : 'bg-blue-50 border-blue-200 text-blue-800'
-          } animate-slideIn`}
+              ? 'bg-[#F8F4ED] border-[#C9A84C]/40 text-[#1A1118]'
+              : 'bg-[#F8F4ED] border-[#8B0020]/20 text-[#1A1118]'
+          }`}
           id="toast-notification"
         >
           {showNotification.type === 'success' ? (
-            <CheckCircle className="h-5 w-5 text-emerald-650 shrink-0 mt-0.5 animate-bounce" />
+            <CheckCircle className="h-5 w-5 text-[#C9A84C] shrink-0 mt-0.5" />
           ) : (
-            <ShieldAlert className="h-5 w-5 text-blue-600 shrink-0 mt-0.5" />
+            <ShieldAlert className="h-5 w-5 text-[#8B0020] shrink-0 mt-0.5" />
           )}
           <div>
-            <p className="font-bold text-xs">System Alert</p>
-            <p className="text-[11px] font-medium leading-relaxed mt-0.5">{showNotification.text}</p>
+            <p className="font-bold text-xs text-[#8B0020]">Whaatachi</p>
+            <p className="text-[11px] font-medium leading-relaxed mt-0.5 text-gray-700">{showNotification.text}</p>
           </div>
         </div>
       )}

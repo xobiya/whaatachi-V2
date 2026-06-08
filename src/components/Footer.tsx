@@ -1,5 +1,5 @@
 import React from 'react';
-import { Heart, Mail, Phone, ShieldCheck, HelpCircle } from 'lucide-react';
+import { Heart, ShieldCheck, Crown } from 'lucide-react';
 
 interface FooterProps {
   setCurrentView: (view: string) => void;
@@ -8,127 +8,62 @@ interface FooterProps {
 
 export default function Footer({ setCurrentView, isLoggedIn }: FooterProps) {
   return (
-    <footer className="bg-gray-950 text-gray-400 py-12 border-t border-gray-900 mt-auto" id="app-footer">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-          
-          {/* Logo & Slogan */}
-          <div className="space-y-4 md:col-span-1">
-            <span className="flex items-center gap-2 text-xl font-bold text-white">
-              <div className="bg-pink-900/40 p-1.5 rounded-full text-pink-400">
-                <Heart className="h-5 w-5 fill-pink-500 text-pink-500" />
+    <footer className="bg-[#1A1118] text-[#EDE6D9]/50 border-t border-[#C9A84C]/10">
+      <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 py-12">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
+
+          <div className="col-span-2 lg:col-span-1">
+            <span className="flex items-center gap-2 text-lg font-black text-[#FFFCF8]">
+              <div className="bg-[#8B0020] p-1 rounded-lg">
+                <Heart className="h-4 w-4 text-[#C9A84C] fill-[#C9A84C]" />
               </div>
               Whaatachi
             </span>
-            <p className="text-xs text-gray-500 leading-relaxed">
-              Ethiopia's safest, highest-integrity community platform for discovering true relationships, authentic friendships, and local connections. Built for Addis, Hawassa, Adama, & beyond.
+            <p className="text-xs mt-3 leading-relaxed max-w-xs">
+              Ethiopia's premium dating platform. Real people, verified profiles, private connections.
             </p>
-            <div className="flex items-center gap-2 text-[10px] text-pink-400 bg-pink-950/40 border border-pink-900/30 p-2 rounded-lg">
-              <ShieldCheck className="h-4 w-4 shrink-0" />
-              <span>Men undergo secure CBE/Telebirr fee verification to ensure zero spam.</span>
+            <div className="flex items-center gap-1.5 mt-4 text-[10px] text-[#C9A84C]/70 bg-[#C9A84C]/5 border border-[#C9A84C]/20 px-3 py-1.5 rounded-lg">
+              <ShieldCheck className="h-3.5 w-3.5 shrink-0" />
+              <span>Men pay 200 ETB — women join free</span>
             </div>
           </div>
 
-          {/* Quick Links */}
           <div>
-            <h3 className="text-sm font-semibold text-gray-200 tracking-wider uppercase mb-4">Discovery</h3>
+            <h4 className="text-xs font-bold text-[#FFFCF8] uppercase tracking-wider mb-4">Discover</h4>
             <ul className="space-y-2 text-xs">
-              <li>
-                <button 
-                  onClick={() => setCurrentView(isLoggedIn ? 'dashboard' : 'home')} 
-                  className="hover:text-pink-400 transition-colors cursor-pointer text-left"
-                >
-                  Hot Match Boards
-                </button>
-              </li>
-              <li>
-                <button 
-                  onClick={() => setCurrentView('dashboard')} 
-                  className="hover:text-pink-400 transition-colors cursor-pointer text-left"
-                >
-                  Locate Verified Members
-                </button>
-              </li>
-              <li>
-                <button 
-                  onClick={() => setCurrentView('stories')} 
-                  className="hover:text-pink-400 transition-colors cursor-pointer text-left"
-                >
-                  Love Found: Success Stories
-                </button>
-              </li>
-              <li>
-                <button 
-                  onClick={() => setCurrentView('blog')} 
-                  className="hover:text-pink-400 transition-colors cursor-pointer text-left"
-                >
-                  Safety Blogs & Advices
-                </button>
-              </li>
+              <li><button onClick={() => setCurrentView(isLoggedIn ? 'dashboard' : 'home')} className="hover:text-[#C9A84C] transition-colors cursor-pointer">Browse Profiles</button></li>
+              <li><button onClick={() => setCurrentView('stories')} className="hover:text-[#C9A84C] transition-colors cursor-pointer">Success Stories</button></li>
+              <li><button onClick={() => setCurrentView('faq')} className="hover:text-[#C9A84C] transition-colors cursor-pointer">How It Works</button></li>
             </ul>
           </div>
 
-          {/* Support Info */}
           <div>
-            <h3 className="text-sm font-semibold text-gray-200 tracking-wider uppercase mb-4">Safety & Policy</h3>
+            <h4 className="text-xs font-bold text-[#FFFCF8] uppercase tracking-wider mb-4">Support</h4>
             <ul className="space-y-2 text-xs">
-              <li>
-                <button 
-                  onClick={() => setCurrentView('faq')} 
-                  className="hover:text-pink-400 transition-colors cursor-pointer text-left"
-                >
-                  How Verification Works
-                </button>
-              </li>
-              <li>
-                <button 
-                  onClick={() => setCurrentView('faq')} 
-                  className="hover:text-pink-400 transition-colors cursor-pointer text-left"
-                >
-                  Pricing & 200 ETB Fee
-                </button>
-              </li>
-              <li>
-                <button 
-                  onClick={() => setCurrentView('support')} 
-                  className="hover:text-pink-400 transition-colors cursor-pointer text-left inline-flex items-center gap-1"
-                >
-                  <HelpCircle className="h-3.5 w-3.5 text-sky-400" />
-                  Live Help & Support
-                </button>
-              </li>
+              <li><button onClick={() => setCurrentView('support')} className="hover:text-[#C9A84C] transition-colors cursor-pointer">Help Center</button></li>
+              <li><button onClick={() => setCurrentView('faq')} className="hover:text-[#C9A84C] transition-colors cursor-pointer">FAQ</button></li>
+              <li><span className="cursor-default">support@whaatachi.com</span></li>
             </ul>
           </div>
 
-          {/* Contact Details */}
-          <div className="space-y-3">
-            <h3 className="text-sm font-semibold text-gray-200 tracking-wider uppercase">Contact Support</h3>
-            <p className="text-xs text-gray-500">Need help with CBE/Telebirr transfers or approval delays?</p>
-            <div className="space-y-2 text-xs">
-              <span className="flex items-center gap-2">
-                <Phone className="h-4 w-4 text-emerald-500" />
-                <span>+251 900 123 456</span>
-              </span>
-              <span className="flex items-center gap-2">
-                <Mail className="h-4 w-4 text-blue-400" />
-                <span>support@whaatachi.com</span>
-              </span>
-            </div>
+          <div>
+            <h4 className="text-xs font-bold text-[#FFFCF8] uppercase tracking-wider mb-4">Legal</h4>
+            <ul className="space-y-2 text-xs">
+              <li><span className="cursor-default hover:text-[#C9A84C] transition-colors">Privacy Policy</span></li>
+              <li><span className="cursor-default hover:text-[#C9A84C] transition-colors">Terms of Use</span></li>
+              <li><span className="cursor-default hover:text-[#C9A84C] transition-colors">Safety Guidelines</span></li>
+            </ul>
           </div>
 
         </div>
 
-        <div className="border-t border-gray-900 mt-8 pt-8 flex flex-col sm:flex-row items-center justify-between text-[11px] text-gray-600 gap-4">
-          <p>© {new Date().getFullYear()} Whaatachi Ethiopia. All rights reserved.</p>
-          <div className="flex gap-4">
-            <span className="hover:text-gray-500 transition-colors cursor-pointer text-left">Terms of Use</span>
-            <span>•</span>
-            <span className="hover:text-gray-500 transition-colors cursor-pointer text-left">Privacy Policy</span>
-            <span>•</span>
-            <span className="hover:text-gray-500 transition-colors cursor-pointer text-left">Safety Guidelines</span>
-          </div>
+        <div className="border-t border-[#C9A84C]/10 mt-8 pt-6 flex flex-col sm:flex-row items-center justify-between text-[10px] text-[#EDE6D9]/30 gap-3">
+          <p>© {new Date().getFullYear()} Whaatachi. All rights reserved.</p>
+          <span className="flex items-center gap-1.5">
+            <Crown className="h-3 w-3 text-[#C9A84C]" />
+            Premium Ethiopian Dating
+          </span>
         </div>
-
       </div>
     </footer>
   );

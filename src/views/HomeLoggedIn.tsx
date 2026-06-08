@@ -45,6 +45,7 @@ export default function HomeLoggedIn({
     contactInfo: {
       phone: '0911223344',
       telegram: 'habeshaconnect',
+      instagram: '@habeshaconnect',
       email: 'habesha@example.com'
     }
   };

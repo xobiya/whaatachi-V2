@@ -1,5 +1,7 @@
 import { Profile, SuccessStory, Article } from './types';
 
+const asset = (file: string) => `/assets/${file}`;
+
 export const INITIAL_PROFILES: Profile[] = [
   {
     id: 'p1',
@@ -8,7 +10,7 @@ export const INITIAL_PROFILES: Profile[] = [
     city: 'Addis Ababa',
     bio: 'Software engineer by day, macchiato enthusiast by night. I am looking for someone who loves deep conversations, good music, and traditional Ethiopian coffee ceremonies.',
     gender: 'Female',
-    image: 'https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=500&auto=format&fit=crop&q=80',
+    image: asset('Gemini_Generated_Image_48jenf48jenf48je.png'),
     status: 'Online',
     relationshipIntent: 'True Relationship',
     interests: ['Macchiato', 'Technology', 'Jazz', 'Literature'],
@@ -16,6 +18,7 @@ export const INITIAL_PROFILES: Profile[] = [
     contactInfo: {
       phone: '+251 911 234 567',
       telegram: '@selam_tech',
+      instagram: '@selamawit_tekle',
       email: 'selamawit.tekle@example.com'
     }
   },
@@ -24,9 +27,9 @@ export const INITIAL_PROFILES: Profile[] = [
     name: 'Abel Mekonnen',
     age: 27,
     city: 'Addis Ababa',
-    bio: 'Architect, sketching my way through Addis. I appreciate structural beauty, classical art, and cultural journeys. Let\'s explore the art galleries around Bole together!',
+    bio: 'Architect sketching my way through Addis. I appreciate structural beauty, classical art, and cultural journeys. Let\'s explore the art galleries around Bole together!',
     gender: 'Male',
-    image: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=500&auto=format&fit=crop&q=80',
+    image: asset('Gemini_Generated_Image_f05mrgf05mrgf05m.png'),
     status: 'Online',
     relationshipIntent: 'True Relationship',
     interests: ['Architecture', 'Art Galleries', 'Hiking', 'Photography'],
@@ -34,6 +37,7 @@ export const INITIAL_PROFILES: Profile[] = [
     contactInfo: {
       phone: '+251 922 456 789',
       telegram: '@abel_sketches',
+      instagram: '@abel_mekonnen',
       email: 'abel.mekonnen@example.com'
     }
   },
@@ -44,7 +48,7 @@ export const INITIAL_PROFILES: Profile[] = [
     city: 'Hawassa',
     bio: 'Lover of the Hawassa lake views, morning runs, and local fish cutlets. Genuine warmth and honesty are what I look for. Always happy to talk about business and philosophy.',
     gender: 'Female',
-    image: 'https://images.unsplash.com/photo-1589156280159-27698a70f29e?w=500&auto=format&fit=crop&q=80',
+    image: asset('Gemini_Generated_Image_4zte6t4zte6t4zte.png'),
     status: 'Recently Active',
     relationshipIntent: 'True Relationship',
     interests: ['Lake Walks', 'Business', 'Philosophy', 'Fitness'],
@@ -52,6 +56,7 @@ export const INITIAL_PROFILES: Profile[] = [
     contactInfo: {
       phone: '+251 912 789 123',
       telegram: '@kidu_hailu',
+      instagram: '@kidist_hailu',
       email: 'kidist.hailu@example.com'
     }
   },
@@ -60,9 +65,9 @@ export const INITIAL_PROFILES: Profile[] = [
     name: 'Daniel Tadesse',
     age: 29,
     city: 'Adama',
-    bio: 'Business consultant. I splitting my time between Adama and Addis. Love road trips, acoustic live bands, and playing tennis. Looking for a genuine partner to build a future with.',
+    bio: 'Business consultant splitting my time between Adama and Addis. Love road trips, acoustic live bands, and playing tennis. Looking for a genuine partner to build a future with.',
     gender: 'Male',
-    image: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=500&auto=format&fit=crop&q=80',
+    image: asset('Gemini_Generated_Image_rj3k3urj3k3urj3k.png'),
     status: 'Online',
     relationshipIntent: 'True Relationship',
     interests: ['Road Trips', 'Tennis', 'Acoustic Bands', 'Consulting'],
@@ -70,6 +75,7 @@ export const INITIAL_PROFILES: Profile[] = [
     contactInfo: {
       phone: '+251 915 222 333',
       telegram: '@daniel_consult',
+      instagram: '@daniel_tadesse',
       email: 'daniel.tadesse@example.com'
     }
   },
@@ -78,9 +84,9 @@ export const INITIAL_PROFILES: Profile[] = [
     name: 'Helen Gebru',
     age: 23,
     city: 'Bahir Dar',
-    bio: 'Medical student, passionate about pediatric care and local volunteer work. Let\'s go for an afternoon boat ride on Lake Tana and appreciate the historic monasteries.',
+    bio: 'Medical student passionate about pediatric care and local volunteer work. Let\'s go for an afternoon boat ride on Lake Tana and explore the historic monasteries.',
     gender: 'Female',
-    image: 'https://images.unsplash.com/photo-1507152832244-10d45ee79330?w=500&auto=format&fit=crop&q=80',
+    image: asset('Gemini_Generated_Image_69df6669df6669df.png'),
     status: 'Online',
     relationshipIntent: 'Friendship',
     interests: ['Medicine', 'Volunteering', 'Boat Rides', 'History'],
@@ -88,6 +94,7 @@ export const INITIAL_PROFILES: Profile[] = [
     contactInfo: {
       phone: '+251 916 333 444',
       telegram: '@helen_gebru',
+      instagram: '@helen_gebru',
       email: 'helen.gebru@example.com'
     }
   },
@@ -96,9 +103,9 @@ export const INITIAL_PROFILES: Profile[] = [
     name: 'Nahom Girma',
     age: 25,
     city: 'Dire Dawa',
-    bio: 'Software engineer and street photographer. I love the nostalgic train station aesthetic in Dire Dawa. Looking for dynamic connections and friendship that can turn into more.',
+    bio: 'Software engineer and street photographer. I love the nostalgic train station aesthetic in Dire Dawa. Looking for dynamic connections that can turn into something beautiful.',
     gender: 'Male',
-    image: 'https://images.unsplash.com/photo-1489980508314-941910ded1f4?w=500&auto=format&fit=crop&q=80',
+    image: asset('photo_2026-06-08_16-58-42.jpg'),
     status: 'Recently Active',
     relationshipIntent: 'Friends with Benefits',
     interests: ['Photography', 'Coding', 'Street Food', 'Retro Vibes'],
@@ -106,6 +113,7 @@ export const INITIAL_PROFILES: Profile[] = [
     contactInfo: {
       phone: '+251 919 444 555',
       telegram: '@nahom_girma',
+      instagram: '@nahom_girma',
       email: 'nahom.girma@example.com'
     }
   },
@@ -114,9 +122,9 @@ export const INITIAL_PROFILES: Profile[] = [
     name: 'Bethel Elias',
     age: 22,
     city: 'Addis Ababa',
-    bio: 'Graphic designer and content creator. I love exploring new cafes in Bole, making Instagram reels, and digital illustration. Seeking someone with open views and similar high energy!',
+    bio: 'Graphic designer and content creator. I love exploring new cafes in Bole and digital illustration. Seeking someone with open views and similar high energy!',
     gender: 'Female',
-    image: 'https://images.unsplash.com/photo-1522307844021-cd962212346a?w=500&auto=format&fit=crop&q=80',
+    image: asset('ChatGPT Image Jun 8, 2026, 03_15_56 PM.png'),
     status: 'Offline',
     relationshipIntent: 'Friends with Benefits',
     interests: ['Content Creation', 'Bole Cafes', 'Design', 'Active Outings'],
@@ -124,6 +132,7 @@ export const INITIAL_PROFILES: Profile[] = [
     contactInfo: {
       phone: '+251 920 111 222',
       telegram: '@bethel_create',
+      instagram: '@bethel_elias',
       email: 'bethel.elias@example.com'
     }
   },
@@ -132,7 +141,7 @@ export const INITIAL_PROFILES: Profile[] = [
     name: 'Samuel Solomon',
     age: 31,
     city: 'Gondar',
-    bio: 'Restaurateur and history buff. Raised around the beautiful castles of Gondar. I love hosting people, preparing traditional cuisine, and having intelligent debates.',
+    bio: 'Restaurateur and history buff raised around the beautiful castles of Gondar. I love hosting people, preparing traditional cuisine, and having intelligent debates.',
     gender: 'Male',
     image: 'https://images.unsplash.com/photo-1566492031773-4f4e44671857?w=500&auto=format&fit=crop&q=80',
     status: 'Recently Active',
@@ -142,6 +151,7 @@ export const INITIAL_PROFILES: Profile[] = [
     contactInfo: {
       phone: '+251 924 999 888',
       telegram: '@sam_gondar',
+      instagram: '@sam_gondar',
       email: 'sam.solomon@example.com'
     }
   },
@@ -150,7 +160,7 @@ export const INITIAL_PROFILES: Profile[] = [
     name: 'Hana Kassa',
     age: 25,
     city: 'Addis Ababa',
-    bio: 'Professional dancer and yoga instructor. I love the expressive rhythm of traditional Eskesta and modern fusion. Always radiating positive vibes and looking for a spiritual connection.',
+    bio: 'Professional dancer and yoga instructor. I love the expressive rhythm of traditional Eskesta and modern fusion. Always radiating positive vibes.',
     gender: 'Female',
     image: 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=500&auto=format&fit=crop&q=80',
     status: 'Online',
@@ -160,6 +170,7 @@ export const INITIAL_PROFILES: Profile[] = [
     contactInfo: {
       phone: '+251 910 888 777',
       telegram: '@hana_dancer',
+      instagram: '@hana_kassa',
       email: 'hana.kassa@example.com'
     }
   },
@@ -170,7 +181,7 @@ export const INITIAL_PROFILES: Profile[] = [
     city: 'Addis Ababa',
     bio: 'Salsa instructor and foodie. Life should be lived dynamic and colorful! Looking for a dance partner and potentially a life partner. Fluent in three languages.',
     gender: 'Male',
-    image: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=500&auto=format&fit=crop&q=80',
+    image: asset('Gemini_Generated_Image_oicvomoicvomoicv.png'),
     status: 'Online',
     relationshipIntent: 'Friendship',
     interests: ['Salsa', 'Socializing', 'Cooking Class', 'Languages'],
@@ -178,6 +189,7 @@ export const INITIAL_PROFILES: Profile[] = [
     contactInfo: {
       phone: '+251 917 555 777',
       telegram: '@elias_salsa',
+      instagram: '@elias_shiferaw',
       email: 'elias.shiferaw@example.com'
     }
   },
@@ -186,7 +198,7 @@ export const INITIAL_PROFILES: Profile[] = [
     name: 'Martha Tesfaye',
     age: 25,
     city: 'Addis Ababa',
-    bio: 'Marketing manager and passionate weekend baker. Love exploring independent books and cozy flower shops around Bole and hiking in Entoto Park. Looking for a high-integrity partner.',
+    bio: 'Marketing manager and passionate weekend baker. Love exploring independent books and hiking in Entoto Park. Looking for a high-integrity partner.',
     gender: 'Female',
     image: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=500&auto=format&fit=crop&q=80',
     status: 'Online',
@@ -196,6 +208,7 @@ export const INITIAL_PROFILES: Profile[] = [
     contactInfo: {
       phone: '+251 911 888 999',
       telegram: '@martha_tesfaye',
+      instagram: '@martha_tesfaye',
       email: 'martha.tesfaye@example.com'
     }
   },
@@ -204,7 +217,7 @@ export const INITIAL_PROFILES: Profile[] = [
     name: 'Yohannes Bekele',
     age: 28,
     city: 'Addis Ababa',
-    bio: 'Tech start-up founder and double macchiato enthusiast. When not building, I enjoy playing acoustic guitar and walking in Bole. Seeking a smart, kind partner to build a life with.',
+    bio: 'Tech start-up founder and double macchiato enthusiast. When not building, I enjoy playing acoustic guitar and walking in Bole. Seeking a smart, kind partner.',
     gender: 'Male',
     image: 'https://images.unsplash.com/photo-1501196354995-cbb51c65aaea?w=500&auto=format&fit=crop&q=80',
     status: 'Recently Active',
@@ -214,6 +227,7 @@ export const INITIAL_PROFILES: Profile[] = [
     contactInfo: {
       phone: '+251 930 444 222',
       telegram: '@yohannes_b',
+      instagram: '@yohannes_bekele',
       email: 'yohannes@example.com'
     }
   },
@@ -222,7 +236,7 @@ export const INITIAL_PROFILES: Profile[] = [
     name: 'Tigist Alene',
     age: 26,
     city: 'Bahir Dar',
-    bio: 'Lover of Lake Tana lakeside breeze, traditional shekla tibs, and local Ethiopian development. Let\'s grab a fresh mango juice session or trace our beautiful histories!',
+    bio: 'Lover of Lake Tana lakeside breeze, traditional shekla tibs, and local Ethiopian development. Let\'s grab a fresh mango juice and trace our beautiful histories!',
     gender: 'Female',
     image: 'https://images.unsplash.com/photo-1523824921871-d6f1a15151f1?w=500&auto=format&fit=crop&q=80',
     status: 'Online',
@@ -232,6 +246,7 @@ export const INITIAL_PROFILES: Profile[] = [
     contactInfo: {
       phone: '+251 918 333 999',
       telegram: '@tigist_alene',
+      instagram: '@tigist_alene',
       email: 'tigist@example.com'
     }
   },
@@ -240,7 +255,7 @@ export const INITIAL_PROFILES: Profile[] = [
     name: 'Michael Tsegaye',
     age: 29,
     city: 'Hawassa',
-    bio: 'Environmental scientist and amateur cyclist. I love early morning rides around Hawassa lake. Seeking a sincere, values-oriented companion sharing a deep appreciation for family.',
+    bio: 'Environmental scientist and amateur cyclist. I love early morning rides around Hawassa lake. Seeking a sincere, values-oriented companion.',
     gender: 'Male',
     image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=500&auto=format&fit=crop&q=80',
     status: 'Recently Active',
@@ -250,6 +265,7 @@ export const INITIAL_PROFILES: Profile[] = [
     contactInfo: {
       phone: '+251 925 101 202',
       telegram: '@miki_tsegaye',
+      instagram: '@michael_tsegaye',
       email: 'miki@example.com'
     }
   },
@@ -258,7 +274,7 @@ export const INITIAL_PROFILES: Profile[] = [
     name: 'Eden Girma',
     age: 24,
     city: 'Addis Ababa',
-    bio: 'Anesthesiology resident. Life is simple: I highly value loyalty, honest conversations, and traditional coffee ceremonies with friends. Let\'s laugh together and plan a real future.',
+    bio: 'Anesthesiology resident. Life is simple: I highly value loyalty, honest conversations, and traditional coffee ceremonies with friends.',
     gender: 'Female',
     image: 'https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?w=500&auto=format&fit=crop&q=80',
     status: 'Online',
@@ -268,6 +284,7 @@ export const INITIAL_PROFILES: Profile[] = [
     contactInfo: {
       phone: '+251 912 404 505',
       telegram: '@eden_girma',
+      instagram: '@eden_girma',
       email: 'eden@example.com'
     }
   },
@@ -276,7 +293,7 @@ export const INITIAL_PROFILES: Profile[] = [
     name: 'Bereket Kebede',
     age: 30,
     city: 'Adama',
-    bio: 'Civil engineer. Designing connections is my daytime profession, finding a beautiful life companion is my ultimate dream. I enjoy weekend trips, cultural music, and family dinner values.',
+    bio: 'Civil engineer. Designing connections is my daytime profession, finding a beautiful life companion is my ultimate dream.',
     gender: 'Male',
     image: 'https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?w=500&auto=format&fit=crop&q=80',
     status: 'Online',
@@ -286,6 +303,7 @@ export const INITIAL_PROFILES: Profile[] = [
     contactInfo: {
       phone: '+251 916 220 330',
       telegram: '@bereket_k',
+      instagram: '@bereket_kebede',
       email: 'bereket@example.com'
     }
   }

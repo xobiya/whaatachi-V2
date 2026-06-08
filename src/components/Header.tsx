@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Heart, Menu, X, User, ShieldAlert, Sparkles, LogOut, CheckCircle2, Sun, Moon } from 'lucide-react';
+import { Heart, Menu, X, User, LogOut, Crown, ChevronDown } from 'lucide-react';
 import { Profile } from '../types';
 
 interface HeaderProps {
@@ -19,257 +19,109 @@ interface HeaderProps {
 }
 
 export default function Header({
-  currentView,
-  setCurrentView,
-  userRole,
-  setUserRole,
-  isLoggedIn,
-  setIsLoggedIn,
-  userGender,
-  setUserGender,
-  pendingCount,
-  darkMode,
-  setDarkMode,
-  onOpenAuth,
-  currentUser
+  currentView, setCurrentView,
+  isLoggedIn, setIsLoggedIn,
+  onOpenAuth, currentUser
 }: HeaderProps) {
   const [isOpen, setIsOpen] = useState(false);
 
-  const handleNavClick = (view: string) => {
+  const handleNav = (view: string) => {
     setCurrentView(view);
     setIsOpen(false);
   };
 
-  const navLinks = [
-    { label: 'Home', view: 'home' },
-    { label: 'Find Matches', view: 'dashboard' },
-    { label: 'How It Works', view: 'faq' },
-    { label: 'Success Stories', view: 'stories' },
-    { label: 'Safety & Blog', view: 'blog' },
-    { label: 'Help Desk', view: 'support' },
-  ];
-
   return (
-    <nav className="sticky top-0 z-50 bg-white dark:bg-slate-900 border-b border-gray-100 dark:border-slate-800 shadow-xs transition-colors duration-200" id="nav-header">
+    <nav className="sticky top-0 z-50 bg-[#1A1118]/95 backdrop-blur-md border-b border-[#C9A84C]/10">
       <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
-        <div className="flex justify-between items-center h-16 gap-4">
-          
-          {/* Left Side Group: Logo and Desktop Navigation */}
-          <div className="flex items-center gap-8 lg:gap-10 xl:gap-12">
-            {/* Logo */}
-            <div className="flex items-center shrink-0">
-              <button 
-                onClick={() => handleNavClick('home')}
-                className="flex items-center gap-2 cursor-pointer focus:outline-hidden"
-                id="logo-button"
-              >
-                <div className="bg-pink-100 dark:bg-pink-950/50 p-2 rounded-full text-pink-600 dark:text-pink-400">
-                  <Heart className="h-5 w-5 fill-pink-500 text-pink-500 animate-pulse" />
-                </div>
-                <span className="text-xl font-bold tracking-tight bg-gradient-to-r from-pink-600 to-rose-500 bg-clip-text text-transparent">
-                  Whaatachi
-                </span>
-              </button>
-            </div>
+        <div className="flex justify-between items-center h-16">
 
-            {/* Desktop Navigation */}
-            <div className="hidden lg:flex items-center space-x-4 xl:space-x-6">
-              {navLinks.map((link) => {
-                const isActive = currentView === link.view || 
-                  (link.view === 'home' && currentView === 'landing') || 
-                  (link.view === 'dashboard' && (currentView === 'dashboard' || currentView === 'history'));
-                
-                return (
-                  <button
-                    key={link.label}
-                    onClick={() => handleNavClick(link.view)}
-                    className={`text-sm font-medium transition-colors cursor-pointer py-2 ${
-                      isActive
-                        ? 'text-pink-600 dark:text-pink-400 border-b-2 border-pink-500 py-2 inline-flex items-center font-semibold'
-                        : 'text-gray-650 hover:text-gray-900 dark:text-slate-300 dark:hover:text-white py-2 inline-flex items-center'
-                    }`}
-                  >
-                    {link.label}
-                  </button>
-                );
-              })}
+          {/* Logo */}
+          <button onClick={() => handleNav('home')} className="flex items-center gap-2 cursor-pointer">
+            <div className="bg-[#8B0020] p-1.5 rounded-lg">
+              <Heart className="h-5 w-5 text-[#C9A84C] fill-[#C9A84C]" />
             </div>
+            <span className="text-lg font-black text-[#FFFCF8] tracking-tight">
+              Whaatachi
+            </span>
+          </button>
+
+          {/* Desktop Nav */}
+          <div className="hidden lg:flex items-center gap-6">
+            <button onClick={() => handleNav('home')} className={`text-sm font-semibold transition-colors cursor-pointer ${currentView === 'home' ? 'text-[#C9A84C]' : 'text-[#EDE6D9]/70 hover:text-[#FFFCF8]'}`}>Home</button>
+            <button onClick={() => handleNav('dashboard')} className={`text-sm font-semibold transition-colors cursor-pointer ${currentView === 'dashboard' ? 'text-[#C9A84C]' : 'text-[#EDE6D9]/70 hover:text-[#FFFCF8]'}`}>Browse</button>
+            <button onClick={() => handleNav('faq')} className={`text-sm font-semibold transition-colors cursor-pointer ${currentView === 'faq' ? 'text-[#C9A84C]' : 'text-[#EDE6D9]/70 hover:text-[#FFFCF8]'}`}>How It Works</button>
+            <button onClick={() => handleNav('stories')} className={`text-sm font-semibold transition-colors cursor-pointer ${currentView === 'stories' ? 'text-[#C9A84C]' : 'text-[#EDE6D9]/70 hover:text-[#FFFCF8]'}`}>Success Stories</button>
+            <button onClick={() => handleNav('support')} className={`text-sm font-semibold transition-colors cursor-pointer ${currentView === 'support' ? 'text-[#C9A84C]' : 'text-[#EDE6D9]/70 hover:text-[#FFFCF8]'}`}>Support</button>
           </div>
 
-          {/* Right Side: Action Simulator Controls */}
-          <div className="hidden lg:flex items-center space-x-3 xl:space-x-4">
-            
-            {/* Elegant Dark mode switcher */}
-            <button
-              onClick={() => setDarkMode(!darkMode)}
-              className="p-2 rounded-xl text-gray-500 dark:text-slate-300 hover:text-gray-950 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
-              title={darkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
-            >
-              {darkMode ? (
-                <Sun className="h-4.5 w-4.5 text-amber-400" />
-              ) : (
-                <Moon className="h-4.5 w-4.5 text-slate-705" />
-              )}
-            </button>
-
+          {/* Right Side */}
+          <div className="hidden lg:flex items-center gap-4">
             {isLoggedIn ? (
               <div className="flex items-center gap-3">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 bg-[#FFFCF8]/5 border border-[#C9A84C]/20 rounded-full px-3 py-1.5">
                   {currentUser?.image ? (
-                    <img 
-                      src={currentUser.image} 
-                      alt={currentUser.name} 
-                      className="w-8 h-8 rounded-full object-cover border border-pink-100 dark:border-pink-900"
-                      referrerPolicy="no-referrer"
-                    />
+                    <img src={currentUser.image} alt="" className="w-7 h-7 rounded-full object-cover border border-[#C9A84C]/30" referrerPolicy="no-referrer" />
                   ) : (
-                    <div className="w-8 h-8 rounded-full bg-pink-500 text-white flex items-center justify-center font-semibold text-sm">
-                      {userGender === 'Male' ? 'M' : 'F'}
+                    <div className="w-7 h-7 rounded-full bg-[#8B0020] text-[#C9A84C] flex items-center justify-center font-bold text-xs">
+                      {currentUser?.name?.[0] || 'U'}
                     </div>
                   )}
-                  <div className="text-left max-w-[120px]">
-                    <p className="text-xs font-semibold text-gray-900 dark:text-slate-100 truncate" title={currentUser?.name || "Habesha Acc"}>
-                      {currentUser?.name || 'Habesha Acc'}
-                    </p>
-                    <p className="text-[10px] text-gray-450 dark:text-slate-400 font-mono font-bold truncate">
-                      {currentUser?.city || `Standard ${userGender}`}
-                    </p>
-                  </div>
+                  <span className="text-xs font-bold text-[#FFFCF8] max-w-[100px] truncate">{currentUser?.name || 'User'}</span>
+                  <ChevronDown className="h-3 w-3 text-[#C9A84C]" />
                 </div>
-                <button
-                  onClick={() => {
-                    setIsLoggedIn(false);
-                    setCurrentView('home');
-                  }}
-                  className="p-1 px-2 rounded-lg text-gray-400 dark:text-slate-400 hover:text-pink-600 dark:hover:text-pink-300 hover:bg-pink-50 dark:hover:bg-pink-950/20 cursor-pointer transition-colors"
-                  title="Logout Simulator"
-                  id="logout-button"
-                >
+                <button onClick={() => { setIsLoggedIn(false); setCurrentView('home'); }} className="p-2 text-[#EDE6D9]/50 hover:text-[#C9A84C] transition-colors cursor-pointer">
                   <LogOut className="h-4 w-4" />
                 </button>
               </div>
             ) : (
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => onOpenAuth?.('signin')}
-                  className="px-4 py-2 text-sm font-medium text-gray-650 dark:text-slate-300 hover:text-pink-600 dark:hover:text-pink-400 transition-all cursor-pointer"
-                  id="login-button"
-                >
-                  Sign In
+              <>
+                <button onClick={() => onOpenAuth?.('signin')} className="text-sm font-semibold text-[#EDE6D9]/70 hover:text-[#FFFCF8] transition-colors cursor-pointer">Sign In</button>
+                <button onClick={() => onOpenAuth?.('register')} className="px-5 py-2 bg-[#8B0020] hover:bg-[#B31B3A] text-white text-sm font-bold rounded-lg transition-all cursor-pointer flex items-center gap-1.5 shadow-lg shadow-[#8B0020]/20">
+                  <Crown className="h-4 w-4" />
+                  Create Profile
                 </button>
-                <button
-                  onClick={() => onOpenAuth?.('register')}
-                  className="px-4 py-2 text-sm font-semibold bg-gradient-to-r from-pink-600 to-rose-500 hover:from-pink-700 hover:to-rose-600 text-white rounded-lg shadow-xs hover:shadow-sm cursor-pointer transition-all flex items-center gap-1"
-                  id="register-button"
-                >
-                  Join Whaatachi
-                </button>
-              </div>
+              </>
             )}
           </div>
 
-          {/* Mobile menu, gender and role quick selectors */}
-          <div className="flex items-center lg:hidden gap-2">
-            
-            {/* Mobile dark mode option */}
-            <button
-              onClick={() => setDarkMode(!darkMode)}
-              className="p-1.5 rounded-lg text-gray-500 dark:text-slate-300 hover:bg-gray-105 hover:bg-gray-100 dark:hover:bg-slate-800"
-              title="Toggle theme"
-            >
-              {darkMode ? <Sun className="h-4.5 w-4.5 text-amber-400" /> : <Moon className="h-4.5 w-4.5" />}
-            </button>
-
-            <button
-              onClick={() => setIsOpen(!isOpen)}
-              className="inline-flex items-center justify-center p-2 rounded-md text-gray-450 hover:text-gray-500 hover:bg-gray-100 dark:hover:bg-slate-800 focus:outline-hidden cursor-pointer"
-              id="mobile-menu-toggle"
-            >
-              {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+          {/* Mobile */}
+          <div className="flex lg:hidden items-center gap-2">
+            {!isLoggedIn && (
+              <button onClick={() => onOpenAuth?.('register')} className="px-4 py-1.5 bg-[#8B0020] text-white text-xs font-bold rounded-lg cursor-pointer">
+                Join
+              </button>
+            )}
+            <button onClick={() => setIsOpen(!isOpen)} className="p-2 text-[#EDE6D9] cursor-pointer">
+              {isOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </button>
           </div>
-
         </div>
       </div>
 
       {/* Mobile Menu */}
       {isOpen && (
-        <div className="xl:hidden border-t border-gray-100 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-lg animate-fadeIn">
-          <div className="px-2 pt-2 pb-3 space-y-1">
-            {navLinks.map((link) => (
-              <button
-                key={link.label}
-                onClick={() => handleNavClick(link.view)}
-                className={`block w-full text-left px-3 py-2 rounded-md text-base font-medium ${
-                  currentView === link.view
-                    ? 'bg-pink-50 dark:bg-pink-950/30 text-pink-700 dark:text-pink-300 font-semibold'
-                    : 'text-gray-600 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-white'
-                }`}
-              >
+        <div className="lg:hidden bg-[#1A1118] border-t border-[#C9A84C]/10">
+          <div className="px-4 py-4 space-y-2">
+            {[
+              { label: 'Home', view: 'home' },
+              { label: 'Browse Profiles', view: 'dashboard' },
+              { label: 'How It Works', view: 'faq' },
+              { label: 'Success Stories', view: 'stories' },
+              { label: 'Support', view: 'support' },
+            ].map((link) => (
+              <button key={link.view} onClick={() => handleNav(link.view)} className={`block w-full text-left px-3 py-2 rounded-lg text-sm font-semibold ${currentView === link.view ? 'bg-[#8B0020]/30 text-[#C9A84C]' : 'text-[#EDE6D9]/70 hover:bg-[#FFFCF8]/5'}`}>
                 {link.label}
               </button>
             ))}
-
-
-
-            <div className="border-t border-gray-100 dark:border-slate-800 pt-2 mt-2">
-              {isLoggedIn ? (
-                <div className="px-3 py-2">
-                  <div className="flex items-center gap-3 mb-3">
-                    {currentUser?.image ? (
-                      <img 
-                        src={currentUser.image} 
-                        alt={currentUser.name} 
-                        className="w-9 h-9 rounded-full object-cover border border-pink-100 dark:border-pink-900"
-                        referrerPolicy="no-referrer"
-                      />
-                    ) : (
-                      <div className="w-9 h-9 rounded-full bg-pink-500 text-white flex items-center justify-center font-bold">
-                        {userGender === 'Male' ? 'M' : 'F'}
-                      </div>
-                    )}
-                    <div>
-                      <p className="text-sm font-bold text-gray-850 dark:text-slate-100 truncate max-w-[150px]">
-                        {currentUser?.name || 'Habesha User'}
-                      </p>
-                      <p className="text-xs text-gray-450 dark:text-slate-400 font-mono">Mode: {userGender}</p>
-                    </div>
-                  </div>
-                  <button
-                    onClick={() => {
-                      setIsLoggedIn(false);
-                      setIsOpen(false);
-                      setCurrentView('home');
-                    }}
-                    className="w-full flex items-center justify-center gap-2 px-4 py-2 border border-gray-300 dark:border-slate-700 rounded-md text-sm font-medium text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors cursor-pointer"
-                  >
-                    <LogOut className="h-4 w-4" />
-                    Sign Out Simulation
-                  </button>
-                </div>
-              ) : (
-                <div className="px-3 py-2 space-y-2">
-                  <button
-                    onClick={() => {
-                      setIsOpen(false);
-                      onOpenAuth?.('signin');
-                    }}
-                    className="w-full text-center block px-4 py-2 text-sm font-medium text-pink-600 dark:text-pink-400 hover:bg-pink-50 dark:hover:bg-pink-950/20 rounded-md transition-all cursor-pointer"
-                  >
-                    Sign In
-                  </button>
-                  <button
-                    onClick={() => {
-                      setIsOpen(false);
-                      onOpenAuth?.('register');
-                    }}
-                    className="w-full text-center block px-4 py-2 text-sm font-semibold text-white bg-gradient-to-r from-pink-600 to-rose-500 hover:from-pink-700 rounded-md shadow-sm transition-all cursor-pointer"
-                  >
-                    Join Whaatachi
-                  </button>
-                </div>
-              )}
-            </div>
+            {isLoggedIn ? (
+              <button onClick={() => { setIsLoggedIn(false); setIsOpen(false); setCurrentView('home'); }} className="w-full text-left px-3 py-2 rounded-lg text-sm font-semibold text-[#EDE6D9]/70 hover:bg-[#FFFCF8]/5">
+                Sign Out
+              </button>
+            ) : (
+              <button onClick={() => { setIsOpen(false); onOpenAuth?.('register'); }} className="w-full text-left px-3 py-2 rounded-lg text-sm font-bold text-[#C9A84C] hover:bg-[#FFFCF8]/5">
+                Create Profile
+              </button>
+            )}
           </div>
         </div>
       )}

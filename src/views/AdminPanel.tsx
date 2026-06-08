@@ -143,6 +143,7 @@ export default function AdminPanel({
   const [newProfileImage, setNewProfileImage] = useState('https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=500&auto=format&fit=crop&q=80');
   const [newProfileIntent, setNewProfileIntent] = useState<'True Relationship' | 'Friendship' | 'Friends with Benefits'>('True Relationship');
   const [newProfileTelegram, setNewProfileTelegram] = useState('');
+  const [newProfileInstagram, setNewProfileInstagram] = useState('');
   const [newProfilePhone, setNewProfilePhone] = useState('');
   const [newProfileInterests, setNewProfileInterests] = useState('Coffee, Music, Literature');
 
@@ -243,6 +244,7 @@ export default function AdminPanel({
       contactInfo: {
         phone: newProfilePhone.trim() || '+251 900 000 000',
         telegram: newProfileTelegram.trim().startsWith('@') ? newProfileTelegram.trim() : `@${newProfileTelegram.trim()}`,
+        instagram: newProfileInstagram.trim().startsWith('@') ? newProfileInstagram.trim() : `@${newProfileInstagram.trim()}`,
         email: `${newProfileName.trim().toLowerCase().replace(/\s+/g, '')}@whaatachi.com`
       }
     };
@@ -843,7 +845,7 @@ export default function AdminPanel({
                       relationshipIntent: 'True Relationship',
                       interests: ['Jazz', 'Hiking', 'Kitfo'],
                       verified: true,
-                      contactInfo: { phone: '0900112233', telegram: '@zene_abera', email: 'zenebech@whaatachi.com' }
+                      contactInfo: { phone: '0900112233', telegram: '@zene_abera', instagram: '@zenebech', email: 'zenebech@whaatachi.com' }
                     };
                     setProfiles(prev => [sample, ...prev]);
                     alert('Simulated FEMALE candidate injected! Verify discover match feed.');
@@ -869,7 +871,7 @@ export default function AdminPanel({
                       relationshipIntent: 'True Relationship',
                       interests: ['Macchiato', 'Tech', 'Sketching'],
                       verified: false,
-                      contactInfo: { phone: '0933445566', telegram: '@brook_shif', email: 'brook@whaatachi.com' }
+                      contactInfo: { phone: '0933445566', telegram: '@brook_shif', instagram: '@brook_shif', email: 'brook@whaatachi.com' }
                     };
                     setProfiles(prev => [sample, ...prev]);
                     alert('Simulated MALE candidate injected! Verify discover list.');

@@ -109,34 +109,27 @@ export default function PaymentModal({
   return (
     <div className="fixed inset-0 z-55 overflow-y-auto" id="payment-modal">
       
-      {/* Dark overlay backdrop */}
-      <div 
-        className="fixed inset-0 bg-gray-900/60 dark:bg-black/75 backdrop-blur-xs transition-opacity"
-        onClick={onClose}
-      ></div>
+      <div className="fixed inset-0 bg-[#1A1118]/80 backdrop-blur-xs transition-opacity" onClick={onClose}></div>
 
       {/* Modal element positioning */}
       <div className="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
-        <div className="relative transform overflow-hidden rounded-2xl bg-white dark:bg-slate-900 text-left shadow-2xl transition-all w-full max-w-md sm:max-w-lg border border-gray-100 dark:border-slate-800 flex flex-col my-8">
+        <div className="relative transform overflow-hidden rounded-2xl bg-[#FFFCF8] text-left shadow-2xl transition-all w-full max-w-md sm:max-w-lg border border-[#C9A84C]/20 flex flex-col my-8">
           
           {/* Header */}
-          <div className="bg-gradient-to-r from-pink-600 to-rose-500 px-6 py-4 flex items-center justify-between text-white shrink-0">
+          <div className="bg-[#8B0020] px-6 py-4 flex items-center justify-between text-white shrink-0">
             <div>
-              <h3 className="text-base sm:text-lg font-bold">Secure Verification Guard</h3>
-              <p className="text-[10px] sm:text-[11px] text-pink-100 font-medium">Unlocking {profile.name}'s Connection Portal</p>
+              <h3 className="text-base sm:text-lg font-bold">Unlock {profile.name}'s Contact</h3>
+              <p className="text-[10px] sm:text-[11px] text-[#F0D4D4] font-medium">Get phone, Telegram & email instantly after payment</p>
             </div>
-            <button 
-              onClick={onClose}
-              className="p-1 rounded-full text-white/80 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
-            >
+            <button onClick={onClose} className="p-1 rounded-full text-white/80 hover:text-white hover:bg-white/10 transition-colors cursor-pointer">
               <X className="h-5 w-5" />
             </button>
           </div>
 
           <form onSubmit={handleFormSubmit} className="p-4 sm:p-6 space-y-5 overflow-y-auto max-h-[80vh] scrollbar-thin">
             {error && (
-              <div className="bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900/30 text-red-800 dark:text-red-300 rounded-xl p-3 text-xs flex items-center gap-2">
-                <ShieldAlert className="h-4.5 w-4.5 text-red-500 shrink-0" />
+              <div className="bg-[#8B0020]/5 border border-[#8B0020]/20 text-[#8B0020] rounded-xl p-3 text-xs flex items-center gap-2">
+                <ShieldAlert className="h-4.5 w-4.5 text-[#8B0020] shrink-0" />
                 <span className="font-semibold">{error}</span>
               </div>
             )}
@@ -144,97 +137,74 @@ export default function PaymentModal({
             {userGender === 'Female' ? (
               // Women Free Path description
               <div className="space-y-4">
-                <div className="bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-150 dark:border-emerald-900/30 rounded-xl p-4 text-emerald-900 dark:text-emerald-305 flex items-start gap-3">
-                  <CheckCircle className="h-5 w-5 text-emerald-605 mt-0.5 shrink-0" />
+                <div className="bg-[#C9A84C]/5 border border-[#C9A84C]/20 rounded-xl p-4 text-[#1A1118] flex items-start gap-3">
+                  <CheckCircle className="h-5 w-5 text-[#C9A84C] mt-0.5 shrink-0" />
                   <div>
-                    <h4 className="font-bold text-sm">Free Verification for Women</h4>
-                    <p className="text-xs text-emerald-700 dark:text-slate-350 leading-relaxed mt-1">
-                      Whaatachi provides completely free access for our premium female members. Submit your phone number below and get instant secure access to connect.
+                    <h4 className="font-bold text-sm">Free for Women</h4>
+                    <p className="text-xs text-gray-600 leading-relaxed mt-1">
+                      Whaatachi is completely free for women. Submit your phone below and get instant access.
                     </p>
                   </div>
                 </div>
 
                 <div className="space-y-3">
-                  <label className="block text-xs font-semibold text-gray-700 dark:text-slate-300 uppercase tracking-wider">
-                    Your Contact Phone Number (Required)
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="e.g., +251 900 000 000"
-                    value={senderPhone}
-                    onChange={(e) => setSenderPhone(e.target.value)}
-                    className="w-full rounded-xl border border-gray-300 dark:border-slate-700 p-3 text-sm text-gray-900 dark:text-white focus:outline-hidden focus:border-pink-500 focus:ring-1 focus:ring-pink-500 bg-gray-50/50 dark:bg-slate-850"
-                  />
-                  <p className="text-[10px] text-gray-400 dark:text-slate-500">
-                    We securely save your profile context to prevent spam bots. Your number is never shown to malicious players.
-                  </p>
+                  <label className="block text-xs font-bold text-[#1A1118]/70 uppercase tracking-wider">Your Phone Number</label>
+                  <input type="text" required placeholder="e.g., +251 900 000 000" value={senderPhone} onChange={(e) => setSenderPhone(e.target.value)} className="w-full rounded-xl border border-[#EDE6D9] p-3 text-sm text-gray-900 focus:outline-hidden focus:border-[#8B0020] focus:ring-1 focus:ring-[#8B0020]/20 bg-white" />
                 </div>
               </div>
             ) : (
               // Men Payment standard flow (Telebirr & CBE)
               <div className="space-y-4">
                 
-                {/* Visual Fee Banner */}
-                <div className="flex justify-between items-center bg-gray-50 dark:bg-slate-950 border border-gray-200 dark:border-slate-800 rounded-xl p-4 transition-colors">
-                  <div className="flex items-center gap-2.5">
-                    <div className="bg-pink-100 dark:bg-pink-950/60 p-2 rounded-lg text-pink-600 dark:text-pink-400">
+                <div className="flex justify-between items-center bg-[#F8F4ED] border border-[#EDE6D9] rounded-xl p-4">
+                  <div className="flex items-center gap-3">
+                    <div className="bg-[#8B0020]/10 p-2 rounded-lg text-[#8B0020]">
                       <DollarSign className="h-5 w-5" />
                     </div>
                     <div>
-                      <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Lock Fee required</p>
-                      <p className="text-sm font-bold text-gray-800 dark:text-slate-200">One-Time Activation</p>
+                      <p className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">One-Time Unlock</p>
+                      <p className="text-sm font-bold text-[#1A1118]">Pay & Connect Instantly</p>
                     </div>
                   </div>
                   <div className="text-right">
-                    <span className="text-2xl font-extrabold text-pink-600 dark:text-pink-400">{activeFee}</span>
-                    <span className="text-xs font-bold text-gray-500 ml-1">Birr</span>
+                    <span className="text-2xl font-extrabold text-[#8B0020]">{activeFee}</span>
+                    <span className="text-xs font-bold text-gray-500 ml-1">ETB</span>
                   </div>
                 </div>
 
                 {/* Info Text */}
-                <p className="text-xs text-gray-500 dark:text-slate-350 leading-relaxed">
-                  Before we disclose <strong className="text-gray-800 dark:text-white">{profile.name}</strong>'s direct Telegram handler and phone numbers, please complete a single <strong>{activeFee} ETB</strong> payment via CBE Birr or Telebirr and submit receipt below.
+                <p className="text-xs text-gray-500 leading-relaxed">
+                  Pay <strong className="text-lg text-[#8B0020]">{activeFee} ETB</strong> to get <strong className="text-[#1A1118]">{profile.name}</strong>'s direct phone, Telegram & email. No subscription — pay only when you find someone you like.
                 </p>
 
                 {/* Copyable Accounts section */}
-                <div className="bg-gray-50/50 dark:bg-slate-850/50 border border-gray-150 dark:border-slate-800 rounded-xl p-4 space-y-3.5 transition-colors">
-                  <h4 className="text-xs font-bold text-gray-800 dark:text-slate-200 uppercase tracking-wider">1. Transfer {activeFee}Birr to:</h4>
+                <div className="bg-[#F8F4ED] border border-[#EDE6D9] rounded-xl p-4 space-y-3">
+                  <h4 className="text-xs font-bold text-[#1A1118] uppercase tracking-wider">1. Send {activeFee} ETB to:</h4>
                   
-                  {/* Account Telebirr */}
-                  <div className="flex items-center justify-between p-2.5 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-750 rounded-lg shadow-2xs">
+                  <div className="flex items-center justify-between p-2.5 bg-white border border-[#EDE6D9] rounded-lg">
                     <div className="flex items-center gap-2">
                       <span className="w-8 h-8 rounded-md bg-blue-600 text-white font-extrabold flex items-center justify-center text-[10px] shrink-0">TELE</span>
                       <div className="text-xs">
-                        <p className="font-bold text-gray-800 dark:text-slate-200">Merchant: <span className="text-blue-600 dark:text-blue-400">0900123456</span></p>
-                        <p className="text-[10px] text-gray-505 dark:text-slate-400">Name: Whaatachi PLC</p>
+                        <p className="font-bold text-gray-800">Merchant: <span className="text-blue-600">0900123456</span></p>
+                        <p className="text-[10px] text-gray-500">Whaatachi PLC</p>
                       </div>
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => handleCopy('0900123456', 'tele')}
-                      className="text-[10px] font-semibold text-pink-600 hover:text-pink-700 hover:bg-pink-50 dark:hover:bg-pink-950/20 p-1.5 rounded-md flex items-center gap-1 cursor-pointer transition-colors"
-                    >
-                      {copiedText === 'tele' ? <Check className="h-3 w-3 text-emerald-550" /> : <Copy className="h-3 w-3" />}
+                    <button type="button" onClick={() => handleCopy('0900123456', 'tele')} className="text-[10px] font-semibold text-[#8B0020] hover:text-[#B31B3A] hover:bg-[#8B0020]/5 p-1.5 rounded-md flex items-center gap-1 cursor-pointer transition-colors">
+                      {copiedText === 'tele' ? <Check className="h-3 w-3 text-green-600" /> : <Copy className="h-3 w-3" />}
                       <span>{copiedText === 'tele' ? 'Copied' : 'Copy'}</span>
                     </button>
                   </div>
 
-                  {/* Account CBE */}
-                  <div className="flex items-center justify-between p-2.5 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-750 rounded-lg shadow-2xs">
+                  <div className="flex items-center justify-between p-2.5 bg-white border border-[#EDE6D9] rounded-lg">
                     <div className="flex items-center gap-2">
                       <span className="w-8 h-8 rounded-md bg-purple-700 text-white font-extrabold flex items-center justify-center text-[10px] shrink-0">CBE</span>
                       <div className="text-xs">
-                        <p className="font-bold text-gray-800 dark:text-slate-200">Account: <span className="text-purple-700 dark:text-purple-400">1000123456789</span></p>
-                        <p className="text-[10px] text-gray-550 dark:text-slate-400">Name: Samuel Shiferaw (Whaatachi)</p>
+                        <p className="font-bold text-gray-800">Account: <span className="text-purple-700">1000123456789</span></p>
+                        <p className="text-[10px] text-gray-500">Samuel S. (Whaatachi)</p>
                       </div>
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => handleCopy('1000123456789', 'cbe')}
-                      className="text-[10px] font-semibold text-pink-600 hover:text-pink-700 hover:bg-pink-50 dark:hover:bg-pink-950/20 p-1.5 rounded-md flex items-center gap-1 cursor-pointer transition-colors"
-                    >
-                      {copiedText === 'cbe' ? <Check className="h-3 w-3 text-emerald-550" /> : <Copy className="h-3 w-3" />}
+                    <button type="button" onClick={() => handleCopy('1000123456789', 'cbe')} className="text-[10px] font-semibold text-[#8B0020] hover:text-[#B31B3A] hover:bg-[#8B0020]/5 p-1.5 rounded-md flex items-center gap-1 cursor-pointer transition-colors">
+                      {copiedText === 'cbe' ? <Check className="h-3 w-3 text-green-600" /> : <Copy className="h-3 w-3" />}
                       <span>{copiedText === 'cbe' ? 'Copied' : 'Copy'}</span>
                     </button>
                   </div>
@@ -243,82 +213,43 @@ export default function PaymentModal({
 
                 {/* Form fields */}
                 <div className="space-y-4 pt-1">
-                  <h4 className="text-xs font-bold text-gray-800 dark:text-slate-200 uppercase tracking-wider">2. Submit Verification Details:</h4>
+                  <h4 className="text-xs font-bold text-[#1A1118] uppercase tracking-wider">2. Submit Payment Proof:</h4>
 
-                  {/* Channel selectors */}
-                  <div className="grid grid-cols-2 gap-2 text-xs">
-                    <button
-                      type="button"
-                      onClick={() => setMethod('Telebirr')}
-                      className={`p-2.5 border rounded-lg font-semibold cursor-pointer transition-colors ${
-                        method === 'Telebirr'
-                          ? 'border-blue-600 bg-blue-50/50 dark:bg-blue-950/20 text-blue-800 dark:text-blue-300'
-                          : 'border-gray-200 dark:border-slate-750 hover:bg-gray-50 dark:hover:bg-slate-800 text-gray-605 dark:text-slate-405'
-                      }`}
-                    >
-                      Telebirr Receipt
+                  <div className="grid grid-cols-2 gap-2">
+                    <button type="button" onClick={() => setMethod('Telebirr')} className={`p-2.5 border rounded-lg font-semibold cursor-pointer transition-colors ${method === 'Telebirr' ? 'border-blue-600 bg-blue-50 text-blue-800' : 'border-[#EDE6D9] hover:border-gray-300 text-gray-600'}`}>
+                      Telebirr
                     </button>
-                    <button
-                      type="button"
-                      onClick={() => setMethod('CBE Birr')}
-                      className={`p-2.5 border rounded-lg font-semibold cursor-pointer transition-colors ${
-                        method === 'CBE Birr'
-                          ? 'border-purple-650 bg-purple-50/50 dark:bg-purple-950/20 text-purple-800 dark:text-purple-300'
-                          : 'border-gray-200 dark:border-slate-755 hover:bg-gray-50 dark:hover:bg-slate-800 text-gray-605 dark:text-slate-405'
-                      }`}
-                    >
-                      CBE Transfer Receipt
+                    <button type="button" onClick={() => setMethod('CBE Birr')} className={`p-2.5 border rounded-lg font-semibold cursor-pointer transition-colors ${method === 'CBE Birr' ? 'border-purple-600 bg-purple-50 text-purple-800' : 'border-[#EDE6D9] hover:border-gray-300 text-gray-600'}`}>
+                      CBE Birr
                     </button>
                   </div>
 
                   {/* Inputs */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div className="space-y-1">
-                      <label className="text-[10px] font-bold text-gray-650 dark:text-slate-350 uppercase">Sender Full Name</label>
-                      <input
-                        type="text"
-                        required
-                        placeholder="e.g. Samuel Girma"
-                        value={senderName}
-                        onChange={(e) => setSenderName(e.target.value)}
-                        className="w-full bg-white dark:bg-slate-850 text-gray-900 dark:text-white border border-gray-300 dark:border-slate-700 p-2.5 rounded-lg"
-                      />
+                      <label className="text-[10px] font-bold text-[#1A1118]/70 uppercase">Full Name</label>
+                      <input type="text" required placeholder="e.g. Samuel Girma" value={senderName} onChange={(e) => setSenderName(e.target.value)} className="w-full bg-white text-gray-900 border border-[#EDE6D9] p-2.5 rounded-lg text-xs focus:outline-hidden focus:border-[#8B0020]" />
                     </div>
                     <div className="space-y-1">
-                      <label className="text-[10px] font-bold text-gray-650 dark:text-slate-350 uppercase">Your Contact Number</label>
-                      <input
-                        type="text"
-                        required
-                        placeholder="e.g. 0911234567"
-                        value={senderPhone}
-                        onChange={(e) => setSenderPhone(e.target.value)}
-                        className="w-full bg-white dark:bg-slate-850 text-gray-900 dark:text-white border border-gray-300 dark:border-slate-700 p-2.5 rounded-lg"
-                      />
+                      <label className="text-[10px] font-bold text-[#1A1118]/70 uppercase">Your Phone</label>
+                      <input type="text" required placeholder="e.g. 0911234567" value={senderPhone} onChange={(e) => setSenderPhone(e.target.value)} className="w-full bg-white text-gray-900 border border-[#EDE6D9] p-2.5 rounded-lg text-xs focus:outline-hidden focus:border-[#8B0020]" />
                     </div>
                   </div>
 
                   <div className="space-y-1">
-                    <label className="text-[10px] font-bold text-gray-650 dark:text-slate-350 uppercase">Transaction ID / Reference Number</label>
-                    <input
-                      type="text"
-                      required
-                      placeholder="e.g. FT2315354922 or A7B5C3D..."
-                      value={transactionId}
-                      onChange={(e) => setTransactionId(e.target.value)}
-                      className="w-full bg-white dark:bg-slate-855 text-gray-900 dark:text-white border border-gray-200 dark:border-slate-700 p-2.5 rounded-lg font-mono text-sm uppercase outline-hidden focus:border-pink-500"
-                    />
+                    <label className="text-[10px] font-bold text-[#1A1118]/70 uppercase">Transaction ID</label>
+                    <input type="text" required placeholder="e.g. FT2315354922" value={transactionId} onChange={(e) => setTransactionId(e.target.value)} className="w-full bg-white text-gray-900 border border-[#EDE6D9] p-2.5 rounded-lg font-mono text-xs uppercase focus:outline-hidden focus:border-[#8B0020]" />
                   </div>
 
-                  {/* Mock Upload container */}
-                  <div className="border border-dashed border-gray-200 dark:border-slate-700 rounded-xl p-3 bg-gray-50 dark:bg-slate-850 flex items-center justify-between text-xs transition-colors">
+                  <div className="border border-dashed border-[#EDE6D9] rounded-xl p-3 bg-[#F8F4ED] flex items-center justify-between text-xs">
                     <div className="flex items-center gap-2">
-                      <Upload className="h-5 w-5 text-gray-400 " />
+                      <Upload className="h-5 w-5 text-gray-400" />
                       <div>
-                        <p className="font-bold text-gray-700 dark:text-slate-200">Upload Transfer Slip</p>
-                        <p className="text-[10px] text-gray-400 dark:text-slate-500">PDF, JPG or screenshot evidence (Optional)</p>
+                        <p className="font-bold text-gray-700">Upload Slip</p>
+                        <p className="text-[10px] text-gray-400">Optional screenshot</p>
                       </div>
                     </div>
-                    <span className="bg-white dark:bg-slate-900 border dark:border-slate-750 rounded-md px-2 py-1 font-semibold text-gray-500 dark:text-slate-400 cursor-pointer hover:bg-gray-50 dark:hover:bg-slate-800 text-[10px] transition-colors">
+                    <span className="bg-white border border-[#EDE6D9] rounded-md px-2 py-1 font-semibold text-gray-500 cursor-pointer hover:bg-gray-50 text-[10px]">
                       Choose
                     </span>
                   </div>
@@ -329,18 +260,12 @@ export default function PaymentModal({
             )}
 
             {/* Submit Action */}
-            <button
-              type="submit"
-              disabled={submitting}
-              className="w-full py-3.5 bg-gradient-to-r from-pink-600 to-rose-500 hover:from-pink-700 text-white rounded-xl text-sm font-bold shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer shrink-0"
-            >
+            <button type="submit" disabled={submitting} className="w-full py-3.5 bg-[#8B0020] hover:bg-[#B31B3A] text-white rounded-xl text-sm font-bold shadow-lg shadow-[#8B0020]/20 transition-all flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer shrink-0">
               {submitting ? (
-                <span>Locking details & verifying transaction...</span>
+                <span>Verifying transaction...</span>
               ) : (
                 <>
-                  <span>
-                    {userGender === 'Female' ? 'Verify & Get Free Contact' : 'Submit for Verification'}
-                  </span>
+                  <span>{userGender === 'Female' ? 'Verify & Get Free Contact' : `Pay ${activeFee} ETB & Unlock Contact`}</span>
                   <ArrowRight className="h-4.5 w-4.5" />
                 </>
               )}

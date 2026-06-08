@@ -13,6 +13,7 @@ export interface Profile {
   contactInfo: {
     phone: string;
     telegram: string;
+    instagram: string;
     email: string;
   };
 }
