@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { X, AlertCircle, User, Phone, Send, UserPlus, Camera, MapPin, MessageCircle, Instagram } from 'lucide-react';
 import { Profile } from '../types';
 import { sanitizeInput, sanitizePhone, sanitizeTelegram, sanitizeInstagram } from '../utils/sanitize';
+import { useAppContext } from '../context/AppContext';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -55,6 +56,7 @@ export default function AuthModal({
   const [signInPhone, setSignInPhone] = useState('');
 
   const [validationError, setValidationError] = useState<string | null>(null);
+  const { t } = useAppContext();
 
   useEffect(() => {
     setActiveTab(initialTab);
@@ -86,11 +88,11 @@ export default function AuthModal({
     setValidationError(null);
 
     if (!fullName.trim()) {
-      setValidationError('Please enter your full name.');
+      setValidationError(t('auth.required-name'));
       return;
     }
     if (!phoneNumber.trim()) {
-      setValidationError('Phone number is required.');
+      setValidationError(t('auth.required-phone'));
       return;
     }
 
@@ -135,7 +137,7 @@ export default function AuthModal({
     setValidationError(null);
 
     if (!signInName.trim()) {
-      setValidationError('Please enter your registered name.');
+      setValidationError(t('auth.required-name-signin'));
       return;
     }
 
@@ -155,7 +157,7 @@ export default function AuthModal({
           <button
             onClick={onClose}
             className="absolute top-4 right-4 p-2 rounded-full text-gray-400 hover:text-[#8B0020] dark:hover:text-[#C9A84C] bg-[#F8F4ED] dark:bg-[#1A1118] hover:bg-[#F0D4D4] dark:hover:bg-[#8B0020]/20 transition-colors cursor-pointer z-10"
-            aria-label="Close"
+            aria-label={t('auth.close')}
           >
             <X className="h-4.5 w-4.5" />
           </button>
@@ -169,7 +171,7 @@ export default function AuthModal({
                   : 'border-transparent text-gray-400 dark:text-gray-500 hover:text-[#1A1118] dark:hover:text-[#FFFCF8]'
               }`}
             >
-              Create Profile
+              {t('auth.register')}
             </button>
             <button
               onClick={() => { setActiveTab('signin'); setValidationError(null); }}
@@ -179,7 +181,7 @@ export default function AuthModal({
                   : 'border-transparent text-gray-400 dark:text-gray-500 hover:text-[#1A1118] dark:hover:text-[#FFFCF8]'
               }`}
             >
-              Sign In
+              {t('auth.sign-in')}
             </button>
           </div>
 
@@ -194,12 +196,12 @@ export default function AuthModal({
             {activeTab === 'register' ? (
               <form onSubmit={handleCreateRegisterSubmit} className="space-y-4">
                 <div>
-                  <h2 className="text-xl font-black text-[#1A1118] dark:text-[#FFFCF8]">Create Your Profile</h2>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Join thousands finding real connections in Ethiopia</p>
+                  <h2 className="text-xl font-black text-[#1A1118] dark:text-[#FFFCF8]">{t('auth.create-profile')}</h2>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{t('auth.join-desc')}</p>
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="block text-xs font-bold text-[#1A1118]/70 dark:text-[#FFFCF8]/60 uppercase tracking-wider">Full Name</label>
+                  <label className="block text-xs font-bold text-[#1A1118]/70 dark:text-[#FFFCF8]/60 uppercase tracking-wider">{t('auth.full-name-label')}</label>
                   <div className="relative">
                     <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                     <input type="text" required value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="E.g. Dawit Haile" className="w-full pl-9 pr-4 py-3 border border-[#EDE6D9] dark:border-[#C9A84C]/15 rounded-xl text-sm bg-white dark:bg-[#1A1118] text-gray-800 dark:text-[#FFFCF8] placeholder-gray-400 dark:placeholder-gray-500 focus:outline-hidden focus:border-[#8B0020] dark:focus:border-[#C9A84C] focus:ring-1 focus:ring-[#8B0020]/20 dark:focus:ring-[#C9A84C]/20" />
@@ -208,15 +210,15 @@ export default function AuthModal({
 
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-1.5">
-                    <label className="block text-xs font-bold text-[#1A1118]/70 dark:text-[#FFFCF8]/60 uppercase tracking-wider">Age</label>
+                    <label className="block text-xs font-bold text-[#1A1118]/70 dark:text-[#FFFCF8]/60 uppercase tracking-wider">{t('auth.age')}</label>
                     <input type="number" min="18" max="60" value={age} onChange={(e) => setAge(e.target.value)} placeholder="24" className="w-full px-4 py-3 border border-[#EDE6D9] dark:border-[#C9A84C]/15 rounded-xl text-sm bg-white dark:bg-[#1A1118] text-gray-800 dark:text-[#FFFCF8] placeholder-gray-400 dark:placeholder-gray-500 focus:outline-hidden focus:border-[#8B0020] dark:focus:border-[#C9A84C] focus:ring-1 focus:ring-[#8B0020]/20 dark:focus:ring-[#C9A84C]/20" />
                   </div>
                   <div className="space-y-1.5">
-                    <label className="block text-xs font-bold text-[#1A1118]/70 dark:text-[#FFFCF8]/60 uppercase tracking-wider">I am</label>
+                    <label className="block text-xs font-bold text-[#1A1118]/70 dark:text-[#FFFCF8]/60 uppercase tracking-wider">{t('auth.i-am')}</label>
                     <div className="grid grid-cols-2 bg-[#F8F4ED] dark:bg-[#1A1118] border border-[#EDE6D9] dark:border-[#C9A84C]/15 rounded-xl p-1 gap-1">
                       {(['Male', 'Female'] as const).map((g) => (
                         <button key={g} type="button" onClick={() => handleMyGenderChange(g)} className={`py-2 text-xs font-bold text-center rounded-lg transition-all cursor-pointer ${myGender === g ? 'bg-[#8B0020] dark:bg-[#8B0020] text-white' : 'text-gray-500 dark:text-gray-400 hover:text-[#1A1118] dark:hover:text-[#FFFCF8]'}`}>
-                          {g === 'Male' ? 'Man' : 'Woman'}
+                          {g === 'Male' ? t('auth.man') : t('auth.woman')}
                         </button>
                       ))}
                     </div>
@@ -224,18 +226,18 @@ export default function AuthModal({
                 </div>
 
                 <div className="space-y-2">
-                  <label className="block text-xs font-bold text-[#1A1118]/70 dark:text-[#FFFCF8]/60 uppercase tracking-wider">Looking For</label>
+                  <label className="block text-xs font-bold text-[#1A1118]/70 dark:text-[#FFFCF8]/60 uppercase tracking-wider">{t('auth.looking-for')}</label>
                   <div className="grid grid-cols-2 bg-[#F8F4ED] dark:bg-[#1A1118] border border-[#EDE6D9] dark:border-[#C9A84C]/15 rounded-xl p-1 gap-1">
                     {(['Male', 'Female'] as const).map((s) => (
                       <button key={s} type="button" onClick={() => setLookingFor(s)} className={`py-2 text-xs font-bold text-center rounded-lg transition-all cursor-pointer ${lookingFor === s ? 'bg-[#8B0020] dark:bg-[#8B0020] text-white' : 'text-gray-500 dark:text-gray-400 hover:text-[#1A1118] dark:hover:text-[#FFFCF8]'}`}>
-                        {s === 'Male' ? 'Men' : 'Women'}
+                        {s === 'Male' ? t('auth.men') : t('auth.women')}
                       </button>
                     ))}
                   </div>
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="block text-xs font-bold text-[#1A1118]/70 dark:text-[#FFFCF8]/60 uppercase tracking-wider">City / Address</label>
+                  <label className="block text-xs font-bold text-[#1A1118]/70 dark:text-[#FFFCF8]/60 uppercase tracking-wider">{t('auth.city-label')}</label>
                   <div className="relative">
                     <MapPin className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                     <select value={city} onChange={(e) => setCity(e.target.value)} className="w-full pl-9 pr-4 py-3 border border-[#EDE6D9] dark:border-[#C9A84C]/15 rounded-xl text-sm bg-white dark:bg-[#1A1118] text-gray-800 dark:text-[#FFFCF8] focus:outline-hidden focus:border-[#8B0020] dark:focus:border-[#C9A84C] focus:ring-1 focus:ring-[#8B0020]/20 dark:focus:ring-[#C9A84C]/20 appearance-none cursor-pointer">
@@ -247,7 +249,7 @@ export default function AuthModal({
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="block text-xs font-bold text-[#1A1118]/70 dark:text-[#FFFCF8]/60 uppercase tracking-wider">Phone Number</label>
+                  <label className="block text-xs font-bold text-[#1A1118]/70 dark:text-[#FFFCF8]/60 uppercase tracking-wider">{t('auth.phone-label')}</label>
                   <div className="relative">
                     <Phone className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                     <input type="tel" required value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} placeholder="0911XXXXXX" className="w-full pl-9 pr-4 py-3 border border-[#EDE6D9] dark:border-[#C9A84C]/15 rounded-xl text-sm bg-white dark:bg-[#1A1118] text-gray-800 dark:text-[#FFFCF8] placeholder-gray-400 dark:placeholder-gray-500 focus:outline-hidden focus:border-[#8B0020] dark:focus:border-[#C9A84C]" />
@@ -255,7 +257,7 @@ export default function AuthModal({
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="block text-xs font-bold text-[#1A1118]/70 dark:text-[#FFFCF8]/60 uppercase tracking-wider">Telegram Username</label>
+                  <label className="block text-xs font-bold text-[#1A1118]/70 dark:text-[#FFFCF8]/60 uppercase tracking-wider">{t('auth.telegram-label')}</label>
                   <div className="relative">
                     <MessageCircle className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                     <input type="text" value={telegramUsername} onChange={(e) => setTelegramUsername(e.target.value)} placeholder="@yourusername" className="w-full pl-9 pr-4 py-3 border border-[#EDE6D9] dark:border-[#C9A84C]/15 rounded-xl text-sm bg-white dark:bg-[#1A1118] text-gray-800 dark:text-[#FFFCF8] placeholder-gray-400 dark:placeholder-gray-500 focus:outline-hidden focus:border-[#8B0020] dark:focus:border-[#C9A84C]" />
@@ -263,7 +265,7 @@ export default function AuthModal({
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="block text-xs font-bold text-[#1A1118]/70 dark:text-[#FFFCF8]/60 uppercase tracking-wider">Instagram Username</label>
+                  <label className="block text-xs font-bold text-[#1A1118]/70 dark:text-[#FFFCF8]/60 uppercase tracking-wider">{t('auth.instagram-label')}</label>
                   <div className="relative">
                     <Instagram className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                     <input type="text" value={instagramUsername} onChange={(e) => setInstagramUsername(e.target.value)} placeholder="@yourusername" className="w-full pl-9 pr-4 py-3 border border-[#EDE6D9] dark:border-[#C9A84C]/15 rounded-xl text-sm bg-white dark:bg-[#1A1118] text-gray-800 dark:text-[#FFFCF8] placeholder-gray-400 dark:placeholder-gray-500 focus:outline-hidden focus:border-[#8B0020] dark:focus:border-[#C9A84C]" />
@@ -271,7 +273,7 @@ export default function AuthModal({
                 </div>
 
                 <div className="space-y-2">
-                  <label className="block text-xs font-bold text-[#1A1118]/70 dark:text-[#FFFCF8]/60 uppercase tracking-wider">Profile Photo</label>
+                  <label className="block text-xs font-bold text-[#1A1118]/70 dark:text-[#FFFCF8]/60 uppercase tracking-wider">{t('auth.photo-label')}</label>
                   <div className="flex items-center gap-3 flex-wrap">
                     <div className="flex gap-2">
                       {(myGender === 'Male' ? PRESET_MALE_IMAGES : PRESET_FEMALE_IMAGES).slice(0, 3).map((url, idx) => (
@@ -280,9 +282,9 @@ export default function AuthModal({
                         </button>
                       ))}
                     </div>
-                    <span className="text-xs text-gray-400">or</span>
+                    <span className="text-xs text-gray-400">{t('auth.or')}</span>
                     <button type="button" onClick={() => fileInputRef.current?.click()} className="text-xs font-bold text-[#8B0020] dark:text-[#C9A84C] hover:text-[#B31B3A] dark:hover:text-[#E0C878] flex items-center gap-1 cursor-pointer">
-                      <Camera className="h-3.5 w-3.5" /> Upload Photo
+                      <Camera className="h-3.5 w-3.5" /> {t('auth.upload-photo')}
                     </button>
                     <input type="file" ref={fileInputRef} accept="image/*" onChange={handleFileChange} className="hidden" />
                   </div>
@@ -295,37 +297,37 @@ export default function AuthModal({
 
                 <button type="submit" className="w-full py-3.5 bg-[#8B0020] hover:bg-[#B31B3A] text-white font-bold text-sm rounded-xl shadow-lg shadow-[#8B0020]/20 transition-all flex items-center justify-center gap-2 mt-4 cursor-pointer">
                   <UserPlus className="h-4 w-4" />
-                  <span>Create Profile & Start Connecting</span>
+                  <span>{t('auth.create-submit')}</span>
                 </button>
               </form>
             ) : (
               <div className="space-y-6">
                 <div>
-                  <span className="text-[10px] font-bold text-[#8B0020] dark:text-[#C9A84C] uppercase tracking-widest">Welcome Back</span>
-                  <h2 className="text-xl font-black text-[#1A1118] dark:text-[#FFFCF8] mt-1">Sign In</h2>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Access your existing Whaatachi profile</p>
+                  <span className="text-[10px] font-bold text-[#8B0020] dark:text-[#C9A84C] uppercase tracking-widest">{t('auth.welcome-back')}</span>
+                  <h2 className="text-xl font-black text-[#1A1118] dark:text-[#FFFCF8] mt-1">{t('auth.sign-in-title')}</h2>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{t('auth.sign-in-desc')}</p>
                 </div>
 
                 <form onSubmit={handleSignInSubmit} className="space-y-4">
                   <div className="space-y-1.5">
-                    <label className="block text-xs font-bold text-[#1A1118]/70 dark:text-[#FFFCF8]/60 uppercase tracking-wider">Full Name</label>
+                    <label className="block text-xs font-bold text-[#1A1118]/70 dark:text-[#FFFCF8]/60 uppercase tracking-wider">{t('auth.sign-in-name')}</label>
                     <input type="text" required value={signInName} onChange={(e) => setSignInName(e.target.value)} placeholder="Enter your registered name" className="w-full px-4 py-3 border border-[#EDE6D9] dark:border-[#C9A84C]/15 rounded-xl text-sm bg-white dark:bg-[#1A1118] text-gray-800 dark:text-[#FFFCF8] placeholder-gray-400 dark:placeholder-gray-500 focus:outline-hidden focus:border-[#8B0020] dark:focus:border-[#C9A84C] focus:ring-1 focus:ring-[#8B0020]/20 dark:focus:ring-[#C9A84C]/20" />
                   </div>
 
                   <div className="space-y-1.5">
-                    <label className="block text-xs font-bold text-[#1A1118]/70 dark:text-[#FFFCF8]/60 uppercase tracking-wider">Phone Number (Optional)</label>
+                    <label className="block text-xs font-bold text-[#1A1118]/70 dark:text-[#FFFCF8]/60 uppercase tracking-wider">{t('auth.sign-in-phone')}</label>
                     <input type="tel" value={signInPhone} onChange={(e) => setSignInPhone(e.target.value)} placeholder="0911XXXXXX" className="w-full px-4 py-3 border border-[#EDE6D9] dark:border-[#C9A84C]/15 rounded-xl text-sm bg-white dark:bg-[#1A1118] text-gray-800 dark:text-[#FFFCF8] placeholder-gray-400 dark:placeholder-gray-500 focus:outline-hidden focus:border-[#8B0020] dark:focus:border-[#C9A84C]" />
                   </div>
 
                   <button type="submit" className="w-full py-3.5 bg-[#8B0020] hover:bg-[#B31B3A] text-white font-bold text-sm rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1.5 shadow-lg shadow-[#8B0020]/20">
                     <Send className="h-3.5 w-3.5" />
-                    <span>Sign In</span>
+                    <span>{t('auth.sign-in-btn')}</span>
                   </button>
                 </form>
 
                 <div className="border-t border-[#EDE6D9] dark:border-[#C9A84C]/10 pt-4 space-y-2.5">
-                  <span className="block text-xs font-bold text-[#1A1118]/70 dark:text-[#FFFCF8]/60 uppercase tracking-wider">Quick Test Login</span>
-                  <p className="text-[10px] text-gray-500 dark:text-gray-400 font-light leading-snug">Click a profile to explore Whaatachi instantly:</p>
+                  <span className="block text-xs font-bold text-[#1A1118]/70 dark:text-[#FFFCF8]/60 uppercase tracking-wider">{t('auth.quick-test')}</span>
+                  <p className="text-[10px] text-gray-500 dark:text-gray-400 font-light leading-snug">{t('auth.quick-test-desc')}</p>
 
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-1">
                     {featuredProfiles.slice(0, 3).map((testProfile) => (

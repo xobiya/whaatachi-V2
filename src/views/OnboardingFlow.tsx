@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { Heart, Users, ArrowRight, ArrowLeft, User, Phone, MessageCircle, Instagram, MapPin, Camera, Check, LogIn, UserPlus } from 'lucide-react';
 import { Profile } from '../types';
+import { useAppContext } from '../context/AppContext';
 
 const CITIES = ['Addis Ababa', 'Adama', 'Hawassa', 'Bahir Dar', 'Dire Dawa', 'Gondar', 'Mekelle', 'Jimma', 'Dessie', 'Harar'];
 const AREAS: Record<string, string[]> = {
@@ -51,13 +52,13 @@ interface OnboardingFlowProps {
 }
 
 const INTENT_OPTIONS: { value: Intent; emoji: string; desc: string }[] = [
-  { value: 'True Relationship', emoji: '❤️', desc: 'Serious commitment & long-term love' },
-  { value: 'Friendship',        emoji: '🤝', desc: 'Genuine connections & social bonds'  },
-  { value: 'Friends with Benefits', emoji: '💕', desc: 'Casual & fun without the label'  },
-  { value: 'Only Sex',          emoji: '🔥', desc: 'No strings — adults only'            },
+  { value: 'True Relationship', emoji: '❤️', desc: 'onboarding.intent-relationship' },
+  { value: 'Friendship',        emoji: '🤝', desc: 'onboarding.intent-friendship'  },
+  { value: 'Friends with Benefits', emoji: '💕', desc: 'onboarding.intent-fwb'  },
+  { value: 'Only Sex',          emoji: '🔥', desc: 'onboarding.intent-sex'            },
 ];
 
-const STEP_LABELS = ['What you want', 'Looking for', 'Your Profile'];
+const STEP_LABEL_KEYS = ['onboarding.step1-title', 'onboarding.step2-title', 'onboarding.step3-title'];
 
 export default function OnboardingFlow({ onComplete, onSignIn }: OnboardingFlowProps) {
   // Registration wizard
@@ -69,6 +70,7 @@ export default function OnboardingFlow({ onComplete, onSignIn }: OnboardingFlowP
     city: 'Addis Ababa', address: '', image: '', gender: 'Male',
   });
   const [regErrors, setRegErrors] = useState<Partial<RegFormData>>({});
+  const { t } = useAppContext();
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -143,7 +145,7 @@ export default function OnboardingFlow({ onComplete, onSignIn }: OnboardingFlowP
       <>
           {/* Step indicator */}
           <div className="flex items-center gap-0 mb-6 z-10">
-            {STEP_LABELS.map((label, idx) => {
+            {STEP_LABEL_KEYS.map((key, idx) => {
               const s = idx + 1;
               const isActive = s === step;
               const isDone = s < step;
@@ -158,10 +160,10 @@ export default function OnboardingFlow({ onComplete, onSignIn }: OnboardingFlowP
                       {isDone ? <Check className="h-4 w-4" /> : s}
                     </div>
                     <span className={`text-[9px] font-bold mt-1 tracking-wider hidden sm:block ${isActive ? 'text-[#C9A84C]' : 'text-[#FFFCF8]/30'}`}>
-                      {label.toUpperCase()}
+                      {t(key).toUpperCase()}
                     </span>
                   </div>
-                  {idx < STEP_LABELS.length - 1 && (
+                  {idx < STEP_LABEL_KEYS.length - 1 && (
                     <div className={`h-0.5 w-10 sm:w-14 mt-0 sm:-mt-4 transition-all duration-500 mx-1 ${isDone ? 'bg-[#C9A84C]' : 'bg-[#FFFCF8]/10'}`} />
                   )}
                 </React.Fragment>
@@ -174,8 +176,8 @@ export default function OnboardingFlow({ onComplete, onSignIn }: OnboardingFlowP
             {/* ── STEP 1: Intent ── */}
             {step === 1 && (
               <div>
-                <h2 className="text-2xl font-black text-[#FFFCF8] mb-1">Looking For</h2>
-                <p className="text-sm text-[#EDE6D9]/50 mb-6">What kind of connection are you seeking?</p>
+                <h2 className="text-2xl font-black text-[#FFFCF8] mb-1">{t('onboarding.step1-title')}</h2>
+                <p className="text-sm text-[#EDE6D9]/50 mb-6">{t('onboarding.step1-desc')}</p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {INTENT_OPTIONS.map(opt => {
                     const active = selectedIntent === opt.value;
@@ -197,7 +199,7 @@ export default function OnboardingFlow({ onComplete, onSignIn }: OnboardingFlowP
                         )}
                         <span className="text-3xl">{opt.emoji}</span>
                         <span className={`text-sm font-bold ${active ? 'text-[#C9A84C]' : 'text-[#FFFCF8]'}`}>{opt.value}</span>
-                        <span className="text-[11px] text-[#FFFCF8]/40 leading-tight">{opt.desc}</span>
+                        <span className="text-[11px] text-[#FFFCF8]/40 leading-tight">{t(opt.desc)}</span>
                       </button>
                     );
                   })}
@@ -208,7 +210,7 @@ export default function OnboardingFlow({ onComplete, onSignIn }: OnboardingFlowP
                   onClick={() => setStep(2)}
                   className="mt-6 w-full py-3.5 bg-[#8B0020] hover:bg-[#B31B3A] disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold rounded-xl flex items-center justify-center gap-2 transition-all cursor-pointer shadow-lg shadow-[#8B0020]/20"
                 >
-                  Continue <ArrowRight className="h-4 w-4" />
+                  {t('onboarding.continue')} <ArrowRight className="h-4 w-4" />
                 </button>
               </div>
             )}
@@ -217,14 +219,15 @@ export default function OnboardingFlow({ onComplete, onSignIn }: OnboardingFlowP
             {step === 2 && (
               <div>
                 <button onClick={() => setStep(1)} className="flex items-center gap-1 text-[#FFFCF8]/40 hover:text-[#C9A84C] text-xs font-bold mb-5 cursor-pointer transition-colors">
-                  <ArrowLeft className="h-4 w-4" /> Back
+                  <ArrowLeft className="h-4 w-4" /> {t('onboarding.back')}
                 </button>
-                <h2 className="text-2xl font-black text-[#FFFCF8] mb-1">I'm Looking For</h2>
-                <p className="text-sm text-[#EDE6D9]/50 mb-8">Who would you like to connect with?</p>
+                <h2 className="text-2xl font-black text-[#FFFCF8] mb-1">{t('onboarding.step2-title')}</h2>
+                <p className="text-sm text-[#EDE6D9]/50 mb-8">{t('onboarding.step2-desc')}</p>
 
                 <div className="grid grid-cols-2 gap-4">
                   {(['Men', 'Women'] as const).map(label => {
                     const val: Gender = label === 'Men' ? 'Male' : 'Female';
+                    const labelT = label === 'Men' ? t('auth.men') : t('auth.women');
                     const active = selectedLookingFor === val;
                     return (
                       <button
@@ -240,7 +243,7 @@ export default function OnboardingFlow({ onComplete, onSignIn }: OnboardingFlowP
                         <div className={`w-14 h-14 rounded-full flex items-center justify-center ${active ? 'bg-[#C9A84C]/20' : 'bg-[#FFFCF8]/5'}`}>
                           <Users className={`h-7 w-7 ${active ? 'text-[#C9A84C]' : 'text-[#FFFCF8]/50'}`} />
                         </div>
-                        <span className={`text-lg font-black ${active ? 'text-[#C9A84C]' : 'text-[#FFFCF8]'}`}>{label}</span>
+                        <span className={`text-lg font-black ${active ? 'text-[#C9A84C]' : 'text-[#FFFCF8]'}`}>{labelT}</span>
                         {active && <Check className="h-5 w-5 text-[#C9A84C]" />}
                       </button>
                     );
@@ -253,7 +256,7 @@ export default function OnboardingFlow({ onComplete, onSignIn }: OnboardingFlowP
                   onClick={() => setStep(3)}
                   className="mt-6 w-full py-3.5 bg-[#8B0020] hover:bg-[#B31B3A] disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold rounded-xl flex items-center justify-center gap-2 transition-all cursor-pointer shadow-lg shadow-[#8B0020]/20"
                 >
-                  Continue <ArrowRight className="h-4 w-4" />
+                  {t('onboarding.continue')} <ArrowRight className="h-4 w-4" />
                 </button>
               </div>
             )}
@@ -262,10 +265,10 @@ export default function OnboardingFlow({ onComplete, onSignIn }: OnboardingFlowP
             {step === 3 && (
               <div>
                 <button onClick={() => setStep(2)} className="flex items-center gap-1 text-[#FFFCF8]/40 hover:text-[#C9A84C] text-xs font-bold mb-5 cursor-pointer transition-colors">
-                  <ArrowLeft className="h-4 w-4" /> Back
+                  <ArrowLeft className="h-4 w-4" /> {t('onboarding.back')}
                 </button>
-                <h2 className="text-2xl font-black text-[#FFFCF8] mb-1">Create Your Profile</h2>
-                <p className="text-sm text-[#EDE6D9]/50 mb-5">Fill in your details to join</p>
+                <h2 className="text-2xl font-black text-[#FFFCF8] mb-1">{t('onboarding.step3-title')}</h2>
+                <p className="text-sm text-[#EDE6D9]/50 mb-5">{t('onboarding.step3-desc')}</p>
 
                 <div className="space-y-4 max-h-[52vh] overflow-y-auto pr-1">
 
@@ -283,14 +286,14 @@ export default function OnboardingFlow({ onComplete, onSignIn }: OnboardingFlowP
                             : 'border-[#FFFCF8]/10 text-[#FFFCF8]/50 hover:border-[#FFFCF8]/20'
                         }`}
                       >
-                        {g === 'Male' ? '♂ Male' : '♀ Female'}
+                        {g === 'Male' ? t('onboarding.male') : t('onboarding.female')}
                       </button>
                     ))}
                   </div>
 
                    {/* Profile Photo */}
                   <div>
-                    <label className="block text-[10px] font-bold text-[#FFFCF8]/50 uppercase tracking-wider mb-2">Profile Photo *</label>
+                    <label className="block text-[10px] font-bold text-[#FFFCF8]/50 uppercase tracking-wider mb-2">{t('onboarding.photo-label')}</label>
                     <div className="flex items-center gap-3">
                       <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-[#C9A84C]/30 bg-[#FFFCF8]/5 shrink-0">
                         {form.image
@@ -299,14 +302,14 @@ export default function OnboardingFlow({ onComplete, onSignIn }: OnboardingFlowP
                         }
                       </div>
                       <div className="flex-1">
-                        <p className="text-[10px] text-[#FFFCF8]/40 mb-1.5">Upload a profile photo to verify your identity</p>
+                        <p className="text-[10px] text-[#FFFCF8]/40 mb-1.5">{t('onboarding.photo-desc')}</p>
                         <button
                           type="button"
                           onClick={() => fileInputRef.current?.click()}
                           className="px-4 py-2 bg-[#FFFCF8]/5 border border-[#FFFCF8]/10 rounded-xl text-xs font-bold text-[#FFFCF8] hover:border-[#C9A84C]/60 hover:text-[#C9A84C] transition-all cursor-pointer flex items-center gap-1.5"
                         >
                           <Camera className="h-4 w-4" />
-                          Upload Photo
+                          {t('auth.upload-photo')}
                         </button>
                         <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
                       </div>
@@ -316,7 +319,7 @@ export default function OnboardingFlow({ onComplete, onSignIn }: OnboardingFlowP
 
                   {/* Name */}
                   <div>
-                    <label className="block text-[10px] font-bold text-[#FFFCF8]/50 uppercase tracking-wider mb-1.5">Full Name *</label>
+                    <label className="block text-[10px] font-bold text-[#FFFCF8]/50 uppercase tracking-wider mb-1.5">{t('onboarding.name-label')}</label>
                     <div className="relative">
                       <User className="absolute left-3.5 top-3.5 h-4 w-4 text-[#FFFCF8]/30" />
                       <input
@@ -331,7 +334,7 @@ export default function OnboardingFlow({ onComplete, onSignIn }: OnboardingFlowP
 
                   {/* Age */}
                   <div>
-                    <label className="block text-[10px] font-bold text-[#FFFCF8]/50 uppercase tracking-wider mb-1.5">Age *</label>
+                    <label className="block text-[10px] font-bold text-[#FFFCF8]/50 uppercase tracking-wider mb-1.5">{t('onboarding.age-label')}</label>
                     <input
                       id="reg-age" type="number" value={form.age} min={18} max={60}
                       onChange={e => setField('age', e.target.value)}
@@ -343,7 +346,7 @@ export default function OnboardingFlow({ onComplete, onSignIn }: OnboardingFlowP
 
                   {/* Phone */}
                   <div>
-                    <label className="block text-[10px] font-bold text-[#FFFCF8]/50 uppercase tracking-wider mb-1.5">Phone Number *</label>
+                    <label className="block text-[10px] font-bold text-[#FFFCF8]/50 uppercase tracking-wider mb-1.5">{t('onboarding.phone-label')}</label>
                     <div className="relative">
                       <Phone className="absolute left-3.5 top-3.5 h-4 w-4 text-[#FFFCF8]/30" />
                       <input
@@ -358,7 +361,7 @@ export default function OnboardingFlow({ onComplete, onSignIn }: OnboardingFlowP
 
                   {/* Telegram */}
                   <div>
-                    <label className="block text-[10px] font-bold text-[#FFFCF8]/50 uppercase tracking-wider mb-1.5">Telegram Username *</label>
+                    <label className="block text-[10px] font-bold text-[#FFFCF8]/50 uppercase tracking-wider mb-1.5">{t('onboarding.telegram-label')}</label>
                     <div className="relative">
                       <MessageCircle className="absolute left-3.5 top-3.5 h-4 w-4 text-[#FFFCF8]/30" />
                       <input
@@ -374,7 +377,7 @@ export default function OnboardingFlow({ onComplete, onSignIn }: OnboardingFlowP
                   {/* Instagram (optional) */}
                   <div>
                     <label className="block text-[10px] font-bold text-[#FFFCF8]/50 uppercase tracking-wider mb-1.5">
-                      Instagram Username <span className="text-[#FFFCF8]/25 normal-case">(optional)</span>
+                      {t('onboarding.instagram-label')} <span className="text-[#FFFCF8]/25 normal-case">{t('onboarding.optional')}</span>
                     </label>
                     <div className="relative">
                       <Instagram className="absolute left-3.5 top-3.5 h-4 w-4 text-[#FFFCF8]/30" />
@@ -389,7 +392,7 @@ export default function OnboardingFlow({ onComplete, onSignIn }: OnboardingFlowP
 
                   {/* City */}
                   <div>
-                    <label className="block text-[10px] font-bold text-[#FFFCF8]/50 uppercase tracking-wider mb-1.5">City *</label>
+                    <label className="block text-[10px] font-bold text-[#FFFCF8]/50 uppercase tracking-wider mb-1.5">{t('onboarding.city-label')}</label>
                     <div className="relative">
                       <MapPin className="absolute left-3.5 top-3.5 h-4 w-4 text-[#FFFCF8]/30" />
                       <select
@@ -405,7 +408,7 @@ export default function OnboardingFlow({ onComplete, onSignIn }: OnboardingFlowP
 
                   {/* Area */}
                   <div>
-                    <label className="block text-[10px] font-bold text-[#FFFCF8]/50 uppercase tracking-wider mb-1.5">Area / Neighborhood *</label>
+                    <label className="block text-[10px] font-bold text-[#FFFCF8]/50 uppercase tracking-wider mb-1.5">{t('onboarding.area-label')}</label>
                     <div className="relative">
                       <MapPin className="absolute left-3.5 top-3.5 h-4 w-4 text-[#FFFCF8]/30" />
                       {AREAS[form.city] ? (
@@ -414,7 +417,7 @@ export default function OnboardingFlow({ onComplete, onSignIn }: OnboardingFlowP
                           onChange={e => setField('address', e.target.value)}
                           className={`w-full pl-10 pr-4 py-3 bg-[#FFFCF8]/5 border ${regErrors.address ? 'border-red-500' : 'border-[#FFFCF8]/10'} rounded-xl text-sm text-[#FFFCF8] appearance-none focus:outline-none focus:border-[#C9A84C]/60 transition-colors`}
                         >
-                          <option value="" className="bg-[#1A1118]">Select area...</option>
+                          <option value="" className="bg-[#1A1118]">{t('onboarding.select-area')}</option>
                           {AREAS[form.city].map(a => <option key={a} value={a} className="bg-[#1A1118]">{a}</option>)}
                         </select>
                       ) : (
@@ -437,7 +440,7 @@ export default function OnboardingFlow({ onComplete, onSignIn }: OnboardingFlowP
                   )}
                   {selectedLookingFor && (
                     <span className="px-3 py-1 rounded-full bg-[#8B0020]/15 text-[#8B0020] text-[10px] font-bold border border-[#8B0020]/30">
-                      Looking for {selectedLookingFor === 'Male' ? 'Men' : 'Women'}
+                      {t('onboarding.looking-for-chip').replace('{gender}', selectedLookingFor === 'Male' ? t('auth.men') : t('auth.women'))}
                     </span>
                   )}
                 </div>
@@ -447,7 +450,7 @@ export default function OnboardingFlow({ onComplete, onSignIn }: OnboardingFlowP
                   onClick={handleRegSubmit}
                   className="mt-5 w-full py-3.5 bg-[#8B0020] hover:bg-[#B31B3A] text-white font-bold rounded-xl flex items-center justify-center gap-2 transition-all cursor-pointer shadow-lg shadow-[#8B0020]/20"
                 >
-                  <Check className="h-4 w-4" /> Create Profile &amp; Browse
+                  <Check className="h-4 w-4" /> {t('onboarding.create-browse')}
                 </button>
               </div>
             )}

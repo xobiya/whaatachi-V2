@@ -18,7 +18,7 @@ import { CheckCircle, ShieldAlert } from 'lucide-react';
 import { AppProvider, useAppContext } from './context/AppContext';
 
 function AppContent() {
-  const { state, dispatch } = useAppContext();
+  const { state, dispatch, t } = useAppContext();
 
   // Check location on load and handle direct routing pathways
   useEffect(() => {
@@ -124,9 +124,9 @@ function AppContent() {
 
     if (amount === 0) {
       dispatch({ type: 'ADD_UNLOCK', payload: profileId });
-      triggerNotification('success', `Success! Profile for ${profileName} has been immediately unlocked for FREE!`);
+      triggerNotification('success', t('app.notify.unlocked-free').replace('{name}', profileName));
     } else {
-      triggerNotification('info', `Transfer submitted! Reference No. ${transactionId} has been queued for verification.`);
+      triggerNotification('info', t('app.notify.submitted').replace('{txId}', transactionId));
     }
   };
 
@@ -146,13 +146,13 @@ function AppContent() {
     });
     dispatch({ type: 'SET_PROFILES', payload: updatedProfiles });
 
-    triggerNotification('success', `Receipt Approved! Unlocked direct contact for ${payment.profileName}.`);
+    triggerNotification('success', t('app.notify.approved').replace('{name}', payment.profileName));
   };
 
   // 3. Reject Payment (Admin Function)
   const handleRejectPayment = (paymentId: string) => {
     dispatch({ type: 'UPDATE_PAYMENT', payload: { id: paymentId, status: 'Rejected' } });
-    triggerNotification('info', 'Receipt rejected/flagged as invalid by moderator.');
+    triggerNotification('info', t('app.notify.rejected'));
   };
 
   // 4. Register manual couple success story
@@ -165,7 +165,7 @@ function AppContent() {
       image
     };
     dispatch({ type: 'ADD_STORY', payload: newStory });
-    triggerNotification('success', 'Your story has been saved and is now live!');
+    triggerNotification('success', t('app.notify.story-saved'));
   };
 
   // 5. Onboarding: Register new user from the wizard
@@ -177,7 +177,7 @@ function AppContent() {
     dispatch({ type: 'SET_LOGGED_IN', payload: true });
     dispatch({ type: 'SET_USER_GENDER', payload: profileWithLookingFor.gender });
     dispatch({ type: 'SET_CURRENT_VIEW', payload: 'browse' });
-    triggerNotification('success', `Welcome ${profileWithLookingFor.name}! Browse your matches below.`);
+    triggerNotification('success', t('app.notify.welcome').replace('{name}', profileWithLookingFor.name));
   };
 
   // 6. Quick sign-in (find existing user by name + phone)
@@ -198,9 +198,9 @@ function AppContent() {
       dispatch({ type: 'SET_LOGGED_IN', payload: true });
       dispatch({ type: 'SET_USER_GENDER', payload: profileWithLookingFor.gender });
       dispatch({ type: 'SET_CURRENT_VIEW', payload: 'browse' });
-      triggerNotification('success', `Welcome back, ${found.name}! 👋`);
+      triggerNotification('success', t('app.notify.welcome-back').replace('{name}', found.name));
     } else {
-      triggerNotification('info', 'No account found with that name and phone. Please create a profile.');
+      triggerNotification('info', t('app.notify.no-account'));
     }
   };
 
@@ -210,7 +210,7 @@ function AppContent() {
     const updatedUser = { ...state.currentUser, bio: newBio };
     dispatch({ type: 'UPDATE_PROFILE', payload: updatedUser });
     localStorage.setItem('whaatachi_logged_in_user_v1', JSON.stringify(updatedUser));
-    triggerNotification('success', 'Your profile bio has been updated successfully!');
+    triggerNotification('success', t('app.notify.bio-updated'));
   };
 
   const handleUpdateStatus = (newStatus: 'Online' | 'Offline' | 'Recently Active') => {
@@ -218,7 +218,7 @@ function AppContent() {
     const updatedUser = { ...state.currentUser, status: newStatus };
     dispatch({ type: 'UPDATE_PROFILE', payload: updatedUser });
     localStorage.setItem('whaatachi_logged_in_user_v1', JSON.stringify(updatedUser));
-    triggerNotification('success', `Status set to ${newStatus}`);
+    triggerNotification('success', t('app.notify.status-set').replace('{status}', newStatus));
   };
 
   const handleSaveProfile = (updated: Profile) => {
@@ -226,7 +226,7 @@ function AppContent() {
     if (state.currentUser?.id === updated.id) {
       localStorage.setItem('whaatachi_logged_in_user_v1', JSON.stringify(updated));
     }
-    triggerNotification('success', 'Profile updated successfully!');
+    triggerNotification('success', t('app.notify.profile-updated'));
   };
 
   const handleViewProfile = (profile: Profile) => {
@@ -335,7 +335,7 @@ function AppContent() {
             <ShieldAlert className="h-5 w-5 text-[#8B0020] shrink-0 mt-0.5" />
           )}
           <div>
-            <p className="font-bold text-xs text-[#8B0020]">Whaatachi</p>
+            <p className="font-bold text-xs text-[#8B0020]">{t('app.name')}</p>
             <p className="text-[11px] font-medium leading-relaxed mt-0.5 text-gray-700">{state.notification.text}</p>
           </div>
         </div>

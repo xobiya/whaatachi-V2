@@ -1,6 +1,7 @@
 import React from 'react';
 import { Eye, Sparkles, Phone, MessageCircle, ArrowLeft, ShieldCheck, Mail, Instagram } from 'lucide-react';
 import { Profile } from '../types';
+import { useAppContext } from '../context/AppContext';
 
 interface UnlockHistoryProps {
   unlockedProfiles: Profile[];
@@ -9,6 +10,7 @@ interface UnlockHistoryProps {
 }
 
 export default function UnlockHistory({ unlockedProfiles, onBackToFinder, onViewProfile }: UnlockHistoryProps) {
+  const { t } = useAppContext();
   return (
     <div className="bg-[#FFFCF8] dark:bg-[#120A0E] py-12 min-h-screen transition-colors duration-200">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -17,16 +19,16 @@ export default function UnlockHistory({ unlockedProfiles, onBackToFinder, onView
           <div>
             <h1 className="text-3xl font-extrabold text-[#1A1118] dark:text-[#FFFCF8] tracking-tight flex items-center gap-2">
               <Sparkles className="h-7 w-7 text-[#C9A84C]" />
-              Unlocked Connections
+              {t('history.title')}
             </h1>
             <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-              Your history of unlocked profiles. Call or chat with them directly.
+              {t('history.desc')}
             </p>
           </div>
 
           <button onClick={onBackToFinder} className="px-4 py-2 bg-white dark:bg-[#1A1118] hover:bg-gray-50 dark:hover:bg-[#120A0E] border border-[#EDE6D9] dark:border-[#C9A84C]/15 rounded-xl text-xs font-bold text-gray-700 dark:text-[#FFFCF8] shadow-sm cursor-pointer transition-all flex items-center gap-1.5">
             <ArrowLeft className="h-4 w-4" />
-            Back to Match Finder
+            {t('history.back')}
           </button>
         </div>
 
@@ -43,7 +45,7 @@ export default function UnlockHistory({ unlockedProfiles, onBackToFinder, onView
                     <div>
                       <h3 className="font-bold text-[#1A1118] dark:text-[#FFFCF8] text-base flex items-center gap-1 group-hover:text-[#8B0020] dark:group-hover:text-[#C9A84C] hover:underline transition-colors">
                         {profile.name}
-                        {profile.verified && <ShieldCheck className="h-4 w-4 text-[#C9A84C]" title="Verified Member" />}
+                        {profile.verified && <ShieldCheck className="h-4 w-4 text-[#C9A84C]" title={t('common.verified')} />}
                       </h3>
                       <p className="text-[10px] font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-100 dark:border-emerald-800/30 px-1.5 py-0.5 rounded-sm inline-block mt-0.5">
                         {profile.relationshipIntent}
@@ -55,14 +57,14 @@ export default function UnlockHistory({ unlockedProfiles, onBackToFinder, onView
                   </div>
 
                   <div className="py-4 space-y-2.5">
-                    <p className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Direct Contacts:</p>
+                    <p className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">{t('history.direct-contacts')}</p>
 
                     <a href={`tel:${profile.contactInfo.phone}`} className="flex items-center gap-3 p-2.5 bg-[#F8F4ED] dark:bg-[#120A0E] hover:bg-emerald-50 dark:hover:bg-emerald-900/10 border border-[#EDE6D9] dark:border-[#C9A84C]/10 rounded-xl text-xs text-gray-700 dark:text-gray-300 transition-colors cursor-pointer group">
                       <div className="bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 p-2 rounded-lg shrink-0 group-hover:bg-emerald-200 dark:group-hover:bg-emerald-800/40 transition-colors">
                         <Phone className="h-4 w-4" />
                       </div>
                       <div>
-                        <p className="text-[10px] text-gray-400 dark:text-gray-500 font-bold uppercase tracking-widest">Phone Number</p>
+                        <p className="text-[10px] text-gray-400 dark:text-gray-500 font-bold uppercase tracking-widest">{t('history.phone')}</p>
                         <p className="font-bold text-gray-800 dark:text-[#FFFCF8] mt-0.5">{profile.contactInfo.phone}</p>
                       </div>
                     </a>
@@ -72,7 +74,7 @@ export default function UnlockHistory({ unlockedProfiles, onBackToFinder, onView
                         <MessageCircle className="h-4 w-4" />
                       </div>
                       <div>
-                        <p className="text-[10px] text-gray-400 dark:text-gray-500 font-bold uppercase tracking-widest">Telegram</p>
+                        <p className="text-[10px] text-gray-400 dark:text-gray-500 font-bold uppercase tracking-widest">{t('history.telegram')}</p>
                         <p className="font-bold text-sky-600 dark:text-sky-400 mt-0.5">{profile.contactInfo.telegram}</p>
                       </div>
                     </a>
@@ -83,7 +85,7 @@ export default function UnlockHistory({ unlockedProfiles, onBackToFinder, onView
                           <Instagram className="h-4 w-4" />
                         </div>
                         <div>
-                          <p className="text-[10px] text-gray-400 dark:text-gray-500 font-bold uppercase tracking-widest">Instagram</p>
+                          <p className="text-[10px] text-gray-400 dark:text-gray-500 font-bold uppercase tracking-widest">{t('history.instagram')}</p>
                           <p className="font-bold text-[#8B0020] dark:text-[#C9A84C] mt-0.5">{profile.contactInfo.instagram}</p>
                         </div>
                       </a>
@@ -94,7 +96,7 @@ export default function UnlockHistory({ unlockedProfiles, onBackToFinder, onView
                         <Mail className="h-4 w-4" />
                       </div>
                       <div>
-                        <p className="text-[10px] text-gray-400 dark:text-gray-500 font-bold uppercase tracking-widest">Email</p>
+                        <p className="text-[10px] text-gray-400 dark:text-gray-500 font-bold uppercase tracking-widest">{t('history.email')}</p>
                         <p className="font-bold text-gray-800 dark:text-[#FFFCF8] truncate max-w-[130px] sm:max-w-none mt-0.5">{profile.contactInfo.email}</p>
                       </div>
                     </a>
@@ -102,8 +104,8 @@ export default function UnlockHistory({ unlockedProfiles, onBackToFinder, onView
                 </div>
 
                 <div className="border-t border-[#EDE6D9] dark:border-[#C9A84C]/10 pt-3 flex items-center justify-between text-[11px] text-gray-400 dark:text-gray-500">
-                  <span>Unlocked &mdash; Lifetime Access</span>
-                  <span className="text-emerald-600 dark:text-emerald-400 font-bold">&bull; Secure Connection</span>
+                  <span>{t('history.lifetime')}</span>
+                  <span className="text-emerald-600 dark:text-emerald-400 font-bold">{t('history.secure')}</span>
                 </div>
               </div>
             ))}
@@ -115,14 +117,14 @@ export default function UnlockHistory({ unlockedProfiles, onBackToFinder, onView
             </div>
 
             <div className="space-y-2">
-              <h3 className="font-extrabold text-[#1A1118] dark:text-[#FFFCF8] text-xl">No Unlocked Contacts Yet</h3>
+              <h3 className="font-extrabold text-[#1A1118] dark:text-[#FFFCF8] text-xl">{t('history.empty-title')}</h3>
               <p className="text-xs text-gray-500 dark:text-gray-400 font-light max-w-sm mx-auto leading-relaxed">
-                Browse profiles and pay to unlock direct contact information. Once unlocked, they will appear here.
+                {t('history.empty-desc')}
               </p>
             </div>
 
             <button onClick={onBackToFinder} className="px-6 py-3 bg-[#8B0020] hover:bg-[#B31B3A] text-white font-bold text-xs rounded-xl shadow-md hover:shadow-lg transition-all cursor-pointer">
-              Start Discovering
+              {t('history.start')}
             </button>
           </div>
         )}
