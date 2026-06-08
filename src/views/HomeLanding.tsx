@@ -1,5 +1,5 @@
 import React from 'react';
-import { Heart, ShieldCheck, Users, Sparkles, ArrowRight, ChevronRight, Lock, Phone, MessageCircle, Star, CheckCircle, Crown, MapPin, Eye } from 'lucide-react';
+import { Heart, ShieldCheck, Users, Sparkles, ArrowRight, ChevronRight, Lock, Phone, MessageCircle, Star, CheckCircle, Crown, MapPin } from 'lucide-react';
 import { Profile } from '../types';
 
 const asset = (file: string) => `/assets/${file}`;
@@ -23,8 +23,8 @@ const featured = [
 
 export default function HomeLanding({ onJoinNowClick, onGoToDashboard }: HomeLandingProps) {
   return (
-    <div className="bg-[#FFFCF8] text-gray-900 min-h-screen font-sans">
-      {/* ===== 1. HERO SECTION ===== */}
+    <div className="bg-[#FFFCF8] dark:bg-[#120A0E] text-gray-900 dark:text-[#FFFCF8] min-h-screen font-sans transition-colors duration-200">
+
       <section className="relative min-h-[90vh] flex items-center overflow-hidden">
         <img src={asset('Gemini_Generated_Image_oicvomoicvomoicv.png')} alt="" className="absolute inset-0 w-full h-full object-cover object-[center_30%] pointer-events-none select-none" referrerPolicy="no-referrer" />
         <div className="absolute inset-0 bg-gradient-to-r from-[#1A1118]/90 via-[#1A1118]/70 to-transparent"></div>
@@ -50,10 +50,7 @@ export default function HomeLanding({ onJoinNowClick, onGoToDashboard }: HomeLan
                 <Heart className="h-4 w-4" />
                 Create Profile
               </button>
-              <button onClick={() => {
-                const el = document.getElementById('browse-profiles');
-                el?.scrollIntoView({ behavior: 'smooth' });
-              }} className="px-8 py-3.5 border-2 border-[#C9A84C]/40 hover:border-[#C9A84C] text-[#FFFCF8] font-bold text-sm rounded-lg transition-all flex items-center gap-2 cursor-pointer">
+              <button onClick={() => { const el = document.getElementById('browse-profiles'); el?.scrollIntoView({ behavior: 'smooth' }); }} className="px-8 py-3.5 border-2 border-[#C9A84C]/40 hover:border-[#C9A84C] text-[#FFFCF8] font-bold text-sm rounded-lg transition-all flex items-center gap-2 cursor-pointer">
                 Browse Profiles
                 <ChevronRight className="h-4 w-4" />
               </button>
@@ -76,41 +73,39 @@ export default function HomeLanding({ onJoinNowClick, onGoToDashboard }: HomeLan
         </div>
       </section>
 
-      {/* ===== 2. I'M HERE FOR — CATEGORIES ===== */}
-      <section className="py-20 bg-[#FFFCF8]">
+      <section className="py-20 bg-[#FFFCF8] dark:bg-[#120A0E]">
         <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
           <div className="text-center mb-12">
-            <span className="text-xs font-bold text-[#8B0020] uppercase tracking-[0.25em]">I'm Here For</span>
-            <h2 className="text-3xl font-black text-[#1A1118] mt-2">What Are You Looking For?</h2>
+            <span className="text-xs font-bold text-[#8B0020] dark:text-[#C9A84C] uppercase tracking-[0.25em]">I'm Here For</span>
+            <h2 className="text-3xl font-black text-[#1A1118] dark:text-[#FFFCF8] mt-2">What Are You Looking For?</h2>
           </div>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
             {[
-              { icon: '❤️', label: 'Relationship', desc: 'Serious commitment', color: '#8B0020' },
-              { icon: '💕', label: 'Dating', desc: 'Explore compatibility', color: '#B31B3A' },
-              { icon: '🤝', label: 'Open Connection', desc: 'Mutually consensual', color: '#C9A84C' },
-              { icon: '🔥', label: 'Casual', desc: 'No strings attached', color: '#1A1118' },
+              { icon: '❤️', label: 'Relationship', desc: 'Serious commitment' },
+              { icon: '💕', label: 'Dating', desc: 'Explore compatibility' },
+              { icon: '🤝', label: 'Open Connection', desc: 'Mutually consensual' },
+              { icon: '🔥', label: 'Casual', desc: 'No strings attached' },
             ].map((item) => (
-              <button key={item.label} onClick={() => onJoinNowClick('register')} className="group bg-white border border-[#EDE6D9] hover:border-[#C9A84C]/50 rounded-2xl p-6 text-center transition-all cursor-pointer hover:shadow-xl hover:shadow-[#C9A84C]/5 hover:-translate-y-1">
+              <button key={item.label} onClick={() => onJoinNowClick('register')} className="group bg-white dark:bg-[#1A1118] border border-[#EDE6D9] dark:border-[#C9A84C]/10 hover:border-[#C9A84C]/50 rounded-2xl p-6 text-center transition-all cursor-pointer hover:shadow-xl hover:shadow-[#C9A84C]/5 hover:-translate-y-1">
                 <div className="text-4xl mb-4 group-hover:scale-110 transition-transform duration-300">{item.icon}</div>
-                <h3 className="text-lg font-bold text-[#1A1118] group-hover:text-[#8B0020] transition-colors">{item.label}</h3>
-                <p className="text-xs text-gray-500 mt-1">{item.desc}</p>
+                <h3 className="text-lg font-bold text-[#1A1118] dark:text-[#FFFCF8] group-hover:text-[#8B0020] dark:group-hover:text-[#C9A84C] transition-colors">{item.label}</h3>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{item.desc}</p>
               </button>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ===== 3. GENDER FILTER ===== */}
-      <section className="py-12 bg-[#F8F4ED]">
+      <section className="py-12 bg-[#F8F4ED] dark:bg-[#1A1118]">
         <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
           <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
-            <span className="text-xs font-bold text-[#1A1118]/60 uppercase tracking-[0.2em]">Looking For</span>
+            <span className="text-xs font-bold text-[#1A1118]/60 dark:text-[#FFFCF8]/50 uppercase tracking-[0.2em]">Looking For</span>
             <div className="flex gap-3">
-              <button onClick={() => onJoinNowClick('register')} className="px-10 py-3.5 bg-[#1A1118] text-[#FFFCF8] rounded-xl font-bold text-sm hover:bg-[#8B0020] transition-all cursor-pointer shadow-lg flex items-center gap-2">
+              <button onClick={() => onJoinNowClick('register')} className="px-10 py-3.5 bg-[#1A1118] dark:bg-[#8B0020] text-[#FFFCF8] rounded-xl font-bold text-sm hover:bg-[#8B0020] dark:hover:bg-[#B31B3A] transition-all cursor-pointer shadow-lg flex items-center gap-2">
                 <Users className="h-4 w-4" />
                 Women
               </button>
-              <button onClick={() => onJoinNowClick('register')} className="px-10 py-3.5 bg-white border-2 border-[#EDE6D9] text-[#1A1118] rounded-xl font-bold text-sm hover:border-[#C9A84C] transition-all cursor-pointer flex items-center gap-2">
+              <button onClick={() => onJoinNowClick('register')} className="px-10 py-3.5 bg-white dark:bg-[#1A1118] border-2 border-[#EDE6D9] dark:border-[#C9A84C]/20 text-[#1A1118] dark:text-[#FFFCF8] rounded-xl font-bold text-sm hover:border-[#C9A84C] transition-all cursor-pointer flex items-center gap-2">
                 <Users className="h-4 w-4" />
                 Men
               </button>
@@ -119,23 +114,22 @@ export default function HomeLanding({ onJoinNowClick, onGoToDashboard }: HomeLan
         </div>
       </section>
 
-      {/* ===== 4. FEATURED PROFILES ===== */}
-      <section id="browse-profiles" className="py-20 bg-[#FFFCF8]">
+      <section id="browse-profiles" className="py-20 bg-[#FFFCF8] dark:bg-[#120A0E]">
         <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
           <div className="flex justify-between items-end mb-10">
             <div>
-              <span className="text-xs font-bold text-[#8B0020] uppercase tracking-[0.25em]">Featured Members</span>
-              <h2 className="text-3xl font-black text-[#1A1118] mt-2">Active Singles Near You</h2>
+              <span className="text-xs font-bold text-[#8B0020] dark:text-[#C9A84C] uppercase tracking-[0.25em]">Featured Members</span>
+              <h2 className="text-3xl font-black text-[#1A1118] dark:text-[#FFFCF8] mt-2">Active Singles Near You</h2>
             </div>
-            <button onClick={() => onJoinNowClick('register')} className="hidden sm:flex items-center gap-1 text-sm font-bold text-[#8B0020] hover:text-[#B31B3A] transition-colors cursor-pointer">
+            <button onClick={() => onJoinNowClick('register')} className="hidden sm:flex items-center gap-1 text-sm font-bold text-[#8B0020] dark:text-[#C9A84C] hover:text-[#B31B3A] dark:hover:text-[#E0C878] transition-colors cursor-pointer">
               View All <ArrowRight className="h-4 w-4" />
             </button>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {featured.map((person, i) => (
-              <div key={i} className="group bg-white rounded-2xl overflow-hidden border border-[#EDE6D9] hover:border-[#C9A84C]/40 hover:shadow-2xl transition-all duration-500">
-                <div className="relative pt-[120%] bg-gray-100 overflow-hidden">
+              <div key={i} className="group bg-white dark:bg-[#1A1118] rounded-2xl overflow-hidden border border-[#EDE6D9] dark:border-[#C9A84C]/10 hover:border-[#C9A84C]/40 hover:shadow-2xl transition-all duration-500">
+                <div className="relative pt-[120%] bg-gray-100 dark:bg-[#120A0E] overflow-hidden">
                   <img src={person.image} alt={person.name} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" referrerPolicy="no-referrer" />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent"></div>
                   <div className="absolute top-3 left-3">
@@ -150,7 +144,7 @@ export default function HomeLanding({ onJoinNowClick, onGoToDashboard }: HomeLan
                   </div>
                 </div>
                 <div className="p-4">
-                  <div className="bg-[#F8F4ED] rounded-xl p-3 mb-3 relative overflow-hidden">
+                  <div className="bg-[#F8F4ED] dark:bg-[#120A0E] rounded-xl p-3 mb-3 relative overflow-hidden border border-[#EDE6D9] dark:border-[#C9A84C]/5">
                     <div className="flex items-center gap-2 text-xs text-gray-400 mb-1">
                       <Phone className="h-3 w-3" />
                       <span className="blur-sm select-none">+251 911 234 567</span>
@@ -159,7 +153,7 @@ export default function HomeLanding({ onJoinNowClick, onGoToDashboard }: HomeLan
                       <MessageCircle className="h-3 w-3" />
                       <span className="blur-sm select-none">@telegram_handle</span>
                     </div>
-                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#F8F4ED]/80 to-transparent shimmer"></div>
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#F8F4ED]/80 dark:via-[#120A0E]/80 to-transparent shimmer"></div>
                   </div>
                   <button onClick={() => onJoinNowClick('register')} className="w-full py-3 bg-[#8B0020] hover:bg-[#B31B3A] text-white font-bold text-xs rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-[#8B0020]/10">
                     <Lock className="h-3.5 w-3.5" />
@@ -172,7 +166,6 @@ export default function HomeLanding({ onJoinNowClick, onGoToDashboard }: HomeLan
         </div>
       </section>
 
-      {/* ===== 5. PAYMENT / PRICING ===== */}
       <section className="py-20 bg-[#1A1118]">
         <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
           <div className="text-center mb-12">
@@ -182,7 +175,6 @@ export default function HomeLanding({ onJoinNowClick, onGoToDashboard }: HomeLan
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-4xl mx-auto">
-            {/* Men Card */}
             <div className="bg-[#FFFCF8] rounded-3xl p-8 border border-[#C9A84C]/20 shadow-2xl relative">
               <div className="absolute top-0 right-0 bg-[#C9A84C] text-[#1A1118] text-[10px] font-black px-3 py-1 rounded-bl-2xl rounded-tr-3xl uppercase tracking-wider">Popular</div>
               <div className="flex items-center gap-3 mb-6">
@@ -212,7 +204,6 @@ export default function HomeLanding({ onJoinNowClick, onGoToDashboard }: HomeLan
               </button>
             </div>
 
-            {/* Women Card */}
             <div className="bg-[#FFFCF8] rounded-3xl p-8 border border-[#EDE6D9] shadow-xl">
               <div className="flex items-center gap-3 mb-6">
                 <div className="w-12 h-12 rounded-full bg-[#C9A84C]/10 flex items-center justify-center">
@@ -247,11 +238,10 @@ export default function HomeLanding({ onJoinNowClick, onGoToDashboard }: HomeLan
         </div>
       </section>
 
-      {/* ===== 6. TRUST BADGES ===== */}
-      <section className="py-16 bg-[#F8F4ED]">
+      <section className="py-16 bg-[#F8F4ED] dark:bg-[#1A1118]">
         <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
           <div className="text-center mb-10">
-            <h2 className="text-2xl font-black text-[#1A1118]">Why Trust Whaatachi</h2>
+            <h2 className="text-2xl font-black text-[#1A1118] dark:text-[#FFFCF8]">Why Trust Whaatachi</h2>
           </div>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
             {[
@@ -260,12 +250,12 @@ export default function HomeLanding({ onJoinNowClick, onGoToDashboard }: HomeLan
               { icon: Heart, title: 'Secure Payment', desc: 'Safe Telebirr & CBE Birr transactions' },
               { icon: Users, title: 'Fake Account Removal', desc: 'Zero tolerance for spam or bots' },
             ].map((item) => (
-              <div key={item.title} className="bg-white rounded-2xl p-6 border border-[#EDE6D9] text-center hover:shadow-lg transition-all">
-                <div className="w-12 h-12 rounded-full bg-[#8B0020]/5 flex items-center justify-center mx-auto mb-4">
-                  <item.icon className="h-6 w-6 text-[#8B0020]" />
+              <div key={item.title} className="bg-white dark:bg-[#1A1118] rounded-2xl p-6 border border-[#EDE6D9] dark:border-[#C9A84C]/10 text-center hover:shadow-lg dark:hover:shadow-[#C9A84C]/5 transition-all">
+                <div className="w-12 h-12 rounded-full bg-[#8B0020]/5 dark:bg-[#8B0020]/15 flex items-center justify-center mx-auto mb-4">
+                  <item.icon className="h-6 w-6 text-[#8B0020] dark:text-[#C9A84C]" />
                 </div>
-                <h3 className="text-sm font-bold text-[#1A1118]">{item.title}</h3>
-                <p className="text-xs text-gray-500 mt-1">{item.desc}</p>
+                <h3 className="text-sm font-bold text-[#1A1118] dark:text-[#FFFCF8]">{item.title}</h3>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{item.desc}</p>
               </div>
             ))}
           </div>

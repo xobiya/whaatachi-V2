@@ -1,5 +1,5 @@
 import React from 'react';
-import { ShieldCheck, MapPin, Sparkles, MessageCircle, Phone, Lock, Eye, Crown, Star } from 'lucide-react';
+import { ShieldCheck, MapPin, Sparkles, Phone, Lock, Crown, Star, MessageCircle, Instagram } from 'lucide-react';
 import { Profile, PaymentRequest } from '../types';
 
 interface ProfileCardProps {
@@ -16,10 +16,9 @@ export default function ProfileCard({
 }: ProfileCardProps) {
 
   return (
-    <div className="bg-white rounded-2xl border border-[#EDE6D9] overflow-hidden shadow-sm hover:shadow-xl hover:border-[#C9A84C]/40 transition-all duration-500 flex flex-col h-full group">
+    <div className="bg-white dark:bg-[#1A1118] rounded-2xl border border-[#EDE6D9] dark:border-[#C9A84C]/10 overflow-hidden shadow-sm hover:shadow-xl hover:border-[#C9A84C]/40 dark:hover:border-[#C9A84C]/30 transition-all duration-500 flex flex-col h-full group">
 
-      {/* Photo */}
-      <div className="relative pt-[120%] w-full bg-gray-100 overflow-hidden">
+      <div className="relative pt-[120%] w-full bg-gray-100 dark:bg-[#120A0E] overflow-hidden">
         <img src={profile.image} alt={profile.name} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" referrerPolicy="no-referrer" />
         <div className="absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-black/70 to-transparent"></div>
 
@@ -37,41 +36,51 @@ export default function ProfileCard({
         </div>
       </div>
 
-      {/* Body */}
       <div className="p-4 flex flex-col grow justify-between">
         <div className="space-y-3">
           <div className="flex flex-wrap gap-1">
             {profile.interests.slice(0, 3).map((interest, idx) => (
-              <span key={idx} className="bg-[#F8F4ED] text-gray-600 text-[9px] font-medium px-2 py-0.5 rounded-full">
+              <span key={idx} className="bg-[#F8F4ED] dark:bg-[#120A0E] text-gray-600 dark:text-gray-400 text-[9px] font-medium px-2 py-0.5 rounded-full border border-[#EDE6D9] dark:border-[#C9A84C]/10">
                 {interest}
               </span>
             ))}
           </div>
 
-          <span className={`inline-block text-[10px] font-bold px-2 py-0.5 rounded-full border ${profile.relationshipIntent === 'True Relationship' ? 'bg-[#8B0020]/5 text-[#8B0020] border-[#8B0020]/20' : profile.relationshipIntent === 'Friendship' ? 'bg-blue-50 text-blue-700 border-blue-200' : 'bg-gray-50 text-gray-700 border-gray-200'}`}>
+          <span className={`inline-block text-[10px] font-bold px-2 py-0.5 rounded-full border ${
+            profile.relationshipIntent === 'True Relationship'
+              ? 'bg-[#8B0020]/5 dark:bg-[#8B0020]/15 text-[#8B0020] dark:text-[#C9A84C] border-[#8B0020]/20 dark:border-[#C9A84C]/30'
+              : profile.relationshipIntent === 'Friendship'
+                ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 border-blue-200 dark:border-blue-800'
+                : 'bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700'
+          }`}>
             {profile.relationshipIntent}
           </span>
         </div>
 
-        {/* Action */}
-        <div className="pt-4 mt-4 border-t border-[#EDE6D9]">
+        <div className="pt-4 mt-4 border-t border-[#EDE6D9] dark:border-[#C9A84C]/10">
           {isUnlocked ? (
-            <div className="bg-[#F8F4ED] rounded-xl p-3 space-y-2 animate-fade-in">
-              <div className="flex items-center gap-1 text-[11px] font-bold text-[#8B0020]">
+            <div className="bg-[#F8F4ED] dark:bg-[#120A0E] rounded-xl p-3 space-y-2 animate-fade-in border border-[#EDE6D9] dark:border-[#C9A84C]/10">
+              <div className="flex items-center gap-1 text-[11px] font-bold text-[#8B0020] dark:text-[#C9A84C]">
                 <Sparkles className="h-3.5 w-3.5" />
                 <span>Contact Unlocked!</span>
               </div>
-              <a href={`tel:${profile.contactInfo.phone}`} className="flex items-center gap-2 text-xs text-gray-700 hover:text-[#8B0020] transition-colors">
-                <Phone className="h-3.5 w-3.5 text-[#8B0020]" />
+              <a href={`tel:${profile.contactInfo.phone}`} className="flex items-center gap-2 text-xs text-gray-700 dark:text-gray-300 hover:text-[#8B0020] dark:hover:text-[#C9A84C] transition-colors">
+                <Phone className="h-3.5 w-3.5 text-[#8B0020] dark:text-[#C9A84C]" />
                 {profile.contactInfo.phone}
               </a>
-              <a href={`https://t.me/${profile.contactInfo.telegram.replace('@', '')}`} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-xs text-gray-700 hover:text-[#8B0020] transition-colors">
-                <MessageCircle className="h-3.5 w-3.5 text-[#8B0020]" />
+              <a href={`https://t.me/${profile.contactInfo.telegram.replace('@', '')}`} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-xs text-gray-700 dark:text-gray-300 hover:text-[#8B0020] dark:hover:text-[#C9A84C] transition-colors">
+                <MessageCircle className="h-3.5 w-3.5 text-[#8B0020] dark:text-[#C9A84C]" />
                 {profile.contactInfo.telegram}
               </a>
+              {profile.contactInfo.instagram && (
+                <a href={`https://instagram.com/${profile.contactInfo.instagram.replace('@', '')}`} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-xs text-gray-700 dark:text-gray-300 hover:text-[#8B0020] dark:hover:text-[#C9A84C] transition-colors">
+                  <Instagram className="h-3.5 w-3.5 text-[#8B0020] dark:text-[#C9A84C]" />
+                  {profile.contactInfo.instagram}
+                </a>
+              )}
             </div>
           ) : pendingPayment ? (
-            <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 text-xs text-amber-800 text-center animate-pulse">
+            <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700/30 rounded-xl p-3 text-xs text-amber-800 dark:text-amber-300 text-center animate-pulse">
               <span className="font-bold">Verification Pending</span>
               <p className="text-[10px] mt-1">TxID: {pendingPayment.transactionId}</p>
             </div>

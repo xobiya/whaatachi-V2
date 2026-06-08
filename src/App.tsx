@@ -438,7 +438,7 @@ export default function App() {
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-[#FFFCF8] text-[#1A1118] transition-colors duration-250" id="main-app-container">
+    <div className="flex flex-col min-h-screen bg-[#FFFCF8] dark:bg-[#120A0E] text-[#1A1118] dark:text-[#FFFCF8] transition-colors duration-250" id="main-app-container">
       
       {/* 1. Header with role switches */}
       <Header

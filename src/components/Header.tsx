@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Heart, Menu, X, User, LogOut, Crown, ChevronDown } from 'lucide-react';
+import { Heart, Menu, X, User, LogOut, Crown, ChevronDown, Moon, Sun } from 'lucide-react';
 import { Profile } from '../types';
 
 interface HeaderProps {
@@ -21,6 +21,7 @@ interface HeaderProps {
 export default function Header({
   currentView, setCurrentView,
   isLoggedIn, setIsLoggedIn,
+  darkMode, setDarkMode,
   onOpenAuth, currentUser
 }: HeaderProps) {
   const [isOpen, setIsOpen] = useState(false);
@@ -56,6 +57,9 @@ export default function Header({
 
           {/* Right Side */}
           <div className="hidden lg:flex items-center gap-4">
+            <button onClick={() => setDarkMode(!darkMode)} className="p-2 text-[#EDE6D9]/50 hover:text-[#C9A84C] transition-colors cursor-pointer" title={darkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}>
+              {darkMode ? <Sun className="h-4.5 w-4.5" /> : <Moon className="h-4.5 w-4.5" />}
+            </button>
             {isLoggedIn ? (
               <div className="flex items-center gap-3">
                 <div className="flex items-center gap-2 bg-[#FFFCF8]/5 border border-[#C9A84C]/20 rounded-full px-3 py-1.5">
@@ -86,6 +90,9 @@ export default function Header({
 
           {/* Mobile */}
           <div className="flex lg:hidden items-center gap-2">
+            <button onClick={() => setDarkMode(!darkMode)} className="p-2 text-[#EDE6D9]/50 hover:text-[#C9A84C] transition-colors cursor-pointer" title={darkMode ? 'Light' : 'Dark'}>
+              {darkMode ? <Sun className="h-4.5 w-4.5" /> : <Moon className="h-4.5 w-4.5" />}
+            </button>
             {!isLoggedIn && (
               <button onClick={() => onOpenAuth?.('register')} className="px-4 py-1.5 bg-[#8B0020] text-white text-xs font-bold rounded-lg cursor-pointer">
                 Join
