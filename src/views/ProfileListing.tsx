@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { Profile, PaymentRequest } from '../types';
 import { MapPin, Lock, Phone, MessageCircle, Sparkles, Heart, Search, Filter, X } from 'lucide-react';
+import { useAppContext } from '../context/AppContext';
 
 const INTENT_BADGE: Record<string, { label: string; cls: string }> = {
   'True Relationship': { label: '❤️ True Relationship', cls: 'bg-rose-500/10 text-rose-400 border-rose-500/30' },
@@ -26,6 +27,7 @@ export default function ProfileListing({
   onUnlockClick,
   onViewProfile,
 }: ProfileListingProps) {
+  const { t } = useAppContext();
   const [searchQuery, setSearchQuery] = useState('');
   const [filterIntent, setFilterIntent] = useState<string>('All');
   const [filterCity, setFilterCity] = useState('All');
@@ -61,16 +63,16 @@ export default function ProfileListing({
           <div className="flex items-center justify-center gap-2 mb-1">
             <Heart className="h-5 w-5 text-[#8B0020] dark:text-[#C9A84C]" />
             <h1 className="text-2xl sm:text-3xl font-black text-[#1A1118] dark:text-[#FFFCF8] tracking-tight">
-              {targetGender === 'Female' ? 'Women' : 'Men'} Near You
+              {targetGender === 'Female' ? t('profile-listing.women') : t('profile-listing.men')} {t('profile-listing.near-you')}
             </h1>
           </div>
           <p className="text-xs text-gray-500 dark:text-gray-400">
-            {filteredProfiles.length} profiles found
+            {filteredProfiles.length} {t('profile-listing.profiles-found')}
             {currentUser.gender === 'Female' && (
-              <span className="ml-2 px-2 py-0.5 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 rounded-full text-[10px] font-bold">FREE for Women</span>
+              <span className="ml-2 px-2 py-0.5 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 rounded-full text-[10px] font-bold">{t('profile-listing.free-women')}</span>
             )}
             {currentUser.gender === 'Male' && (
-              <span className="ml-2 px-2 py-0.5 bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 rounded-full text-[10px] font-bold">200 ETB per unlock</span>
+              <span className="ml-2 px-2 py-0.5 bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 rounded-full text-[10px] font-bold">{t('profile-listing.per-unlock')}</span>
             )}
           </p>
         </div>
@@ -81,7 +83,7 @@ export default function ProfileListing({
             <Search className="absolute left-3.5 top-3 h-4 w-4 text-gray-400" />
             <input
               type="text"
-              placeholder="Search by name or area..."
+              placeholder={t('profile-listing.search')}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-[#1A1118] border border-[#EDE6D9] dark:border-[#C9A84C]/15 rounded-xl text-sm text-gray-800 dark:text-[#FFFCF8] focus:outline-none focus:border-[#8B0020] dark:focus:border-[#C9A84C] transition-colors placeholder:text-gray-400"
@@ -97,7 +99,7 @@ export default function ProfileListing({
             className="flex items-center gap-1.5 px-3.5 py-2.5 bg-white dark:bg-[#1A1118] border border-[#EDE6D9] dark:border-[#C9A84C]/15 rounded-xl text-xs font-bold text-gray-600 dark:text-[#FFFCF8]/60 hover:border-[#8B0020] dark:hover:border-[#C9A84C] cursor-pointer transition-colors"
           >
             <Filter className="h-4 w-4" />
-            <span className="hidden sm:inline">Filters</span>
+            <span className="hidden sm:inline">{t('profile-listing.filters')}</span>
           </button>
         </div>
 
@@ -105,7 +107,7 @@ export default function ProfileListing({
         {showFilters && (
           <div className="bg-white dark:bg-[#1A1118] border border-[#EDE6D9] dark:border-[#C9A84C]/10 rounded-2xl p-4 mb-4 grid grid-cols-2 gap-3 shadow-sm max-w-xl mx-auto">
             <div>
-              <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1.5">Intent</label>
+              <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1.5">{t('profile-listing.intent')}</label>
               <select
                 value={filterIntent}
                 onChange={(e) => setFilterIntent(e.target.value)}
@@ -115,7 +117,7 @@ export default function ProfileListing({
               </select>
             </div>
             <div>
-              <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1.5">City</label>
+              <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1.5">{t('profile-listing.city')}</label>
               <select
                 value={filterCity}
                 onChange={(e) => setFilterCity(e.target.value)}
@@ -139,7 +141,7 @@ export default function ProfileListing({
                   : 'bg-white dark:bg-[#1A1118] border-[#EDE6D9] dark:border-[#C9A84C]/15 text-gray-600 dark:text-gray-400 hover:border-gray-300'
               }`}
             >
-              {intent === 'All' ? 'All Types' : intent}
+              {intent === 'All' ? t('profile-listing.all-types') : intent}
             </button>
           ))}
         </div>
@@ -168,13 +170,13 @@ export default function ProfileListing({
         ) : (
           <div className="text-center py-20">
             <div className="w-16 h-16 rounded-full bg-[#F8F4ED] dark:bg-[#1A1118] flex items-center justify-center mx-auto mb-4 text-2xl">👀</div>
-            <h3 className="font-bold text-[#1A1118] dark:text-[#FFFCF8] text-lg">No Profiles Found</h3>
-            <p className="text-xs text-gray-500 mt-1">Try changing filters or search terms</p>
+            <h3 className="font-bold text-[#1A1118] dark:text-[#FFFCF8] text-lg">{t('profile-listing.no-results')}</h3>
+            <p className="text-xs text-gray-500 mt-1">{t('profile-listing.no-results-desc')}</p>
             <button
               onClick={() => { setSearchQuery(''); setFilterIntent('All'); setFilterCity('All'); }}
               className="mt-4 px-4 py-2 bg-[#8B0020] hover:bg-[#B31B3A] text-white text-xs font-bold rounded-lg cursor-pointer transition-all"
             >
-              Clear Filters
+              {t('profile-listing.clear-filters')}
             </button>
           </div>
         )}
@@ -199,6 +201,7 @@ function ProfileListCard({
   profile, isUnlocked, pending, userGender, badge, onUnlockClick, onViewProfile
 }: ProfileListCardProps) {
   const isFemaleUser = userGender === 'Female';
+  const { t } = useAppContext();
 
   return (
     <div className="bg-white dark:bg-[#1A1118] rounded-2xl border border-[#EDE6D9] dark:border-[#C9A84C]/10 overflow-hidden shadow-sm hover:shadow-xl hover:border-[#C9A84C]/30 dark:hover:border-[#C9A84C]/20 transition-all duration-400 flex flex-col group">
@@ -217,7 +220,7 @@ function ProfileListCard({
         <div className="absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-black/70 to-transparent" />
         {/* Status */}
         <div className="absolute top-2 left-2 flex gap-1">
-          {profile.status === 'Online' && <span className="px-2 py-0.5 rounded-full text-[9px] font-bold bg-emerald-500 text-white">Online</span>}
+          {profile.status === 'Online' && <span className="px-2 py-0.5 rounded-full text-[9px] font-bold bg-emerald-500 text-white">{t('profile-card.online')}</span>}
           {profile.verified && <span className="px-2 py-0.5 rounded-full text-[9px] font-bold bg-[#C9A84C] text-[#1A1118]">✓</span>}
         </div>
         {/* Name overlay */}
@@ -242,7 +245,7 @@ function ProfileListCard({
           {isUnlocked ? (
             <div className="space-y-1.5 bg-[#F8F4ED] dark:bg-[#120A0E] rounded-xl p-2.5 border border-[#EDE6D9] dark:border-[#C9A84C]/10">
               <div className="flex items-center gap-1 text-[10px] font-bold text-emerald-600 dark:text-emerald-400 mb-1">
-                <Sparkles className="h-3 w-3" /> Unlocked!
+                <Sparkles className="h-3 w-3" /> {t('profile-listing.unlocked')}
               </div>
               <a href={`tel:${profile.contactInfo.phone}`} className="flex items-center gap-1.5 text-[10px] text-gray-700 dark:text-gray-300 hover:text-[#8B0020] dark:hover:text-[#C9A84C] transition-colors">
                 <Phone className="h-3 w-3 text-[#8B0020] dark:text-[#C9A84C] shrink-0" />
@@ -255,7 +258,7 @@ function ProfileListCard({
             </div>
           ) : pending ? (
             <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700/30 rounded-xl px-2.5 py-2 text-[10px] text-amber-700 dark:text-amber-300 text-center">
-              <p className="font-bold">Pending</p>
+              <p className="font-bold">{t('profile-listing.pending')}</p>
               <p className="text-[9px] opacity-70 mt-0.5">TxID: {pending.transactionId}</p>
             </div>
           ) : (
@@ -272,9 +275,9 @@ function ProfileListCard({
               }}
             >
               <Lock className="h-3 w-3" />
-              See Contact
+              {t('profile-card.see-contact')}
               {isFemaleUser ? (
-                <span className="text-[8px] bg-white/20 px-1 py-0.5 rounded-md font-extrabold">FREE</span>
+                <span className="text-[8px] bg-white/20 px-1 py-0.5 rounded-md font-extrabold">{t('profile-listing.free')}</span>
               ) : (
                 <span className="text-[8px] bg-white/20 px-1 py-0.5 rounded-md font-extrabold">200 ETB</span>
               )}

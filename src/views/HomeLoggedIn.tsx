@@ -5,6 +5,7 @@ import {
   Award, Lightbulb, Users, Key, AlertCircle, RefreshCw
 } from 'lucide-react';
 import { Profile } from '../types';
+import { useAppContext } from '../context/AppContext';
 
 interface HomeLoggedInProps {
   currentUser: Profile | null;
@@ -24,6 +25,7 @@ export default function HomeLoggedIn({
   onGoToMatches, onGoToHistory, onUnlockClick, profiles, unlockedIds,
   onViewProfile
 }: HomeLoggedInProps) {
+  const { t } = useAppContext();
   const user: Profile = currentUser || {
     id: 'placeholder-usr',
     name: 'Habesha Connector',
@@ -80,20 +82,20 @@ export default function HomeLoggedIn({
             <div className="space-y-3 text-center md:text-left">
               <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#8B0020]/10 dark:bg-[#8B0020]/20 text-[#8B0020] dark:text-[#C9A84C] text-[10.5px] font-bold tracking-wide uppercase">
                 <Sparkles className="h-3 w-3 text-[#C9A84C]" />
-                <span>Premium Portal Active</span>
+                <span>{t('logged-in.premium')}</span>
               </div>
               <h2 className="text-3xl sm:text-4xl font-black text-[#1A1118] dark:text-[#FFFCF8] leading-tight">
                 Selam, <span className="text-[#8B0020] dark:text-[#C9A84C]">{user.name}</span>!
               </h2>
               <p className="text-sm text-gray-500 dark:text-gray-400 max-w-xl font-light leading-relaxed">
-                Welcome back to your private dashboard. Your identity is fully protected. Explore verified profiles across Ethiopia.
+                {t('logged-in.welcome-back')}
               </p>
               <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 text-xs font-semibold pt-1">
                 <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400">
-                  <CheckCircle className="h-4 w-4" /> Account Verified
+                  <CheckCircle className="h-4 w-4" /> {t('logged-in.verified')}
                 </span>
                 <span className="flex items-center gap-1 text-[#8B0020] dark:text-[#C9A84C]">
-                  <Flame className="h-4 w-4" /> Premium Member
+                  <Flame className="h-4 w-4" /> {t('logged-in.premium-member')}
                 </span>
               </div>
             </div>
@@ -101,13 +103,13 @@ export default function HomeLoggedIn({
             <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto shrink-0">
               <button onClick={onGoToMatches} className="w-full sm:w-auto py-3.5 px-6 bg-[#8B0020] hover:bg-[#B31B3A] text-white font-extrabold text-xs rounded-xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer hover:-translate-y-0.5">
                 <Users className="h-4.5 w-4.5" />
-                <span>Browse All Matches</span>
+                <span>{t('logged-in.browse-matches')}</span>
                 <ArrowRight className="h-4 w-4" />
               </button>
 
               <button onClick={onGoToHistory} className="w-full sm:w-auto py-3.5 px-6 bg-white dark:bg-[#1A1118] border border-[#EDE6D9] dark:border-[#C9A84C]/15 hover:bg-gray-50 dark:hover:bg-[#120A0E] text-gray-800 dark:text-[#FFFCF8] font-bold text-xs rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer">
                 <Key className="h-4.5 w-4.5 text-[#8B0020] dark:text-[#C9A84C]" />
-                <span>Unlocked contacts ({unlockedCount})</span>
+                <span>{t('logged-in.unlocked-contacts')} ({unlockedCount})</span>
               </button>
             </div>
           </div>
@@ -120,10 +122,10 @@ export default function HomeLoggedIn({
               <Key className="h-6 w-6" />
             </div>
             <div>
-              <p className="text-[11px] uppercase tracking-wider font-extrabold text-gray-400 dark:text-gray-500">Unlocked Contacts</p>
+              <p className="text-[11px] uppercase tracking-wider font-extrabold text-gray-400 dark:text-gray-500">{t('logged-in.unlocked-label')}</p>
               <p className="text-2xl font-black text-[#1A1118] dark:text-[#FFFCF8]">{unlockedCount}</p>
               <p className="text-[10px] text-gray-500 dark:text-gray-400 mt-1 font-light">
-                Direct phone & Telegram handles
+                {t('logged-in.direct-info')}
               </p>
             </div>
           </div>
@@ -133,10 +135,10 @@ export default function HomeLoggedIn({
               <CheckCircle className="h-6 w-6" />
             </div>
             <div>
-              <p className="text-[11px] uppercase tracking-wider font-extrabold text-gray-400 dark:text-gray-500">Verified Members</p>
+              <p className="text-[11px] uppercase tracking-wider font-extrabold text-gray-400 dark:text-gray-500">{t('logged-in.verified-members')}</p>
               <p className="text-2xl font-black text-[#1A1118] dark:text-[#FFFCF8]">{totalVerifiedMatches}</p>
               <p className="text-[10px] text-gray-500 dark:text-gray-400 mt-1 font-light">
-                {matchRatio}% of {oppositeGender.toLowerCase()}s verified
+                {matchRatio}{t('logged-in.verified-of')} {oppositeGender.toLowerCase()}s {t('common.verified')}
               </p>
             </div>
           </div>
@@ -146,10 +148,10 @@ export default function HomeLoggedIn({
               <Award className="h-6 w-6" />
             </div>
             <div>
-              <p className="text-[11px] uppercase tracking-wider font-extrabold text-gray-400 dark:text-gray-500">Trust Badge</p>
-              <p className="text-sm font-black text-emerald-600 dark:text-emerald-400 uppercase mt-0.5 tracking-wider">Gold Level</p>
+              <p className="text-[11px] uppercase tracking-wider font-extrabold text-gray-400 dark:text-gray-500">{t('logged-in.trust-badge')}</p>
+              <p className="text-sm font-black text-emerald-600 dark:text-emerald-400 uppercase mt-0.5 tracking-wider">{t('logged-in.gold-level')}</p>
               <p className="text-[10px] text-gray-500 dark:text-gray-400 mt-1.5 font-light leading-relaxed">
-                Pay only when you unlock. No subscription.
+                {t('logged-in.no-subscription')}
               </p>
             </div>
           </div>
@@ -160,7 +162,7 @@ export default function HomeLoggedIn({
           <div className="lg:col-span-4 bg-white dark:bg-[#1A1118] border border-[#EDE6D9] dark:border-[#C9A84C]/10 rounded-3xl p-6 shadow-sm space-y-6 text-left">
 
             <div className="flex items-center justify-between border-b border-[#EDE6D9] dark:border-[#C9A84C]/10 pb-4">
-              <h3 className="text-sm font-black text-[#1A1118] dark:text-[#FFFCF8] uppercase tracking-wider">Your Profile</h3>
+              <h3 className="text-sm font-black text-[#1A1118] dark:text-[#FFFCF8] uppercase tracking-wider">{t('logged-in.your-profile')}</h3>
               <span className="text-[10px] text-[#8B0020] dark:text-[#C9A84C] font-bold bg-[#8B0020]/5 dark:bg-[#8B0020]/15 px-2 py-0.5 rounded-md uppercase font-mono">
                 {user.relationshipIntent}
               </span>
@@ -194,7 +196,7 @@ export default function HomeLoggedIn({
 
             <div className="space-y-2 border-t border-[#EDE6D9] dark:border-[#C9A84C]/10 pt-4">
               <label className="text-[11px] uppercase tracking-wider font-extrabold text-gray-400 dark:text-gray-500">
-                Status
+                {t('logged-in.status')}
               </label>
               <div className="grid grid-cols-3 gap-1 bg-[#F8F4ED] dark:bg-[#120A0E] p-1 rounded-xl">
                 {(['Online', 'Offline', 'Recently Active'] as const).map((status) => (
@@ -203,7 +205,7 @@ export default function HomeLoggedIn({
                       ? 'bg-[#8B0020] text-white shadow-sm'
                       : 'text-gray-500 dark:text-gray-400 hover:text-[#1A1118] dark:hover:text-[#FFFCF8]'
                   }`}>
-                    {status === 'Online' ? 'Active' : status === 'Offline' ? 'Quiet' : 'Recent'}
+                    {status === 'Online' ? t('logged-in.active') : status === 'Offline' ? t('logged-in.quiet') : t('logged-in.recent')}
                   </button>
                 ))}
               </div>
@@ -212,13 +214,13 @@ export default function HomeLoggedIn({
             <div className="space-y-2 border-t border-[#EDE6D9] dark:border-[#C9A84C]/10 pt-4">
               <div className="flex items-center justify-between">
                 <label className="text-[11px] uppercase tracking-wider font-extrabold text-gray-400 dark:text-gray-500">
-                  About You
+                  {t('logged-in.about-you')}
                 </label>
                 <button type="button" onClick={() => { if (isEditingBio) { handleSaveBio(); } else { setIsEditingBio(true); } }} className="text-[#8B0020] dark:text-[#C9A84C] hover:text-[#B31B3A] dark:hover:text-[#E0C878] text-xs font-bold flex items-center gap-1 hover:underline cursor-pointer">
                   {isEditingBio ? (
-                    <><Check className="h-3.5 w-3.5" /> Save</>
+                    <><Check className="h-3.5 w-3.5" /> {t('logged-in.save')}</>
                   ) : (
-                    <><Edit2 className="h-3 w-3" /> Edit</>
+                    <><Edit2 className="h-3 w-3" /> {t('logged-in.edit')}</>
                   )}
                 </button>
               </div>
@@ -246,17 +248,17 @@ export default function HomeLoggedIn({
 
             <div className="space-y-2 border-t border-[#EDE6D9] dark:border-[#C9A84C]/10 pt-4">
               <label className="text-[11px] uppercase tracking-wider font-extrabold text-gray-400 dark:text-gray-500">
-                Registration Data
+                {t('logged-in.reg-data')}
               </label>
               <div className="space-y-2 font-mono text-[10.5px] text-gray-600 dark:text-gray-400">
                 <div className="flex justify-between">
-                  <span>Phone</span>
+                  <span>{t('logged-in.phone')}</span>
                   <span className="font-semibold text-gray-800 dark:text-[#FFFCF8]">
                     {user.contactInfo?.phone ? `${user.contactInfo.phone.substring(0, 4)}***${user.contactInfo.phone.slice(-3)}` : '091******44'}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span>Telegram</span>
+                  <span>{t('logged-in.telegram')}</span>
                   <span className="font-semibold text-[#8B0020] dark:text-[#C9A84C]">
                     @{user.contactInfo?.telegram || 'user'}
                   </span>
