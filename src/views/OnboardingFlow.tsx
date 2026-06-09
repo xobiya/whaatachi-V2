@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Heart, Users, ArrowRight, ArrowLeft, User, Phone, MessageCircle, Instagram, MapPin, Camera, Check, LogIn, UserPlus } from 'lucide-react';
 import { Profile } from '../types';
 import { useAppContext } from '../context/AppContext';
+import SelectDropdown from '../components/SelectDropdown';
 
 const CITIES = ['Addis Ababa', 'Adama', 'Hawassa', 'Bahir Dar', 'Dire Dawa', 'Gondar', 'Mekelle', 'Jimma', 'Dessie', 'Harar'];
 const AREAS: Record<string, string[]> = {
@@ -469,14 +470,14 @@ export default function OnboardingFlow({ onComplete, onSignIn, authIntent }: Onb
                   <div>
                     <label className="block text-[10px] font-bold text-[#FFFCF8]/50 uppercase tracking-wider mb-1">{t('onboarding.city-label')}</label>
                     <div className="relative">
-                      <MapPin className="absolute left-3 top-2.5 h-4 w-4 text-[#FFFCF8]/30" />
-                      <select
-                        id="reg-city" value={form.city}
-                        onChange={e => { setField('city', e.target.value); setField('address', ''); }}
-                        className={`w-full pl-9 pr-3.5 py-2.5 bg-[#FFFCF8]/5 border ${regErrors.city ? 'border-red-500' : 'border-[#FFFCF8]/10'} rounded-xl text-sm text-[#FFFCF8] appearance-none focus:outline-none focus:border-[#C9A84C]/60 transition-colors`}
-                      >
-                        {CITIES.map(c => <option key={c} value={c} className="bg-[#1A1118]">{c}</option>)}
-                      </select>
+                      <MapPin className="absolute left-3 top-3 h-4 w-4 text-[#FFFCF8]/30 z-10" />
+                      <SelectDropdown
+                        value={form.city}
+                        onChange={(v) => { setField('city', v); setField('address', ''); }}
+                        options={CITIES}
+                        placeholder={t('onboarding.select-city')}
+                        error={!!regErrors.city}
+                      />
                     </div>
                     {regErrors.city && <p className="text-red-400 text-[10px] mt-1">{regErrors.city}</p>}
                   </div>
@@ -485,16 +486,15 @@ export default function OnboardingFlow({ onComplete, onSignIn, authIntent }: Onb
                   <div>
                     <label className="block text-[10px] font-bold text-[#FFFCF8]/50 uppercase tracking-wider mb-1">{t('onboarding.area-label')}</label>
                     <div className="relative">
-                      <MapPin className="absolute left-3 top-2.5 h-4 w-4 text-[#FFFCF8]/30" />
+                      <MapPin className="absolute left-3 top-3 h-4 w-4 text-[#FFFCF8]/30 z-10" />
                       {AREAS[form.city] ? (
-                        <select
-                          id="reg-address" value={form.address}
-                          onChange={e => setField('address', e.target.value)}
-                          className={`w-full pl-9 pr-3.5 py-2.5 bg-[#FFFCF8]/5 border ${regErrors.address ? 'border-red-500' : 'border-[#FFFCF8]/10'} rounded-xl text-sm text-[#FFFCF8] appearance-none focus:outline-none focus:border-[#C9A84C]/60 transition-colors`}
-                        >
-                          <option value="" className="bg-[#1A1118]">{t('onboarding.select-area')}</option>
-                          {AREAS[form.city].map(a => <option key={a} value={a} className="bg-[#1A1118]">{a}</option>)}
-                        </select>
+                        <SelectDropdown
+                          value={form.address}
+                          onChange={(v) => setField('address', v)}
+                          options={AREAS[form.city]}
+                          placeholder={t('onboarding.select-area')}
+                          error={!!regErrors.address}
+                        />
                       ) : (
                         <input
                           id="reg-address" type="text" value={form.address}
