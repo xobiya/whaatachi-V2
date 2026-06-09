@@ -193,13 +193,16 @@ export default function ProfilePage({ profile, isUnlocked, pendingPayment, userG
                   className="text-center text-lg sm:text-xl font-black border-b border-[#EB317A] dark:border-[#C9A84C] bg-transparent text-[#1A1118] dark:text-[#FFFCF8] focus:outline-hidden max-w-[160px] sm:max-w-[200px]"
                   placeholder="Your Name"
                 />
-                <input 
-                  type="number" 
-                  value={editAge} 
-                  onChange={(e) => setEditAge(Number(e.target.value))} 
-                  className="text-center text-lg sm:text-xl font-black border-b border-[#EB317A] dark:border-[#C9A84C] bg-transparent text-[#1A1118] dark:text-[#FFFCF8] focus:outline-hidden max-w-[50px] sm:max-w-[60px]"
-                  placeholder="Age"
-                />
+                <div className="relative">
+                  <input 
+                    type="number" 
+                    value={editAge} 
+                    disabled
+                    className="text-center text-lg sm:text-xl font-black border-b border-gray-300 dark:border-gray-600 bg-transparent text-gray-400 dark:text-gray-500 max-w-[50px] sm:max-w-[60px] cursor-not-allowed"
+                    placeholder="Age"
+                  />
+                  <Lock className="h-3 w-3 text-gray-400 absolute -right-4 top-1/2 -translate-y-1/2" />
+                </div>
               </div>
             ) : (
               <div className="flex items-center justify-center gap-1.5">
@@ -272,19 +275,14 @@ export default function ProfilePage({ profile, isUnlocked, pendingPayment, userG
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1.5">
-                <label className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase">{t('profile.my-gender')}</label>
-                <select 
-                  value={editGender} 
-                  onChange={(e) => {
-                    const nextGen = e.target.value as 'Male' | 'Female';
-                    setEditGender(nextGen);
-                    setEditLookingFor(nextGen === 'Male' ? 'Female' : 'Male');
-                  }} 
-                  className="w-full text-xs border border-[#EDE6D9] dark:border-[#C9A84C]/15 rounded-xl p-2.5 bg-white dark:bg-[#1A1118] text-gray-800 dark:text-[#FFFCF8] outline-hidden"
-                >
-                  <option value="Male">Male</option>
-                  <option value="Female">Female</option>
-                </select>
+                <label className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase flex items-center gap-1">
+                  {t('profile.my-gender')} <Lock className="h-3 w-3 text-gray-400" />
+                </label>
+                <div className="w-full text-xs border border-[#EDE6D9] dark:border-[#C9A84C]/15 rounded-xl p-2.5 bg-gray-100 dark:bg-[#1A1118]/50 text-gray-400 dark:text-gray-500 flex items-center justify-between">
+                  <span>{editGender}</span>
+                  <span className="text-[8px] text-gray-400 italic">Locked</span>
+                </div>
+                <p className="text-[8px] text-amber-500/80 italic">Contact support to change gender</p>
               </div>
 
               <div className="space-y-1.5">
@@ -417,17 +415,19 @@ export default function ProfilePage({ profile, isUnlocked, pendingPayment, userG
           {editing ? (
             <div className="space-y-4">
                 <div className="space-y-1">
-                  <label className="text-[9px] sm:text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase">{t('profile.phone')}</label>
+                  <label className="text-[9px] sm:text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase flex items-center gap-1">
+                    {t('profile.phone')} <Lock className="h-3 w-3 text-gray-400" />
+                  </label>
                   <div className="relative">
                     <Phone className="absolute left-3 top-2.5 sm:left-3.5 sm:top-3.5 h-3.5 w-3.5 sm:h-4 sm:w-4 text-gray-400" />
                     <input 
                       type="text" 
                       value={editPhone} 
-                      onChange={(e) => setEditPhone(e.target.value)} 
-                      className="w-full text-[11px] sm:text-xs pl-9 sm:pl-10 pr-3 sm:pr-4 py-2.5 sm:py-3 border border-[#EDE6D9] dark:border-[#C9A84C]/15 rounded-xl bg-white dark:bg-[#1A1118] text-gray-800 dark:text-[#FFFCF8] focus:outline-hidden focus:border-[#EB317A] dark:focus:border-[#C9A84C]"
-                      placeholder="e.g. 0911223344"
+                      disabled
+                      className="w-full text-[11px] sm:text-xs pl-9 sm:pl-10 pr-3 sm:pr-4 py-2.5 sm:py-3 border border-[#EDE6D9] dark:border-[#C9A84C]/15 rounded-xl bg-gray-100 dark:bg-[#1A1118]/50 text-gray-400 dark:text-gray-500 cursor-not-allowed"
                     />
                   </div>
+                  <p className="text-[8px] text-amber-500/80 italic">Verify to change phone number</p>
                 </div>
 
                 <div className="space-y-1">
