@@ -36,7 +36,7 @@ export default function BlogPage({ articles }: BlogPageProps) {
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
 
         <div className="text-center space-y-3">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#8B0020]/5 dark:bg-[#8B0020]/15 border border-[#8B0020]/20 dark:border-[#C9A84C]/30 text-[#8B0020] dark:text-[#C9A84C] text-xs font-semibold">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#EB317A]/5 dark:bg-[#EB317A]/15 border border-[#EB317A]/20 dark:border-[#C9A84C]/30 text-[#EB317A] dark:text-[#C9A84C] text-xs font-semibold">
             <BookOpen className="h-4 w-4 text-[#C9A84C]" />
             <span>{t('blog.badge')}</span>
           </div>
@@ -54,7 +54,7 @@ export default function BlogPage({ articles }: BlogPageProps) {
             {categories.map((cat) => (
               <button key={cat} onClick={() => setActiveCategory(cat)} className={`px-3.5 py-1.5 rounded-xl text-xs font-bold shrink-0 transition-all cursor-pointer border ${
                 activeCategory === cat
-                  ? 'bg-[#8B0020] border-[#8B0020] text-white'
+                  ? 'bg-[#EB317A] border-[#EB317A] text-white'
                   : 'bg-white dark:bg-[#1A1118] border-[#EDE6D9] dark:border-[#C9A84C]/15 text-gray-600 dark:text-gray-400 hover:border-gray-300'
               }`}>
                 {cat}
@@ -64,7 +64,7 @@ export default function BlogPage({ articles }: BlogPageProps) {
 
           <div className="relative w-full md:w-72">
             <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
-            <input type="text" placeholder={t('blog.search')} value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="w-full bg-[#F8F4ED]/50 dark:bg-[#120A0E] hover:bg-white dark:hover:bg-[#1A1118] text-gray-800 dark:text-[#FFFCF8] border border-[#EDE6D9] dark:border-[#C9A84C]/15 focus:border-[#8B0020] dark:focus:border-[#C9A84C] rounded-xl pl-9 pr-3 py-2 text-xs outline-hidden" />
+            <input type="text" placeholder={t('blog.search')} value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="w-full bg-[#F8F4ED]/50 dark:bg-[#120A0E] hover:bg-white dark:hover:bg-[#1A1118] text-gray-800 dark:text-[#FFFCF8] border border-[#EDE6D9] dark:border-[#C9A84C]/15 focus:border-[#EB317A] dark:focus:border-[#C9A84C] rounded-xl pl-9 pr-3 py-2 text-xs outline-hidden" />
           </div>
         </div>
 
@@ -119,11 +119,11 @@ export default function BlogPage({ articles }: BlogPageProps) {
                     </div>
 
                     <div className="pt-4 border-t border-[#EDE6D9] dark:border-[#C9A84C]/10 mt-6 flex justify-between items-center">
-                      <span className="text-[10px] font-extrabold text-[#8B0020] dark:text-[#C9A84C] uppercase tracking-widest flex items-center gap-1">
+                      <span className="text-[10px] font-extrabold text-[#EB317A] dark:text-[#C9A84C] uppercase tracking-widest flex items-center gap-1">
                         <Sparkles className="h-3.5 w-3.5 text-[#C9A84C]" />
                         {t('blog.editorial')}
                       </span>
-                      <button className="text-[11px] font-bold text-gray-500 dark:text-gray-400 hover:text-[#8B0020] dark:hover:text-[#C9A84C] hover:underline cursor-pointer transition-colors">
+                      <button className="text-[11px] font-bold text-gray-500 dark:text-gray-400 hover:text-[#EB317A] dark:hover:text-[#C9A84C] hover:underline cursor-pointer transition-colors">
                         {t('blog.read-full')}
                       </button>
                     </div>
@@ -153,8 +153,8 @@ export default function BlogPage({ articles }: BlogPageProps) {
             </div>
           ) : (
             <form onSubmit={handleSubscribe} className="flex gap-2 w-full md:w-auto shrink-0 max-w-sm">
-              <input type="email" required placeholder="e.g. sam@example.com" value={subscriptionEmail} onChange={(e) => setSubscriptionEmail(e.target.value)} className="grow border border-[#EDE6D9] dark:border-[#C9A84C]/15 rounded-xl px-3.5 py-2.5 text-xs focus:outline-hidden focus:border-[#8B0020] dark:focus:border-[#C9A84C] bg-white dark:bg-[#120A0E] text-gray-800 dark:text-[#FFFCF8] min-w-0" />
-              <button type="submit" className="px-4 py-2.5 bg-[#8B0020] hover:bg-[#B31B3A] text-white text-xs font-bold rounded-xl flex items-center gap-1.5 cursor-pointer shrink-0 transition-colors">
+              <input type="email" required placeholder="e.g. sam@example.com" value={subscriptionEmail} onChange={(e) => setSubscriptionEmail(e.target.value)} className="grow border border-[#EDE6D9] dark:border-[#C9A84C]/15 rounded-xl px-3.5 py-2.5 text-xs focus:outline-hidden focus:border-[#EB317A] dark:focus:border-[#C9A84C] bg-white dark:bg-[#120A0E] text-gray-800 dark:text-[#FFFCF8] min-w-0" />
+              <button type="submit" className="px-4 py-2.5 bg-[#EB317A] hover:bg-[#F04B8E] text-white text-xs font-bold rounded-xl flex items-center gap-1.5 cursor-pointer shrink-0 transition-colors">
                 <Send className="h-3.5 w-3.5" />
                 <span>{t('blog.subscribe-btn')}</span>
               </button>

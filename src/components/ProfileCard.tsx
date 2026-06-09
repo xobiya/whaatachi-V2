@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { ShieldCheck, MapPin, Sparkles, Phone, Lock, Crown, Star, MessageCircle, Instagram } from 'lucide-react';
 import { Profile, PaymentRequest } from '../types';
 import { useAppContext } from '../context/AppContext';
+import { blurContactInfo } from '../utils/contactBlur';
 
 interface ProfileCardProps {
   key?: string | number;
@@ -17,6 +18,7 @@ export default function ProfileCard({
   profile, isUnlocked, pendingPayment, onUnlockClick, userGender, onViewProfile
 }: ProfileCardProps) {
   const { t } = useAppContext();
+  const blurred = useMemo(() => blurContactInfo(profile.contactInfo), [profile.contactInfo]);
 
   return (
     <div className="bg-white dark:bg-[#1A1118] rounded-2xl border border-[#EDE6D9] dark:border-[#C9A84C]/10 overflow-hidden shadow-sm hover:shadow-xl hover:border-[#C9A84C]/40 dark:hover:border-[#C9A84C]/30 transition-all duration-500 flex flex-col h-full group">
@@ -54,7 +56,7 @@ export default function ProfileCard({
 
           <span className={`inline-block text-[10px] font-bold px-2 py-0.5 rounded-full border ${
             profile.relationshipIntent === 'True Relationship'
-              ? 'bg-[#8B0020]/5 dark:bg-[#8B0020]/15 text-[#8B0020] dark:text-[#C9A84C] border-[#8B0020]/20 dark:border-[#C9A84C]/30'
+              ? 'bg-[#EB317A]/5 dark:bg-[#EB317A]/15 text-[#EB317A] dark:text-[#C9A84C] border-[#EB317A]/20 dark:border-[#C9A84C]/30'
               : profile.relationshipIntent === 'Friendship'
                 ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 border-blue-200 dark:border-blue-800'
                 : 'bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700'
@@ -66,23 +68,23 @@ export default function ProfileCard({
         <div className="pt-4 mt-4 border-t border-[#EDE6D9] dark:border-[#C9A84C]/10">
           {isUnlocked ? (
             <div className="bg-[#F8F4ED] dark:bg-[#120A0E] rounded-xl p-3 space-y-2 animate-fade-in border border-[#EDE6D9] dark:border-[#C9A84C]/10">
-              <div className="flex items-center gap-1 text-[11px] font-bold text-[#8B0020] dark:text-[#C9A84C]">
+              <div className="flex items-center gap-1 text-[11px] font-bold text-[#EB317A] dark:text-[#C9A84C]">
                 <Sparkles className="h-3.5 w-3.5" />
                 <span>{t('profile-card.contact-unlocked')}</span>
               </div>
-              <a href={`tel:${profile.contactInfo.phone}`} className="flex items-center gap-2 text-xs text-gray-700 dark:text-gray-300 hover:text-[#8B0020] dark:hover:text-[#C9A84C] transition-colors">
-                <Phone className="h-3.5 w-3.5 text-[#8B0020] dark:text-[#C9A84C]" />
-                {profile.contactInfo.phone}
-              </a>
-              <a href={`https://t.me/${profile.contactInfo.telegram.replace('@', '')}`} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-xs text-gray-700 dark:text-gray-300 hover:text-[#8B0020] dark:hover:text-[#C9A84C] transition-colors">
-                <MessageCircle className="h-3.5 w-3.5 text-[#8B0020] dark:text-[#C9A84C]" />
-                {profile.contactInfo.telegram}
-              </a>
+              <div className="flex items-center gap-2 text-xs text-gray-700 dark:text-gray-300">
+                <Phone className="h-3.5 w-3.5 text-[#EB317A] dark:text-[#C9A84C]" />
+                <span className="blur-sm select-none">{blurred.phone}</span>
+              </div>
+              <div className="flex items-center gap-2 text-xs text-gray-700 dark:text-gray-300">
+                <MessageCircle className="h-3.5 w-3.5 text-[#EB317A] dark:text-[#C9A84C]" />
+                <span className="blur-sm select-none">{blurred.telegram}</span>
+              </div>
               {profile.contactInfo.instagram && (
-                <a href={`https://instagram.com/${profile.contactInfo.instagram.replace('@', '')}`} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-xs text-gray-700 dark:text-gray-300 hover:text-[#8B0020] dark:hover:text-[#C9A84C] transition-colors">
-                  <Instagram className="h-3.5 w-3.5 text-[#8B0020] dark:text-[#C9A84C]" />
-                  {profile.contactInfo.instagram}
-                </a>
+                <div className="flex items-center gap-2 text-xs text-gray-700 dark:text-gray-300">
+                  <Instagram className="h-3.5 w-3.5 text-[#EB317A] dark:text-[#C9A84C]" />
+                  <span className="blur-sm select-none">{blurred.instagram}</span>
+                </div>
               )}
             </div>
           ) : pendingPayment ? (
@@ -97,15 +99,10 @@ export default function ProfileCard({
                   {t('profile-card.view-profile')}
                 </button>
               )}
-              <button onClick={() => onUnlockClick(profile)} className="w-full py-3 bg-[#8B0020] hover:bg-[#B31B3A] text-white font-bold text-xs rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-[#8B0020]/10">
+              <button onClick={() => onUnlockClick(profile)} className="w-full py-3 bg-[#EB317A] hover:bg-[#F04B8E] text-white font-bold text-xs rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-[#EB317A]/10">
                 <Lock className="h-3.5 w-3.5" />
                 <span>{t('profile-card.see-contact')}</span>
-                {userGender === 'Male' && (
-                  <span className="text-[9px] bg-white/20 px-1.5 py-0.5 rounded-md font-extrabold">200 ETB</span>
-                )}
-                {userGender === 'Female' && (
-                  <span className="text-[9px] bg-emerald-400/30 px-1.5 py-0.5 rounded-md font-extrabold">{t('profile-card.free')}</span>
-                )}
+                <span className="text-[9px] bg-white/20 px-1.5 py-0.5 rounded-md font-extrabold">{t('profile-card.free')}</span>
               </button>
             </div>
           )}

@@ -46,7 +46,7 @@ export default function SuccessStories({ stories, onAddStory }: SuccessStoriesPr
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
 
         <div className="text-center space-y-3">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#8B0020]/5 dark:bg-[#8B0020]/15 border border-[#8B0020]/20 dark:border-[#C9A84C]/30 text-[#8B0020] dark:text-[#C9A84C] text-xs font-semibold">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#EB317A]/5 dark:bg-[#EB317A]/15 border border-[#EB317A]/20 dark:border-[#C9A84C]/30 text-[#EB317A] dark:text-[#C9A84C] text-xs font-semibold">
             <Heart className="h-4 w-4 text-[#C9A84C] fill-[#C9A84C]" />
             <span>{t('stories.title')}</span>
           </div>
@@ -63,7 +63,7 @@ export default function SuccessStories({ stories, onAddStory }: SuccessStoriesPr
             <div key={storyItem.id} className="bg-white dark:bg-[#1A1118] border border-[#EDE6D9] dark:border-[#C9A84C]/10 rounded-3xl overflow-hidden shadow-sm hover:shadow-md transition-all flex flex-col sm:flex-row">
               <div className="relative w-full sm:w-2/5 h-48 sm:h-auto shrink-0 bg-[#EDE6D9] dark:bg-[#1A1118]">
                 <img src={storyItem.image} alt={storyItem.coupleNames} loading="lazy" className="absolute inset-0 w-full h-full object-cover" referrerPolicy="no-referrer" />
-                <span className="absolute top-3 left-3 bg-[#8B0020] text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+                <span className="absolute top-3 left-3 bg-[#EB317A] text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
                   {t('stories.joined').replace('{year}', storyItem.year)}
                 </span>
               </div>
@@ -79,7 +79,7 @@ export default function SuccessStories({ stories, onAddStory }: SuccessStoriesPr
                 </div>
 
                 <div className="pt-4 border-t border-[#EDE6D9] dark:border-[#C9A84C]/10 mt-4 flex items-center justify-between">
-                  <button onClick={() => handleLike(storyItem.id)} className="flex items-center gap-1.5 text-xs text-[#8B0020] dark:text-[#C9A84C] font-bold bg-[#8B0020]/5 dark:bg-[#8B0020]/15 border border-[#8B0020]/20 dark:border-[#C9A84C]/30 hover:bg-[#8B0020]/10 dark:hover:bg-[#8B0020]/25 rounded-lg px-2.5 py-1.5 transition-colors cursor-pointer">
+                  <button onClick={() => handleLike(storyItem.id)} className="flex items-center gap-1.5 text-xs text-[#EB317A] dark:text-[#C9A84C] font-bold bg-[#EB317A]/5 dark:bg-[#EB317A]/15 border border-[#EB317A]/20 dark:border-[#C9A84C]/30 hover:bg-[#EB317A]/10 dark:hover:bg-[#EB317A]/25 rounded-lg px-2.5 py-1.5 transition-colors cursor-pointer">
                     <ThumbsUp className="h-4 w-4" />
                     <span>{t('stories.like').replace('{count}', String(likesCount[storyItem.id] || 0))}</span>
                   </button>
@@ -134,7 +134,7 @@ export default function SuccessStories({ stories, onAddStory }: SuccessStoriesPr
                     const isSelected = selectedPresetImage === preset.url;
                     return (
                       <button type="button" key={idx} onClick={() => setSelectedPresetImage(preset.url)} className={`relative rounded-xl overflow-hidden pt-[60%] border-2 cursor-pointer transition-all ${
-                        isSelected ? 'border-[#8B0020] dark:border-[#C9A84C] scale-95 ring-2 ring-[#8B0020]/30 dark:ring-[#C9A84C]/30' : 'border-[#EDE6D9] dark:border-[#C9A84C]/10 opacity-60'
+                        isSelected ? 'border-[#EB317A] dark:border-[#C9A84C] scale-95 ring-2 ring-[#EB317A]/30 dark:ring-[#C9A84C]/30' : 'border-[#EDE6D9] dark:border-[#C9A84C]/10 opacity-60'
                       }`}>
                         <img src={preset.url} alt={preset.label} loading="lazy" className="absolute inset-0 w-full h-full object-cover" referrerPolicy="no-referrer" />
                       </button>
@@ -143,7 +143,7 @@ export default function SuccessStories({ stories, onAddStory }: SuccessStoriesPr
                 </div>
               </div>
 
-              <button type="submit" className="w-full py-3.5 bg-[#8B0020] hover:bg-[#B31B3A] text-white rounded-xl text-xs font-bold shadow-md hover:shadow-lg transition-all cursor-pointer flex items-center justify-center gap-2">
+              <button type="submit" className="w-full py-3.5 bg-[#EB317A] hover:bg-[#F04B8E] text-white rounded-xl text-xs font-bold shadow-md hover:shadow-lg transition-all cursor-pointer flex items-center justify-center gap-2">
                 <Star className="h-4 w-4 text-[#C9A84C]" />
                 {t('stories.publish')}
               </button>

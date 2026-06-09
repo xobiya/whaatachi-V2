@@ -3,8 +3,8 @@
 @variant dark (&:where(.dark, .dark *));
 
 @theme {
-  --color-premium-red: #8B0020;
-  --color-premium-red-light: #B31B3A;
+  --color-premium-red: #EB317A;
+  --color-premium-red-light: #F04B8E;
   --color-premium-gold: #C9A84C;
   --color-premium-gold-light: #E0C878;
   --color-premium-cream: #F8F4ED;
@@ -12,7 +12,7 @@
   --color-premium-black: #1A1118;
   --color-premium-dark: #120A0E;
   --color-premium-white: #FFFCF8;
-  --color-premium-rose: #F0D4D4;
+  --color-premium-rose: #FAD0E8;
 }
 
 @layer base {

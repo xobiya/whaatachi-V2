@@ -48,7 +48,7 @@ export default function HomeLanding({ onJoinNowClick, onGoToDashboard }: HomeLan
               {t('home.hero.desc')}
             </p>
             <div className="flex flex-wrap gap-4 mt-8 animate-slide-up stagger-3">
-              <button onClick={() => onJoinNowClick('register')} className="px-8 py-3.5 bg-[#8B0020] hover:bg-[#B31B3A] text-white font-bold text-sm rounded-lg shadow-xl shadow-[#8B0020]/20 transition-all flex items-center gap-2 cursor-pointer hover:-translate-y-0.5">
+              <button onClick={() => onJoinNowClick('register')} className="px-8 py-3.5 bg-[#EB317A] hover:bg-[#F04B8E] text-white font-bold text-sm rounded-lg shadow-xl shadow-[#EB317A]/20 transition-all flex items-center gap-2 cursor-pointer hover:-translate-y-0.5">
                 <Heart className="h-4 w-4" />
                 {t('nav.create-profile')}
               </button>
@@ -78,7 +78,7 @@ export default function HomeLanding({ onJoinNowClick, onGoToDashboard }: HomeLan
       <section className="py-20 bg-[#FFFCF8] dark:bg-[#120A0E]">
         <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
           <div className="text-center mb-12">
-            <span className="text-xs font-bold text-[#8B0020] dark:text-[#C9A84C] uppercase tracking-[0.25em]">{t('home.looking-for')}</span>
+            <span className="text-xs font-bold text-[#EB317A] dark:text-[#C9A84C] uppercase tracking-[0.25em]">{t('home.looking-for')}</span>
             <h2 className="text-3xl font-black text-[#1A1118] dark:text-[#FFFCF8] mt-2">{t('home.looking-for')}</h2>
           </div>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
@@ -90,7 +90,7 @@ export default function HomeLanding({ onJoinNowClick, onGoToDashboard }: HomeLan
             ].map((item) => (
               <button key={item.label} onClick={() => onJoinNowClick('register')} className="group bg-white dark:bg-[#1A1118] border border-[#EDE6D9] dark:border-[#C9A84C]/10 hover:border-[#C9A84C]/50 rounded-2xl p-6 text-center transition-all cursor-pointer hover:shadow-xl hover:shadow-[#C9A84C]/5 hover:-translate-y-1">
                 <div className="text-4xl mb-4 group-hover:scale-110 transition-transform duration-300">{item.icon}</div>
-                <h3 className="text-lg font-bold text-[#1A1118] dark:text-[#FFFCF8] group-hover:text-[#8B0020] dark:group-hover:text-[#C9A84C] transition-colors">{item.label}</h3>
+                <h3 className="text-lg font-bold text-[#1A1118] dark:text-[#FFFCF8] group-hover:text-[#EB317A] dark:group-hover:text-[#C9A84C] transition-colors">{item.label}</h3>
                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{item.desc}</p>
               </button>
             ))}
@@ -103,7 +103,7 @@ export default function HomeLanding({ onJoinNowClick, onGoToDashboard }: HomeLan
           <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
             <span className="text-xs font-bold text-[#1A1118]/60 dark:text-[#FFFCF8]/50 uppercase tracking-[0.2em]">Looking For</span>
             <div className="flex gap-3">
-              <button onClick={() => onJoinNowClick('register')} className="px-10 py-3.5 bg-[#1A1118] dark:bg-[#8B0020] text-[#FFFCF8] rounded-xl font-bold text-sm hover:bg-[#8B0020] dark:hover:bg-[#B31B3A] transition-all cursor-pointer shadow-lg flex items-center gap-2">
+              <button onClick={() => onJoinNowClick('register')} className="px-10 py-3.5 bg-[#1A1118] dark:bg-[#EB317A] text-[#FFFCF8] rounded-xl font-bold text-sm hover:bg-[#EB317A] dark:hover:bg-[#F04B8E] transition-all cursor-pointer shadow-lg flex items-center gap-2">
                 <Users className="h-4 w-4" />
                 {t('home.looking-for.women')}
               </button>
@@ -120,10 +120,10 @@ export default function HomeLanding({ onJoinNowClick, onGoToDashboard }: HomeLan
         <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
           <div className="flex justify-between items-end mb-10">
             <div>
-              <span className="text-xs font-bold text-[#8B0020] dark:text-[#C9A84C] uppercase tracking-[0.25em]">{t('home.featured.badge')}</span>
+              <span className="text-xs font-bold text-[#EB317A] dark:text-[#C9A84C] uppercase tracking-[0.25em]">{t('home.featured.badge')}</span>
               <h2 className="text-3xl font-black text-[#1A1118] dark:text-[#FFFCF8] mt-2">{t('home.featured')}</h2>
             </div>
-            <button onClick={() => onJoinNowClick('register')} className="hidden sm:flex items-center gap-1 text-sm font-bold text-[#8B0020] dark:text-[#C9A84C] hover:text-[#B31B3A] dark:hover:text-[#E0C878] transition-colors cursor-pointer">
+            <button onClick={() => onJoinNowClick('register')} className="hidden sm:flex items-center gap-1 text-sm font-bold text-[#EB317A] dark:text-[#C9A84C] hover:text-[#F04B8E] dark:hover:text-[#E0C878] transition-colors cursor-pointer">
               {t('home.featured.view-all')} <ArrowRight className="h-4 w-4" />
             </button>
           </div>
@@ -157,7 +157,7 @@ export default function HomeLanding({ onJoinNowClick, onGoToDashboard }: HomeLan
                     </div>
                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#F8F4ED]/80 dark:via-[#120A0E]/80 to-transparent shimmer"></div>
                   </div>
-                  <button onClick={() => onJoinNowClick('register')} className="w-full py-3 bg-[#8B0020] hover:bg-[#B31B3A] text-white font-bold text-xs rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-[#8B0020]/10">
+                  <button onClick={() => onJoinNowClick('register')} className="w-full py-3 bg-[#EB317A] hover:bg-[#F04B8E] text-white font-bold text-xs rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-[#EB317A]/10">
                     <Lock className="h-3.5 w-3.5" />
                     {t('profile.unlock')}
                   </button>
@@ -171,17 +171,16 @@ export default function HomeLanding({ onJoinNowClick, onGoToDashboard }: HomeLan
       <section className="py-20 bg-[#1A1118]">
         <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
           <div className="text-center mb-12">
-            <span className="text-xs font-bold text-[#C9A84C] uppercase tracking-[0.25em]">Simple Pricing</span>
-            <h2 className="text-3xl font-black text-[#FFFCF8] mt-2">{t('home.pricing.title')}</h2>
+            <span className="text-xs font-bold text-[#C9A84C] uppercase tracking-[0.25em]">{t('home.featured')}</span>
+            <h2 className="text-3xl font-black text-[#FFFCF8] mt-2">{t('home.trust.title')}</h2>
             <p className="text-[#EDE6D9]/60 mt-2 text-sm max-w-md mx-auto">{t('home.pricing.subtitle')}</p>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-4xl mx-auto">
             <div className="bg-[#FFFCF8] rounded-3xl p-8 border border-[#C9A84C]/20 shadow-2xl relative">
-              <div className="absolute top-0 right-0 bg-[#C9A84C] text-[#1A1118] text-[10px] font-black px-3 py-1 rounded-bl-2xl rounded-tr-3xl uppercase tracking-wider">{t('home.pricing.popular')}</div>
               <div className="flex items-center gap-3 mb-6">
-                <div className="w-12 h-12 rounded-full bg-[#8B0020]/10 flex items-center justify-center">
-                  <Crown className="h-6 w-6 text-[#8B0020]" />
+                <div className="w-12 h-12 rounded-full bg-[#EB317A]/10 flex items-center justify-center">
+                  <Crown className="h-6 w-6 text-[#EB317A]" />
                 </div>
                 <div>
                   <h3 className="text-xl font-black text-[#1A1118]">{t('home.for-men')}</h3>
@@ -189,19 +188,17 @@ export default function HomeLanding({ onJoinNowClick, onGoToDashboard }: HomeLan
                 </div>
               </div>
               <div className="flex items-baseline gap-1 mb-6">
-                <span className="text-5xl font-black text-[#1A1118]">200</span>
-                <span className="text-lg font-bold text-gray-500">ETB</span>
-                <span className="text-xs text-gray-400 ml-2">{t('home.pricing.per-unlock')}</span>
+                <span className="text-5xl font-black text-[#1A1118]">{t('profile.free-badge')}</span>
               </div>
               <ul className="space-y-3 text-sm text-gray-600 mb-8">
-                {['View phone, Telegram & Instagram', 'Verified female profiles only', 'Secure Telebirr & CBE Birr', '24/7 support', 'No subscription required'].map((item) => (
+                {['View phone, Telegram & Instagram', 'Verified profiles only', 'Secure & private', '24/7 support', 'No subscription required'].map((item) => (
                   <li key={item} className="flex items-center gap-2.5">
                     <CheckCircle className="h-4 w-4 text-[#C9A84C] shrink-0" />
                     <span>{item}</span>
                   </li>
                 ))}
               </ul>
-              <button onClick={() => onJoinNowClick('register')} className="w-full py-3.5 bg-[#8B0020] hover:bg-[#B31B3A] text-white font-bold rounded-xl transition-all cursor-pointer shadow-lg">
+              <button onClick={() => onJoinNowClick('register')} className="w-full py-3.5 bg-[#EB317A] hover:bg-[#F04B8E] text-white font-bold rounded-xl transition-all cursor-pointer shadow-lg">
                 {t('home.pricing.create-btn')}
               </button>
             </div>
@@ -220,22 +217,17 @@ export default function HomeLanding({ onJoinNowClick, onGoToDashboard }: HomeLan
                 <span className="text-5xl font-black text-[#1A1118]">Free</span>
               </div>
               <ul className="space-y-3 text-sm text-gray-600 mb-8">
-                {['Create profile for free', 'Receive unlimited messages', 'View interested men', 'Verified gentleman only', 'Privacy protected'].map((item) => (
+                {['Create profile for free', 'Receive unlimited messages', 'View interested matches', 'Verified members only', 'Privacy protected'].map((item) => (
                   <li key={item} className="flex items-center gap-2.5">
                     <CheckCircle className="h-4 w-4 text-[#C9A84C] shrink-0" />
                     <span>{item}</span>
                   </li>
                 ))}
               </ul>
-              <button onClick={() => onJoinNowClick('register')} className="w-full py-3.5 bg-[#1A1118] hover:bg-[#8B0020] text-white font-bold rounded-xl transition-all cursor-pointer">
+              <button onClick={() => onJoinNowClick('register')} className="w-full py-3.5 bg-[#1A1118] hover:bg-[#EB317A] text-white font-bold rounded-xl transition-all cursor-pointer">
                 {t('home.pricing.join-free')}
               </button>
             </div>
-          </div>
-
-          <div className="flex justify-center gap-4 mt-8 text-xs text-[#EDE6D9]/50">
-            <span className="flex items-center gap-1.5"><ShieldCheck className="h-3.5 w-3.5 text-[#C9A84C]" /> {t('home.pricing.teleBirr')}</span>
-            <span className="flex items-center gap-1.5"><ShieldCheck className="h-3.5 w-3.5 text-[#C9A84C]" /> {t('home.pricing.cbeBirr')}</span>
           </div>
         </div>
       </section>
@@ -253,8 +245,8 @@ export default function HomeLanding({ onJoinNowClick, onGoToDashboard }: HomeLan
               { icon: Users, title: t('home.trust.fake-removal'), desc: t('home.trust.fake-removal-desc') },
             ].map((item) => (
               <div key={item.title} className="bg-white dark:bg-[#1A1118] rounded-2xl p-6 border border-[#EDE6D9] dark:border-[#C9A84C]/10 text-center hover:shadow-lg dark:hover:shadow-[#C9A84C]/5 transition-all">
-                <div className="w-12 h-12 rounded-full bg-[#8B0020]/5 dark:bg-[#8B0020]/15 flex items-center justify-center mx-auto mb-4">
-                  <item.icon className="h-6 w-6 text-[#8B0020] dark:text-[#C9A84C]" />
+                <div className="w-12 h-12 rounded-full bg-[#EB317A]/5 dark:bg-[#EB317A]/15 flex items-center justify-center mx-auto mb-4">
+                  <item.icon className="h-6 w-6 text-[#EB317A] dark:text-[#C9A84C]" />
                 </div>
                 <h3 className="text-sm font-bold text-[#1A1118] dark:text-[#FFFCF8]">{item.title}</h3>
                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{item.desc}</p>

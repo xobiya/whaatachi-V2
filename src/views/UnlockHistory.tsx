@@ -43,7 +43,7 @@ export default function UnlockHistory({ unlockedProfiles, onBackToFinder, onView
                   >
                     <img src={profile.image} alt={profile.name} loading="lazy" className="w-14 h-14 rounded-full object-cover ring-2 ring-emerald-500/25 group-hover:ring-emerald-500 transition-all" referrerPolicy="no-referrer" />
                     <div>
-                      <h3 className="font-bold text-[#1A1118] dark:text-[#FFFCF8] text-base flex items-center gap-1 group-hover:text-[#8B0020] dark:group-hover:text-[#C9A84C] hover:underline transition-colors">
+                      <h3 className="font-bold text-[#1A1118] dark:text-[#FFFCF8] text-base flex items-center gap-1 group-hover:text-[#EB317A] dark:group-hover:text-[#C9A84C] hover:underline transition-colors">
                         {profile.name}
                         {profile.verified && <ShieldCheck className="h-4 w-4 text-[#C9A84C]" title={t('common.verified')} />}
                       </h3>
@@ -80,13 +80,13 @@ export default function UnlockHistory({ unlockedProfiles, onBackToFinder, onView
                     </a>
 
                     {profile.contactInfo.instagram && (
-                      <a href={`https://instagram.com/${profile.contactInfo.instagram.replace('@', '')}`} target="_blank" rel="noreferrer" className="flex items-center gap-3 p-2.5 bg-[#F8F4ED] dark:bg-[#120A0E] hover:bg-[#8B0020]/5 dark:hover:bg-[#8B0020]/20 border border-[#EDE6D9] dark:border-[#C9A84C]/10 rounded-xl text-xs text-gray-700 dark:text-gray-300 transition-colors cursor-pointer group">
-                        <div className="bg-[#8B0020]/10 dark:bg-[#8B0020]/30 text-[#8B0020] dark:text-[#C9A84C] p-2 rounded-lg shrink-0 group-hover:bg-[#8B0020]/20 dark:group-hover:bg-[#8B0020]/40 transition-colors">
+                      <a href={`https://instagram.com/${profile.contactInfo.instagram.replace('@', '')}`} target="_blank" rel="noreferrer" className="flex items-center gap-3 p-2.5 bg-[#F8F4ED] dark:bg-[#120A0E] hover:bg-[#EB317A]/5 dark:hover:bg-[#EB317A]/20 border border-[#EDE6D9] dark:border-[#C9A84C]/10 rounded-xl text-xs text-gray-700 dark:text-gray-300 transition-colors cursor-pointer group">
+                        <div className="bg-[#EB317A]/10 dark:bg-[#EB317A]/30 text-[#EB317A] dark:text-[#C9A84C] p-2 rounded-lg shrink-0 group-hover:bg-[#EB317A]/20 dark:group-hover:bg-[#EB317A]/40 transition-colors">
                           <Instagram className="h-4 w-4" />
                         </div>
                         <div>
                           <p className="text-[10px] text-gray-400 dark:text-gray-500 font-bold uppercase tracking-widest">{t('history.instagram')}</p>
-                          <p className="font-bold text-[#8B0020] dark:text-[#C9A84C] mt-0.5">{profile.contactInfo.instagram}</p>
+                          <p className="font-bold text-[#EB317A] dark:text-[#C9A84C] mt-0.5">{profile.contactInfo.instagram}</p>
                         </div>
                       </a>
                     )}
@@ -112,7 +112,7 @@ export default function UnlockHistory({ unlockedProfiles, onBackToFinder, onView
           </div>
         ) : (
           <div className="bg-white dark:bg-[#1A1118] border border-[#EDE6D9] dark:border-[#C9A84C]/10 rounded-2xl py-20 px-4 text-center max-w-xl mx-auto space-y-6 shadow-sm">
-            <div className="bg-[#8B0020]/5 dark:bg-[#8B0020]/15 p-6 rounded-full w-20 h-20 flex items-center justify-center mx-auto text-[#8B0020] dark:text-[#C9A84C] border border-[#8B0020]/10 dark:border-[#C9A84C]/20">
+            <div className="bg-[#EB317A]/5 dark:bg-[#EB317A]/15 p-6 rounded-full w-20 h-20 flex items-center justify-center mx-auto text-[#EB317A] dark:text-[#C9A84C] border border-[#EB317A]/10 dark:border-[#C9A84C]/20">
               <Eye className="h-10 w-10 animate-pulse" />
             </div>
 
@@ -123,7 +123,7 @@ export default function UnlockHistory({ unlockedProfiles, onBackToFinder, onView
               </p>
             </div>
 
-            <button onClick={onBackToFinder} className="px-6 py-3 bg-[#8B0020] hover:bg-[#B31B3A] text-white font-bold text-xs rounded-xl shadow-md hover:shadow-lg transition-all cursor-pointer">
+            <button onClick={onBackToFinder} className="px-6 py-3 bg-[#EB317A] hover:bg-[#F04B8E] text-white font-bold text-xs rounded-xl shadow-md hover:shadow-lg transition-all cursor-pointer">
               {t('history.start')}
             </button>
           </div>

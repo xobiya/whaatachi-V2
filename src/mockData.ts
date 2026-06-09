@@ -56,6 +56,16 @@ const maleNames = [
   'Biruk Assefa', 'Surafel Girma', 'Natnael Abebe', 'Yared Getachew'
 ];
 
+const additionalFemaleNames = [
+  'Bethelihem Alemu', 'Tsion Abate', 'Freweyni Assefa', 'Meklit Worku', 'Selam Teshome',
+  'Eyerusalem Shiferaw', 'Lensa Tadesse', 'Yeabsira Nigussie', 'Edlawit Mulugeta', 'Bontu Olani'
+];
+
+const additionalMaleNames = [
+  'Abenezer Wondimu', 'Yonatan Ayele', 'Natnael Kebede', 'Kidus Mesfin', 'Bemnet Tefera',
+  'Eyosias Shibabaw', 'Mintesinot Ayele', 'Yisehak Tesfaye', 'Robel Abate', 'Liyu Birhane'
+];
+
 function shuffleArray<T>(arr: T[]): T[] {
   const copy = [...arr];
   for (let i = copy.length - 1; i > 0; i--) {
@@ -100,7 +110,7 @@ function generateProfiles(): Profile[] {
       status: pickRandom(STATUSES),
       relationshipIntent: pickRandom(INTENTS),
       interests: pickRandomN(INTERESTS_POOL, 3),
-      verified: Math.random() > 0.3,
+      verified: true,
       contactInfo: {
         phone: `+251 91${String(Math.floor(1000000 + Math.random() * 9000000)).padStart(7, '0')}`,
         telegram: `@${name.split(' ')[0].toLowerCase()}_${String(Math.floor(Math.random() * 1000))}`,
@@ -134,7 +144,82 @@ function generateProfiles(): Profile[] {
       status: pickRandom(STATUSES),
       relationshipIntent: pickRandom(INTENTS),
       interests: pickRandomN(INTERESTS_POOL, 3),
-      verified: Math.random() > 0.3,
+      verified: true,
+      contactInfo: {
+        phone: `+251 91${String(Math.floor(1000000 + Math.random() * 9000000)).padStart(7, '0')}`,
+        telegram: `@${name.split(' ')[0].toLowerCase()}_${String(Math.floor(Math.random() * 1000))}`,
+        instagram: `@${name.split(' ')[0].toLowerCase()}_eth`,
+        email: `${name.split(' ')[0].toLowerCase()}.${name.split(' ')[1].toLowerCase()}@example.com`,
+      }
+    });
+  });
+
+  const biDirectFemale = [
+    `No strings attached. Just two adults who know what they want. Discretion guaranteed.`,
+    `Looking for a real connection, not games. Let's build something meaningful together.`,
+    `Straightforward — I want a genuine relationship with a man who respects me.`,
+    `Over the fake romances. I'm here for something real, open, and passionate.`,
+    `Physical chemistry matters. Let's meet if we vibe and keep it honest.`,
+    `Hoping to find my future husband. Family-oriented woman with traditional values.`,
+    `I know what I want and I'm not shy about it. Honesty and passion first.`,
+    `Looking for a serious partner to share life, coffee, and sunsets with.`,
+    `Let's keep it simple and hot. Mutual respect and good energy required.`,
+    `Faithful woman seeking a loyal man for a lasting relationship. Let's start with a walk.`,
+  ];
+  const biDirectMale = [
+    `I don't waste time. If you're direct and know what you want, let's talk.`,
+    `Looking for a serious woman to settle down with. Old school values, modern mind.`,
+    `Let's be honest — physical connection is important. Let's see if we click.`,
+    `Ready for marriage. Looking for a woman who values family, faith, and loyalty.`,
+    `No drama, no games. Just good vibes and real physical connection.`,
+    `Seeking a queen to build a future with. Ambitious, respectful, and romantic.`,
+    `I'm upfront about what I want — passionate encounters with no complications.`,
+    `Traditional guy with a big heart. Looking for my partner for life.`,
+    `Into fitness and having fun. Not looking for a girlfriend — looking for a good time.`,
+    `God-fearing man seeking a wife. Let's build a beautiful future together.`,
+  ];
+
+  // 10 additional women (5 Only Sex, 5 True Relationship)
+  additionalFemaleNames.forEach((name, i) => {
+    const intent: 'Only Sex' | 'True Relationship' = i < 5 ? 'Only Sex' : 'True Relationship';
+    const id = `fa${i + 1}`;
+    profiles.push({
+      id,
+      name,
+      age: 20 + Math.floor(Math.random() * 10),
+      city: pickRandom(CITIES),
+      bio: biDirectFemale[i],
+      gender: 'Female',
+      image: FEMALE_IMAGES[i % FEMALE_IMAGES.length],
+      status: pickRandom(STATUSES),
+      relationshipIntent: intent,
+      interests: pickRandomN(INTERESTS_POOL, 3),
+      verified: true,
+      contactInfo: {
+        phone: `+251 91${String(Math.floor(1000000 + Math.random() * 9000000)).padStart(7, '0')}`,
+        telegram: `@${name.split(' ')[0].toLowerCase()}_${String(Math.floor(Math.random() * 1000))}`,
+        instagram: `@${name.split(' ')[0].toLowerCase()}_eth`,
+        email: `${name.split(' ')[0].toLowerCase()}.${name.split(' ')[1].toLowerCase()}@example.com`,
+      }
+    });
+  });
+
+  // 10 additional men (5 Only Sex, 5 True Relationship)
+  additionalMaleNames.forEach((name, i) => {
+    const intent: 'Only Sex' | 'True Relationship' = i < 5 ? 'Only Sex' : 'True Relationship';
+    const id = `ma${i + 1}`;
+    profiles.push({
+      id,
+      name,
+      age: 22 + Math.floor(Math.random() * 12),
+      city: pickRandom(CITIES),
+      bio: biDirectMale[i],
+      gender: 'Male',
+      image: MALE_IMAGES[i % MALE_IMAGES.length],
+      status: pickRandom(STATUSES),
+      relationshipIntent: intent,
+      interests: pickRandomN(INTERESTS_POOL, 3),
+      verified: true,
       contactInfo: {
         phone: `+251 91${String(Math.floor(1000000 + Math.random() * 9000000)).padStart(7, '0')}`,
         telegram: `@${name.split(' ')[0].toLowerCase()}_${String(Math.floor(Math.random() * 1000))}`,

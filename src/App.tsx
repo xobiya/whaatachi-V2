@@ -339,17 +339,17 @@ function AppContent() {
           className={`fixed top-20 right-5 z-55 max-w-sm p-4 rounded-2xl shadow-xl flex items-start gap-3 border animate-slide-up ${
             state.notification.type === 'success'
               ? 'bg-[#F8F4ED] border-[#C9A84C]/40 text-[#1A1118]'
-              : 'bg-[#F8F4ED] border-[#8B0020]/20 text-[#1A1118]'
+              : 'bg-[#F8F4ED] border-[#EB317A]/20 text-[#1A1118]'
           }`}
           id="toast-notification"
         >
           {state.notification.type === 'success' ? (
             <CheckCircle className="h-5 w-5 text-[#C9A84C] shrink-0 mt-0.5" />
           ) : (
-            <ShieldAlert className="h-5 w-5 text-[#8B0020] shrink-0 mt-0.5" />
+            <ShieldAlert className="h-5 w-5 text-[#EB317A] shrink-0 mt-0.5" />
           )}
           <div>
-            <p className="font-bold text-xs text-[#8B0020]">{t('app.name')}</p>
+            <p className="font-bold text-xs text-[#EB317A]">{t('app.name')}</p>
             <p className="text-[11px] font-medium leading-relaxed mt-0.5 text-gray-700">{state.notification.text}</p>
           </div>
         </div>
@@ -357,7 +357,7 @@ function AppContent() {
 
       {/* 3. Core views */}
       <main key={registrationKey || '0'} className="grow" id="primary-view-stage">
-        <Suspense fallback={<div className="flex items-center justify-center py-20"><div className="w-8 h-8 border-2 border-[#8B0020] border-t-transparent rounded-full animate-spin" /></div>}>
+        <Suspense fallback={<div className="flex items-center justify-center py-20"><div className="w-8 h-8 border-2 border-[#EB317A] border-t-transparent rounded-full animate-spin" /></div>}>
 
           {/* Browse — main post-registration listing */}
           {(state.currentView === 'home' || state.currentView === 'browse') && state.isLoggedIn && state.currentUser && (

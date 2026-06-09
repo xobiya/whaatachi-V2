@@ -157,17 +157,14 @@ export default function OnboardingFlow({ onComplete, onSignIn, authIntent }: Onb
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#120A0E] via-[#1A1118] to-[#0D0610] flex flex-col items-center px-4 py-6 relative overflow-hidden">
       {/* Blobs */}
-      <div className="absolute top-0 left-0 w-[60vw] h-[60vw] bg-[#8B0020]/10 rounded-full blur-[100px] pointer-events-none" />
+      <div className="absolute top-0 left-0 w-[60vw] h-[60vw] bg-[#EB317A]/10 rounded-full blur-[100px] pointer-events-none" />
       <div className="absolute bottom-0 right-0 w-[50vw] h-[50vw] bg-[#C9A84C]/8 rounded-full blur-[80px] pointer-events-none" />
 
       {/* Logo + Sign In row */}
-      <div className="flex items-center justify-between w-full max-w-lg mb-4 z-10">
-        <div className="flex items-center gap-2">
-          <div className="bg-[#8B0020] p-1.5 rounded-lg">
-            <Heart className="h-5 w-5 text-[#C9A84C] fill-[#C9A84C]" />
+        <div className="flex items-center justify-between w-full max-w-lg mb-4 z-10">
+          <div className="flex items-center gap-2">
+            <img src="/assets/logos.png" alt="Whaatachi" className="h-16 sm:h-20 w-auto" />
           </div>
-          <span className="text-lg font-black text-[#FFFCF8] tracking-tight">Whaatachi</span>
-        </div>
         <button
           onClick={() => setShowSignIn(true)}
           className="px-4 py-2 bg-[#FFFCF8]/5 border border-[#C9A84C]/20 hover:border-[#C9A84C]/50 text-[#C9A84C] hover:text-[#E0C878] text-xs font-bold rounded-lg transition-all cursor-pointer flex items-center gap-1.5"
@@ -208,7 +205,7 @@ export default function OnboardingFlow({ onComplete, onSignIn, authIntent }: Onb
                 <input type="tel" value={signInPhone} onChange={(e) => setSignInPhone(e.target.value)} placeholder="0911XXXXXX" className="w-full pl-9 pr-3.5 py-2.5 bg-[#FFFCF8]/5 border border-[#FFFCF8]/10 rounded-xl text-sm text-[#FFFCF8] placeholder:text-[#FFFCF8]/25 focus:outline-none focus:border-[#C9A84C]/60 transition-colors" />
               </div>
             </div>
-            <button type="submit" className="w-full py-3 bg-[#8B0020] hover:bg-[#B31B3A] text-white font-bold rounded-xl flex items-center justify-center gap-2 transition-all cursor-pointer shadow-lg shadow-[#8B0020]/20">
+            <button type="submit" className="w-full py-3 bg-[#EB317A] hover:bg-[#F04B8E] text-white font-bold rounded-xl flex items-center justify-center gap-2 transition-all cursor-pointer shadow-lg shadow-[#EB317A]/20">
               <LogIn className="h-4 w-4" /> {t('auth.sign-in-btn')}
             </button>
           </form>
@@ -227,7 +224,7 @@ export default function OnboardingFlow({ onComplete, onSignIn, authIntent }: Onb
                     <div className="flex flex-col items-center min-w-0">
                       <div className={`w-7 h-7 rounded-full flex items-center justify-center font-black text-xs transition-all duration-300 border-2 shrink-0 ${
                         isDone   ? 'bg-[#C9A84C] border-[#C9A84C] text-[#1A1118]' :
-                        isActive ? 'bg-[#8B0020] border-[#8B0020] text-white shadow-lg shadow-[#8B0020]/40' :
+                        isActive ? 'bg-[#EB317A] border-[#EB317A] text-white shadow-lg shadow-[#EB317A]/40' :
                                    'bg-[#1A1118] border-[#C9A84C]/20 text-[#FFFCF8]/40'
                       }`}>
                         {isDone ? <Check className="h-3 w-3" /> : s}
@@ -284,7 +281,7 @@ export default function OnboardingFlow({ onComplete, onSignIn, authIntent }: Onb
                   id="intent-next-btn"
                   disabled={!selectedIntent}
                   onClick={() => setStep(2)}
-                  className="mt-5 w-full py-3 bg-[#8B0020] hover:bg-[#B31B3A] disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold rounded-xl flex items-center justify-center gap-2 transition-all cursor-pointer shadow-lg shadow-[#8B0020]/20"
+                  className="mt-5 w-full py-3 bg-[#EB317A] hover:bg-[#F04B8E] disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold rounded-xl flex items-center justify-center gap-2 transition-all cursor-pointer shadow-lg shadow-[#EB317A]/20"
                 >
                   {t('onboarding.continue')} <ArrowRight className="h-4 w-4" />
                 </button>
@@ -330,7 +327,7 @@ export default function OnboardingFlow({ onComplete, onSignIn, authIntent }: Onb
                   id="looking-for-next-btn"
                   disabled={!selectedLookingFor}
                   onClick={() => setStep(3)}
-                  className="mt-5 w-full py-3 bg-[#8B0020] hover:bg-[#B31B3A] disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold rounded-xl flex items-center justify-center gap-2 transition-all cursor-pointer shadow-lg shadow-[#8B0020]/20"
+                  className="mt-5 w-full py-3 bg-[#EB317A] hover:bg-[#F04B8E] disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold rounded-xl flex items-center justify-center gap-2 transition-all cursor-pointer shadow-lg shadow-[#EB317A]/20"
                 >
                   {t('onboarding.continue')} <ArrowRight className="h-4 w-4" />
                 </button>
@@ -514,7 +511,7 @@ export default function OnboardingFlow({ onComplete, onSignIn, authIntent }: Onb
                     <span className="px-2.5 py-0.5 rounded-full bg-[#C9A84C]/15 text-[#C9A84C] text-[10px] font-bold border border-[#C9A84C]/30">{selectedIntent}</span>
                   )}
                   {selectedLookingFor && (
-                    <span className="px-2.5 py-0.5 rounded-full bg-[#8B0020]/15 text-[#8B0020] text-[10px] font-bold border border-[#8B0020]/30">
+                    <span className="px-2.5 py-0.5 rounded-full bg-[#EB317A]/15 text-[#EB317A] text-[10px] font-bold border border-[#EB317A]/30">
                       {t('onboarding.looking-for-chip').replace('{gender}', selectedLookingFor === 'Male' ? t('auth.men') : t('auth.women'))}
                     </span>
                   )}
@@ -523,7 +520,7 @@ export default function OnboardingFlow({ onComplete, onSignIn, authIntent }: Onb
                 <button
                   id="register-submit-btn"
                   onClick={handleRegSubmit}
-                  className="mt-4 w-full py-3 bg-[#8B0020] hover:bg-[#B31B3A] text-white font-bold rounded-xl flex items-center justify-center gap-2 transition-all cursor-pointer shadow-lg shadow-[#8B0020]/20"
+                  className="mt-4 w-full py-3 bg-[#EB317A] hover:bg-[#F04B8E] text-white font-bold rounded-xl flex items-center justify-center gap-2 transition-all cursor-pointer shadow-lg shadow-[#EB317A]/20"
                 >
                   <Check className="h-4 w-4" /> {t('onboarding.create-browse')}
                 </button>

@@ -156,7 +156,7 @@ export default function AuthModal({
         <div className="relative w-full max-w-lg bg-[#FFFCF8] dark:bg-[#120A0E] border border-[#C9A84C]/20 rounded-3xl shadow-2xl overflow-hidden text-left transform transition-all duration-300 animate-scaleIn">
           <button
             onClick={onClose}
-            className="absolute top-4 right-4 p-2 rounded-full text-gray-400 hover:text-[#8B0020] dark:hover:text-[#C9A84C] bg-[#F8F4ED] dark:bg-[#1A1118] hover:bg-[#F0D4D4] dark:hover:bg-[#8B0020]/20 transition-colors cursor-pointer z-10"
+            className="absolute top-4 right-4 p-2 rounded-full text-gray-400 hover:text-[#EB317A] dark:hover:text-[#C9A84C] bg-[#F8F4ED] dark:bg-[#1A1118] hover:bg-[#FAD0E8] dark:hover:bg-[#EB317A]/20 transition-colors cursor-pointer z-10"
             aria-label={t('auth.close')}
           >
             <X className="h-4.5 w-4.5" />
@@ -167,7 +167,7 @@ export default function AuthModal({
               onClick={() => { setActiveTab('register'); setValidationError(null); }}
               className={`flex-1 text-center py-4 text-xs font-bold uppercase tracking-wider transition-colors border-b-2 cursor-pointer ${
                 activeTab === 'register'
-                  ? 'border-[#8B0020] dark:border-[#C9A84C] text-[#8B0020] dark:text-[#C9A84C] bg-[#FFFCF8] dark:bg-[#120A0E]'
+                  ? 'border-[#EB317A] dark:border-[#C9A84C] text-[#EB317A] dark:text-[#C9A84C] bg-[#FFFCF8] dark:bg-[#120A0E]'
                   : 'border-transparent text-gray-400 dark:text-gray-500 hover:text-[#1A1118] dark:hover:text-[#FFFCF8]'
               }`}
             >
@@ -177,7 +177,7 @@ export default function AuthModal({
               onClick={() => { setActiveTab('signin'); setValidationError(null); }}
               className={`flex-1 text-center py-4 text-xs font-bold uppercase tracking-wider transition-colors border-b-2 cursor-pointer ${
                 activeTab === 'signin'
-                  ? 'border-[#8B0020] dark:border-[#C9A84C] text-[#8B0020] dark:text-[#C9A84C] bg-[#FFFCF8] dark:bg-[#120A0E]'
+                  ? 'border-[#EB317A] dark:border-[#C9A84C] text-[#EB317A] dark:text-[#C9A84C] bg-[#FFFCF8] dark:bg-[#120A0E]'
                   : 'border-transparent text-gray-400 dark:text-gray-500 hover:text-[#1A1118] dark:hover:text-[#FFFCF8]'
               }`}
             >
@@ -186,8 +186,8 @@ export default function AuthModal({
           </div>
 
           {validationError && (
-            <div className="mx-6 mt-4 p-3 rounded-xl bg-[#8B0020]/5 dark:bg-[#8B0020]/10 border border-[#8B0020]/20 dark:border-[#8B0020]/30 text-[#8B0020] dark:text-[#F0D4D4] text-xs flex items-start gap-2 animate-fade-in">
-              <AlertCircle className="h-4.5 w-4.5 shrink-0 text-[#8B0020] dark:text-[#F0D4D4]" />
+            <div className="mx-6 mt-4 p-3 rounded-xl bg-[#EB317A]/5 dark:bg-[#EB317A]/10 border border-[#EB317A]/20 dark:border-[#EB317A]/30 text-[#EB317A] dark:text-[#FAD0E8] text-xs flex items-start gap-2 animate-fade-in">
+              <AlertCircle className="h-4.5 w-4.5 shrink-0 text-[#EB317A] dark:text-[#FAD0E8]" />
               <span className="font-semibold">{validationError}</span>
             </div>
           )}
@@ -204,20 +204,20 @@ export default function AuthModal({
                   <label className="block text-xs font-bold text-[#1A1118]/70 dark:text-[#FFFCF8]/60 uppercase tracking-wider">{t('auth.full-name-label')}</label>
                   <div className="relative">
                     <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                    <input type="text" required value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="E.g. Dawit Haile" className="w-full pl-9 pr-4 py-3 border border-[#EDE6D9] dark:border-[#C9A84C]/15 rounded-xl text-sm bg-white dark:bg-[#1A1118] text-gray-800 dark:text-[#FFFCF8] placeholder-gray-400 dark:placeholder-gray-500 focus:outline-hidden focus:border-[#8B0020] dark:focus:border-[#C9A84C] focus:ring-1 focus:ring-[#8B0020]/20 dark:focus:ring-[#C9A84C]/20" />
+                    <input type="text" required value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="E.g. Dawit Haile" className="w-full pl-9 pr-4 py-3 border border-[#EDE6D9] dark:border-[#C9A84C]/15 rounded-xl text-sm bg-white dark:bg-[#1A1118] text-gray-800 dark:text-[#FFFCF8] placeholder-gray-400 dark:placeholder-gray-500 focus:outline-hidden focus:border-[#EB317A] dark:focus:border-[#C9A84C] focus:ring-1 focus:ring-[#EB317A]/20 dark:focus:ring-[#C9A84C]/20" />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-1.5">
                     <label className="block text-xs font-bold text-[#1A1118]/70 dark:text-[#FFFCF8]/60 uppercase tracking-wider">{t('auth.age')}</label>
-                    <input type="number" min="18" max="60" value={age} onChange={(e) => setAge(e.target.value)} placeholder="24" className="w-full px-4 py-3 border border-[#EDE6D9] dark:border-[#C9A84C]/15 rounded-xl text-sm bg-white dark:bg-[#1A1118] text-gray-800 dark:text-[#FFFCF8] placeholder-gray-400 dark:placeholder-gray-500 focus:outline-hidden focus:border-[#8B0020] dark:focus:border-[#C9A84C] focus:ring-1 focus:ring-[#8B0020]/20 dark:focus:ring-[#C9A84C]/20" />
+                    <input type="number" min="18" max="60" value={age} onChange={(e) => setAge(e.target.value)} placeholder="24" className="w-full px-4 py-3 border border-[#EDE6D9] dark:border-[#C9A84C]/15 rounded-xl text-sm bg-white dark:bg-[#1A1118] text-gray-800 dark:text-[#FFFCF8] placeholder-gray-400 dark:placeholder-gray-500 focus:outline-hidden focus:border-[#EB317A] dark:focus:border-[#C9A84C] focus:ring-1 focus:ring-[#EB317A]/20 dark:focus:ring-[#C9A84C]/20" />
                   </div>
                   <div className="space-y-1.5">
                     <label className="block text-xs font-bold text-[#1A1118]/70 dark:text-[#FFFCF8]/60 uppercase tracking-wider">{t('auth.i-am')}</label>
                     <div className="grid grid-cols-2 bg-[#F8F4ED] dark:bg-[#1A1118] border border-[#EDE6D9] dark:border-[#C9A84C]/15 rounded-xl p-1 gap-1">
                       {(['Male', 'Female'] as const).map((g) => (
-                        <button key={g} type="button" onClick={() => handleMyGenderChange(g)} className={`py-2 text-xs font-bold text-center rounded-lg transition-all cursor-pointer ${myGender === g ? 'bg-[#8B0020] dark:bg-[#8B0020] text-white' : 'text-gray-500 dark:text-gray-400 hover:text-[#1A1118] dark:hover:text-[#FFFCF8]'}`}>
+                        <button key={g} type="button" onClick={() => handleMyGenderChange(g)} className={`py-2 text-xs font-bold text-center rounded-lg transition-all cursor-pointer ${myGender === g ? 'bg-[#EB317A] dark:bg-[#EB317A] text-white' : 'text-gray-500 dark:text-gray-400 hover:text-[#1A1118] dark:hover:text-[#FFFCF8]'}`}>
                           {g === 'Male' ? t('auth.man') : t('auth.woman')}
                         </button>
                       ))}
@@ -229,7 +229,7 @@ export default function AuthModal({
                   <label className="block text-xs font-bold text-[#1A1118]/70 dark:text-[#FFFCF8]/60 uppercase tracking-wider">{t('auth.looking-for')}</label>
                   <div className="grid grid-cols-2 bg-[#F8F4ED] dark:bg-[#1A1118] border border-[#EDE6D9] dark:border-[#C9A84C]/15 rounded-xl p-1 gap-1">
                     {(['Male', 'Female'] as const).map((s) => (
-                      <button key={s} type="button" onClick={() => setLookingFor(s)} className={`py-2 text-xs font-bold text-center rounded-lg transition-all cursor-pointer ${lookingFor === s ? 'bg-[#8B0020] dark:bg-[#8B0020] text-white' : 'text-gray-500 dark:text-gray-400 hover:text-[#1A1118] dark:hover:text-[#FFFCF8]'}`}>
+                      <button key={s} type="button" onClick={() => setLookingFor(s)} className={`py-2 text-xs font-bold text-center rounded-lg transition-all cursor-pointer ${lookingFor === s ? 'bg-[#EB317A] dark:bg-[#EB317A] text-white' : 'text-gray-500 dark:text-gray-400 hover:text-[#1A1118] dark:hover:text-[#FFFCF8]'}`}>
                         {s === 'Male' ? t('auth.men') : t('auth.women')}
                       </button>
                     ))}
@@ -240,7 +240,7 @@ export default function AuthModal({
                   <label className="block text-xs font-bold text-[#1A1118]/70 dark:text-[#FFFCF8]/60 uppercase tracking-wider">{t('auth.city-label')}</label>
                   <div className="relative">
                     <MapPin className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                    <select value={city} onChange={(e) => setCity(e.target.value)} className="w-full pl-9 pr-4 py-3 border border-[#EDE6D9] dark:border-[#C9A84C]/15 rounded-xl text-sm bg-white dark:bg-[#1A1118] text-gray-800 dark:text-[#FFFCF8] focus:outline-hidden focus:border-[#8B0020] dark:focus:border-[#C9A84C] focus:ring-1 focus:ring-[#8B0020]/20 dark:focus:ring-[#C9A84C]/20 appearance-none cursor-pointer">
+                    <select value={city} onChange={(e) => setCity(e.target.value)} className="w-full pl-9 pr-4 py-3 border border-[#EDE6D9] dark:border-[#C9A84C]/15 rounded-xl text-sm bg-white dark:bg-[#1A1118] text-gray-800 dark:text-[#FFFCF8] focus:outline-hidden focus:border-[#EB317A] dark:focus:border-[#C9A84C] focus:ring-1 focus:ring-[#EB317A]/20 dark:focus:ring-[#C9A84C]/20 appearance-none cursor-pointer">
                       {ETHIOPIAN_CITIES.map((c) => (
                         <option key={c} value={c}>{c}</option>
                       ))}
@@ -252,7 +252,7 @@ export default function AuthModal({
                   <label className="block text-xs font-bold text-[#1A1118]/70 dark:text-[#FFFCF8]/60 uppercase tracking-wider">{t('auth.phone-label')}</label>
                   <div className="relative">
                     <Phone className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                    <input type="tel" required value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} placeholder="0911XXXXXX" className="w-full pl-9 pr-4 py-3 border border-[#EDE6D9] dark:border-[#C9A84C]/15 rounded-xl text-sm bg-white dark:bg-[#1A1118] text-gray-800 dark:text-[#FFFCF8] placeholder-gray-400 dark:placeholder-gray-500 focus:outline-hidden focus:border-[#8B0020] dark:focus:border-[#C9A84C]" />
+                    <input type="tel" required value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} placeholder="0911XXXXXX" className="w-full pl-9 pr-4 py-3 border border-[#EDE6D9] dark:border-[#C9A84C]/15 rounded-xl text-sm bg-white dark:bg-[#1A1118] text-gray-800 dark:text-[#FFFCF8] placeholder-gray-400 dark:placeholder-gray-500 focus:outline-hidden focus:border-[#EB317A] dark:focus:border-[#C9A84C]" />
                   </div>
                 </div>
 
@@ -260,7 +260,7 @@ export default function AuthModal({
                   <label className="block text-xs font-bold text-[#1A1118]/70 dark:text-[#FFFCF8]/60 uppercase tracking-wider">{t('auth.telegram-label')}</label>
                   <div className="relative">
                     <MessageCircle className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                    <input type="text" value={telegramUsername} onChange={(e) => setTelegramUsername(e.target.value)} placeholder="@yourusername" className="w-full pl-9 pr-4 py-3 border border-[#EDE6D9] dark:border-[#C9A84C]/15 rounded-xl text-sm bg-white dark:bg-[#1A1118] text-gray-800 dark:text-[#FFFCF8] placeholder-gray-400 dark:placeholder-gray-500 focus:outline-hidden focus:border-[#8B0020] dark:focus:border-[#C9A84C]" />
+                    <input type="text" value={telegramUsername} onChange={(e) => setTelegramUsername(e.target.value)} placeholder="@yourusername" className="w-full pl-9 pr-4 py-3 border border-[#EDE6D9] dark:border-[#C9A84C]/15 rounded-xl text-sm bg-white dark:bg-[#1A1118] text-gray-800 dark:text-[#FFFCF8] placeholder-gray-400 dark:placeholder-gray-500 focus:outline-hidden focus:border-[#EB317A] dark:focus:border-[#C9A84C]" />
                   </div>
                 </div>
 
@@ -268,7 +268,7 @@ export default function AuthModal({
                   <label className="block text-xs font-bold text-[#1A1118]/70 dark:text-[#FFFCF8]/60 uppercase tracking-wider">{t('auth.instagram-label')}</label>
                   <div className="relative">
                     <Instagram className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                    <input type="text" value={instagramUsername} onChange={(e) => setInstagramUsername(e.target.value)} placeholder="@yourusername" className="w-full pl-9 pr-4 py-3 border border-[#EDE6D9] dark:border-[#C9A84C]/15 rounded-xl text-sm bg-white dark:bg-[#1A1118] text-gray-800 dark:text-[#FFFCF8] placeholder-gray-400 dark:placeholder-gray-500 focus:outline-hidden focus:border-[#8B0020] dark:focus:border-[#C9A84C]" />
+                    <input type="text" value={instagramUsername} onChange={(e) => setInstagramUsername(e.target.value)} placeholder="@yourusername" className="w-full pl-9 pr-4 py-3 border border-[#EDE6D9] dark:border-[#C9A84C]/15 rounded-xl text-sm bg-white dark:bg-[#1A1118] text-gray-800 dark:text-[#FFFCF8] placeholder-gray-400 dark:placeholder-gray-500 focus:outline-hidden focus:border-[#EB317A] dark:focus:border-[#C9A84C]" />
                   </div>
                 </div>
 
@@ -277,13 +277,13 @@ export default function AuthModal({
                   <div className="flex items-center gap-3 flex-wrap">
                     <div className="flex gap-2">
                       {(myGender === 'Male' ? PRESET_MALE_IMAGES : PRESET_FEMALE_IMAGES).slice(0, 3).map((url, idx) => (
-                        <button key={idx} type="button" onClick={() => { setSelectedPresetImage(url); setPhotoSource('preset'); }} className={`w-14 h-14 rounded-full overflow-hidden border-2 cursor-pointer transition-all shrink-0 ${photoSource === 'preset' && selectedPresetImage === url ? 'border-[#8B0020] dark:border-[#C9A84C] scale-105 shadow-sm' : 'border-transparent opacity-70 hover:opacity-100'}`}>
+                        <button key={idx} type="button" onClick={() => { setSelectedPresetImage(url); setPhotoSource('preset'); }} className={`w-14 h-14 rounded-full overflow-hidden border-2 cursor-pointer transition-all shrink-0 ${photoSource === 'preset' && selectedPresetImage === url ? 'border-[#EB317A] dark:border-[#C9A84C] scale-105 shadow-sm' : 'border-transparent opacity-70 hover:opacity-100'}`}>
                           <img src={url} alt="" loading="lazy" className="w-full h-full object-cover" />
                         </button>
                       ))}
                     </div>
                     <span className="text-xs text-gray-400">{t('auth.or')}</span>
-                    <button type="button" onClick={() => fileInputRef.current?.click()} className="text-xs font-bold text-[#8B0020] dark:text-[#C9A84C] hover:text-[#B31B3A] dark:hover:text-[#E0C878] flex items-center gap-1 cursor-pointer">
+                    <button type="button" onClick={() => fileInputRef.current?.click()} className="text-xs font-bold text-[#EB317A] dark:text-[#C9A84C] hover:text-[#F04B8E] dark:hover:text-[#E0C878] flex items-center gap-1 cursor-pointer">
                       <Camera className="h-3.5 w-3.5" /> {t('auth.upload-photo')}
                     </button>
                     <input type="file" ref={fileInputRef} accept="image/*" onChange={handleFileChange} className="hidden" />
@@ -295,7 +295,7 @@ export default function AuthModal({
                   )}
                 </div>
 
-                <button type="submit" className="w-full py-3.5 bg-[#8B0020] hover:bg-[#B31B3A] text-white font-bold text-sm rounded-xl shadow-lg shadow-[#8B0020]/20 transition-all flex items-center justify-center gap-2 mt-4 cursor-pointer">
+                <button type="submit" className="w-full py-3.5 bg-[#EB317A] hover:bg-[#F04B8E] text-white font-bold text-sm rounded-xl shadow-lg shadow-[#EB317A]/20 transition-all flex items-center justify-center gap-2 mt-4 cursor-pointer">
                   <UserPlus className="h-4 w-4" />
                   <span>{t('auth.create-submit')}</span>
                 </button>
@@ -303,7 +303,7 @@ export default function AuthModal({
             ) : (
               <div className="space-y-6">
                 <div>
-                  <span className="text-[10px] font-bold text-[#8B0020] dark:text-[#C9A84C] uppercase tracking-widest">{t('auth.welcome-back')}</span>
+                  <span className="text-[10px] font-bold text-[#EB317A] dark:text-[#C9A84C] uppercase tracking-widest">{t('auth.welcome-back')}</span>
                   <h2 className="text-xl font-black text-[#1A1118] dark:text-[#FFFCF8] mt-1">{t('auth.sign-in-title')}</h2>
                   <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{t('auth.sign-in-desc')}</p>
                 </div>
@@ -311,15 +311,15 @@ export default function AuthModal({
                 <form onSubmit={handleSignInSubmit} className="space-y-4">
                   <div className="space-y-1.5">
                     <label className="block text-xs font-bold text-[#1A1118]/70 dark:text-[#FFFCF8]/60 uppercase tracking-wider">{t('auth.sign-in-name')}</label>
-                    <input type="text" required value={signInName} onChange={(e) => setSignInName(e.target.value)} placeholder="Enter your registered name" className="w-full px-4 py-3 border border-[#EDE6D9] dark:border-[#C9A84C]/15 rounded-xl text-sm bg-white dark:bg-[#1A1118] text-gray-800 dark:text-[#FFFCF8] placeholder-gray-400 dark:placeholder-gray-500 focus:outline-hidden focus:border-[#8B0020] dark:focus:border-[#C9A84C] focus:ring-1 focus:ring-[#8B0020]/20 dark:focus:ring-[#C9A84C]/20" />
+                    <input type="text" required value={signInName} onChange={(e) => setSignInName(e.target.value)} placeholder="Enter your registered name" className="w-full px-4 py-3 border border-[#EDE6D9] dark:border-[#C9A84C]/15 rounded-xl text-sm bg-white dark:bg-[#1A1118] text-gray-800 dark:text-[#FFFCF8] placeholder-gray-400 dark:placeholder-gray-500 focus:outline-hidden focus:border-[#EB317A] dark:focus:border-[#C9A84C] focus:ring-1 focus:ring-[#EB317A]/20 dark:focus:ring-[#C9A84C]/20" />
                   </div>
 
                   <div className="space-y-1.5">
                     <label className="block text-xs font-bold text-[#1A1118]/70 dark:text-[#FFFCF8]/60 uppercase tracking-wider">{t('auth.sign-in-phone')}</label>
-                    <input type="tel" value={signInPhone} onChange={(e) => setSignInPhone(e.target.value)} placeholder="0911XXXXXX" className="w-full px-4 py-3 border border-[#EDE6D9] dark:border-[#C9A84C]/15 rounded-xl text-sm bg-white dark:bg-[#1A1118] text-gray-800 dark:text-[#FFFCF8] placeholder-gray-400 dark:placeholder-gray-500 focus:outline-hidden focus:border-[#8B0020] dark:focus:border-[#C9A84C]" />
+                    <input type="tel" value={signInPhone} onChange={(e) => setSignInPhone(e.target.value)} placeholder="0911XXXXXX" className="w-full px-4 py-3 border border-[#EDE6D9] dark:border-[#C9A84C]/15 rounded-xl text-sm bg-white dark:bg-[#1A1118] text-gray-800 dark:text-[#FFFCF8] placeholder-gray-400 dark:placeholder-gray-500 focus:outline-hidden focus:border-[#EB317A] dark:focus:border-[#C9A84C]" />
                   </div>
 
-                  <button type="submit" className="w-full py-3.5 bg-[#8B0020] hover:bg-[#B31B3A] text-white font-bold text-sm rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1.5 shadow-lg shadow-[#8B0020]/20">
+                  <button type="submit" className="w-full py-3.5 bg-[#EB317A] hover:bg-[#F04B8E] text-white font-bold text-sm rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1.5 shadow-lg shadow-[#EB317A]/20">
                     <Send className="h-3.5 w-3.5" />
                     <span>{t('auth.sign-in-btn')}</span>
                   </button>
@@ -331,8 +331,8 @@ export default function AuthModal({
 
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-1">
                     {featuredProfiles.slice(0, 3).map((testProfile) => (
-                      <button key={testProfile.id} onClick={() => { onSimulateTestLogin(testProfile); onClose(); }} className="p-2 border border-[#EDE6D9] dark:border-[#C9A84C]/15 hover:border-[#8B0020]/30 dark:hover:border-[#C9A84C]/30 rounded-xl bg-[#F8F4ED]/20 dark:bg-[#1A1118]/50 cursor-pointer text-left flex items-center gap-2 group transition-all shrink-0">
-                        <img src={testProfile.image} alt={testProfile.name} className="w-8 h-8 rounded-full object-cover border group-hover:border-[#8B0020] dark:group-hover:border-[#C9A84C] transition-colors" referrerPolicy="no-referrer" />
+                      <button key={testProfile.id} onClick={() => { onSimulateTestLogin(testProfile); onClose(); }} className="p-2 border border-[#EDE6D9] dark:border-[#C9A84C]/15 hover:border-[#EB317A]/30 dark:hover:border-[#C9A84C]/30 rounded-xl bg-[#F8F4ED]/20 dark:bg-[#1A1118]/50 cursor-pointer text-left flex items-center gap-2 group transition-all shrink-0">
+                        <img src={testProfile.image} alt={testProfile.name} className="w-8 h-8 rounded-full object-cover border group-hover:border-[#EB317A] dark:group-hover:border-[#C9A84C] transition-colors" referrerPolicy="no-referrer" />
                         <div className="overflow-hidden">
                           <p className="text-[10px] font-bold text-[#1A1118] dark:text-[#FFFCF8] truncate">{testProfile.name.split(' ')[0]}</p>
                           <p className="text-[8px] text-gray-400 font-mono italic capitalize">{testProfile.gender}</p>

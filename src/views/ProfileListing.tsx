@@ -2,6 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { Profile, PaymentRequest } from '../types';
 import { MapPin, Lock, Phone, MessageCircle, Sparkles, Heart, Search, Filter, X } from 'lucide-react';
 import { useAppContext } from '../context/AppContext';
+import { blurContactInfo } from '../utils/contactBlur';
 
 const INTENT_BADGE: Record<string, { label: string; cls: string }> = {
   'True Relationship': { label: '❤️ True Relationship', cls: 'bg-rose-500/10 text-rose-400 border-rose-500/30' },
@@ -29,23 +30,40 @@ export default function ProfileListing({
 }: ProfileListingProps) {
   const { t } = useAppContext();
   const [searchQuery, setSearchQuery] = useState('');
-  const [filterIntent, setFilterIntent] = useState<string>('All');
-  const [filterCity, setFilterCity] = useState('All');
+  const [filterIntent, setFilterIntent] = useState<string | null>(null);
+  const [filterCity, setFilterCity] = useState<string | null>(null);
+  const [usePreference, setUsePreference] = useState(false);
+  const [ageMin, setAgeMin] = useState<number>(18);
+  const [ageMax, setAgeMax] = useState<number>(60);
   const [showFilters, setShowFilters] = useState(false);
 
   const targetGender = currentUser.lookingFor || (currentUser.gender === 'Male' ? 'Female' : 'Male');
 
   const filteredProfiles = useMemo(() => {
-    return profiles
-      .filter((p) => p.id !== currentUser.id && p.gender === targetGender)
-      .filter((p) => {
+    let list = profiles
+      .filter((p) => p.id !== currentUser.id && p.gender === targetGender);
+
+    if (usePreference) {
+      const prefAgeMin = Math.max(18, currentUser.age - 5);
+      const prefAgeMax = Math.min(60, currentUser.age + 5);
+      list = list.filter((p) =>
+        p.relationshipIntent === currentUser.relationshipIntent &&
+        p.city === currentUser.city &&
+        p.age >= prefAgeMin &&
+        p.age <= prefAgeMax
+      );
+    } else {
+      list = list.filter((p) => {
         const q = searchQuery.toLowerCase();
         if (q && !p.name.toLowerCase().includes(q) && !p.city.toLowerCase().includes(q) && !(p.address || '').toLowerCase().includes(q)) return false;
-        if (filterIntent !== 'All' && p.relationshipIntent !== filterIntent) return false;
-        if (filterCity !== 'All' && p.city !== filterCity) return false;
+        if (filterIntent !== null && p.relationshipIntent !== filterIntent) return false;
+        if (filterCity !== null && p.city !== filterCity) return false;
+        if (p.age < ageMin || p.age > ageMax) return false;
         return true;
       });
-  }, [profiles, currentUser, targetGender, searchQuery, filterIntent, filterCity]);
+    }
+    return list;
+  }, [profiles, currentUser, targetGender, searchQuery, filterIntent, filterCity, usePreference, ageMin, ageMax]);
 
   const cities = useMemo(() => {
     const set = new Set<string>();
@@ -61,7 +79,7 @@ export default function ProfileListing({
         {/* Header */}
         <div className="mb-6 text-center">
           <div className="flex items-center justify-center gap-2 mb-1">
-            <Heart className="h-5 w-5 text-[#8B0020] dark:text-[#C9A84C]" />
+            <Heart className="h-5 w-5 text-[#EB317A] dark:text-[#C9A84C]" />
             <h1 className="text-2xl sm:text-3xl font-black text-[#1A1118] dark:text-[#FFFCF8] tracking-tight">
               {targetGender === 'Female' ? t('profile-listing.women') : t('profile-listing.men')} {t('profile-listing.near-you')}
             </h1>
@@ -71,9 +89,7 @@ export default function ProfileListing({
             {currentUser.gender === 'Female' && (
               <span className="ml-2 px-2 py-0.5 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 rounded-full text-[10px] font-bold">{t('profile-listing.free-women')}</span>
             )}
-            {currentUser.gender === 'Male' && (
-              <span className="ml-2 px-2 py-0.5 bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 rounded-full text-[10px] font-bold">{t('profile-listing.per-unlock')}</span>
-            )}
+            
           </p>
         </div>
 
@@ -86,7 +102,7 @@ export default function ProfileListing({
               placeholder={t('profile-listing.search')}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-[#1A1118] border border-[#EDE6D9] dark:border-[#C9A84C]/15 rounded-xl text-sm text-gray-800 dark:text-[#FFFCF8] focus:outline-none focus:border-[#8B0020] dark:focus:border-[#C9A84C] transition-colors placeholder:text-gray-400"
+              className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-[#1A1118] border border-[#EDE6D9] dark:border-[#C9A84C]/15 rounded-xl text-sm text-gray-800 dark:text-[#FFFCF8] focus:outline-none focus:border-[#EB317A] dark:focus:border-[#C9A84C] transition-colors placeholder:text-gray-400"
             />
             {searchQuery && (
               <button onClick={() => setSearchQuery('')} className="absolute right-3 top-3 text-gray-400 hover:text-gray-600 cursor-pointer">
@@ -96,7 +112,7 @@ export default function ProfileListing({
           </div>
           <button
             onClick={() => setShowFilters(!showFilters)}
-            className="flex items-center gap-1.5 px-3.5 py-2.5 bg-white dark:bg-[#1A1118] border border-[#EDE6D9] dark:border-[#C9A84C]/15 rounded-xl text-xs font-bold text-gray-600 dark:text-[#FFFCF8]/60 hover:border-[#8B0020] dark:hover:border-[#C9A84C] cursor-pointer transition-colors"
+            className="flex items-center gap-1.5 px-3.5 py-2.5 bg-white dark:bg-[#1A1118] border border-[#EDE6D9] dark:border-[#C9A84C]/15 rounded-xl text-xs font-bold text-gray-600 dark:text-[#FFFCF8]/60 hover:border-[#EB317A] dark:hover:border-[#C9A84C] cursor-pointer transition-colors"
           >
             <Filter className="h-4 w-4" />
             <span className="hidden sm:inline">{t('profile-listing.filters')}</span>
@@ -107,37 +123,53 @@ export default function ProfileListing({
         {showFilters && (
           <div className="bg-white dark:bg-[#1A1118] border border-[#EDE6D9] dark:border-[#C9A84C]/10 rounded-2xl p-4 mb-4 grid grid-cols-2 gap-3 shadow-sm max-w-xl mx-auto">
             <div>
-              <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1.5">{t('profile-listing.intent')}</label>
-              <select
-                value={filterIntent}
-                onChange={(e) => setFilterIntent(e.target.value)}
-                className="w-full px-3 py-2.5 bg-[#F8F4ED] dark:bg-[#120A0E] border border-[#EDE6D9] dark:border-[#C9A84C]/10 rounded-xl text-xs text-gray-800 dark:text-[#FFFCF8] focus:outline-none"
-              >
-                {intents.map((i) => <option key={i}>{i}</option>)}
-              </select>
-            </div>
-            <div>
               <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1.5">{t('profile-listing.city')}</label>
               <select
-                value={filterCity}
-                onChange={(e) => setFilterCity(e.target.value)}
+                value={filterCity || 'All'}
+                onChange={(e) => setFilterCity(e.target.value === 'All' ? null : e.target.value)}
                 className="w-full px-3 py-2.5 bg-[#F8F4ED] dark:bg-[#120A0E] border border-[#EDE6D9] dark:border-[#C9A84C]/10 rounded-xl text-xs text-gray-800 dark:text-[#FFFCF8] focus:outline-none"
               >
                 {cities.map((c) => <option key={c}>{c}</option>)}
               </select>
+            </div>
+            <div>
+              <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1.5">{t('profile-listing.age-min')}</label>
+              <input
+                type="number" min={18} max={ageMax} value={ageMin}
+                onChange={(e) => setAgeMin(Math.max(18, Math.min(Number(e.target.value), ageMax)))}
+                className="w-full px-3 py-2.5 bg-[#F8F4ED] dark:bg-[#120A0E] border border-[#EDE6D9] dark:border-[#C9A84C]/10 rounded-xl text-xs text-gray-800 dark:text-[#FFFCF8] focus:outline-none"
+              />
+            </div>
+            <div>
+              <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1.5">{t('profile-listing.age-max')}</label>
+              <input
+                type="number" min={ageMin} max={60} value={ageMax}
+                onChange={(e) => setAgeMax(Math.min(60, Math.max(Number(e.target.value), ageMin)))}
+                className="w-full px-3 py-2.5 bg-[#F8F4ED] dark:bg-[#120A0E] border border-[#EDE6D9] dark:border-[#C9A84C]/10 rounded-xl text-xs text-gray-800 dark:text-[#FFFCF8] focus:outline-none"
+              />
             </div>
           </div>
         )}
 
         {/* Intent chips */}
         <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar mb-5 justify-start sm:justify-center max-w-xl mx-auto">
+          <button
+            onClick={() => { setUsePreference(!usePreference); setFilterIntent(null); setFilterCity(null); setAgeMin(18); setAgeMax(60); }}
+            className={`px-3.5 py-1.5 rounded-xl text-[11px] font-bold shrink-0 transition-all cursor-pointer border ${
+              usePreference
+                ? 'bg-[#C9A84C] border-[#C9A84C] text-[#1A1118]'
+                : 'bg-white dark:bg-[#1A1118] border-[#EDE6D9] dark:border-[#C9A84C]/15 text-gray-600 dark:text-gray-400 hover:border-gray-300'
+            }`}
+          >
+            {t('profile-listing.my-preference')}
+          </button>
           {intents.map((intent) => (
             <button
               key={intent}
-              onClick={() => setFilterIntent(intent)}
+              onClick={() => { setFilterIntent(intent === 'All' ? null : intent); setUsePreference(false); }}
               className={`px-3.5 py-1.5 rounded-xl text-[11px] font-bold shrink-0 transition-all cursor-pointer border ${
-                filterIntent === intent
-                  ? 'bg-[#1A1118] dark:bg-[#8B0020] border-[#1A1118] dark:border-[#8B0020] text-white'
+                (intent === 'All' && filterIntent === null && !usePreference) || filterIntent === intent
+                  ? 'bg-[#1A1118] dark:bg-[#EB317A] border-[#1A1118] dark:border-[#EB317A] text-white'
                   : 'bg-white dark:bg-[#1A1118] border-[#EDE6D9] dark:border-[#C9A84C]/15 text-gray-600 dark:text-gray-400 hover:border-gray-300'
               }`}
             >
@@ -173,8 +205,8 @@ export default function ProfileListing({
             <h3 className="font-bold text-[#1A1118] dark:text-[#FFFCF8] text-lg">{t('profile-listing.no-results')}</h3>
             <p className="text-xs text-gray-500 mt-1">{t('profile-listing.no-results-desc')}</p>
             <button
-              onClick={() => { setSearchQuery(''); setFilterIntent('All'); setFilterCity('All'); }}
-              className="mt-4 px-4 py-2 bg-[#8B0020] hover:bg-[#B31B3A] text-white text-xs font-bold rounded-lg cursor-pointer transition-all"
+              onClick={() => { setSearchQuery(''); setFilterIntent(null); setFilterCity(null); setUsePreference(false); setAgeMin(18); setAgeMax(60); }}
+              className="mt-4 px-4 py-2 bg-[#EB317A] hover:bg-[#F04B8E] text-white text-xs font-bold rounded-lg cursor-pointer transition-all"
             >
               {t('profile-listing.clear-filters')}
             </button>
@@ -202,6 +234,7 @@ function ProfileListCard({
 }: ProfileListCardProps) {
   const isFemaleUser = userGender === 'Female';
   const { t } = useAppContext();
+  const blurred = useMemo(() => blurContactInfo(profile.contactInfo), [profile.contactInfo]);
 
   return (
     <div className="bg-white dark:bg-[#1A1118] rounded-2xl border border-[#EDE6D9] dark:border-[#C9A84C]/10 overflow-hidden shadow-sm hover:shadow-xl hover:border-[#C9A84C]/30 dark:hover:border-[#C9A84C]/20 transition-all duration-400 flex flex-col group">
@@ -247,14 +280,14 @@ function ProfileListCard({
               <div className="flex items-center gap-1 text-[10px] font-bold text-emerald-600 dark:text-emerald-400 mb-1">
                 <Sparkles className="h-3 w-3" /> {t('profile-listing.unlocked')}
               </div>
-              <a href={`tel:${profile.contactInfo.phone}`} className="flex items-center gap-1.5 text-[10px] text-gray-700 dark:text-gray-300 hover:text-[#8B0020] dark:hover:text-[#C9A84C] transition-colors">
-                <Phone className="h-3 w-3 text-[#8B0020] dark:text-[#C9A84C] shrink-0" />
+              <div className="flex items-center gap-1.5 text-[10px] text-gray-700 dark:text-gray-300">
+                <Phone className="h-3 w-3 text-[#EB317A] dark:text-[#C9A84C] shrink-0" />
                 <span className="truncate">{profile.contactInfo.phone}</span>
-              </a>
-              <a href={`https://t.me/${profile.contactInfo.telegram.replace('@', '')}`} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 text-[10px] text-gray-700 dark:text-gray-300 hover:text-[#8B0020] dark:hover:text-[#C9A84C] transition-colors">
-                <MessageCircle className="h-3 w-3 text-[#8B0020] dark:text-[#C9A84C] shrink-0" />
+              </div>
+              <div className="flex items-center gap-1.5 text-[10px] text-gray-700 dark:text-gray-300">
+                <MessageCircle className="h-3 w-3 text-[#EB317A] dark:text-[#C9A84C] shrink-0" />
                 <span className="truncate">{profile.contactInfo.telegram}</span>
-              </a>
+              </div>
             </div>
           ) : pending ? (
             <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700/30 rounded-xl px-2.5 py-2 text-[10px] text-amber-700 dark:text-amber-300 text-center">
@@ -262,26 +295,34 @@ function ProfileListCard({
               <p className="text-[9px] opacity-70 mt-0.5">TxID: {pending.transactionId}</p>
             </div>
           ) : (
-            <button
-              id={`see-contact-${profile.id}`}
-              onClick={() => onUnlockClick(profile)}
-              className="w-full py-2.5 rounded-xl font-bold text-[11px] flex items-center justify-center gap-1.5 cursor-pointer transition-all shadow-sm"
-              style={{
-                background: isFemaleUser
-                  ? 'linear-gradient(135deg, #059669, #10b981)'
-                  : 'linear-gradient(135deg, #8B0020, #B31B3A)',
-                color: 'white',
-                boxShadow: isFemaleUser ? '0 4px 12px rgba(5,150,105,0.25)' : '0 4px 12px rgba(139,0,32,0.25)',
-              }}
-            >
-              <Lock className="h-3 w-3" />
-              {t('profile-card.see-contact')}
-              {isFemaleUser ? (
+            <div className="space-y-2">
+              <div className="space-y-1 bg-[#F8F4ED] dark:bg-[#120A0E] rounded-xl p-2.5 border border-[#EDE6D9] dark:border-[#C9A84C]/10">
+                <div className="flex items-center gap-1.5 text-[10px] text-gray-700 dark:text-gray-300">
+                  <Phone className="h-3 w-3 text-[#EB317A] dark:text-[#C9A84C] shrink-0" />
+                  <span className="truncate">{blurred.phone}</span>
+                </div>
+                <div className="flex items-center gap-1.5 text-[10px] text-gray-700 dark:text-gray-300">
+                  <MessageCircle className="h-3 w-3 text-[#EB317A] dark:text-[#C9A84C] shrink-0" />
+                  <span className="truncate">{blurred.telegram}</span>
+                </div>
+              </div>
+              <button
+                id={`see-contact-${profile.id}`}
+                onClick={() => onUnlockClick(profile)}
+                className="w-full py-2 rounded-xl font-bold text-[11px] flex items-center justify-center gap-1.5 cursor-pointer transition-all shadow-sm"
+                style={{
+                  background: isFemaleUser
+                    ? 'linear-gradient(135deg, #059669, #10b981)'
+                    : 'linear-gradient(135deg, #EB317A, #F04B8E)',
+                  color: 'white',
+                  boxShadow: isFemaleUser ? '0 4px 12px rgba(5,150,105,0.25)' : '0 4px 12px rgba(139,0,32,0.25)',
+                }}
+              >
+                <Lock className="h-3 w-3" />
+                {t('profile-card.see-contact')}
                 <span className="text-[8px] bg-white/20 px-1 py-0.5 rounded-md font-extrabold">{t('profile-listing.free')}</span>
-              ) : (
-                <span className="text-[8px] bg-white/20 px-1 py-0.5 rounded-md font-extrabold">200 ETB</span>
-              )}
-            </button>
+              </button>
+            </div>
           )}
         </div>
       </div>

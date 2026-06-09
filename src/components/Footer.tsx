@@ -15,18 +15,15 @@ export default function Footer({ setCurrentView, isLoggedIn }: FooterProps) {
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
 
           <div className="col-span-2 lg:col-span-1">
-            <span className="flex items-center gap-2 text-lg font-black text-[#FFFCF8]">
-              <div className="bg-[#8B0020] p-1 rounded-lg">
-                <Heart className="h-4 w-4 text-[#C9A84C] fill-[#C9A84C]" />
-              </div>
-              Whaatachi
+            <span className="flex items-center gap-2">
+              <img src="/assets/logos.png" alt="Whaatachi" className="h-8 w-auto" />
             </span>
             <p className="text-xs mt-3 leading-relaxed max-w-xs">
               {t('footer.desc')}
             </p>
-            <div className="flex items-center gap-1.5 mt-4 text-[10px] text-[#C9A84C]/70 bg-[#C9A84C]/5 border border-[#C9A84C]/20 px-3 py-1.5 rounded-lg">
+            <div className="flex items-center gap-1.5 mt-4 text-[10px] text-[#EB317A]/70 bg-[#EB317A]/5 border border-[#EB317A]/20 px-3 py-1.5 rounded-lg">
               <ShieldCheck className="h-3.5 w-3.5 shrink-0" />
-              <span>{t('footer.pricing-badge')}</span>
+              <span>{t('footer.safety')}</span>
             </div>
           </div>
 

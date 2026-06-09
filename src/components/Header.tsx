@@ -59,12 +59,8 @@ export default function Header({
 
             {/* Logo */}
             <button onClick={() => handleNav('home')} className="flex items-center gap-2 cursor-pointer">
-              <div className="bg-[#8B0020] p-1.5 rounded-lg">
-                <Heart className="h-4.5 w-4.5 sm:h-5 sm:w-5 text-[#C9A84C] fill-[#C9A84C]" />
-              </div>
-              <span className="text-base sm:text-lg font-black text-[#FFFCF8] tracking-tight">
-                Whaatachi
-              </span>
+              <img src="/assets/logos.png" alt="Whaatachi" className="h-14 sm:h-16 w-auto" />
+              
             </button>
 
             {/* Desktop Nav */}
@@ -98,7 +94,7 @@ export default function Header({
                     {currentUser?.image ? (
                       <img src={currentUser.image} alt="" className="w-7 h-7 rounded-full object-cover border border-[#C9A84C]/30" referrerPolicy="no-referrer" />
                     ) : (
-                      <div className="w-7 h-7 rounded-full bg-[#8B0020] text-[#C9A84C] flex items-center justify-center font-bold text-xs">
+                      <div className="w-7 h-7 rounded-full bg-[#EB317A] text-[#C9A84C] flex items-center justify-center font-bold text-xs">
                         {userInitial}
                       </div>
                     )}
@@ -110,7 +106,7 @@ export default function Header({
                   </button>
                 </div>
               ) : (
-                <button onClick={() => onOpenAuth?.('register')} className="px-5 py-2 bg-[#8B0020] hover:bg-[#B31B3A] text-white text-sm font-bold rounded-lg transition-all cursor-pointer flex items-center gap-1.5 shadow-lg shadow-[#8B0020]/20">
+                <button onClick={() => onOpenAuth?.('register')} className="px-5 py-2 bg-[#EB317A] hover:bg-[#F04B8E] text-white text-sm font-bold rounded-lg transition-all cursor-pointer flex items-center gap-1.5 shadow-lg shadow-[#EB317A]/20">
                   <Crown className="h-4 w-4" />
                   {t('nav.create-profile')}
                 </button>
@@ -184,7 +180,7 @@ export default function Header({
                 {currentUser.image ? (
                   <img src={currentUser.image} alt="" className="w-12 h-12 rounded-full object-cover border-2 border-[#C9A84C]/30" referrerPolicy="no-referrer" />
                 ) : (
-                  <div className="w-12 h-12 rounded-full bg-[#8B0020] text-[#C9A84C] flex items-center justify-center font-bold text-lg">
+                  <div className="w-12 h-12 rounded-full bg-[#EB317A] text-[#C9A84C] flex items-center justify-center font-bold text-lg">
                     {userInitial}
                   </div>
                 )}
@@ -197,7 +193,7 @@ export default function Header({
             ) : (
               <div className="mb-6 p-4 bg-[#1A1118] rounded-2xl border border-[#C9A84C]/10 text-center">
                 <p className="text-xs text-[#EDE6D9]/60 mb-3">{t('dashboard.sign-in-hint')}</p>
-                <button onClick={() => { setIsOpen(false); onOpenAuth?.('register'); }} className="w-full py-3 bg-[#8B0020] hover:bg-[#B31B3A] text-white text-sm font-bold rounded-xl transition-all cursor-pointer flex items-center justify-center gap-2">
+                <button onClick={() => { setIsOpen(false); onOpenAuth?.('register'); }} className="w-full py-3 bg-[#EB317A] hover:bg-[#F04B8E] text-white text-sm font-bold rounded-xl transition-all cursor-pointer flex items-center justify-center gap-2">
                   <Crown className="h-4 w-4" />
                   {t('nav.create-profile')}
                 </button>
@@ -228,7 +224,7 @@ export default function Header({
             {/* Logout */}
             {isLoggedIn && (
               <div className="mt-6 pt-4 border-t border-[#C9A84C]/10">
-                <button onClick={() => { setIsLoggedIn(false); setIsOpen(false); setCurrentView('home'); }} className="w-full py-3 rounded-xl text-sm font-bold text-[#8B0020] hover:bg-[#8B0020]/10 transition-all cursor-pointer flex items-center justify-center gap-2">
+                <button onClick={() => { setIsLoggedIn(false); setIsOpen(false); setCurrentView('home'); }} className="w-full py-3 rounded-xl text-sm font-bold text-[#EB317A] hover:bg-[#EB317A]/10 transition-all cursor-pointer flex items-center justify-center gap-2">
                   <LogOut className="h-4 w-4" />
                   {t('nav.sign-out')}
                 </button>

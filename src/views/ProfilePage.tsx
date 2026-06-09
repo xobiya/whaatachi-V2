@@ -1,7 +1,8 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useMemo } from 'react';
 import { ArrowLeft, MapPin, ShieldCheck, Phone, MessageCircle, Instagram, Mail, Lock, Sparkles, Star, Crown, Heart, Edit3, Check, X, Plus, User, Camera, Calendar } from 'lucide-react';
 import { Profile, PaymentRequest } from '../types';
 import { useAppContext } from '../context/AppContext';
+import { blurContactInfo } from '../utils/contactBlur';
 
 const ALL_INTERESTS = [
   'Coffee Ceremony', 'Macchiato', 'Technology', 'Literature', 'Jazz', 'Hiking',
@@ -40,6 +41,7 @@ interface ProfilePageProps {
 export default function ProfilePage({ profile, isUnlocked, pendingPayment, userGender, isOwnProfile, onBack, onUnlockClick, onSaveProfile }: ProfilePageProps) {
   const { t } = useAppContext();
   const [editing, setEditing] = useState(false);
+  const blurred = useMemo(() => blurContactInfo(profile.contactInfo), [profile.contactInfo]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Form states to edit the WHOLE data
@@ -125,10 +127,10 @@ export default function ProfilePage({ profile, isUnlocked, pendingPayment, userG
     <div className="bg-[#FFFCF8] dark:bg-[#120A0E] min-h-screen transition-colors duration-200 pb-20">
       
       {/* Premium Header Grid/Cover Background */}
-      <div className="relative bg-gradient-to-b from-[#8B0020]/20 via-[#C9A84C]/10 to-[#FFFCF8] dark:from-[#8B0020]/40 dark:via-[#8B0020]/15 dark:to-[#120A0E] h-28 sm:h-36 flex items-center justify-between px-4 sm:px-6 border-b border-[#EDE6D9] dark:border-[#C9A84C]/10">
+      <div className="relative bg-gradient-to-b from-[#EB317A]/20 via-[#C9A84C]/10 to-[#FFFCF8] dark:from-[#EB317A]/40 dark:via-[#EB317A]/15 dark:to-[#120A0E] h-28 sm:h-36 flex items-center justify-between px-4 sm:px-6 border-b border-[#EDE6D9] dark:border-[#C9A84C]/10">
         <button 
           onClick={onBack} 
-          className="p-2 bg-[#1A1118] border border-[#C9A84C]/30 rounded-full text-[#C9A84C] hover:bg-[#8B0020] hover:text-white transition-all cursor-pointer shadow-lg"
+          className="p-2 bg-[#1A1118] border border-[#C9A84C]/30 rounded-full text-[#C9A84C] hover:bg-[#EB317A] hover:text-white transition-all cursor-pointer shadow-lg"
         >
           <ArrowLeft className="h-4.5 w-4.5 sm:h-5 sm:w-5" />
         </button>
@@ -136,7 +138,7 @@ export default function ProfilePage({ profile, isUnlocked, pendingPayment, userG
         {isOwnProfile && !editing && (
           <button 
             onClick={() => setEditing(true)} 
-            className="flex items-center gap-1.5 px-3 py-1.5 sm:px-4 sm:py-2 bg-[#8B0020] hover:bg-[#B31B3A] text-white font-extrabold text-[10px] sm:text-xs rounded-xl shadow-md transition-all cursor-pointer border border-[#C9A84C]/20"
+            className="flex items-center gap-1.5 px-3 py-1.5 sm:px-4 sm:py-2 bg-[#EB317A] hover:bg-[#F04B8E] text-white font-extrabold text-[10px] sm:text-xs rounded-xl shadow-md transition-all cursor-pointer border border-[#C9A84C]/20"
           >
             <Edit3 className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
             <span>{t('profile.edit-profile')}</span>
@@ -188,14 +190,14 @@ export default function ProfilePage({ profile, isUnlocked, pendingPayment, userG
                   type="text" 
                   value={editName} 
                   onChange={(e) => setEditName(e.target.value)} 
-                  className="text-center text-lg sm:text-xl font-black border-b border-[#8B0020] dark:border-[#C9A84C] bg-transparent text-[#1A1118] dark:text-[#FFFCF8] focus:outline-hidden max-w-[160px] sm:max-w-[200px]"
+                  className="text-center text-lg sm:text-xl font-black border-b border-[#EB317A] dark:border-[#C9A84C] bg-transparent text-[#1A1118] dark:text-[#FFFCF8] focus:outline-hidden max-w-[160px] sm:max-w-[200px]"
                   placeholder="Your Name"
                 />
                 <input 
                   type="number" 
                   value={editAge} 
                   onChange={(e) => setEditAge(Number(e.target.value))} 
-                  className="text-center text-lg sm:text-xl font-black border-b border-[#8B0020] dark:border-[#C9A84C] bg-transparent text-[#1A1118] dark:text-[#FFFCF8] focus:outline-hidden max-w-[50px] sm:max-w-[60px]"
+                  className="text-center text-lg sm:text-xl font-black border-b border-[#EB317A] dark:border-[#C9A84C] bg-transparent text-[#1A1118] dark:text-[#FFFCF8] focus:outline-hidden max-w-[50px] sm:max-w-[60px]"
                   placeholder="Age"
                 />
               </div>
@@ -210,7 +212,7 @@ export default function ProfilePage({ profile, isUnlocked, pendingPayment, userG
 
             {editing ? (
               <div className="flex items-center justify-center gap-2 text-[10px] sm:text-xs">
-                <MapPin className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-[#8B0020] dark:text-[#C9A84C]" />
+                <MapPin className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-[#EB317A] dark:text-[#C9A84C]" />
                 <select 
                   value={editCity} 
                   onChange={(e) => setEditCity(e.target.value)} 
@@ -222,13 +224,13 @@ export default function ProfilePage({ profile, isUnlocked, pendingPayment, userG
               </div>
             ) : (
               <p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 flex items-center justify-center gap-1">
-                <MapPin className="h-3 w-3 sm:h-4 sm:w-4 text-[#8B0020] dark:text-[#C9A84C]" />
+                <MapPin className="h-3 w-3 sm:h-4 sm:w-4 text-[#EB317A] dark:text-[#C9A84C]" />
                 <span>{profile.city}, Ethiopia</span>
               </p>
             )}
 
             {!editing && (
-              <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#8B0020]/5 dark:bg-[#8B0020]/15 text-[#8B0020] dark:text-[#C9A84C] text-[9px] sm:text-[10px] font-bold uppercase tracking-wider">
+              <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#EB317A]/5 dark:bg-[#EB317A]/15 text-[#EB317A] dark:text-[#C9A84C] text-[9px] sm:text-[10px] font-bold uppercase tracking-wider">
                 <Star className="h-2.5 w-2.5 sm:h-3 sm:w-3 fill-current" />
                 <span>{profile.status}</span>
               </div>
@@ -240,7 +242,7 @@ export default function ProfilePage({ profile, isUnlocked, pendingPayment, userG
         {editing && (
           <div className="bg-white dark:bg-[#1A1118] border border-[#EDE6D9] dark:border-[#C9A84C]/10 rounded-2xl p-4 sm:p-5 shadow-sm space-y-3 sm:space-y-4">
             <h3 className="text-xs font-bold text-[#1A1118] dark:text-[#FFFCF8] uppercase tracking-wider flex items-center gap-1.5">
-              <Camera className="h-4 w-4 text-[#8B0020] dark:text-[#C9A84C]" />
+              <Camera className="h-4 w-4 text-[#EB317A] dark:text-[#C9A84C]" />
               <span>{t('profile.change-photo')}</span>
             </h3>
             
@@ -250,7 +252,7 @@ export default function ProfilePage({ profile, isUnlocked, pendingPayment, userG
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
-                  className="px-4 py-2.5 bg-[#F8F4ED] dark:bg-[#120A0E] border border-[#EDE6D9] dark:border-[#C9A84C]/15 rounded-xl text-xs font-bold text-gray-700 dark:text-[#FFFCF8] hover:border-[#8B0020] dark:hover:border-[#C9A84C] transition-all cursor-pointer flex items-center gap-1.5"
+                  className="px-4 py-2.5 bg-[#F8F4ED] dark:bg-[#120A0E] border border-[#EDE6D9] dark:border-[#C9A84C]/15 rounded-xl text-xs font-bold text-gray-700 dark:text-[#FFFCF8] hover:border-[#EB317A] dark:hover:border-[#C9A84C] transition-all cursor-pointer flex items-center gap-1.5"
                 >
                   <Camera className="h-4 w-4" />
                   {t('profile.select-file')}
@@ -264,7 +266,7 @@ export default function ProfilePage({ profile, isUnlocked, pendingPayment, userG
         {editing && (
           <div className="bg-white dark:bg-[#1A1118] border border-[#EDE6D9] dark:border-[#C9A84C]/10 rounded-2xl p-4 sm:p-5 shadow-sm space-y-3 sm:space-y-4">
             <h3 className="text-xs font-bold text-[#1A1118] dark:text-[#FFFCF8] uppercase tracking-wider flex items-center gap-1.5">
-              <Crown className="h-4 w-4 text-[#8B0020] dark:text-[#C9A84C]" />
+              <Crown className="h-4 w-4 text-[#EB317A] dark:text-[#C9A84C]" />
               <span>{t('profile.basic-settings')}</span>
             </h3>
 
@@ -330,7 +332,7 @@ export default function ProfilePage({ profile, isUnlocked, pendingPayment, userG
         {/* Bio card */}
         <div className="bg-white dark:bg-[#1A1118] border border-[#EDE6D9] dark:border-[#C9A84C]/10 rounded-2xl p-4 sm:p-5 shadow-sm space-y-2.5 sm:space-y-3">
           <div className="flex items-center gap-2 border-b border-[#EDE6D9] dark:border-[#C9A84C]/5 pb-2">
-            <Heart className="h-4.5 w-4.5 text-[#8B0020] dark:text-[#C9A84C]" />
+            <Heart className="h-4.5 w-4.5 text-[#EB317A] dark:text-[#C9A84C]" />
             <h2 className="text-xs font-bold text-[#1A1118] dark:text-[#FFFCF8] uppercase tracking-wider">{t('profile.about')}</h2>
           </div>
           {editing ? (
@@ -338,7 +340,7 @@ export default function ProfilePage({ profile, isUnlocked, pendingPayment, userG
               value={editBio} 
               onChange={(e) => setEditBio(e.target.value)} 
               rows={3} 
-              className="w-full border border-[#EDE6D9] dark:border-[#C9A84C]/15 rounded-xl p-2.5 sm:p-3 bg-[#F8F4ED]/50 dark:bg-[#120A0E] text-[11px] sm:text-xs text-gray-800 dark:text-[#FFFCF8] focus:outline-hidden focus:border-[#8B0020] dark:focus:border-[#C9A84C] resize-none"
+              className="w-full border border-[#EDE6D9] dark:border-[#C9A84C]/15 rounded-xl p-2.5 sm:p-3 bg-[#F8F4ED]/50 dark:bg-[#120A0E] text-[11px] sm:text-xs text-gray-800 dark:text-[#FFFCF8] focus:outline-hidden focus:border-[#EB317A] dark:focus:border-[#C9A84C] resize-none"
               placeholder="Tell other members about yourself..."
             />
           ) : (
@@ -352,7 +354,7 @@ export default function ProfilePage({ profile, isUnlocked, pendingPayment, userG
             <div className="flex flex-wrap items-center gap-3 border-b border-[#EDE6D9] dark:border-[#C9A84C]/5 pb-3">
               <span className={`inline-block text-[10px] font-extrabold px-3 py-1 rounded-full border uppercase ${
                 profile.relationshipIntent === 'True Relationship'
-                  ? 'bg-[#8B0020]/5 dark:bg-[#8B0020]/15 text-[#8B0020] dark:text-[#C9A84C] border-[#8B0020]/20 dark:border-[#C9A84C]/30'
+                  ? 'bg-[#EB317A]/5 dark:bg-[#EB317A]/15 text-[#EB317A] dark:text-[#C9A84C] border-[#EB317A]/20 dark:border-[#C9A84C]/30'
                   : profile.relationshipIntent === 'Friendship'
                     ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 border-blue-200 dark:border-blue-800'
                     : 'bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700'
@@ -373,7 +375,7 @@ export default function ProfilePage({ profile, isUnlocked, pendingPayment, userG
               <div className="space-y-3">
                 <div className="flex flex-wrap gap-1.5">
                   {editInterests.map((interest, idx) => (
-                    <span key={idx} className="bg-[#8B0020]/10 dark:bg-[#8B0020]/30 text-[#8B0020] dark:text-[#C9A84C] text-[10px] px-2.5 py-1 rounded-full border border-[#8B0020]/30 dark:border-[#C9A84C]/40 flex items-center gap-1">
+                    <span key={idx} className="bg-[#EB317A]/10 dark:bg-[#EB317A]/30 text-[#EB317A] dark:text-[#C9A84C] text-[10px] px-2.5 py-1 rounded-full border border-[#EB317A]/30 dark:border-[#C9A84C]/40 flex items-center gap-1">
                       {interest}
                       <button onClick={() => setEditInterests(editInterests.filter(i => i !== interest))} className="hover:scale-110 transition-transform cursor-pointer">
                         <X className="h-3 w-3" />
@@ -385,7 +387,7 @@ export default function ProfilePage({ profile, isUnlocked, pendingPayment, userG
                   <p className="text-[10px] text-gray-400 dark:text-gray-500 font-bold mb-1.5">{t('profile.select-add-interests')}</p>
                   <div className="flex flex-wrap gap-1.5 max-h-[120px] overflow-y-auto p-1 bg-[#F8F4ED]/30 dark:bg-[#120A0E]/30 rounded-xl border border-[#EDE6D9]/50 dark:border-transparent">
                     {ALL_INTERESTS.filter(i => !editInterests.includes(i)).map((interest) => (
-                      <button key={interest} onClick={() => toggleEditInterest(interest)} className="bg-[#F8F4ED] dark:bg-[#120A0E] text-gray-500 dark:text-gray-400 hover:text-[#8B0020] dark:hover:text-[#C9A84C] text-[10.5px] px-2.5 py-1 rounded-full border border-[#EDE6D9] dark:border-[#C9A84C]/10 hover:border-[#8B0020]/30 dark:hover:border-[#C9A84C]/40 transition-colors cursor-pointer">
+                      <button key={interest} onClick={() => toggleEditInterest(interest)} className="bg-[#F8F4ED] dark:bg-[#120A0E] text-gray-500 dark:text-gray-400 hover:text-[#EB317A] dark:hover:text-[#C9A84C] text-[10.5px] px-2.5 py-1 rounded-full border border-[#EDE6D9] dark:border-[#C9A84C]/10 hover:border-[#EB317A]/30 dark:hover:border-[#C9A84C]/40 transition-colors cursor-pointer">
                         <Plus className="h-3 w-3 inline mr-0.5" />
                         {interest}
                       </button>
@@ -408,7 +410,7 @@ export default function ProfilePage({ profile, isUnlocked, pendingPayment, userG
         {/* Contact info card */}
         <div className="bg-white dark:bg-[#1A1118] border border-[#EDE6D9] dark:border-[#C9A84C]/10 rounded-2xl p-4 sm:p-5 shadow-sm space-y-3 sm:space-y-4">
           <div className="flex items-center gap-2 border-b border-[#EDE6D9] dark:border-[#C9A84C]/5 pb-2">
-            <Crown className="h-4.5 w-4.5 text-[#8B0020] dark:text-[#C9A84C]" />
+            <Crown className="h-4.5 w-4.5 text-[#EB317A] dark:text-[#C9A84C]" />
             <h2 className="text-xs font-bold text-[#1A1118] dark:text-[#FFFCF8] uppercase tracking-wider">{t('profile.contact-info')}</h2>
           </div>
 
@@ -422,7 +424,7 @@ export default function ProfilePage({ profile, isUnlocked, pendingPayment, userG
                       type="text" 
                       value={editPhone} 
                       onChange={(e) => setEditPhone(e.target.value)} 
-                      className="w-full text-[11px] sm:text-xs pl-9 sm:pl-10 pr-3 sm:pr-4 py-2.5 sm:py-3 border border-[#EDE6D9] dark:border-[#C9A84C]/15 rounded-xl bg-white dark:bg-[#1A1118] text-gray-800 dark:text-[#FFFCF8] focus:outline-hidden focus:border-[#8B0020] dark:focus:border-[#C9A84C]"
+                      className="w-full text-[11px] sm:text-xs pl-9 sm:pl-10 pr-3 sm:pr-4 py-2.5 sm:py-3 border border-[#EDE6D9] dark:border-[#C9A84C]/15 rounded-xl bg-white dark:bg-[#1A1118] text-gray-800 dark:text-[#FFFCF8] focus:outline-hidden focus:border-[#EB317A] dark:focus:border-[#C9A84C]"
                       placeholder="e.g. 0911223344"
                     />
                   </div>
@@ -436,7 +438,7 @@ export default function ProfilePage({ profile, isUnlocked, pendingPayment, userG
                       type="text" 
                       value={editTelegram} 
                       onChange={(e) => setEditTelegram(e.target.value)} 
-                      className="w-full text-[11px] sm:text-xs pl-9 sm:pl-10 pr-3 sm:pr-4 py-2.5 sm:py-3 border border-[#EDE6D9] dark:border-[#C9A84C]/15 rounded-xl bg-white dark:bg-[#1A1118] text-gray-800 dark:text-[#FFFCF8] focus:outline-hidden focus:border-[#8B0020] dark:focus:border-[#C9A84C]"
+                      className="w-full text-[11px] sm:text-xs pl-9 sm:pl-10 pr-3 sm:pr-4 py-2.5 sm:py-3 border border-[#EDE6D9] dark:border-[#C9A84C]/15 rounded-xl bg-white dark:bg-[#1A1118] text-gray-800 dark:text-[#FFFCF8] focus:outline-hidden focus:border-[#EB317A] dark:focus:border-[#C9A84C]"
                       placeholder="e.g. @telegramhandle"
                     />
                   </div>
@@ -450,7 +452,7 @@ export default function ProfilePage({ profile, isUnlocked, pendingPayment, userG
                       type="text" 
                       value={editInstagram} 
                       onChange={(e) => setEditInstagram(e.target.value)} 
-                      className="w-full text-[11px] sm:text-xs pl-9 sm:pl-10 pr-3 sm:pr-4 py-2.5 sm:py-3 border border-[#EDE6D9] dark:border-[#C9A84C]/15 rounded-xl bg-white dark:bg-[#1A1118] text-gray-800 dark:text-[#FFFCF8] focus:outline-hidden focus:border-[#8B0020] dark:focus:border-[#C9A84C]"
+                      className="w-full text-[11px] sm:text-xs pl-9 sm:pl-10 pr-3 sm:pr-4 py-2.5 sm:py-3 border border-[#EDE6D9] dark:border-[#C9A84C]/15 rounded-xl bg-white dark:bg-[#1A1118] text-gray-800 dark:text-[#FFFCF8] focus:outline-hidden focus:border-[#EB317A] dark:focus:border-[#C9A84C]"
                       placeholder="e.g. @instahandle"
                     />
                   </div>
@@ -464,7 +466,7 @@ export default function ProfilePage({ profile, isUnlocked, pendingPayment, userG
                       type="email" 
                       value={editEmail} 
                       onChange={(e) => setEditEmail(e.target.value)} 
-                      className="w-full text-[11px] sm:text-xs pl-9 sm:pl-10 pr-3 sm:pr-4 py-2.5 sm:py-3 border border-[#EDE6D9] dark:border-[#C9A84C]/15 rounded-xl bg-white dark:bg-[#1A1118] text-gray-800 dark:[#FFFCF8] focus:outline-hidden focus:border-[#8B0020] dark:focus:border-[#C9A84C]"
+                      className="w-full text-[11px] sm:text-xs pl-9 sm:pl-10 pr-3 sm:pr-4 py-2.5 sm:py-3 border border-[#EDE6D9] dark:border-[#C9A84C]/15 rounded-xl bg-white dark:bg-[#1A1118] text-gray-800 dark:[#FFFCF8] focus:outline-hidden focus:border-[#EB317A] dark:focus:border-[#C9A84C]"
                       placeholder="e.g. email@example.com"
                     />
                   </div>
@@ -478,7 +480,7 @@ export default function ProfilePage({ profile, isUnlocked, pendingPayment, userG
                 </div>
                 <div>
                   <p className="text-[9px] text-gray-400 dark:text-gray-500 font-bold uppercase tracking-widest">{t('profile.phone')}</p>
-                  <a href={`tel:${profile.contactInfo.phone}`} className="font-bold text-gray-800 dark:text-[#FFFCF8] text-xs sm:text-sm hover:underline">{profile.contactInfo.phone}</a>
+                  <p className="font-bold text-gray-800 dark:text-[#FFFCF8] text-xs sm:text-sm blur-sm select-none">{blurred.phone}</p>
                 </div>
               </div>
 
@@ -488,18 +490,18 @@ export default function ProfilePage({ profile, isUnlocked, pendingPayment, userG
                 </div>
                 <div>
                   <p className="text-[9px] text-gray-400 dark:text-gray-500 font-bold uppercase tracking-widest">{t('profile.telegram')}</p>
-                  <a href={`https://t.me/${profile.contactInfo.telegram.replace('@', '')}`} target="_blank" rel="noreferrer" className="font-bold text-sky-600 dark:text-sky-400 text-xs sm:text-sm hover:underline">{profile.contactInfo.telegram}</a>
+                  <p className="font-bold text-sky-600 dark:text-sky-400 text-xs sm:text-sm blur-sm select-none">{blurred.telegram}</p>
                 </div>
               </div>
 
               {profile.contactInfo.instagram && (
                 <div className="flex items-center gap-3 p-3 bg-[#F8F4ED] dark:bg-[#120A0E] border border-[#EDE6D9] dark:border-[#C9A84C]/10 rounded-xl">
-                  <div className="bg-[#8B0020]/10 dark:bg-[#8B0020]/30 text-[#8B0020] dark:text-[#C9A84C] p-2 rounded-lg shrink-0">
+                  <div className="bg-[#EB317A]/10 dark:bg-[#EB317A]/30 text-[#EB317A] dark:text-[#C9A84C] p-2 rounded-lg shrink-0">
                     <Instagram className="h-4 w-4" />
                   </div>
                   <div>
                     <p className="text-[9px] text-gray-400 dark:text-gray-500 font-bold uppercase tracking-widest">{t('profile.instagram')}</p>
-                    <a href={`https://instagram.com/${profile.contactInfo.instagram.replace('@', '')}`} target="_blank" rel="noreferrer" className="font-bold text-[#8B0020] dark:text-[#C9A84C] text-xs sm:text-sm hover:underline">{profile.contactInfo.instagram}</a>
+                    <p className="font-bold text-[#EB317A] dark:text-[#C9A84C] text-xs sm:text-sm blur-sm select-none">{blurred.instagram}</p>
                   </div>
                 </div>
               )}
@@ -510,7 +512,7 @@ export default function ProfilePage({ profile, isUnlocked, pendingPayment, userG
                 </div>
                 <div>
                   <p className="text-[9px] text-gray-400 dark:text-gray-500 font-bold uppercase tracking-widest">{t('profile.email')}</p>
-                  <a href={`mailto:${profile.contactInfo.email}`} className="font-bold text-gray-800 dark:text-[#FFFCF8] text-xs sm:text-sm truncate hover:underline">{profile.contactInfo.email}</a>
+                  <p className="font-bold text-gray-800 dark:text-[#FFFCF8] text-xs sm:text-sm truncate blur-sm select-none">{blurred.email}</p>
                 </div>
               </div>
             </div>
@@ -522,19 +524,18 @@ export default function ProfilePage({ profile, isUnlocked, pendingPayment, userG
           ) : (
             <div className="text-center space-y-3 sm:space-y-4">
               <div className="bg-[#F8F4ED] dark:bg-[#120A0E] border border-[#EDE6D9] dark:border-[#C9A84C]/10 rounded-xl p-4 sm:p-6">
-                <Lock className="h-8 w-8 sm:h-10 sm:w-10 text-[#8B0020] dark:text-[#C9A84C] mx-auto mb-2 sm:mb-3 animate-bounce" />
+                <Lock className="h-8 w-8 sm:h-10 sm:w-10 text-[#EB317A] dark:text-[#C9A84C] mx-auto mb-2 sm:mb-3 animate-bounce" />
                 <p className="text-xs sm:text-sm font-bold text-[#1A1118] dark:text-[#FFFCF8]">{t('profile.contact-locked')}</p>
                 <p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 mt-1 font-light">{t('profile.contact-locked-desc')}</p>
               </div>
               
               <button
                 onClick={() => onUnlockClick(profile)}
-                className="w-full py-3 sm:py-3.5 bg-[#8B0020] hover:bg-[#B31B3A] text-white font-extrabold text-[10px] sm:text-xs rounded-xl shadow-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-[#8B0020]/20"
+                className="w-full py-3 sm:py-3.5 bg-[#EB317A] hover:bg-[#F04B8E] text-white font-extrabold text-[10px] sm:text-xs rounded-xl shadow-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-[#EB317A]/20"
               >
                 <Lock className="h-4 w-4" />
                 <span>{t('profile.see-contact-btn')}</span>
-                {userGender === 'Male' && <span className="text-[9px] bg-white/20 px-1.5 py-0.5 rounded-md font-extrabold ml-1">200 ETB</span>}
-                {userGender === 'Female' && <span className="text-[9px] bg-emerald-400/30 px-1.5 py-0.5 rounded-md font-extrabold ml-1">{t('profile.free-badge')}</span>}
+                <span className="text-[9px] bg-white/20 px-1.5 py-0.5 rounded-md font-extrabold ml-1">{t('profile.free-badge')}</span>
               </button>
             </div>
           )}
@@ -556,7 +557,7 @@ export default function ProfilePage({ profile, isUnlocked, pendingPayment, userG
           <button 
             type="button"
             onClick={handleSave} 
-            className="flex-1 py-3 bg-[#8B0020] hover:bg-[#B31B3A] text-white font-extrabold text-xs rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1.5 shadow-md shadow-[#8B0020]/15"
+            className="flex-1 py-3 bg-[#EB317A] hover:bg-[#F04B8E] text-white font-extrabold text-xs rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1.5 shadow-md shadow-[#EB317A]/15"
           >
             <Check className="h-4 w-4" />
             {t('profile.save-profile')}
