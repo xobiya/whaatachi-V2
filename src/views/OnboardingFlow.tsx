@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Heart, Users, ArrowRight, ArrowLeft, User, Phone, MessageCircle, Instagram, MapPin, Camera, Check, LogIn, UserPlus } from 'lucide-react';
 import { Profile } from '../types';
 import { useAppContext } from '../context/AppContext';
@@ -48,7 +48,8 @@ interface RegFormData {
 
 interface OnboardingFlowProps {
   onComplete: (profile: Profile) => void;
-  onSignIn: (name: string, phone: string) => void;
+  onSignIn: (name: string, phone: string) => boolean;
+  authIntent?: 'register' | 'signin';
 }
 
 const INTENT_OPTIONS: { value: Intent; emoji: string; desc: string }[] = [
@@ -60,12 +61,18 @@ const INTENT_OPTIONS: { value: Intent; emoji: string; desc: string }[] = [
 
 const STEP_LABEL_KEYS = ['onboarding.step1-title', 'onboarding.step2-title', 'onboarding.step3-title'];
 
-export default function OnboardingFlow({ onComplete, onSignIn }: OnboardingFlowProps) {
+export default function OnboardingFlow({ onComplete, onSignIn, authIntent }: OnboardingFlowProps) {
   // Sign-in state
   const [showSignIn, setShowSignIn] = useState(false);
   const [signInName, setSignInName] = useState('');
   const [signInPhone, setSignInPhone] = useState('');
   const [signInError, setSignInError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (authIntent === 'signin') {
+      setShowSignIn(true);
+    }
+  }, [authIntent]);
 
   const handleSignInSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -74,7 +81,10 @@ export default function OnboardingFlow({ onComplete, onSignIn }: OnboardingFlowP
       setSignInError(t('auth.required-name-signin'));
       return;
     }
-    onSignIn(signInName.trim(), signInPhone.trim());
+    const success = onSignIn(signInName.trim(), signInPhone.trim());
+    if (!success) {
+      setSignInError(t('app.notify.no-account'));
+    }
   };
 
   // Registration wizard
@@ -180,7 +190,7 @@ export default function OnboardingFlow({ onComplete, onSignIn }: OnboardingFlowP
             <p className="text-xs text-[#EDE6D9]/50 mb-5">{t('auth.sign-in-desc')}</p>
           </div>
           {signInError && (
-            <div className="mb-4 p-3 rounded-xl bg-[#8B0020]/10 border border-[#8B0020]/30 text-[#F0D4D4] text-xs">{signInError}</div>
+            <div className="mb-4 p-3 rounded-xl bg-pink-500/10 border border-pink-400/30 text-pink-300 text-xs">{signInError}</div>
           )}
           <form onSubmit={handleSignInSubmit} className="space-y-3.5">
             <div className="space-y-1">

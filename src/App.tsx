@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, Suspense, lazy } from 'react';
+import React, { useEffect, useMemo, Suspense, lazy, useState } from 'react';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import PaymentModal from './components/PaymentModal';
@@ -19,6 +19,7 @@ import { AppProvider, useAppContext } from './context/AppContext';
 
 function AppContent() {
   const { state, dispatch, t } = useAppContext();
+  const [authIntent, setAuthIntent] = useState<'register' | 'signin'>('register');
 
   // Check location on load and handle direct routing pathways
   useEffect(() => {
@@ -181,7 +182,7 @@ function AppContent() {
   };
 
   // 6. Quick sign-in (find existing user by name + phone)
-  const handleSignInUser = (name: string, phone: string) => {
+  const handleSignInUser = (name: string, phone: string): boolean => {
     // Match by name (case-insensitive), optionally verify phone
     const found = state.profiles.find(
       (p) => p.name.toLowerCase() === name.toLowerCase() &&
@@ -199,8 +200,9 @@ function AppContent() {
       dispatch({ type: 'SET_USER_GENDER', payload: profileWithLookingFor.gender });
       dispatch({ type: 'SET_CURRENT_VIEW', payload: 'browse' });
       triggerNotification('success', t('app.notify.welcome-back').replace('{name}', found.name));
+      return true;
     } else {
-      triggerNotification('info', t('app.notify.no-account'));
+      return false;
     }
   };
 
@@ -297,6 +299,7 @@ function AppContent() {
         <OnboardingFlow
           onComplete={handleRegisterUser}
           onSignIn={handleSignInUser}
+          authIntent={authIntent}
         />
       </Suspense>
     );
@@ -326,7 +329,7 @@ function AppContent() {
         setDarkMode={(d) => dispatch({ type: 'SET_DARK_MODE', payload: d })}
         lang={state.lang}
         setLang={(l) => dispatch({ type: 'SET_LANG', payload: l })}
-        onOpenAuth={() => dispatch({ type: 'SET_CURRENT_VIEW', payload: 'home' })}
+        onOpenAuth={(tab) => { dispatch({ type: 'SET_CURRENT_VIEW', payload: 'home' }); setAuthIntent(tab || 'register'); }}
         currentUser={state.currentUser}
       />
 
