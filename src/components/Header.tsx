@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Heart, Menu, X, User, LogOut, Crown, ChevronDown, Moon, Sun } from 'lucide-react';
+import { Heart, Menu, X, User, LogOut, Crown, ChevronDown, Moon, Sun, Compass, History, HeartHandshake, MessageCircle, UserCircle } from 'lucide-react';
 import { Profile } from '../types';
 import type { Lang } from '../i18n';
 import { useAppContext } from '../context/AppContext';
@@ -23,6 +23,13 @@ interface HeaderProps {
   onViewProfile?: (profile: Profile) => void;
 }
 
+const BOTTOM_NAV = [
+  { labelKey: 'nav.matches', view: 'browse', icon: Compass },
+  { labelKey: 'nav.unlocked', view: 'history', icon: History },
+  { labelKey: 'nav.stories', view: 'stories', icon: HeartHandshake },
+  { labelKey: 'nav.support', view: 'support', icon: MessageCircle },
+];
+
 export default function Header({
   currentView, setCurrentView,
   isLoggedIn, setIsLoggedIn,
@@ -39,128 +46,199 @@ export default function Header({
     setIsOpen(false);
   };
 
-  return (
-    <nav className="sticky top-0 z-50 bg-[#1A1118]/95 backdrop-blur-md border-b border-[#C9A84C]/10">
-      <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
-        <div className="flex justify-between items-center h-16">
+  const isActive = (view: string) => currentView === view || (view === 'browse' && currentView === 'home');
 
-          {/* Logo */}
-          <button onClick={() => handleNav('home')} className="flex items-center gap-2 cursor-pointer">
-            <div className="bg-[#8B0020] p-1.5 rounded-lg">
-              <Heart className="h-5 w-5 text-[#C9A84C] fill-[#C9A84C]" />
+  const userInitial = currentUser?.name?.[0] || 'U';
+
+  return (
+    <>
+      {/* Top Header Bar */}
+      <nav className="sticky top-0 z-50 bg-[#1A1118]/95 backdrop-blur-md border-b border-[#C9A84C]/10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-8 lg:px-12">
+          <div className="flex justify-between items-center h-14 sm:h-16">
+
+            {/* Logo */}
+            <button onClick={() => handleNav('home')} className="flex items-center gap-2 cursor-pointer">
+              <div className="bg-[#8B0020] p-1.5 rounded-lg">
+                <Heart className="h-4.5 w-4.5 sm:h-5 sm:w-5 text-[#C9A84C] fill-[#C9A84C]" />
+              </div>
+              <span className="text-base sm:text-lg font-black text-[#FFFCF8] tracking-tight">
+                Whaatachi
+              </span>
+            </button>
+
+            {/* Desktop Nav */}
+            <div className="hidden lg:flex items-center gap-6">
+              <button onClick={() => handleNav('browse')} className={`text-sm font-semibold transition-colors cursor-pointer ${isActive('browse') ? 'text-[#C9A84C]' : 'text-[#EDE6D9]/70 hover:text-[#FFFCF8]'}`}>{t('nav.matches')}</button>
+              <button onClick={() => handleNav('history')} className={`text-sm font-semibold transition-colors cursor-pointer ${currentView === 'history' ? 'text-[#C9A84C]' : 'text-[#EDE6D9]/70 hover:text-[#FFFCF8]'}`}>{t('nav.unlocked')}</button>
+              <button onClick={() => handleNav('stories')} className={`text-sm font-semibold transition-colors cursor-pointer ${currentView === 'stories' ? 'text-[#C9A84C]' : 'text-[#EDE6D9]/70 hover:text-[#FFFCF8]'}`}>{t('nav.stories')}</button>
+              <button onClick={() => handleNav('support')} className={`text-sm font-semibold transition-colors cursor-pointer ${currentView === 'support' ? 'text-[#C9A84C]' : 'text-[#EDE6D9]/70 hover:text-[#FFFCF8]'}`}>{t('nav.support')}</button>
             </div>
-            <span className="text-lg font-black text-[#FFFCF8] tracking-tight">
-              Whaatachi
+
+            {/* Desktop Right Side */}
+            <div className="hidden lg:flex items-center gap-4">
+              <button onClick={() => setDarkMode(!darkMode)} className="p-2 text-[#EDE6D9]/50 hover:text-[#C9A84C] transition-colors cursor-pointer" title={darkMode ? t('common.light-mode') : t('common.dark-mode')}>
+                {darkMode ? <Sun className="h-4.5 w-4.5" /> : <Moon className="h-4.5 w-4.5" />}
+              </button>
+              <button onClick={() => setLang(lang === 'en' ? 'am' : 'en')} className="px-2.5 py-1.5 text-[10px] font-bold text-[#EDE6D9]/70 hover:text-[#C9A84C] border border-[#C9A84C]/20 hover:border-[#C9A84C]/60 rounded-lg transition-all cursor-pointer" title={lang === 'en' ? 'አማርኛ' : 'English'}>
+                {lang === 'en' ? 'አማ' : 'EN'}
+              </button>
+              {isLoggedIn ? (
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={() => {
+                      if (currentUser && onViewProfile) {
+                        onViewProfile(currentUser);
+                      } else {
+                        handleNav('profile');
+                      }
+                    }}
+                    className="flex items-center gap-2 bg-[#FFFCF8]/5 border border-[#C9A84C]/20 rounded-full px-3 py-1.5 hover:bg-[#FFFCF8]/10 transition-colors cursor-pointer text-left focus:outline-hidden"
+                  >
+                    {currentUser?.image ? (
+                      <img src={currentUser.image} alt="" className="w-7 h-7 rounded-full object-cover border border-[#C9A84C]/30" referrerPolicy="no-referrer" />
+                    ) : (
+                      <div className="w-7 h-7 rounded-full bg-[#8B0020] text-[#C9A84C] flex items-center justify-center font-bold text-xs">
+                        {userInitial}
+                      </div>
+                    )}
+                    <span className="text-xs font-bold text-[#FFFCF8] max-w-[100px] truncate">{currentUser?.name || 'User'}</span>
+                    <ChevronDown className="h-3 w-3 text-[#C9A84C]" />
+                  </button>
+                  <button onClick={() => { setIsLoggedIn(false); setCurrentView('home'); }} className="p-2 text-[#EDE6D9]/50 hover:text-[#C9A84C] transition-colors cursor-pointer">
+                    <LogOut className="h-4 w-4" />
+                  </button>
+                </div>
+              ) : (
+                <button onClick={() => onOpenAuth?.('register')} className="px-5 py-2 bg-[#8B0020] hover:bg-[#B31B3A] text-white text-sm font-bold rounded-lg transition-all cursor-pointer flex items-center gap-1.5 shadow-lg shadow-[#8B0020]/20">
+                  <Crown className="h-4 w-4" />
+                  {t('nav.create-profile')}
+                </button>
+              )}
+            </div>
+
+            {/* Mobile Hamburger */}
+            <div className="flex lg:hidden items-center">
+              <button onClick={() => setIsOpen(!isOpen)} className="p-2 text-[#EDE6D9] cursor-pointer">
+                {isOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+              </button>
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      {/* Mobile Bottom Nav Bar */}
+      <div className="fixed bottom-0 left-0 right-0 z-50 lg:hidden bg-[#1A1118]/95 backdrop-blur-md border-t border-[#C9A84C]/10 safe-area-bottom">
+        <div className="flex items-center justify-around py-1.5">
+          {BOTTOM_NAV.map(({ labelKey, view, icon: Icon }) => (
+            <button
+              key={view}
+              onClick={() => handleNav(view)}
+              className={`flex flex-col items-center gap-0.5 px-2 py-1 rounded-lg transition-all cursor-pointer min-w-0 ${
+                isActive(view)
+                  ? 'text-[#C9A84C]'
+                  : 'text-[#EDE6D9]/50 hover:text-[#FFFCF8]'
+              }`}
+            >
+              <Icon className={`h-5 w-5 ${isActive(view) ? 'drop-shadow-[0_0_6px_rgba(201,168,76,0.4)]' : ''}`} />
+              <span className={`text-[8px] font-bold tracking-wider ${isActive(view) ? 'text-[#C9A84C]' : 'text-[#EDE6D9]/50'}`}>
+                {t(labelKey)}
+              </span>
+            </button>
+          ))}
+          <button
+            onClick={() => {
+              if (isLoggedIn && currentUser) {
+                onViewProfile ? onViewProfile(currentUser) : handleNav('profile');
+              } else {
+                onOpenAuth?.('register');
+              }
+            }}
+            className={`flex flex-col items-center gap-0.5 px-2 py-1 rounded-lg transition-all cursor-pointer min-w-0 ${
+              currentView === 'profile' ? 'text-[#C9A84C]' : 'text-[#EDE6D9]/50 hover:text-[#FFFCF8]'
+            }`}
+          >
+            {isLoggedIn && currentUser?.image ? (
+              <img src={currentUser.image} alt="" className="h-5 w-5 rounded-full object-cover border border-[#C9A84C]/40" referrerPolicy="no-referrer" />
+            ) : (
+              <UserCircle className={`h-5 w-5 ${currentView === 'profile' ? 'drop-shadow-[0_0_6px_rgba(201,168,76,0.4)]' : ''}`} />
+            )}
+            <span className={`text-[8px] font-bold tracking-wider ${currentView === 'profile' ? 'text-[#C9A84C]' : 'text-[#EDE6D9]/50'}`}>
+              {isLoggedIn ? (currentUser?.name?.split(' ')[0] || t('nav.my-profile')) : t('nav.sign-in')}
             </span>
           </button>
-
-          {/* Desktop Nav */}
-          <div className="hidden lg:flex items-center gap-6">
-            <button onClick={() => handleNav('browse')} className={`text-sm font-semibold transition-colors cursor-pointer ${currentView === 'browse' || currentView === 'home' ? 'text-[#C9A84C]' : 'text-[#EDE6D9]/70 hover:text-[#FFFCF8]'}`}>{t('nav.matches')}</button>
-            <button onClick={() => handleNav('history')} className={`text-sm font-semibold transition-colors cursor-pointer ${currentView === 'history' ? 'text-[#C9A84C]' : 'text-[#EDE6D9]/70 hover:text-[#FFFCF8]'}`}>{t('nav.unlocked')}</button>
-          </div>
-
-          {/* Right Side */}
-          <div className="hidden lg:flex items-center gap-4">
-            <button onClick={() => setDarkMode(!darkMode)} className="p-2 text-[#EDE6D9]/50 hover:text-[#C9A84C] transition-colors cursor-pointer" title={darkMode ? t('common.light-mode') : t('common.dark-mode')}>
-              {darkMode ? <Sun className="h-4.5 w-4.5" /> : <Moon className="h-4.5 w-4.5" />}
-            </button>
-            <button onClick={() => setLang(lang === 'en' ? 'am' : 'en')} className="px-2.5 py-1.5 text-[10px] font-bold text-[#EDE6D9]/70 hover:text-[#C9A84C] border border-[#C9A84C]/20 hover:border-[#C9A84C]/60 rounded-lg transition-all cursor-pointer" title={lang === 'en' ? 'አማርኛ' : 'English'}>
-              {lang === 'en' ? 'አማ' : 'EN'}
-            </button>
-            {isLoggedIn ? (
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={() => {
-                    if (currentUser && onViewProfile) {
-                      onViewProfile(currentUser);
-                    } else {
-                      handleNav('profile');
-                    }
-                  }}
-                  className="flex items-center gap-2 bg-[#FFFCF8]/5 border border-[#C9A84C]/20 rounded-full px-3 py-1.5 hover:bg-[#FFFCF8]/10 transition-colors cursor-pointer text-left focus:outline-hidden"
-                >
-                  {currentUser?.image ? (
-                    <img src={currentUser.image} alt="" className="w-7 h-7 rounded-full object-cover border border-[#C9A84C]/30" referrerPolicy="no-referrer" />
-                  ) : (
-                    <div className="w-7 h-7 rounded-full bg-[#8B0020] text-[#C9A84C] flex items-center justify-center font-bold text-xs">
-                      {currentUser?.name?.[0] || 'U'}
-                    </div>
-                  )}
-                  <span className="text-xs font-bold text-[#FFFCF8] max-w-[100px] truncate">{currentUser?.name || 'User'}</span>
-                  <ChevronDown className="h-3 w-3 text-[#C9A84C]" />
-                </button>
-                <button onClick={() => { setIsLoggedIn(false); setCurrentView('home'); }} className="p-2 text-[#EDE6D9]/50 hover:text-[#C9A84C] transition-colors cursor-pointer">
-                  <LogOut className="h-4 w-4" />
-                </button>
-              </div>
-            ) : (
-              <button onClick={() => onOpenAuth?.('register')} className="px-5 py-2 bg-[#8B0020] hover:bg-[#B31B3A] text-white text-sm font-bold rounded-lg transition-all cursor-pointer flex items-center gap-1.5 shadow-lg shadow-[#8B0020]/20">
-                <Crown className="h-4 w-4" />
-                {t('nav.create-profile')}
-              </button>
-            )}
-          </div>
-
-          {/* Mobile */}
-          <div className="flex lg:hidden items-center gap-1.5">
-            <button onClick={() => setDarkMode(!darkMode)} className="p-2 text-[#EDE6D9]/50 hover:text-[#C9A84C] transition-colors cursor-pointer">
-              {darkMode ? <Sun className="h-4.5 w-4.5" /> : <Moon className="h-4.5 w-4.5" />}
-            </button>
-            <button onClick={() => setLang(lang === 'en' ? 'am' : 'en')} className="px-2 py-1 text-[9px] font-bold text-[#EDE6D9]/70 hover:text-[#C9A84C] border border-[#C9A84C]/20 hover:border-[#C9A84C]/60 rounded-lg transition-all cursor-pointer">
-              {lang === 'en' ? 'አማ' : 'EN'}
-            </button>
-            {!isLoggedIn && (
-              <button onClick={() => onOpenAuth?.('register')} className="px-4 py-1.5 bg-[#8B0020] text-white text-xs font-bold rounded-lg cursor-pointer">
-                {t('nav.join')}
-              </button>
-            )}
-            <button onClick={() => setIsOpen(!isOpen)} className="p-2 text-[#EDE6D9] cursor-pointer">
-              {isOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-            </button>
-          </div>
         </div>
       </div>
 
-      {/* Mobile Menu */}
+      {/* Mobile Menu - Full screen overlay */}
       {isOpen && (
-        <div className="lg:hidden bg-[#1A1118] border-t border-[#C9A84C]/10">
-          <div className="px-4 py-4 space-y-2">
-            {[
-              { label: t('nav.matches'), view: 'browse' },
-              { label: t('nav.unlocked'), view: 'history' },
-            ].map((link) => (
-              <button key={link.view} onClick={() => handleNav(link.view)} className={`block w-full text-left px-3 py-2 rounded-lg text-sm font-semibold ${currentView === link.view ? 'bg-[#8B0020]/30 text-[#C9A84C]' : 'text-[#EDE6D9]/70 hover:bg-[#FFFCF8]/5'}`}>
-                {link.label}
+        <div className="fixed inset-0 top-14 lg:hidden bg-[#120A0E] z-50 flex flex-col animate-fade-in">
+          <div className="flex-1 overflow-y-auto px-4 py-5 pb-24">
+
+            {/* User section */}
+            {isLoggedIn && currentUser ? (
+              <button
+                onClick={() => { setIsOpen(false); onViewProfile ? onViewProfile(currentUser) : handleNav('profile'); }}
+                className="w-full flex items-center gap-3 mb-6 p-3 bg-[#1A1118] rounded-2xl border border-[#C9A84C]/10 cursor-pointer text-left"
+              >
+                {currentUser.image ? (
+                  <img src={currentUser.image} alt="" className="w-12 h-12 rounded-full object-cover border-2 border-[#C9A84C]/30" referrerPolicy="no-referrer" />
+                ) : (
+                  <div className="w-12 h-12 rounded-full bg-[#8B0020] text-[#C9A84C] flex items-center justify-center font-bold text-lg">
+                    {userInitial}
+                  </div>
+                )}
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-bold text-[#FFFCF8] truncate">{currentUser.name}</p>
+                  <p className="text-[10px] text-[#EDE6D9]/50">{t('nav.my-profile')}</p>
+                </div>
+                <ChevronDown className="h-4 w-4 text-[#C9A84C] rotate-[-90deg]" />
               </button>
-            ))}
-            {isLoggedIn ? (
-              <>
-                <button
-                  onClick={() => {
-                    setIsOpen(false);
-                    if (currentUser && onViewProfile) {
-                      onViewProfile(currentUser);
-                    } else {
-                      handleNav('profile');
-                    }
-                  }}
-                  className={`block w-full text-left px-3 py-2 rounded-lg text-sm font-semibold ${currentView === 'profile' ? 'bg-[#8B0020]/30 text-[#C9A84C]' : 'text-[#EDE6D9]/70 hover:bg-[#FFFCF8]/5'}`}
-                >
-                  {t('nav.my-profile')}
+            ) : (
+              <div className="mb-6 p-4 bg-[#1A1118] rounded-2xl border border-[#C9A84C]/10 text-center">
+                <p className="text-xs text-[#EDE6D9]/60 mb-3">{t('dashboard.sign-in-hint')}</p>
+                <button onClick={() => { setIsOpen(false); onOpenAuth?.('register'); }} className="w-full py-3 bg-[#8B0020] hover:bg-[#B31B3A] text-white text-sm font-bold rounded-xl transition-all cursor-pointer flex items-center justify-center gap-2">
+                  <Crown className="h-4 w-4" />
+                  {t('nav.create-profile')}
                 </button>
-                <button onClick={() => { setIsLoggedIn(false); setIsOpen(false); setCurrentView('home'); }} className="w-full text-left px-3 py-2 rounded-lg text-sm font-semibold text-[#EDE6D9]/70 hover:bg-[#FFFCF8]/5">
+              </div>
+            )}
+
+            {/* Settings */}
+            <div className="space-y-1">
+              <p className="text-[9px] font-bold text-[#FFFCF8]/30 uppercase tracking-widest px-2 mb-2">{t('profile.basic-settings')}</p>
+              <div className="flex items-center justify-between px-3 py-3 rounded-xl text-sm font-semibold text-[#EDE6D9]/70">
+                <div className="flex items-center gap-3">
+                  {darkMode ? <Sun className="h-4.5 w-4.5" /> : <Moon className="h-4.5 w-4.5" />}
+                  <span>{darkMode ? t('common.light-mode') : t('common.dark-mode')}</span>
+                </div>
+                <button onClick={() => setDarkMode(!darkMode)} className={`w-10 h-5 rounded-full transition-colors relative cursor-pointer ${darkMode ? 'bg-[#C9A84C]' : 'bg-[#FFFCF8]/20'}`}>
+                  <div className={`w-3.5 h-3.5 bg-white rounded-full absolute top-0.5 transition-all ${darkMode ? 'right-0.5' : 'left-0.5'}`} />
+                </button>
+              </div>
+              <button onClick={() => setLang(lang === 'en' ? 'am' : 'en')} className="w-full flex items-center justify-between px-3 py-3 rounded-xl text-sm font-semibold text-[#EDE6D9]/70 hover:bg-[#FFFCF8]/5 transition-all cursor-pointer">
+                <div className="flex items-center gap-3">
+                  <span className="text-base">{lang === 'en' ? '🇪🇹' : '🇬🇧'}</span>
+                  <span>{lang === 'en' ? 'Amharic (አማርኛ)' : 'English'}</span>
+                </div>
+                <span className="text-[10px] font-bold text-[#C9A84C]">{lang === 'en' ? 'አማ' : 'EN'}</span>
+              </button>
+            </div>
+
+            {/* Logout */}
+            {isLoggedIn && (
+              <div className="mt-6 pt-4 border-t border-[#C9A84C]/10">
+                <button onClick={() => { setIsLoggedIn(false); setIsOpen(false); setCurrentView('home'); }} className="w-full py-3 rounded-xl text-sm font-bold text-[#8B0020] hover:bg-[#8B0020]/10 transition-all cursor-pointer flex items-center justify-center gap-2">
+                  <LogOut className="h-4 w-4" />
                   {t('nav.sign-out')}
                 </button>
-              </>
-            ) : (
-              <button onClick={() => { setIsOpen(false); onOpenAuth?.('register'); }} className="w-full text-left px-3 py-2 rounded-lg text-sm font-bold text-[#C9A84C] hover:bg-[#FFFCF8]/5">
-                {t('nav.create-profile')}
-              </button>
+              </div>
             )}
           </div>
         </div>
       )}
-    </nav>
+    </>
   );
 }
+
+

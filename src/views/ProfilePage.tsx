@@ -125,34 +125,34 @@ export default function ProfilePage({ profile, isUnlocked, pendingPayment, userG
     <div className="bg-[#FFFCF8] dark:bg-[#120A0E] min-h-screen transition-colors duration-200 pb-20">
       
       {/* Premium Header Grid/Cover Background */}
-      <div className="relative bg-gradient-to-b from-[#8B0020]/15 via-[#C9A84C]/5 to-transparent dark:from-[#8B0020]/30 dark:via-[#8B0020]/5 h-36 flex items-center justify-between px-6 border-b border-[#EDE6D9]/50 dark:border-[#C9A84C]/5">
+      <div className="relative bg-gradient-to-b from-[#8B0020]/20 via-[#C9A84C]/10 to-[#FFFCF8] dark:from-[#8B0020]/40 dark:via-[#8B0020]/15 dark:to-[#120A0E] h-28 sm:h-36 flex items-center justify-between px-4 sm:px-6 border-b border-[#EDE6D9] dark:border-[#C9A84C]/10">
         <button 
           onClick={onBack} 
-          className="p-2.5 bg-white dark:bg-[#1A1118] border border-[#EDE6D9] dark:border-[#C9A84C]/15 rounded-full text-[#1A1118] dark:text-[#FFFCF8] hover:bg-gray-50 dark:hover:bg-[#120A0E] transition-all cursor-pointer shadow-xs"
+          className="p-2 bg-[#1A1118] border border-[#C9A84C]/30 rounded-full text-[#C9A84C] hover:bg-[#8B0020] hover:text-white transition-all cursor-pointer shadow-lg"
         >
-          <ArrowLeft className="h-5 w-5" />
+          <ArrowLeft className="h-4.5 w-4.5 sm:h-5 sm:w-5" />
         </button>
 
         {isOwnProfile && !editing && (
           <button 
             onClick={() => setEditing(true)} 
-            className="flex items-center gap-1.5 px-4 py-2 bg-[#8B0020] hover:bg-[#B31B3A] text-white font-extrabold text-xs rounded-xl shadow-md transition-all cursor-pointer"
+            className="flex items-center gap-1.5 px-3 py-1.5 sm:px-4 sm:py-2 bg-[#8B0020] hover:bg-[#B31B3A] text-white font-extrabold text-[10px] sm:text-xs rounded-xl shadow-md transition-all cursor-pointer border border-[#C9A84C]/20"
           >
-            <Edit3 className="h-4 w-4" />
+            <Edit3 className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
             <span>{t('profile.edit-profile')}</span>
           </button>
         )}
       </div>
 
-      <div className="max-w-2xl mx-auto px-4 -mt-16 relative z-10 space-y-6">
+      <div className="max-w-2xl mx-auto px-3 sm:px-4 -mt-10 sm:-mt-16 relative z-10 space-y-4 sm:space-y-6">
         
         {/* Core Profile Card (Avatar & Identity) */}
-        <div className="bg-white dark:bg-[#1A1118] border border-[#EDE6D9] dark:border-[#C9A84C]/10 rounded-2xl p-6 shadow-md flex flex-col items-center text-center relative overflow-hidden">
+        <div className="bg-white dark:bg-[#1A1118] border border-[#EDE6D9] dark:border-[#C9A84C]/10 rounded-2xl p-4 sm:p-6 shadow-md flex flex-col items-center text-center relative overflow-hidden">
           
           {/* Avatar Container in Profile Size */}
           <div className="relative group">
             <div 
-              className={`w-32 h-32 sm:w-36 h-36 rounded-full overflow-hidden border-4 border-[#C9A84C] dark:border-[#C9A84C]/80 shadow-lg relative bg-gray-100 dark:bg-[#120A0E] ${editing ? 'cursor-pointer' : ''}`}
+              className={`w-24 h-24 sm:w-32 sm:h-32 rounded-full overflow-hidden border-4 border-[#C9A84C] dark:border-[#C9A84C]/80 shadow-lg relative bg-gray-100 dark:bg-[#120A0E] ${editing ? 'cursor-pointer' : ''}`}
               onClick={editing ? () => fileInputRef.current?.click() : undefined}
             >
               <img 
@@ -181,55 +181,55 @@ export default function ProfilePage({ profile, isUnlocked, pendingPayment, userG
           </div>
 
           {/* Identity details */}
-          <div className="mt-4 space-y-1.5">
+          <div className="mt-3 sm:mt-4 space-y-1.5">
             {editing ? (
-              <div className="flex gap-2 justify-center items-center">
+              <div className="flex gap-2 justify-center items-center flex-wrap">
                 <input 
                   type="text" 
                   value={editName} 
                   onChange={(e) => setEditName(e.target.value)} 
-                  className="text-center text-xl font-black border-b border-[#8B0020] dark:border-[#C9A84C] bg-transparent text-[#1A1118] dark:text-[#FFFCF8] focus:outline-hidden max-w-[200px]"
+                  className="text-center text-lg sm:text-xl font-black border-b border-[#8B0020] dark:border-[#C9A84C] bg-transparent text-[#1A1118] dark:text-[#FFFCF8] focus:outline-hidden max-w-[160px] sm:max-w-[200px]"
                   placeholder="Your Name"
                 />
                 <input 
                   type="number" 
                   value={editAge} 
                   onChange={(e) => setEditAge(Number(e.target.value))} 
-                  className="text-center text-xl font-black border-b border-[#8B0020] dark:border-[#C9A84C] bg-transparent text-[#1A1118] dark:text-[#FFFCF8] focus:outline-hidden max-w-[60px]"
+                  className="text-center text-lg sm:text-xl font-black border-b border-[#8B0020] dark:border-[#C9A84C] bg-transparent text-[#1A1118] dark:text-[#FFFCF8] focus:outline-hidden max-w-[50px] sm:max-w-[60px]"
                   placeholder="Age"
                 />
               </div>
             ) : (
               <div className="flex items-center justify-center gap-1.5">
-                <h1 className="text-2xl font-black text-[#1A1118] dark:text-[#FFFCF8]">
+                <h1 className="text-xl sm:text-2xl font-black text-[#1A1118] dark:text-[#FFFCF8]">
                   {profile.name}, {profile.age}
                 </h1>
-                {profile.verified && <ShieldCheck className="h-5.5 w-5.5 text-[#C9A84C] fill-[#C9A84C]/10" />}
+                {profile.verified && <ShieldCheck className="h-4.5 w-4.5 sm:h-5.5 sm:w-5.5 text-[#C9A84C] fill-[#C9A84C]/10" />}
               </div>
             )}
 
             {editing ? (
-              <div className="flex items-center justify-center gap-2 text-xs">
-                <MapPin className="h-4 w-4 text-[#8B0020] dark:text-[#C9A84C]" />
+              <div className="flex items-center justify-center gap-2 text-[10px] sm:text-xs">
+                <MapPin className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-[#8B0020] dark:text-[#C9A84C]" />
                 <select 
                   value={editCity} 
                   onChange={(e) => setEditCity(e.target.value)} 
-                  className="border border-[#EDE6D9] dark:border-[#C9A84C]/15 rounded-lg px-2 py-1 bg-white dark:bg-[#1A1118] text-gray-800 dark:text-[#FFFCF8] outline-hidden"
+                  className="border border-[#EDE6D9] dark:border-[#C9A84C]/15 rounded-lg px-2 py-1 bg-white dark:bg-[#1A1118] text-gray-800 dark:text-[#FFFCF8] outline-hidden text-[10px] sm:text-xs"
                 >
                   {cities.map(c => <option key={c} value={c}>{c}</option>)}
                 </select>
                 <span>Ethiopia</span>
               </div>
             ) : (
-              <p className="text-xs text-gray-500 dark:text-gray-400 flex items-center justify-center gap-1">
-                <MapPin className="h-4 w-4 text-[#8B0020] dark:text-[#C9A84C]" />
+              <p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 flex items-center justify-center gap-1">
+                <MapPin className="h-3 w-3 sm:h-4 sm:w-4 text-[#8B0020] dark:text-[#C9A84C]" />
                 <span>{profile.city}, Ethiopia</span>
               </p>
             )}
 
             {!editing && (
-              <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#8B0020]/5 dark:bg-[#8B0020]/15 text-[#8B0020] dark:text-[#C9A84C] text-[10px] font-bold uppercase tracking-wider">
-                <Star className="h-3 w-3 fill-current" />
+              <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#8B0020]/5 dark:bg-[#8B0020]/15 text-[#8B0020] dark:text-[#C9A84C] text-[9px] sm:text-[10px] font-bold uppercase tracking-wider">
+                <Star className="h-2.5 w-2.5 sm:h-3 sm:w-3 fill-current" />
                 <span>{profile.status}</span>
               </div>
             )}
@@ -238,7 +238,7 @@ export default function ProfilePage({ profile, isUnlocked, pendingPayment, userG
 
         {/* Edit Photo Upload Section */}
         {editing && (
-          <div className="bg-white dark:bg-[#1A1118] border border-[#EDE6D9] dark:border-[#C9A84C]/10 rounded-2xl p-5 shadow-sm space-y-4">
+          <div className="bg-white dark:bg-[#1A1118] border border-[#EDE6D9] dark:border-[#C9A84C]/10 rounded-2xl p-4 sm:p-5 shadow-sm space-y-3 sm:space-y-4">
             <h3 className="text-xs font-bold text-[#1A1118] dark:text-[#FFFCF8] uppercase tracking-wider flex items-center gap-1.5">
               <Camera className="h-4 w-4 text-[#8B0020] dark:text-[#C9A84C]" />
               <span>{t('profile.change-photo')}</span>
@@ -262,7 +262,7 @@ export default function ProfilePage({ profile, isUnlocked, pendingPayment, userG
 
         {/* Basic Configuration Parameters (Gender, intent, status) */}
         {editing && (
-          <div className="bg-white dark:bg-[#1A1118] border border-[#EDE6D9] dark:border-[#C9A84C]/10 rounded-2xl p-5 shadow-sm space-y-4">
+          <div className="bg-white dark:bg-[#1A1118] border border-[#EDE6D9] dark:border-[#C9A84C]/10 rounded-2xl p-4 sm:p-5 shadow-sm space-y-3 sm:space-y-4">
             <h3 className="text-xs font-bold text-[#1A1118] dark:text-[#FFFCF8] uppercase tracking-wider flex items-center gap-1.5">
               <Crown className="h-4 w-4 text-[#8B0020] dark:text-[#C9A84C]" />
               <span>{t('profile.basic-settings')}</span>
@@ -328,7 +328,7 @@ export default function ProfilePage({ profile, isUnlocked, pendingPayment, userG
         )}
 
         {/* Bio card */}
-        <div className="bg-white dark:bg-[#1A1118] border border-[#EDE6D9] dark:border-[#C9A84C]/10 rounded-2xl p-5 shadow-sm space-y-3">
+        <div className="bg-white dark:bg-[#1A1118] border border-[#EDE6D9] dark:border-[#C9A84C]/10 rounded-2xl p-4 sm:p-5 shadow-sm space-y-2.5 sm:space-y-3">
           <div className="flex items-center gap-2 border-b border-[#EDE6D9] dark:border-[#C9A84C]/5 pb-2">
             <Heart className="h-4.5 w-4.5 text-[#8B0020] dark:text-[#C9A84C]" />
             <h2 className="text-xs font-bold text-[#1A1118] dark:text-[#FFFCF8] uppercase tracking-wider">{t('profile.about')}</h2>
@@ -337,17 +337,17 @@ export default function ProfilePage({ profile, isUnlocked, pendingPayment, userG
             <textarea 
               value={editBio} 
               onChange={(e) => setEditBio(e.target.value)} 
-              rows={4} 
-              className="w-full border border-[#EDE6D9] dark:border-[#C9A84C]/15 rounded-xl p-3 bg-[#F8F4ED]/50 dark:bg-[#120A0E] text-xs text-gray-800 dark:text-[#FFFCF8] focus:outline-hidden focus:border-[#8B0020] dark:focus:border-[#C9A84C] resize-none"
+              rows={3} 
+              className="w-full border border-[#EDE6D9] dark:border-[#C9A84C]/15 rounded-xl p-2.5 sm:p-3 bg-[#F8F4ED]/50 dark:bg-[#120A0E] text-[11px] sm:text-xs text-gray-800 dark:text-[#FFFCF8] focus:outline-hidden focus:border-[#8B0020] dark:focus:border-[#C9A84C] resize-none"
               placeholder="Tell other members about yourself..."
             />
           ) : (
-            <p className="text-xs text-gray-700 dark:text-gray-300 leading-relaxed font-light whitespace-pre-line">{profile.bio}</p>
+            <p className="text-[11px] sm:text-xs text-gray-700 dark:text-gray-300 leading-relaxed font-light whitespace-pre-line">{profile.bio}</p>
           )}
         </div>
 
         {/* Intent & Interests Card */}
-        <div className="bg-white dark:bg-[#1A1118] border border-[#EDE6D9] dark:border-[#C9A84C]/10 rounded-2xl p-5 shadow-sm space-y-4">
+        <div className="bg-white dark:bg-[#1A1118] border border-[#EDE6D9] dark:border-[#C9A84C]/10 rounded-2xl p-4 sm:p-5 shadow-sm space-y-3 sm:space-y-4">
           {!editing && (
             <div className="flex flex-wrap items-center gap-3 border-b border-[#EDE6D9] dark:border-[#C9A84C]/5 pb-3">
               <span className={`inline-block text-[10px] font-extrabold px-3 py-1 rounded-full border uppercase ${
@@ -406,7 +406,7 @@ export default function ProfilePage({ profile, isUnlocked, pendingPayment, userG
         </div>
 
         {/* Contact info card */}
-        <div className="bg-white dark:bg-[#1A1118] border border-[#EDE6D9] dark:border-[#C9A84C]/10 rounded-2xl p-5 shadow-sm space-y-4">
+        <div className="bg-white dark:bg-[#1A1118] border border-[#EDE6D9] dark:border-[#C9A84C]/10 rounded-2xl p-4 sm:p-5 shadow-sm space-y-3 sm:space-y-4">
           <div className="flex items-center gap-2 border-b border-[#EDE6D9] dark:border-[#C9A84C]/5 pb-2">
             <Crown className="h-4.5 w-4.5 text-[#8B0020] dark:text-[#C9A84C]" />
             <h2 className="text-xs font-bold text-[#1A1118] dark:text-[#FFFCF8] uppercase tracking-wider">{t('profile.contact-info')}</h2>
@@ -414,61 +414,61 @@ export default function ProfilePage({ profile, isUnlocked, pendingPayment, userG
 
           {editing ? (
             <div className="space-y-4">
-              <div className="space-y-1">
-                <label className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase">{t('profile.phone')}</label>
-                <div className="relative">
-                  <Phone className="absolute left-3.5 top-3.5 h-4 w-4 text-gray-400" />
-                  <input 
-                    type="text" 
-                    value={editPhone} 
-                    onChange={(e) => setEditPhone(e.target.value)} 
-                    className="w-full text-xs pl-10 pr-4 py-3 border border-[#EDE6D9] dark:border-[#C9A84C]/15 rounded-xl bg-white dark:bg-[#1A1118] text-gray-800 dark:text-[#FFFCF8] focus:outline-hidden focus:border-[#8B0020] dark:focus:border-[#C9A84C]"
-                    placeholder="e.g. 0911223344"
-                  />
+                <div className="space-y-1">
+                  <label className="text-[9px] sm:text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase">{t('profile.phone')}</label>
+                  <div className="relative">
+                    <Phone className="absolute left-3 top-2.5 sm:left-3.5 sm:top-3.5 h-3.5 w-3.5 sm:h-4 sm:w-4 text-gray-400" />
+                    <input 
+                      type="text" 
+                      value={editPhone} 
+                      onChange={(e) => setEditPhone(e.target.value)} 
+                      className="w-full text-[11px] sm:text-xs pl-9 sm:pl-10 pr-3 sm:pr-4 py-2.5 sm:py-3 border border-[#EDE6D9] dark:border-[#C9A84C]/15 rounded-xl bg-white dark:bg-[#1A1118] text-gray-800 dark:text-[#FFFCF8] focus:outline-hidden focus:border-[#8B0020] dark:focus:border-[#C9A84C]"
+                      placeholder="e.g. 0911223344"
+                    />
+                  </div>
                 </div>
-              </div>
 
-              <div className="space-y-1">
-                <label className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase">{t('profile.telegram')}</label>
-                <div className="relative">
-                  <MessageCircle className="absolute left-3.5 top-3.5 h-4 w-4 text-gray-400" />
-                  <input 
-                    type="text" 
-                    value={editTelegram} 
-                    onChange={(e) => setEditTelegram(e.target.value)} 
-                    className="w-full text-xs pl-10 pr-4 py-3 border border-[#EDE6D9] dark:border-[#C9A84C]/15 rounded-xl bg-white dark:bg-[#1A1118] text-gray-800 dark:text-[#FFFCF8] focus:outline-hidden focus:border-[#8B0020] dark:focus:border-[#C9A84C]"
-                    placeholder="e.g. @telegramhandle"
-                  />
+                <div className="space-y-1">
+                  <label className="text-[9px] sm:text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase">{t('profile.telegram')}</label>
+                  <div className="relative">
+                    <MessageCircle className="absolute left-3 top-2.5 sm:left-3.5 sm:top-3.5 h-3.5 w-3.5 sm:h-4 sm:w-4 text-gray-400" />
+                    <input 
+                      type="text" 
+                      value={editTelegram} 
+                      onChange={(e) => setEditTelegram(e.target.value)} 
+                      className="w-full text-[11px] sm:text-xs pl-9 sm:pl-10 pr-3 sm:pr-4 py-2.5 sm:py-3 border border-[#EDE6D9] dark:border-[#C9A84C]/15 rounded-xl bg-white dark:bg-[#1A1118] text-gray-800 dark:text-[#FFFCF8] focus:outline-hidden focus:border-[#8B0020] dark:focus:border-[#C9A84C]"
+                      placeholder="e.g. @telegramhandle"
+                    />
+                  </div>
                 </div>
-              </div>
 
-              <div className="space-y-1">
-                <label className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase">{t('profile.instagram')}</label>
-                <div className="relative">
-                  <Instagram className="absolute left-3.5 top-3.5 h-4 w-4 text-gray-400" />
-                  <input 
-                    type="text" 
-                    value={editInstagram} 
-                    onChange={(e) => setEditInstagram(e.target.value)} 
-                    className="w-full text-xs pl-10 pr-4 py-3 border border-[#EDE6D9] dark:border-[#C9A84C]/15 rounded-xl bg-white dark:bg-[#1A1118] text-gray-800 dark:text-[#FFFCF8] focus:outline-hidden focus:border-[#8B0020] dark:focus:border-[#C9A84C]"
-                    placeholder="e.g. @instahandle"
-                  />
+                <div className="space-y-1">
+                  <label className="text-[9px] sm:text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase">{t('profile.instagram')}</label>
+                  <div className="relative">
+                    <Instagram className="absolute left-3 top-2.5 sm:left-3.5 sm:top-3.5 h-3.5 w-3.5 sm:h-4 sm:w-4 text-gray-400" />
+                    <input 
+                      type="text" 
+                      value={editInstagram} 
+                      onChange={(e) => setEditInstagram(e.target.value)} 
+                      className="w-full text-[11px] sm:text-xs pl-9 sm:pl-10 pr-3 sm:pr-4 py-2.5 sm:py-3 border border-[#EDE6D9] dark:border-[#C9A84C]/15 rounded-xl bg-white dark:bg-[#1A1118] text-gray-800 dark:text-[#FFFCF8] focus:outline-hidden focus:border-[#8B0020] dark:focus:border-[#C9A84C]"
+                      placeholder="e.g. @instahandle"
+                    />
+                  </div>
                 </div>
-              </div>
 
-              <div className="space-y-1">
-                <label className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase">{t('profile.email')}</label>
-                <div className="relative">
-                  <Mail className="absolute left-3.5 top-3.5 h-4 w-4 text-gray-400" />
-                  <input 
-                    type="email" 
-                    value={editEmail} 
-                    onChange={(e) => setEditEmail(e.target.value)} 
-                    className="w-full text-xs pl-10 pr-4 py-3 border border-[#EDE6D9] dark:border-[#C9A84C]/15 rounded-xl bg-white dark:bg-[#1A1118] text-gray-800 dark:text-[#FFFCF8] focus:outline-hidden focus:border-[#8B0020] dark:focus:border-[#C9A84C]"
-                    placeholder="e.g. email@example.com"
-                  />
+                <div className="space-y-1">
+                  <label className="text-[9px] sm:text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase">{t('profile.email')}</label>
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-2.5 sm:left-3.5 sm:top-3.5 h-3.5 w-3.5 sm:h-4 sm:w-4 text-gray-400" />
+                    <input 
+                      type="email" 
+                      value={editEmail} 
+                      onChange={(e) => setEditEmail(e.target.value)} 
+                      className="w-full text-[11px] sm:text-xs pl-9 sm:pl-10 pr-3 sm:pr-4 py-2.5 sm:py-3 border border-[#EDE6D9] dark:border-[#C9A84C]/15 rounded-xl bg-white dark:bg-[#1A1118] text-gray-800 dark:[#FFFCF8] focus:outline-hidden focus:border-[#8B0020] dark:focus:border-[#C9A84C]"
+                      placeholder="e.g. email@example.com"
+                    />
+                  </div>
                 </div>
-              </div>
             </div>
           ) : isUnlocked ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -520,16 +520,16 @@ export default function ProfilePage({ profile, isUnlocked, pendingPayment, userG
               <p className="text-[10px] mt-1">{t('profile.verify-pending-desc').replace('{txId}', pendingPayment.transactionId)}</p>
             </div>
           ) : (
-            <div className="text-center space-y-4">
-              <div className="bg-[#F8F4ED] dark:bg-[#120A0E] border border-[#EDE6D9] dark:border-[#C9A84C]/10 rounded-xl p-6">
-                <Lock className="h-10 w-10 text-[#8B0020] dark:text-[#C9A84C] mx-auto mb-3 animate-bounce" />
-                <p className="text-sm font-bold text-[#1A1118] dark:text-[#FFFCF8]">{t('profile.contact-locked')}</p>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 font-light">{t('profile.contact-locked-desc')}</p>
+            <div className="text-center space-y-3 sm:space-y-4">
+              <div className="bg-[#F8F4ED] dark:bg-[#120A0E] border border-[#EDE6D9] dark:border-[#C9A84C]/10 rounded-xl p-4 sm:p-6">
+                <Lock className="h-8 w-8 sm:h-10 sm:w-10 text-[#8B0020] dark:text-[#C9A84C] mx-auto mb-2 sm:mb-3 animate-bounce" />
+                <p className="text-xs sm:text-sm font-bold text-[#1A1118] dark:text-[#FFFCF8]">{t('profile.contact-locked')}</p>
+                <p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 mt-1 font-light">{t('profile.contact-locked-desc')}</p>
               </div>
               
               <button
                 onClick={() => onUnlockClick(profile)}
-                className="w-full py-3.5 bg-[#8B0020] hover:bg-[#B31B3A] text-white font-extrabold text-xs rounded-xl shadow-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-[#8B0020]/20"
+                className="w-full py-3 sm:py-3.5 bg-[#8B0020] hover:bg-[#B31B3A] text-white font-extrabold text-[10px] sm:text-xs rounded-xl shadow-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-[#8B0020]/20"
               >
                 <Lock className="h-4 w-4" />
                 <span>{t('profile.see-contact-btn')}</span>
@@ -544,7 +544,7 @@ export default function ProfilePage({ profile, isUnlocked, pendingPayment, userG
 
       {/* Save / Cancel Fixed Action Bar in Edit Mode */}
       {editing && (
-        <div className="fixed bottom-0 left-0 right-0 bg-white dark:bg-[#1A1118]/95 backdrop-blur-md border-t border-[#EDE6D9] dark:border-[#C9A84C]/10 p-4 flex gap-3 z-50 shadow-lg">
+        <div className="fixed bottom-0 left-0 right-0 bg-white dark:bg-[#1A1118]/95 backdrop-blur-md border-t border-[#EDE6D9] dark:border-[#C9A84C]/10 p-3 sm:p-4 flex gap-3 z-50 shadow-lg pb-[calc(0.75rem+env(safe-area-inset-bottom,0px))] lg:pb-3">
           <button 
             type="button"
             onClick={handleCancel} 

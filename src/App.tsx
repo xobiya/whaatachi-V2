@@ -303,7 +303,7 @@ function AppContent() {
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-[#FFFCF8] dark:bg-[#120A0E] text-[#1A1118] dark:text-[#FFFCF8] transition-colors duration-250" id="main-app-container">
+    <div className="flex flex-col min-h-screen bg-[#FFFCF8] dark:bg-[#120A0E] text-[#1A1118] dark:text-[#FFFCF8] transition-colors duration-250 pb-16 lg:pb-0" id="main-app-container">
 
       {/* 1. Header */}
       <Header
