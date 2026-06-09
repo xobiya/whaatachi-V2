@@ -20,6 +20,7 @@ import { AppProvider, useAppContext } from './context/AppContext';
 function AppContent() {
   const { state, dispatch, t } = useAppContext();
   const [authIntent, setAuthIntent] = useState<'register' | 'signin'>('register');
+  const [registrationKey, setRegistrationKey] = useState(0);
 
   // Check location on load and handle direct routing pathways
   useEffect(() => {
@@ -179,6 +180,7 @@ function AppContent() {
     dispatch({ type: 'SET_USER_GENDER', payload: profileWithLookingFor.gender });
     dispatch({ type: 'SET_CURRENT_VIEW', payload: 'browse' });
     triggerNotification('success', t('app.notify.welcome').replace('{name}', profileWithLookingFor.name));
+    setRegistrationKey(k => k + 1);
   };
 
   // 6. Quick sign-in (find existing user by name + phone)
@@ -295,13 +297,11 @@ function AppContent() {
   // ── Onboarding (no header/footer) — shown when not logged in ──
   if (!state.isLoggedIn && state.currentView === 'home') {
     return (
-      <Suspense fallback={<div />}>
-        <OnboardingFlow
-          onComplete={handleRegisterUser}
-          onSignIn={handleSignInUser}
-          authIntent={authIntent}
-        />
-      </Suspense>
+      <OnboardingFlow
+        onComplete={handleRegisterUser}
+        onSignIn={handleSignInUser}
+        authIntent={authIntent}
+      />
     );
   }
 
@@ -356,7 +356,7 @@ function AppContent() {
       )}
 
       {/* 3. Core views */}
-      <main className="grow" id="primary-view-stage">
+      <main key={registrationKey || '0'} className="grow" id="primary-view-stage">
         <Suspense fallback={<div className="flex items-center justify-center py-20"><div className="w-8 h-8 border-2 border-[#8B0020] border-t-transparent rounded-full animate-spin" /></div>}>
 
           {/* Browse — main post-registration listing */}
