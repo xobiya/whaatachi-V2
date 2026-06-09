@@ -61,6 +61,22 @@ const INTENT_OPTIONS: { value: Intent; emoji: string; desc: string }[] = [
 const STEP_LABEL_KEYS = ['onboarding.step1-title', 'onboarding.step2-title', 'onboarding.step3-title'];
 
 export default function OnboardingFlow({ onComplete, onSignIn }: OnboardingFlowProps) {
+  // Sign-in state
+  const [showSignIn, setShowSignIn] = useState(false);
+  const [signInName, setSignInName] = useState('');
+  const [signInPhone, setSignInPhone] = useState('');
+  const [signInError, setSignInError] = useState<string | null>(null);
+
+  const handleSignInSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setSignInError(null);
+    if (!signInName.trim()) {
+      setSignInError(t('auth.required-name-signin'));
+      return;
+    }
+    onSignIn(signInName.trim(), signInPhone.trim());
+  };
+
   // Registration wizard
   const [step, setStep] = useState(1);
   const [selectedIntent, setSelectedIntent] = useState<Intent | null>(null);
@@ -141,8 +157,55 @@ export default function OnboardingFlow({ onComplete, onSignIn }: OnboardingFlowP
         <span className="text-2xl font-black text-[#FFFCF8] tracking-tight">Whaatachi</span>
       </div>
 
-      {/* ══════════ REGISTRATION WIZARD ══════════ */}
-      <>
+      {/* Sign In button for returning users */}
+      <div className="mb-4 z-10">
+        <button
+          onClick={() => setShowSignIn(true)}
+          className="px-6 py-2.5 bg-[#FFFCF8]/5 border border-[#C9A84C]/20 hover:border-[#C9A84C]/50 text-[#C9A84C] hover:text-[#E0C878] text-sm font-bold rounded-xl transition-all cursor-pointer flex items-center gap-1.5"
+        >
+          <LogIn className="h-4 w-4" />
+          {t('auth.sign-in')}
+        </button>
+      </div>
+
+      {/* ══════════ SIGN IN / REGISTRATION (toggle) ══════════ */}
+      {showSignIn ? (
+        <div className="w-full max-w-lg bg-[#1A1118]/80 backdrop-blur-xl border border-[#C9A84C]/10 rounded-3xl p-7 sm:p-10 shadow-2xl z-10">
+          <div className="flex items-center gap-2 mb-6">
+            <button onClick={() => { setShowSignIn(false); setSignInError(null); }} className="flex items-center gap-1 text-[#FFFCF8]/40 hover:text-[#C9A84C] text-xs font-bold cursor-pointer transition-colors">
+              <ArrowLeft className="h-4 w-4" /> {t('onboarding.back')}
+            </button>
+          </div>
+          <div>
+            <span className="text-[10px] font-bold text-[#C9A84C] uppercase tracking-widest">{t('auth.welcome-back')}</span>
+            <h2 className="text-2xl font-black text-[#FFFCF8] mt-1">{t('auth.sign-in-title')}</h2>
+            <p className="text-sm text-[#EDE6D9]/50 mb-6">{t('auth.sign-in-desc')}</p>
+          </div>
+          {signInError && (
+            <div className="mb-4 p-3 rounded-xl bg-[#8B0020]/10 border border-[#8B0020]/30 text-[#F0D4D4] text-xs">{signInError}</div>
+          )}
+          <form onSubmit={handleSignInSubmit} className="space-y-4">
+            <div className="space-y-1.5">
+              <label className="block text-[10px] font-bold text-[#FFFCF8]/50 uppercase tracking-wider">{t('auth.sign-in-name')}</label>
+              <div className="relative">
+                <User className="absolute left-3.5 top-3.5 h-4 w-4 text-[#FFFCF8]/30" />
+                <input type="text" required value={signInName} onChange={(e) => setSignInName(e.target.value)} placeholder="Enter your registered name" className="w-full pl-10 pr-4 py-3 bg-[#FFFCF8]/5 border border-[#FFFCF8]/10 rounded-xl text-sm text-[#FFFCF8] placeholder:text-[#FFFCF8]/25 focus:outline-none focus:border-[#C9A84C]/60 transition-colors" />
+              </div>
+            </div>
+            <div className="space-y-1.5">
+              <label className="block text-[10px] font-bold text-[#FFFCF8]/50 uppercase tracking-wider">{t('auth.sign-in-phone')}</label>
+              <div className="relative">
+                <Phone className="absolute left-3.5 top-3.5 h-4 w-4 text-[#FFFCF8]/30" />
+                <input type="tel" value={signInPhone} onChange={(e) => setSignInPhone(e.target.value)} placeholder="0911XXXXXX" className="w-full pl-10 pr-4 py-3 bg-[#FFFCF8]/5 border border-[#FFFCF8]/10 rounded-xl text-sm text-[#FFFCF8] placeholder:text-[#FFFCF8]/25 focus:outline-none focus:border-[#C9A84C]/60 transition-colors" />
+              </div>
+            </div>
+            <button type="submit" className="w-full py-3.5 bg-[#8B0020] hover:bg-[#B31B3A] text-white font-bold rounded-xl flex items-center justify-center gap-2 transition-all cursor-pointer shadow-lg shadow-[#8B0020]/20">
+              <LogIn className="h-4 w-4" /> {t('auth.sign-in-btn')}
+            </button>
+          </form>
+        </div>
+      ) : (
+        <>
           {/* Step indicator */}
           <div className="flex items-center gap-0 mb-6 z-10">
             {STEP_LABEL_KEYS.map((key, idx) => {
@@ -456,6 +519,7 @@ export default function OnboardingFlow({ onComplete, onSignIn }: OnboardingFlowP
             )}
           </div>
         </>
+      )}
     </div>
   );
 }

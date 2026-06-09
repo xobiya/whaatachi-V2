@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { X, Copy, Check, ShieldAlert, CheckCircle, Upload, ArrowRight, DollarSign } from 'lucide-react';
+import React, { useState, useRef } from 'react';
+import { X, Copy, Check, ShieldAlert, CheckCircle, Upload, ArrowRight, DollarSign, File } from 'lucide-react';
 import { Profile } from '../types';
 import { useAppContext } from '../context/AppContext';
 
@@ -31,6 +31,8 @@ export default function PaymentModal({
   const [method, setMethod] = useState<'Telebirr' | 'CBE Birr'>('Telebirr');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
+  const [uploadedFileName, setUploadedFileName] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const activeFee = (() => {
     const saved = localStorage.getItem('whaatachi_match_fee_v1');
@@ -38,6 +40,13 @@ export default function PaymentModal({
   })();
 
   if (!isOpen) return null;
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setUploadedFileName(file.name);
+    }
+  };
 
   const handleCopy = (text: string, type: 'tele' | 'cbe') => {
     navigator.clipboard.writeText(text);
@@ -214,15 +223,16 @@ export default function PaymentModal({
 
                   <div className="border border-dashed border-[#EDE6D9] dark:border-[#C9A84C]/15 rounded-xl p-3 bg-[#F8F4ED] dark:bg-[#1A1118] flex items-center justify-between text-xs">
                     <div className="flex items-center gap-2">
-                      <Upload className="h-5 w-5 text-gray-400" />
+                      {uploadedFileName ? <File className="h-5 w-5 text-[#8B0020]" /> : <Upload className="h-5 w-5 text-gray-400" />}
                       <div>
-                        <p className="font-bold text-gray-700 dark:text-gray-300">{t('payment.upload-slip')}</p>
-                        <p className="text-[10px] text-gray-400">{t('payment.optional-screenshot')}</p>
+                        <p className="font-bold text-gray-700 dark:text-gray-300">{uploadedFileName || t('payment.upload-slip')}</p>
+                        <p className="text-[10px] text-gray-400">{uploadedFileName ? 'File selected' : t('payment.optional-screenshot')}</p>
                       </div>
                     </div>
-                    <span className="bg-white dark:bg-[#120A0E] border border-[#EDE6D9] dark:border-[#C9A84C]/10 rounded-md px-2 py-1 font-semibold text-gray-500 dark:text-gray-400 cursor-pointer hover:bg-gray-50 dark:hover:bg-[#1A1118] text-[10px]">
+                    <button type="button" onClick={() => fileInputRef.current?.click()} className="bg-white dark:bg-[#120A0E] border border-[#EDE6D9] dark:border-[#C9A84C]/10 rounded-md px-2 py-1 font-semibold text-gray-500 dark:text-gray-400 cursor-pointer hover:bg-gray-50 dark:hover:bg-[#1A1118] text-[10px]">
                       {t('payment.choose')}
-                    </span>
+                    </button>
+                    <input type="file" ref={fileInputRef} accept="image/*" className="hidden" onChange={handleFileChange} />
                   </div>
                 </div>
               </div>

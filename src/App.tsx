@@ -204,7 +204,18 @@ function AppContent() {
     }
   };
 
-  // 7. Profile customization handlers
+  // 7. Simulate test login from AuthModal quick-test buttons
+  const handleSimulateTestLogin = (profile: Profile) => {
+    const updatedProfile = { ...profile, lookingFor: profile.lookingFor || (profile.gender === 'Male' ? 'Female' : 'Male') };
+    localStorage.setItem('whaatachi_logged_in_user_v1', JSON.stringify(updatedProfile));
+    dispatch({ type: 'SET_CURRENT_USER', payload: updatedProfile });
+    dispatch({ type: 'SET_LOGGED_IN', payload: true });
+    dispatch({ type: 'SET_USER_GENDER', payload: updatedProfile.gender });
+    dispatch({ type: 'SET_CURRENT_VIEW', payload: 'browse' });
+    triggerNotification('success', t('app.notify.welcome-back').replace('{name}', profile.name));
+  };
+
+  // 8. Profile customization handlers
   const handleUpdateBio = (newBio: string) => {
     if (!state.currentUser) return;
     const updatedUser = { ...state.currentUser, bio: newBio };
