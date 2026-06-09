@@ -27,6 +27,18 @@ export default function SelectDropdown({ value, onChange, options, placeholder, 
     };
   }, []);
 
+  const [dropdownUp, setDropdownUp] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (isOpen && containerRef.current && dropdownRef.current) {
+      const rect = containerRef.current.getBoundingClientRect();
+      const spaceBelow = window.innerHeight - rect.bottom;
+      const spaceAbove = rect.top;
+      setDropdownUp(spaceBelow < 200 && spaceAbove > spaceBelow);
+    }
+  }, [isOpen]);
+
   return (
     <div ref={containerRef} className="relative">
       <button
@@ -38,7 +50,10 @@ export default function SelectDropdown({ value, onChange, options, placeholder, 
       </button>
       <ChevronDown className={`absolute right-3 top-3.5 h-4 w-4 text-[#FFFCF8]/30 pointer-events-none transition-transform ${isOpen ? 'rotate-180' : ''}`} />
       {isOpen && (
-        <div className="absolute left-0 right-0 top-full mt-1 z-30 max-h-52 overflow-y-auto bg-[#1A1118] border border-[#C9A84C]/20 rounded-xl shadow-2xl shadow-black/50">
+        <div
+          ref={dropdownRef}
+          className={`absolute left-0 right-0 z-30 max-h-52 overflow-y-auto bg-[#1A1118] border border-[#C9A84C]/20 rounded-xl shadow-2xl shadow-black/50 ${dropdownUp ? 'bottom-full mb-1' : 'top-full mt-1'}`}
+        >
           {options.map((opt) => (
             <button
               key={opt}

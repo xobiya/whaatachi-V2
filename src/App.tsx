@@ -119,17 +119,11 @@ function AppContent() {
       method,
       amount,
       timestamp: new Date().toLocaleString([], { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' }),
-      status: amount === 0 ? 'Approved' : 'Pending'
+      status: 'Pending'
     };
 
     dispatch({ type: 'ADD_PAYMENT', payload: newRequest });
-
-    if (amount === 0) {
-      dispatch({ type: 'ADD_UNLOCK', payload: profileId });
-      triggerNotification('success', t('app.notify.unlocked-free').replace('{name}', profileName));
-    } else {
-      triggerNotification('info', t('app.notify.submitted').replace('{txId}', transactionId));
-    }
+    triggerNotification('info', t('app.notify.submitted').replace('{txId}', transactionId));
   };
 
   // 2. Approve Payment (Admin Function)

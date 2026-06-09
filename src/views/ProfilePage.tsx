@@ -2,7 +2,7 @@ import React, { useState, useRef, useMemo } from 'react';
 import { ArrowLeft, MapPin, ShieldCheck, Phone, MessageCircle, Instagram, Mail, Lock, Sparkles, Star, Crown, Heart, Edit3, Check, X, Plus, User, Camera, Calendar } from 'lucide-react';
 import { Profile, PaymentRequest } from '../types';
 import { useAppContext } from '../context/AppContext';
-import { blurContactInfo } from '../utils/contactBlur';
+
 
 const ALL_INTERESTS = [
   'Coffee Ceremony', 'Macchiato', 'Technology', 'Literature', 'Jazz', 'Hiking',
@@ -41,7 +41,7 @@ interface ProfilePageProps {
 export default function ProfilePage({ profile, isUnlocked, pendingPayment, userGender, isOwnProfile, onBack, onUnlockClick, onSaveProfile }: ProfilePageProps) {
   const { t } = useAppContext();
   const [editing, setEditing] = useState(false);
-  const blurred = useMemo(() => blurContactInfo(profile.contactInfo), [profile.contactInfo]);
+
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Form states to edit the WHOLE data
@@ -480,7 +480,7 @@ export default function ProfilePage({ profile, isUnlocked, pendingPayment, userG
                 </div>
                 <div>
                   <p className="text-[9px] text-gray-400 dark:text-gray-500 font-bold uppercase tracking-widest">{t('profile.phone')}</p>
-                  <p className="font-bold text-gray-800 dark:text-[#FFFCF8] text-xs sm:text-sm blur-sm select-none">{blurred.phone}</p>
+                  <p className="font-bold text-gray-800 dark:text-[#FFFCF8] text-xs sm:text-sm">{profile.contactInfo.phone}</p>
                 </div>
               </div>
 
@@ -490,7 +490,7 @@ export default function ProfilePage({ profile, isUnlocked, pendingPayment, userG
                 </div>
                 <div>
                   <p className="text-[9px] text-gray-400 dark:text-gray-500 font-bold uppercase tracking-widest">{t('profile.telegram')}</p>
-                  <p className="font-bold text-sky-600 dark:text-sky-400 text-xs sm:text-sm blur-sm select-none">{blurred.telegram}</p>
+                  <p className="font-bold text-sky-600 dark:text-sky-400 text-xs sm:text-sm">{profile.contactInfo.telegram}</p>
                 </div>
               </div>
 
@@ -501,7 +501,7 @@ export default function ProfilePage({ profile, isUnlocked, pendingPayment, userG
                   </div>
                   <div>
                     <p className="text-[9px] text-gray-400 dark:text-gray-500 font-bold uppercase tracking-widest">{t('profile.instagram')}</p>
-                    <p className="font-bold text-[#EB317A] dark:text-[#C9A84C] text-xs sm:text-sm blur-sm select-none">{blurred.instagram}</p>
+                    <p className="font-bold text-[#EB317A] dark:text-[#C9A84C] text-xs sm:text-sm">{profile.contactInfo.instagram}</p>
                   </div>
                 </div>
               )}
@@ -512,7 +512,7 @@ export default function ProfilePage({ profile, isUnlocked, pendingPayment, userG
                 </div>
                 <div>
                   <p className="text-[9px] text-gray-400 dark:text-gray-500 font-bold uppercase tracking-widest">{t('profile.email')}</p>
-                  <p className="font-bold text-gray-800 dark:text-[#FFFCF8] text-xs sm:text-sm truncate blur-sm select-none">{blurred.email}</p>
+                  <p className="font-bold text-gray-800 dark:text-[#FFFCF8] text-xs sm:text-sm truncate">{profile.contactInfo.email}</p>
                 </div>
               </div>
             </div>

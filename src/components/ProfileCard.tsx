@@ -63,6 +63,12 @@ export default function ProfileCard({
           }`}>
             {profile.relationshipIntent}
           </span>
+
+          {profile.bio && (
+            <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed line-clamp-2">
+              {profile.bio}
+            </p>
+          )}
         </div>
 
         <div className="pt-4 mt-4 border-t border-[#EDE6D9] dark:border-[#C9A84C]/10">
@@ -102,7 +108,6 @@ export default function ProfileCard({
               <button onClick={() => onUnlockClick(profile)} className="w-full py-3 bg-[#EB317A] hover:bg-[#F04B8E] text-white font-bold text-xs rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-[#EB317A]/10">
                 <Lock className="h-3.5 w-3.5" />
                 <span>{t('profile-card.see-contact')}</span>
-                <span className="text-[9px] bg-white/20 px-1.5 py-0.5 rounded-md font-extrabold">{t('profile-card.free')}</span>
               </button>
             </div>
           )}

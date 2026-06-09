@@ -32,7 +32,7 @@ export default function ProfileListing({
   const [searchQuery, setSearchQuery] = useState('');
   const [filterIntent, setFilterIntent] = useState<string | null>(null);
   const [filterCity, setFilterCity] = useState<string | null>(null);
-  const [usePreference, setUsePreference] = useState(false);
+  const [usePreference, setUsePreference] = useState(true);
   const [ageMin, setAgeMin] = useState<number>(18);
   const [ageMax, setAgeMax] = useState<number>(60);
   const [showFilters, setShowFilters] = useState(false);
@@ -75,7 +75,7 @@ export default function ProfileListing({
 
   return (
     <div className="bg-[#FFFCF8] dark:bg-[#120A0E] min-h-screen transition-colors duration-200">
-      <div className="max-w-6xl mx-auto px-4 py-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         {/* Header */}
         <div className="mb-6 text-center">
           <div className="flex items-center justify-center gap-2 mb-1">
@@ -94,7 +94,7 @@ export default function ProfileListing({
         </div>
 
         {/* Search + Filter bar */}
-        <div className="flex gap-2 mb-4 max-w-xl mx-auto w-full">
+        <div className="flex gap-2 mb-4 max-w-2xl mx-auto w-full">
           <div className="relative flex-1">
             <Search className="absolute left-3.5 top-3 h-4 w-4 text-gray-400" />
             <input
@@ -121,7 +121,7 @@ export default function ProfileListing({
 
         {/* Filter panel */}
         {showFilters && (
-          <div className="bg-white dark:bg-[#1A1118] border border-[#EDE6D9] dark:border-[#C9A84C]/10 rounded-2xl p-4 mb-4 grid grid-cols-2 gap-3 shadow-sm max-w-xl mx-auto">
+          <div className="bg-white dark:bg-[#1A1118] border border-[#EDE6D9] dark:border-[#C9A84C]/10 rounded-2xl p-4 mb-4 grid grid-cols-2 sm:grid-cols-3 gap-3 shadow-sm max-w-2xl mx-auto">
             <div>
               <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1.5">{t('profile-listing.city')}</label>
               <select
@@ -152,7 +152,7 @@ export default function ProfileListing({
         )}
 
         {/* Intent chips */}
-        <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar mb-5 justify-start sm:justify-center max-w-xl mx-auto">
+        <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar mb-5 justify-start sm:justify-center max-w-2xl mx-auto">
           <button
             onClick={() => { setUsePreference(!usePreference); setFilterIntent(null); setFilterCity(null); setAgeMin(18); setAgeMax(60); }}
             className={`px-3.5 py-1.5 rounded-xl text-[11px] font-bold shrink-0 transition-all cursor-pointer border ${
@@ -180,7 +180,7 @@ export default function ProfileListing({
 
         {/* Grid */}
         {filteredProfiles.length > 0 ? (
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4 lg:gap-5">
             {filteredProfiles.map((profile) => {
               const isUnlocked = unlockedIds.includes(profile.id);
               const pending = pendingPayments.find((p) => p.profileId === profile.id && p.status === 'Pending');
@@ -320,7 +320,6 @@ function ProfileListCard({
               >
                 <Lock className="h-3 w-3" />
                 {t('profile-card.see-contact')}
-                <span className="text-[8px] bg-white/20 px-1 py-0.5 rounded-md font-extrabold">{t('profile-listing.free')}</span>
               </button>
             </div>
           )}

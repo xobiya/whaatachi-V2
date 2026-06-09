@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { X, Copy, Check, ShieldAlert, CheckCircle, Upload, ArrowRight, DollarSign, File } from 'lucide-react';
+import { X, Copy, Check, ShieldAlert, CheckCircle, Upload, ArrowRight, DollarSign, File, Lock } from 'lucide-react';
 import { Profile } from '../types';
 import { useAppContext } from '../context/AppContext';
 
@@ -33,6 +33,7 @@ export default function PaymentModal({
   const [error, setError] = useState('');
   const [uploadedFileName, setUploadedFileName] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [showPaymentForm, setShowPaymentForm] = useState(false);
 
   if (!isOpen) return null;
 
@@ -122,14 +123,41 @@ export default function PaymentModal({
                   <input type="text" required placeholder="+251 900 000 000" value={senderPhone} onChange={(e) => setSenderPhone(e.target.value)} className="w-full rounded-xl border border-[#EDE6D9] dark:border-[#C9A84C]/15 p-3 text-sm text-gray-900 dark:text-[#FFFCF8] focus:outline-hidden focus:border-[#EB317A] dark:focus:border-[#C9A84C] focus:ring-1 focus:ring-[#EB317A]/20 dark:focus:ring-[#C9A84C]/20 bg-white dark:bg-[#1A1118]" />
                 </div>
               </div>
+            ) : !showPaymentForm ? (
+              <div className="space-y-4">
+                <div className="bg-[#EB317A]/5 border border-[#EB317A]/20 rounded-xl p-6 text-center space-y-3">
+                  <Lock className="h-10 w-10 text-[#EB317A] mx-auto" />
+                  <div>
+                    <h4 className="font-bold text-lg text-[#1A1118] dark:text-[#FFFCF8]">Pay 200 ETB to See Contact Details</h4>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                      One-time payment to unlock {profile.name}'s phone, Telegram & Instagram
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setShowPaymentForm(true)}
+                    className="w-full py-3 bg-[#EB317A] hover:bg-[#F04B8E] text-white rounded-xl text-sm font-bold shadow-lg shadow-[#EB317A]/20 transition-all flex items-center justify-center gap-2 cursor-pointer"
+                  >
+                    <DollarSign className="h-4 w-4" />
+                    Pay 200 ETB & Unlock
+                  </button>
+                  <button
+                    type="button"
+                    onClick={onClose}
+                    className="text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
             ) : (
               <div className="space-y-4">
                 <div className="bg-[#EB317A]/5 border border-[#EB317A]/20 rounded-xl p-4 text-[#1A1118] dark:text-[#FFFCF8] flex items-start gap-3">
-                  <CheckCircle className="h-5 w-5 text-[#C9A84C] mt-0.5 shrink-0" />
+                  <DollarSign className="h-5 w-5 text-[#EB317A] mt-0.5 shrink-0" />
                   <div>
-                    <h4 className="font-bold text-sm">{t('payment.free-title')}</h4>
+                    <h4 className="font-bold text-sm">{t('payment.male-title')}</h4>
                     <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed mt-1">
-                      {t('payment.free-desc')}
+                      {t('payment.male-desc')}
                     </p>
                   </div>
                 </div>
@@ -193,16 +221,23 @@ export default function PaymentModal({
               </div>
             )}
 
+            {(showPaymentForm || userGender === 'Female') && (
             <button type="submit" disabled={submitting} className="w-full py-3.5 bg-[#EB317A] hover:bg-[#F04B8E] text-white rounded-xl text-sm font-bold shadow-lg shadow-[#EB317A]/20 transition-all flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer shrink-0">
               {submitting ? (
                 <span>{t('payment.verifying')}</span>
-              ) : (
+              ) : userGender === 'Female' ? (
                 <>
                   <span>{t('payment.verify-free')}</span>
                   <ArrowRight className="h-4.5 w-4.5" />
                 </>
+              ) : (
+                <>
+                  <span>Submit Payment for Review</span>
+                  <ArrowRight className="h-4.5 w-4.5" />
+                </>
               )}
             </button>
+            )}
           </form>
         </div>
       </div>
