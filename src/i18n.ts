@@ -344,6 +344,7 @@ const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     'profile-listing.clear-filters': 'Clear Filters',
     'profile-listing.pending': 'Pending',
     'profile-listing.unlocked': 'Unlocked!',
+    'profile-listing.make-payment-to-see': 'Make a payment to see contact info',
     'profile-listing.free': 'FREE',
     'logged-in.premium': 'Premium Portal Active',
     'logged-in.greeting': 'Selam, {name}!',

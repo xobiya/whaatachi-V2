@@ -302,7 +302,7 @@ export default function ProfilePage({ profile, isUnlocked, pendingPayment, userG
                 <label className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase">{t('profile.relationship-intent')}</label>
                 <select 
                   value={editRelationshipIntent} 
-                  onChange={(e) => setEditRelationshipIntent(e.target.value)} 
+                  onChange={(e) => setEditRelationshipIntent(e.target.value as Profile['relationshipIntent'])} 
                   className="w-full text-xs border border-[#EDE6D9] dark:border-[#C9A84C]/15 rounded-xl p-2.5 bg-white dark:bg-[#1A1118] text-gray-800 dark:text-[#FFFCF8] outline-hidden"
                 >
                   <option value="True Relationship">True Relationship</option>

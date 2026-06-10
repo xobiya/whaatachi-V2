@@ -268,17 +268,23 @@ function AppContent() {
     return state.userGender === 'Male' ? 'Female' : 'Male';
   }, [state.currentUser, state.userGender]);
 
+  const userHasPaid = useMemo(() => {
+    if (!state.currentUser) return false;
+    const name = state.currentUser.name.toLowerCase();
+    return state.allPayments.some(p => p.status === 'Approved' && p.senderName.toLowerCase() === name);
+  }, [state.allPayments, state.currentUser]);
+
   // ── Admin Panel (no header/footer) ──
   if (state.currentView === 'admin') {
     return (
       <div className="font-sans">
         <AdminPanel
           allPayments={state.allPayments}
-          setAllPayments={(p) => dispatch({ type: 'SET_PAYMENTS', payload: p })}
+          setAllPayments={(p: any) => dispatch({ type: 'SET_PAYMENTS', payload: typeof p === 'function' ? p(state.allPayments) : p })}
           profiles={state.profiles}
-          setProfiles={(p) => dispatch({ type: 'SET_PROFILES', payload: p })}
+          setProfiles={(p: any) => dispatch({ type: 'SET_PROFILES', payload: typeof p === 'function' ? p(state.profiles) : p })}
           stories={state.stories}
-          setStories={(s) => dispatch({ type: 'SET_STORIES', payload: s })}
+          setStories={(s: any) => dispatch({ type: 'SET_STORIES', payload: typeof s === 'function' ? s(state.stories) : s })}
           onApprove={handleApprovePayment}
           onReject={handleRejectPayment}
           setUserRole={(r) => dispatch({ type: 'SET_USER_ROLE', payload: r })}
@@ -361,10 +367,8 @@ function AppContent() {
             <ProfileListing
               profiles={state.profiles}
               currentUser={state.currentUser}
-              unlockedIds={state.unlockedIds}
-              pendingPayments={state.allPayments}
-              onUnlockClick={handleUnlockTrigger}
-              onViewProfile={handleViewProfile}
+              hasPaid={userHasPaid}
+              onMakePayment={handleUnlockTrigger}
             />
           )}
 
@@ -392,13 +396,11 @@ function AppContent() {
           {state.currentView === 'dashboard' && (
             <Dashboard
               profiles={state.profiles}
-              unlockedIds={state.unlockedIds}
-              pendingPayments={state.allPayments}
-              onUnlockClick={handleUnlockTrigger}
+              hasPaid={userHasPaid}
               userGender={state.userGender}
               userLookingFor={userLookingFor}
               isLoggedIn={state.isLoggedIn}
-              onViewProfile={handleViewProfile}
+              onMakePayment={handleUnlockTrigger}
             />
           )}
 

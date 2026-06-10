@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Heart, Menu, X, User, LogOut, Crown, ChevronDown, Moon, Sun, Compass, History, HeartHandshake, UserCircle } from 'lucide-react';
+import { Heart, Menu, X, User, LogOut, Crown, ChevronDown, Moon, Sun, Compass, UserCircle } from 'lucide-react';
 import TelegramIcon from './TelegramIcon';
 import { Profile } from '../types';
 import type { Lang } from '../i18n';
@@ -26,8 +26,6 @@ interface HeaderProps {
 
 const BOTTOM_NAV = [
   { labelKey: 'nav.matches', view: 'browse', icon: Compass },
-  { labelKey: 'nav.unlocked', view: 'history', icon: History },
-  { labelKey: 'nav.stories', view: 'stories', icon: HeartHandshake },
   { labelKey: 'nav.support', view: 'support', icon: TelegramIcon },
 ];
 
@@ -67,8 +65,6 @@ export default function Header({
             {/* Desktop Nav */}
             <div className="hidden lg:flex items-center gap-6">
               <button onClick={() => handleNav('browse')} className={`text-sm font-semibold transition-colors cursor-pointer ${isActive('browse') ? 'text-[#C9A84C]' : 'text-[#EDE6D9]/70 hover:text-[#FFFCF8]'}`}>{t('nav.matches')}</button>
-              <button onClick={() => handleNav('history')} className={`text-sm font-semibold transition-colors cursor-pointer ${currentView === 'history' ? 'text-[#C9A84C]' : 'text-[#EDE6D9]/70 hover:text-[#FFFCF8]'}`}>{t('nav.unlocked')}</button>
-              <button onClick={() => handleNav('stories')} className={`text-sm font-semibold transition-colors cursor-pointer ${currentView === 'stories' ? 'text-[#C9A84C]' : 'text-[#EDE6D9]/70 hover:text-[#FFFCF8]'}`}>{t('nav.stories')}</button>
               <button onClick={() => window.open('https://t.me/whaatachi_support', '_blank', 'noopener,noreferrer')} className="text-sm font-semibold transition-colors cursor-pointer text-[#EDE6D9]/70 hover:text-[#FFFCF8]">{t('nav.support')}</button>
             </div>
 
@@ -115,7 +111,10 @@ export default function Header({
             </div>
 
             {/* Mobile Hamburger */}
-            <div className="flex lg:hidden items-center">
+            <div className="flex lg:hidden items-center gap-1">
+              <button onClick={() => setLang(lang === 'en' ? 'am' : 'en')} className="px-2 py-1.5 text-[10px] font-bold text-[#EDE6D9]/70 hover:text-[#C9A84C] border border-[#C9A84C]/20 hover:border-[#C9A84C]/60 rounded-lg transition-all cursor-pointer" title={lang === 'en' ? 'አማርኛ' : 'English'}>
+                {lang === 'en' ? 'አማ' : 'EN'}
+              </button>
               <button onClick={() => setIsOpen(!isOpen)} className="p-2 text-[#EDE6D9] cursor-pointer">
                 {isOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
               </button>
@@ -213,13 +212,6 @@ export default function Header({
                   <div className={`w-3.5 h-3.5 bg-white rounded-full absolute top-0.5 transition-all ${darkMode ? 'right-0.5' : 'left-0.5'}`} />
                 </button>
               </div>
-              <button onClick={() => setLang(lang === 'en' ? 'am' : 'en')} className="w-full flex items-center justify-between px-3 py-3 rounded-xl text-sm font-semibold text-[#EDE6D9]/70 hover:bg-[#FFFCF8]/5 transition-all cursor-pointer">
-                <div className="flex items-center gap-3">
-                  <span className="text-base">{lang === 'en' ? '🇪🇹' : '🇬🇧'}</span>
-                  <span>{lang === 'en' ? 'Amharic (አማርኛ)' : 'English'}</span>
-                </div>
-                <span className="text-[10px] font-bold text-[#C9A84C]">{lang === 'en' ? 'አማ' : 'EN'}</span>
-              </button>
             </div>
 
             {/* Logout */}

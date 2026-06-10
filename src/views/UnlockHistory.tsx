@@ -46,7 +46,7 @@ export default function UnlockHistory({ unlockedProfiles, onBackToFinder, onView
                     <div>
                       <h3 className="font-bold text-[#1A1118] dark:text-[#FFFCF8] text-base flex items-center gap-1 group-hover:text-[#EB317A] dark:group-hover:text-[#C9A84C] hover:underline transition-colors">
                         {profile.name}
-                        {profile.verified && <ShieldCheck className="h-4 w-4 text-[#C9A84C]" title={t('common.verified')} />}
+                        {profile.verified && <ShieldCheck className="h-4 w-4 text-[#C9A84C]" />}
                       </h3>
                       <p className="text-[10px] font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-100 dark:border-emerald-800/30 px-1.5 py-0.5 rounded-sm inline-block mt-0.5">
                         {profile.relationshipIntent}

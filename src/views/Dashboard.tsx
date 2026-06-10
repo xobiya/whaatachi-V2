@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { Search, MapPin, AlertCircle, Star, Sliders, CheckSquare, Square, RefreshCw, Lightbulb, ChevronLeft, ChevronRight, Filter, X } from 'lucide-react';
-import { Profile, PaymentRequest } from '../types';
+import { Profile } from '../types';
 import ProfileCard from '../components/ProfileCard';
 import { useAppContext } from '../context/AppContext';
 
@@ -56,17 +56,15 @@ const getTagBadgeStyles = (color: string) => {
 
 interface DashboardProps {
   profiles: Profile[];
-  unlockedIds: string[];
-  pendingPayments: PaymentRequest[];
-  onUnlockClick: (profile: Profile) => void;
+  hasPaid: boolean;
   userGender: 'Male' | 'Female';
   userLookingFor: 'Male' | 'Female';
   isLoggedIn: boolean;
-  onViewProfile?: (profile: Profile) => void;
+  onMakePayment?: (profile: Profile) => void;
 }
 
 export default function Dashboard({
-  profiles, unlockedIds, pendingPayments, onUnlockClick, userGender, userLookingFor, isLoggedIn, onViewProfile
+  profiles, hasPaid, userGender, userLookingFor, isLoggedIn, onMakePayment
 }: DashboardProps) {
   const { t } = useAppContext();
   const [searchQuery, setSearchQuery] = useState('');
@@ -125,8 +123,6 @@ export default function Dashboard({
         matchesCategory = profile.status === 'Recently Active' || profile.status === 'Online';
       } else if (filterType === 'verified') {
         matchesCategory = profile.verified;
-      } else if (filterType === 'unlocked') {
-        matchesCategory = unlockedIds.includes(profile.id);
       }
 
       const matchesInterests = selectedInterests.length === 0 ||
@@ -135,7 +131,7 @@ export default function Dashboard({
 
       return matchesSearch && matchesCity && matchesAge && matchesCategory && matchesInterests && matchesGender;
     });
-  }, [profiles, searchQuery, selectedCity, filterType, ageRange, selectedInterests, unlockedIds, userLookingFor, isLoggedIn]);
+  }, [profiles, searchQuery, selectedCity, filterType, ageRange, selectedInterests, userLookingFor, isLoggedIn]);
 
   const filtersContent = (
     <div className="space-y-5">
@@ -259,11 +255,6 @@ export default function Dashboard({
               <button onClick={() => setFilterType('verified')} className={`px-4 py-2.5 rounded-xl text-xs font-bold shrink-0 transition-all cursor-pointer border ${filterType === 'verified' ? 'bg-[#1A1118] dark:bg-[#EB317A] border-[#1A1118] dark:border-[#EB317A] text-white' : 'bg-white dark:bg-[#1A1118] border-[#EDE6D9] dark:border-[#C9A84C]/15 text-gray-600 dark:text-gray-400 hover:border-gray-300'}`}>
                 Verified
               </button>
-              {unlockedIds.length > 0 && (
-                <button onClick={() => setFilterType('unlocked')} className={`px-4 py-2.5 rounded-xl text-xs font-bold shrink-0 transition-all cursor-pointer border ${filterType === 'unlocked' ? 'bg-emerald-600 border-emerald-600 text-white' : 'bg-white dark:bg-[#1A1118] border-[#EDE6D9] dark:border-[#C9A84C]/15 text-emerald-700 dark:text-emerald-400 hover:border-emerald-300'}`}>
-                  Unlocked ({unlockedIds.length})
-                </button>
-              )}
             </div>
 
             {/* Pro Tips - collapsible on mobile */}
@@ -315,17 +306,14 @@ export default function Dashboard({
             {filteredProfiles.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
                 {filteredProfiles.map((profile) => {
-                  const isUnlocked = unlockedIds.includes(profile.id);
-                  const pPayment = pendingPayments.find((p) => p.profileId === profile.id && p.status === 'Pending');
+                  const showContact = hasPaid;
                   return (
                     <ProfileCard
                       key={profile.id}
                       profile={profile}
-                      isUnlocked={isUnlocked}
-                      pendingPayment={pPayment}
-                      onUnlockClick={onUnlockClick}
+                      showContact={showContact}
                       userGender={userGender}
-                      onViewProfile={onViewProfile}
+                      onMakePayment={onMakePayment}
                     />
                   );
                 })}

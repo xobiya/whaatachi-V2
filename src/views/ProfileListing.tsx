@@ -1,10 +1,8 @@
 import React, { useMemo, useState } from 'react';
-import { Profile, PaymentRequest } from '../types';
-import { MapPin, Lock, Phone, Instagram, Sparkles, Heart, Search, Filter, X } from 'lucide-react';
+import { Profile } from '../types';
+import { MapPin, Phone, Instagram, Heart, Search, Filter, X } from 'lucide-react';
 import TelegramIcon from '../components/TelegramIcon';
 import { useAppContext } from '../context/AppContext';
-import { blurContactInfo } from '../utils/contactBlur';
-
 const INTENT_BADGE: Record<string, { label: string; cls: string }> = {
   'True Relationship': { label: '❤️ True Relationship', cls: 'bg-rose-500/10 text-rose-400 border-rose-500/30' },
   'Friendship': { label: '🤝 Friendship', cls: 'bg-blue-500/10 text-blue-400 border-blue-500/30' },
@@ -15,19 +13,15 @@ const INTENT_BADGE: Record<string, { label: string; cls: string }> = {
 interface ProfileListingProps {
   profiles: Profile[];
   currentUser: Profile;
-  unlockedIds: string[];
-  pendingPayments: PaymentRequest[];
-  onUnlockClick: (profile: Profile) => void;
-  onViewProfile?: (profile: Profile) => void;
+  hasPaid: boolean;
+  onMakePayment?: (profile: Profile) => void;
 }
 
 export default function ProfileListing({
   profiles,
   currentUser,
-  unlockedIds,
-  pendingPayments,
-  onUnlockClick,
-  onViewProfile,
+  hasPaid,
+  onMakePayment,
 }: ProfileListingProps) {
   const { t } = useAppContext();
   const [searchQuery, setSearchQuery] = useState('');
@@ -190,19 +184,15 @@ export default function ProfileListing({
         {filteredProfiles.length > 0 ? (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4 lg:gap-5">
             {filteredProfiles.map((profile) => {
-              const isUnlocked = unlockedIds.includes(profile.id);
-              const pending = pendingPayments.find((p) => p.profileId === profile.id && p.status === 'Pending');
+              const showContact = hasPaid;
               const badge = INTENT_BADGE[profile.relationshipIntent] || INTENT_BADGE['Friendship'];
               return (
                 <ProfileListCard
                   key={profile.id}
                   profile={profile}
-                  isUnlocked={isUnlocked}
-                  pending={pending}
-                  userGender={currentUser.gender}
+                  showContact={showContact}
                   badge={badge}
-                  onUnlockClick={onUnlockClick}
-                  onViewProfile={onViewProfile}
+                  onMakePayment={onMakePayment}
                 />
               );
             })}
@@ -229,28 +219,33 @@ export default function ProfileListing({
 interface ProfileListCardProps {
   key?: React.Key;
   profile: Profile;
-  isUnlocked: boolean;
-  pending: PaymentRequest | undefined;
-  userGender: 'Male' | 'Female';
+  showContact: boolean;
   badge: { label: string; cls: string };
-  onUnlockClick: (p: Profile) => void;
-  onViewProfile?: (p: Profile) => void;
+  onMakePayment?: (profile: Profile) => void;
+}
+
+function maskPhone(val: string) {
+  const digits = val.replace(/\D/g, '');
+  if (digits.length >= 9) return digits.slice(0, 2) + 'XX XXX' + digits.slice(-3);
+  return val.slice(0, 3) + '***';
+}
+function maskHandle(val: string) {
+  if (!val || val === '---') return '---';
+  const at = val.startsWith('@') ? '@' : '';
+  const body = val.replace(/^@/, '');
+  if (body.length <= 2) return at + body + '***';
+  return at + body.slice(0, 2) + '...';
 }
 
 function ProfileListCard({
-  profile, isUnlocked, pending, userGender, badge, onUnlockClick, onViewProfile
+  profile, showContact, badge, onMakePayment
 }: ProfileListCardProps) {
-  const isFemaleUser = userGender === 'Female';
   const { t } = useAppContext();
-  const blurred = useMemo(() => blurContactInfo(profile.contactInfo), [profile.contactInfo]);
 
   return (
     <div className="bg-white dark:bg-[#1A1118] rounded-2xl border border-[#EDE6D9] dark:border-[#C9A84C]/10 overflow-hidden shadow-sm hover:shadow-xl hover:border-[#C9A84C]/30 dark:hover:border-[#C9A84C]/20 transition-all duration-400 flex flex-col group">
       {/* Photo */}
-      <div
-        className={`relative pt-[125%] w-full bg-gray-100 dark:bg-[#120A0E] overflow-hidden ${onViewProfile ? 'cursor-pointer' : ''}`}
-        onClick={onViewProfile ? () => onViewProfile(profile) : undefined}
-      >
+      <div className="relative pt-[125%] w-full bg-gray-100 dark:bg-[#120A0E] overflow-hidden">
         <img
           src={profile.image}
           alt={profile.name}
@@ -259,12 +254,10 @@ function ProfileListCard({
           referrerPolicy="no-referrer"
         />
         <div className="absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-black/70 to-transparent" />
-        {/* Status */}
         <div className="absolute top-2 left-2 flex gap-1">
           {profile.status === 'Online' && <span className="px-2 py-0.5 rounded-full text-[9px] font-bold bg-emerald-500 text-white">{t('profile-card.online')}</span>}
           {profile.verified && <span className="px-2 py-0.5 rounded-full text-[9px] font-bold bg-[#C9A84C] text-[#1A1118]">✓</span>}
         </div>
-        {/* Name overlay */}
         <div className="absolute bottom-2 left-2 right-2 text-white">
           <p className="text-sm font-bold leading-tight truncate">{profile.name}, {profile.age}</p>
           <p className="text-[10px] text-white/60 flex items-center gap-0.5 mt-0.5 truncate">
@@ -274,20 +267,14 @@ function ProfileListCard({
         </div>
       </div>
 
-      {/* Body */}
       <div className="p-3 flex flex-col grow">
-        {/* Intent badge */}
         <span className={`inline-block text-[9px] font-bold px-2 py-0.5 rounded-full border mb-2 ${badge.cls}`}>
           {badge.label}
         </span>
 
-        {/* Contact area */}
         <div className="mt-auto pt-2 border-t border-[#EDE6D9] dark:border-[#C9A84C]/10">
-          {isUnlocked ? (
+          {showContact ? (
             <div className="space-y-1.5 bg-[#F8F4ED] dark:bg-[#120A0E] rounded-xl p-2.5 border border-[#EDE6D9] dark:border-[#C9A84C]/10">
-              <div className="flex items-center gap-1 text-[10px] font-bold text-emerald-600 dark:text-emerald-400 mb-1">
-                <Sparkles className="h-3 w-3" /> {t('profile-listing.unlocked')}
-              </div>
               <div className="flex items-center gap-1.5 text-[10px] text-gray-700 dark:text-gray-300">
                 <Phone className="h-3 w-3 text-[#EB317A] dark:text-[#C9A84C] shrink-0" />
                 <span className="truncate">{profile.contactInfo.phone}</span>
@@ -301,40 +288,26 @@ function ProfileListCard({
                 <span className="truncate">{profile.contactInfo.instagram || '---'}</span>
               </div>
             </div>
-          ) : pending ? (
-            <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700/30 rounded-xl px-2.5 py-2 text-[10px] text-amber-700 dark:text-amber-300 text-center">
-              <p className="font-bold">{t('profile-listing.pending')}</p>
-              <p className="text-[9px] opacity-70 mt-0.5">TxID: {pending.transactionId}</p>
-            </div>
           ) : (
             <div className="space-y-2">
-              <div className="space-y-1 bg-[#F8F4ED] dark:bg-[#120A0E] rounded-xl p-2.5 border border-[#EDE6D9] dark:border-[#C9A84C]/10">
-                <div className="flex items-center gap-1.5 text-[10px] text-gray-700 dark:text-gray-300">
-                  <Phone className="h-3 w-3 text-[#EB317A] dark:text-[#C9A84C] shrink-0" />
-                  <span className="truncate">{blurred.phone}</span>
+              <div className="space-y-1.5 bg-[#F8F4ED] dark:bg-[#120A0E] rounded-xl p-2.5 border border-[#EDE6D9] dark:border-[#C9A84C]/10">
+                <div className="flex items-center gap-1.5 text-[10px] text-gray-400 dark:text-gray-500">
+                  <Phone className="h-3 w-3 shrink-0" />
+                  <span className="truncate">{maskPhone(profile.contactInfo.phone)}</span>
                 </div>
-                <div className="flex items-center gap-1.5 text-[10px] text-gray-700 dark:text-gray-300">
-                  <TelegramIcon className="h-3 w-3 text-[#EB317A] dark:text-[#C9A84C] shrink-0" />
-                  <span className="truncate">{blurred.telegram}</span>
+                <div className="flex items-center gap-1.5 text-[10px] text-gray-400 dark:text-gray-500">
+                  <TelegramIcon className="h-3 w-3 shrink-0" />
+                  <span className="truncate">{maskHandle(profile.contactInfo.telegram)}</span>
                 </div>
-                <div className="flex items-center gap-1.5 text-[10px] text-gray-700 dark:text-gray-300">
-                  <Instagram className="h-3 w-3 text-[#EB317A] dark:text-[#C9A84C] shrink-0" />
-                  <span className="truncate">{blurred.instagram || '---'}</span>
+                <div className="flex items-center gap-1.5 text-[10px] text-gray-400 dark:text-gray-500">
+                  <Instagram className="h-3 w-3 shrink-0" />
+                  <span className="truncate">{maskHandle(profile.contactInfo.instagram)}</span>
                 </div>
               </div>
               <button
-                id={`see-contact-${profile.id}`}
-                onClick={() => onUnlockClick(profile)}
-                className="w-full py-2 rounded-xl font-bold text-[11px] flex items-center justify-center gap-1.5 cursor-pointer transition-all shadow-sm"
-                style={{
-                  background: isFemaleUser
-                    ? 'linear-gradient(135deg, #059669, #10b981)'
-                    : 'linear-gradient(135deg, #EB317A, #F04B8E)',
-                  color: 'white',
-                  boxShadow: isFemaleUser ? '0 4px 12px rgba(5,150,105,0.25)' : '0 4px 12px rgba(139,0,32,0.25)',
-                }}
+                onClick={() => onMakePayment?.(profile)}
+                className="w-full bg-[#EB317A] hover:bg-[#F04B8E] text-white text-[10px] font-bold rounded-xl py-2 px-3 transition-all cursor-pointer text-center"
               >
-                <Lock className="h-3 w-3" />
                 {t('profile-card.see-contact')}
               </button>
             </div>
