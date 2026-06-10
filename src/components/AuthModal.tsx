@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { X, AlertCircle, User, Phone, Send, UserPlus, Camera, MapPin, MessageCircle, Instagram } from 'lucide-react';
+import { X, AlertCircle, User, Phone, Send, UserPlus, Camera, MapPin, Instagram } from 'lucide-react';
+import TelegramIcon from './TelegramIcon';
 import { Profile } from '../types';
 import { sanitizeInput, sanitizePhone, sanitizeTelegram, sanitizeInstagram } from '../utils/sanitize';
 import { useAppContext } from '../context/AppContext';
@@ -10,7 +11,7 @@ interface AuthModalProps {
   initialTab?: 'register' | 'signin';
   featuredProfiles: Profile[];
   onRegisterUser: (newProfile: Profile) => void;
-  onSignInUser: (name: string, phone: string) => void;
+  onSignInUser: (name: string, phone: string, telegram?: string, instagram?: string) => void;
   onSimulateTestLogin: (profile: Profile) => void;
 }
 
@@ -47,7 +48,7 @@ export default function AuthModal({
   const [lookingFor, setLookingFor] = useState<'Male' | 'Female'>('Female');
   const [city, setCity] = useState('Addis Ababa');
   const [bio, setBio] = useState('');
-  const [relationshipIntent, setRelationshipIntent] = useState<'True Relationship' | 'Friendship' | 'Friends with Benefits'>('True Relationship');
+  const [relationshipIntent, setRelationshipIntent] = useState<'True Relationship' | 'Friendship' | 'Friends with Benefits' | 'Only Sex'>('True Relationship');
 
   const [photoSource, setPhotoSource] = useState<'preset' | 'upload'>('preset');
   const [selectedPresetImage, setSelectedPresetImage] = useState(PRESET_MALE_IMAGES[0]);
@@ -55,7 +56,8 @@ export default function AuthModal({
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [signInName, setSignInName] = useState('');
-  const [signInPhone, setSignInPhone] = useState('');
+  const [signInContactType, setSignInContactType] = useState<'phone' | 'telegram' | 'instagram'>('phone');
+  const [signInContact, setSignInContact] = useState('');
 
   const [validationError, setValidationError] = useState<string | null>(null);
   const { t } = useAppContext();
@@ -85,6 +87,11 @@ export default function AuthModal({
     }
   };
 
+  function isValidEthiopianPhone(phone: string): boolean {
+    const cleaned = phone.replace(/[\s\-\(\)]/g, '');
+    return /^(?:\+251|0)?[79]\d{8}$/.test(cleaned);
+  }
+
   const handleCreateRegisterSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setValidationError(null);
@@ -93,8 +100,15 @@ export default function AuthModal({
       setValidationError(t('auth.required-name'));
       return;
     }
-    if (!phoneNumber.trim()) {
-      setValidationError(t('auth.required-phone'));
+    const hasPhone = phoneNumber.trim().length > 0;
+    const hasTelegram = telegramUsername.trim().length > 0;
+    const hasInstagram = instagramUsername.trim().length > 0;
+    if (!hasPhone && !hasTelegram && !hasInstagram) {
+      setValidationError(t('auth.required-one-contact'));
+      return;
+    }
+    if (hasPhone && !isValidEthiopianPhone(phoneNumber)) {
+      setValidationError(t('auth.invalid-ethiopian-phone'));
       return;
     }
 
@@ -143,8 +157,15 @@ export default function AuthModal({
       setValidationError(t('auth.required-name-signin'));
       return;
     }
+    if (!signInContact.trim()) {
+      setValidationError(t('auth.required-one-contact'));
+      return;
+    }
 
-    onSignInUser(signInName.trim(), signInPhone.trim());
+    const phone = signInContactType === 'phone' ? signInContact.trim() : '';
+    const telegram = signInContactType === 'telegram' ? signInContact.trim() : '';
+    const instagram = signInContactType === 'instagram' ? signInContact.trim() : '';
+    onSignInUser(signInName.trim(), phone, telegram, instagram);
     onClose();
   };
 
@@ -266,10 +287,10 @@ export default function AuthModal({
 
                 <div className="space-y-1.5">
                   <label className="block text-xs font-bold text-[#1A1118]/70 dark:text-[#FFFCF8]/60 uppercase tracking-wider">{t('profile.relationship-intent')}</label>
-                  <div className="grid grid-cols-3 bg-[#F8F4ED] dark:bg-[#1A1118] border border-[#EDE6D9] dark:border-[#C9A84C]/15 rounded-xl p-1 gap-1">
-                    {(['True Relationship', 'Friendship', 'Friends with Benefits'] as const).map((intent) => (
+                  <div className="grid grid-cols-2 sm:grid-cols-4 bg-[#F8F4ED] dark:bg-[#1A1118] border border-[#EDE6D9] dark:border-[#C9A84C]/15 rounded-xl p-1 gap-1">
+                    {(['True Relationship', 'Friendship', 'Friends with Benefits', 'Only Sex'] as const).map((intent) => (
                       <button key={intent} type="button" onClick={() => setRelationshipIntent(intent)} className={`py-2 text-[10px] font-bold text-center rounded-lg transition-all cursor-pointer ${relationshipIntent === intent ? 'bg-[#EB317A] dark:bg-[#EB317A] text-white' : 'text-gray-500 dark:text-gray-400 hover:text-[#1A1118] dark:hover:text-[#FFFCF8]'}`}>
-                        {intent === 'True Relationship' ? 'Relationship' : intent === 'Friendship' ? 'Friendship' : 'FWB'}
+                        {intent === 'True Relationship' ? 'Relationship' : intent === 'Friendship' ? 'Friendship' : intent === 'Friends with Benefits' ? 'FWB' : 'Only Sex'}
                       </button>
                     ))}
                   </div>
@@ -285,18 +306,20 @@ export default function AuthModal({
                   <span className="relative -top-2.5 inline-block bg-[#FFFCF8] dark:bg-[#120A0E] px-2 text-[9px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">Contact</span>
                 </div>
 
+                <p className="text-[11px] text-gray-500 dark:text-gray-400 -mt-2">{t('auth.required-one-contact')}</p>
+
                 <div className="space-y-1.5">
                   <label className="block text-xs font-bold text-[#1A1118]/70 dark:text-[#FFFCF8]/60 uppercase tracking-wider">{t('auth.phone-label')}</label>
                   <div className="relative">
                     <Phone className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                    <input type="tel" required value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} placeholder="0911XXXXXX" className="w-full pl-9 pr-4 py-3 border border-[#EDE6D9] dark:border-[#C9A84C]/15 rounded-xl text-sm bg-white dark:bg-[#1A1118] text-gray-800 dark:text-[#FFFCF8] placeholder-gray-400 dark:placeholder-gray-500 focus:outline-hidden focus:border-[#EB317A] dark:focus:border-[#C9A84C]" />
+                    <input type="tel" value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} placeholder="+251 9XX XXX XXX" className="w-full pl-9 pr-4 py-3 border border-[#EDE6D9] dark:border-[#C9A84C]/15 rounded-xl text-sm bg-white dark:bg-[#1A1118] text-gray-800 dark:text-[#FFFCF8] placeholder-gray-400 dark:placeholder-gray-500 focus:outline-hidden focus:border-[#EB317A] dark:focus:border-[#C9A84C]" />
                   </div>
                 </div>
 
                 <div className="space-y-1.5">
                   <label className="block text-xs font-bold text-[#1A1118]/70 dark:text-[#FFFCF8]/60 uppercase tracking-wider">{t('auth.telegram-label')}</label>
                   <div className="relative">
-                    <MessageCircle className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                    <TelegramIcon className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                     <input type="text" value={telegramUsername} onChange={(e) => setTelegramUsername(e.target.value)} placeholder="@yourusername" className="w-full pl-9 pr-4 py-3 border border-[#EDE6D9] dark:border-[#C9A84C]/15 rounded-xl text-sm bg-white dark:bg-[#1A1118] text-gray-800 dark:text-[#FFFCF8] placeholder-gray-400 dark:placeholder-gray-500 focus:outline-hidden focus:border-[#EB317A] dark:focus:border-[#C9A84C]" />
                   </div>
                 </div>
@@ -351,16 +374,65 @@ export default function AuthModal({
 
                 <form onSubmit={handleSignInSubmit} className="space-y-4">
                   <div className="space-y-1.5">
-                    <label className="block text-xs font-bold text-[#1A1118]/70 dark:text-[#FFFCF8]/60 uppercase tracking-wider">{t('auth.sign-in-name')}</label>
-                    <input type="text" required value={signInName} onChange={(e) => setSignInName(e.target.value)} placeholder="Enter your registered name" className="w-full px-4 py-3 border border-[#EDE6D9] dark:border-[#C9A84C]/15 rounded-xl text-sm bg-white dark:bg-[#1A1118] text-gray-800 dark:text-[#FFFCF8] placeholder-gray-400 dark:placeholder-gray-500 focus:outline-hidden focus:border-[#EB317A] dark:focus:border-[#C9A84C] focus:ring-1 focus:ring-[#EB317A]/20 dark:focus:ring-[#C9A84C]/20" />
+                    <label className="block text-[10px] font-bold text-[#1A1118]/60 dark:text-[#FFFCF8]/50 uppercase tracking-widest">{t('auth.sign-in-name')}</label>
+                    <div className="relative">
+                      <User className="absolute left-3.5 top-3.5 h-4 w-4 text-gray-400" />
+                      <input type="text" required value={signInName} onChange={(e) => setSignInName(e.target.value)} placeholder="e.g. Dawit Haile" className="w-full pl-10 pr-4 py-3 border border-[#EDE6D9] dark:border-[#C9A84C]/15 rounded-xl text-sm bg-white dark:bg-[#1A1118] text-gray-800 dark:text-[#FFFCF8] placeholder-gray-400 dark:placeholder-gray-500 focus:outline-hidden focus:border-[#EB317A] dark:focus:border-[#C9A84C]" />
+                    </div>
                   </div>
 
                   <div className="space-y-1.5">
-                    <label className="block text-xs font-bold text-[#1A1118]/70 dark:text-[#FFFCF8]/60 uppercase tracking-wider">{t('auth.sign-in-phone')}</label>
-                    <input type="tel" value={signInPhone} onChange={(e) => setSignInPhone(e.target.value)} placeholder="0911XXXXXX" className="w-full px-4 py-3 border border-[#EDE6D9] dark:border-[#C9A84C]/15 rounded-xl text-sm bg-white dark:bg-[#1A1118] text-gray-800 dark:text-[#FFFCF8] placeholder-gray-400 dark:placeholder-gray-500 focus:outline-hidden focus:border-[#EB317A] dark:focus:border-[#C9A84C]" />
+                    <label className="block text-[10px] font-bold text-[#1A1118]/60 dark:text-[#FFFCF8]/50 uppercase tracking-widest">Sign in with</label>
+                    <div className="grid grid-cols-3 gap-1 p-1 bg-[#F8F4ED] dark:bg-[#1A1118] border border-[#EDE6D9] dark:border-[#C9A84C]/15 rounded-xl">
+                      {(['phone', 'telegram', 'instagram'] as const).map((type) => {
+                        const Icon = type === 'phone' ? Phone : type === 'telegram' ? TelegramIcon : Instagram;
+                        const label = type === 'phone' ? t('auth.phone-label') : type === 'telegram' ? t('auth.telegram-label') : t('auth.instagram-label');
+                        return (
+                          <button
+                            key={type}
+                            type="button"
+                            onClick={() => { setSignInContactType(type); setSignInContact(''); }}
+                            className={`flex items-center justify-center gap-1.5 py-2 text-[10px] font-bold rounded-lg transition-all cursor-pointer ${
+                              signInContactType === type
+                                ? 'bg-[#EB317A] dark:bg-[#EB317A] text-white'
+                                : 'text-gray-500 dark:text-gray-400 hover:text-[#1A1118] dark:hover:text-[#FFFCF8]'
+                            }`}
+                          >
+                            <Icon className="h-3.5 w-3.5" />
+                            <span className="hidden sm:inline">{label}</span>
+                            <span className="sm:hidden">{type === 'phone' ? 'Phone' : type === 'telegram' ? 'TG' : 'IG'}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
                   </div>
 
-                  <button type="submit" className="w-full py-3.5 bg-[#EB317A] hover:bg-[#F04B8E] text-white font-bold text-sm rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1.5 shadow-lg shadow-[#EB317A]/20">
+                  <div className="space-y-1.5">
+                    <label className="block text-[10px] font-bold text-[#1A1118]/60 dark:text-[#FFFCF8]/50 uppercase tracking-widest">
+                      {signInContactType === 'phone' ? t('auth.phone-label') : signInContactType === 'telegram' ? t('auth.telegram-label') : t('auth.instagram-label')}
+                    </label>
+                    <div className="relative">
+                      {(() => {
+                        const Icon = signInContactType === 'phone' ? Phone : signInContactType === 'telegram' ? TelegramIcon : Instagram;
+                        const placeholder = signInContactType === 'phone' ? '+251 9XX XXX XXX' : signInContactType === 'telegram' ? '@yourusername' : '@instahandle';
+                        const inputType = signInContactType === 'phone' ? 'tel' : 'text';
+                        return (
+                          <>
+                            <Icon className="absolute left-3.5 top-3.5 h-4 w-4 text-gray-400" />
+                            <input
+                              type={inputType}
+                              value={signInContact}
+                              onChange={(e) => setSignInContact(e.target.value)}
+                              placeholder={placeholder}
+                              className="w-full pl-10 pr-4 py-3 border border-[#EDE6D9] dark:border-[#C9A84C]/15 rounded-xl text-sm bg-white dark:bg-[#1A1118] text-gray-800 dark:text-[#FFFCF8] placeholder-gray-400 dark:placeholder-gray-500 focus:outline-hidden focus:border-[#EB317A] dark:focus:border-[#C9A84C]"
+                            />
+                          </>
+                        );
+                      })()}
+                    </div>
+                  </div>
+
+                  <button type="submit" className="w-full py-3.5 bg-[#EB317A] hover:bg-[#F04B8E] text-white font-bold text-sm rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1.5 shadow-lg shadow-[#EB317A]/20 mt-2">
                     <Send className="h-3.5 w-3.5" />
                     <span>{t('auth.sign-in-btn')}</span>
                   </button>

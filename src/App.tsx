@@ -16,6 +16,7 @@ import { Profile, PaymentRequest, SuccessStory } from './types';
 import { INITIAL_PROFILES, INITIAL_SUCCESS_STORIES, INITIAL_ARTICLES } from './mockData';
 import { CheckCircle, ShieldAlert } from 'lucide-react';
 import { AppProvider, useAppContext } from './context/AppContext';
+import ErrorBoundary from './components/ErrorBoundary';
 
 function AppContent() {
   const { state, dispatch, t } = useAppContext();
@@ -177,14 +178,16 @@ function AppContent() {
     setRegistrationKey(k => k + 1);
   };
 
-  // 6. Quick sign-in (find existing user by name + phone)
-  const handleSignInUser = (name: string, phone: string): boolean => {
-    // Match by name (case-insensitive), optionally verify phone
-    const found = state.profiles.find(
-      (p) => p.name.toLowerCase() === name.toLowerCase() &&
-             (p.contactInfo.phone === phone || p.contactInfo.phone.replace(/\s/g,'') === phone.replace(/\s/g,''))
-    ) || state.profiles.find(
-      // Fallback: match by name only (phone may have been entered differently)
+  // 6. Quick sign-in (find existing user by name + any contact method)
+  const handleSignInUser = (name: string, phone: string, telegram?: string, instagram?: string): boolean => {
+    const normalize = (s: string) => s.replace(/[@\s]/g, '').toLowerCase();
+    const found = state.profiles.find((p) => {
+      if (p.name.toLowerCase() !== name.toLowerCase()) return false;
+      if (phone && (p.contactInfo.phone === phone || p.contactInfo.phone.replace(/\s/g, '') === phone.replace(/\s/g, ''))) return true;
+      if (telegram && (normalize(p.contactInfo.telegram) === normalize(telegram) || p.contactInfo.telegram.toLowerCase() === telegram.toLowerCase())) return true;
+      if (instagram && (normalize(p.contactInfo.instagram) === normalize(instagram) || p.contactInfo.instagram.toLowerCase() === instagram.toLowerCase())) return true;
+      return false;
+    }) || state.profiles.find(
       (p) => p.name.toLowerCase() === name.toLowerCase()
     );
 
@@ -454,7 +457,9 @@ function AppContent() {
 export default function App() {
   return (
     <AppProvider>
-      <AppContent />
+      <ErrorBoundary>
+        <AppContent />
+      </ErrorBoundary>
     </AppProvider>
   );
 }

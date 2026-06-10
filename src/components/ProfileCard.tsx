@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
-import { ShieldCheck, MapPin, Sparkles, Phone, Lock, Crown, Star, MessageCircle, Instagram } from 'lucide-react';
+import { ShieldCheck, MapPin, Sparkles, Phone, Lock, Crown, Star, Instagram } from 'lucide-react';
+import TelegramIcon from './TelegramIcon';
 import { Profile, PaymentRequest } from '../types';
 import { useAppContext } from '../context/AppContext';
 import { blurContactInfo } from '../utils/contactBlur';
@@ -83,15 +84,13 @@ export default function ProfileCard({
                 <span className="blur-sm select-none">{blurred.phone}</span>
               </div>
               <div className="flex items-center gap-2 text-xs text-gray-700 dark:text-gray-300">
-                <MessageCircle className="h-3.5 w-3.5 text-[#EB317A] dark:text-[#C9A84C]" />
+                <TelegramIcon className="h-3.5 w-3.5 text-[#EB317A] dark:text-[#C9A84C]" />
                 <span className="blur-sm select-none">{blurred.telegram}</span>
               </div>
-              {profile.contactInfo.instagram && (
-                <div className="flex items-center gap-2 text-xs text-gray-700 dark:text-gray-300">
-                  <Instagram className="h-3.5 w-3.5 text-[#EB317A] dark:text-[#C9A84C]" />
-                  <span className="blur-sm select-none">{blurred.instagram}</span>
-                </div>
-              )}
+              <div className="flex items-center gap-2 text-xs text-gray-700 dark:text-gray-300">
+                <Instagram className="h-3.5 w-3.5 text-[#EB317A] dark:text-[#C9A84C]" />
+                <span className="blur-sm select-none">{blurred.instagram || '---'}</span>
+              </div>
             </div>
           ) : pendingPayment ? (
             <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700/30 rounded-xl p-3 text-xs text-amber-800 dark:text-amber-300 text-center animate-pulse">

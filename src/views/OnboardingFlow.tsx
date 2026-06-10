@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Heart, Users, ArrowRight, ArrowLeft, User, Phone, MessageCircle, Instagram, MapPin, Camera, Check, LogIn, UserPlus } from 'lucide-react';
+import { Heart, Users, ArrowRight, ArrowLeft, User, Phone, Instagram, MapPin, Camera, Check, LogIn, UserPlus } from 'lucide-react';
+import TelegramIcon from '../components/TelegramIcon';
 import { Profile } from '../types';
 import { useAppContext } from '../context/AppContext';
 import SelectDropdown from '../components/SelectDropdown';
@@ -14,8 +15,20 @@ const AREAS: Record<string, string[]> = {
   'Gondar': ['Azezo', 'Maraki', 'Tewodros Square'],
   'Mekelle': ['Hawelti', 'Ayder', 'Adi Haki'],
   'Jimma': ['Center', 'Mendera'],
-  'Dessie': ['Center', 'Woldia Road'],
+  'Dessie': ['Center', 'Wolda Road'],
   'Harar': ['Harar Jugol', 'New Town'],
+};
+const DEFAULT_AREA: Record<string, string> = {
+  'Addis Ababa': 'Piassa',
+  'Adama': 'Center',
+  'Hawassa': 'Tabor',
+  'Bahir Dar': 'Tana',
+  'Dire Dawa': 'Kezira',
+  'Gondar': 'Azezo',
+  'Mekelle': 'Hawelti',
+  'Jimma': 'Center',
+  'Dessie': 'Center',
+  'Harar': 'Harar Jugol',
 };
 
 const PRESET_MALE_IMAGES = [
@@ -47,9 +60,14 @@ interface RegFormData {
   gender: Gender;
 }
 
+function isValidEthiopianPhone(phone: string): boolean {
+  const cleaned = phone.replace(/[\s\-\(\)]/g, '');
+  return /^(?:\+251|0)?[79]\d{8}$/.test(cleaned);
+}
+
 interface OnboardingFlowProps {
   onComplete: (profile: Profile) => void;
-  onSignIn: (name: string, phone: string) => boolean;
+  onSignIn: (name: string, phone: string, telegram: string, instagram: string) => boolean;
   authIntent?: 'register' | 'signin';
 }
 
@@ -66,7 +84,8 @@ export default function OnboardingFlow({ onComplete, onSignIn, authIntent }: Onb
   // Sign-in state
   const [showSignIn, setShowSignIn] = useState(false);
   const [signInName, setSignInName] = useState('');
-  const [signInPhone, setSignInPhone] = useState('');
+  const [signInContactType, setSignInContactType] = useState<'phone' | 'telegram' | 'instagram'>('phone');
+  const [signInContact, setSignInContact] = useState('');
   const [signInError, setSignInError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -82,7 +101,14 @@ export default function OnboardingFlow({ onComplete, onSignIn, authIntent }: Onb
       setSignInError(t('auth.required-name-signin'));
       return;
     }
-    const success = onSignIn(signInName.trim(), signInPhone.trim());
+    if (!signInContact.trim()) {
+      setSignInError(t('auth.required-one-contact'));
+      return;
+    }
+    const phone = signInContactType === 'phone' ? signInContact.trim() : '';
+    const telegram = signInContactType === 'telegram' ? signInContact.trim() : '';
+    const instagram = signInContactType === 'instagram' ? signInContact.trim() : '';
+    const success = onSignIn(signInName.trim(), phone, telegram, instagram);
     if (!success) {
       setSignInError(t('app.notify.no-account'));
     }
@@ -111,8 +137,16 @@ export default function OnboardingFlow({ onComplete, onSignIn, authIntent }: Onb
     const e: Partial<RegFormData> = {};
     if (!form.name.trim())                                       e.name    = 'Full name is required';
     if (!form.age || Number(form.age) < 18 || Number(form.age) > 60) e.age = 'Age must be 18–60';
-    if (!form.phone.trim())                                      e.phone   = 'Phone number is required';
-    if (!form.telegram.trim())                                   e.telegram = 'Telegram username is required';
+    const hasPhone = form.phone.trim().length > 0;
+    const hasTelegram = form.telegram.trim().length > 0;
+    const hasInstagram = form.instagram.trim().length > 0;
+    if (!hasPhone && !hasTelegram && !hasInstagram) {
+      const msg = 'At least phone, Telegram, or Instagram is required';
+      e.phone = msg; e.telegram = msg; e.instagram = msg;
+    }
+    if (hasPhone && !isValidEthiopianPhone(form.phone)) {
+      e.phone = 'Please enter a valid Ethiopian phone number (e.g., +251 9XX XXX XXX)';
+    }
     if (!form.city)                                              e.city    = 'City is required';
     if (!form.address.trim())                                    e.address = 'Area / Location is required';
     if (!form.image)                                             e.image   = 'Profile photo is required';
@@ -190,22 +224,67 @@ export default function OnboardingFlow({ onComplete, onSignIn, authIntent }: Onb
           {signInError && (
             <div className="mb-4 p-3 rounded-xl bg-pink-500/10 border border-pink-400/30 text-pink-300 text-xs">{signInError}</div>
           )}
-          <form onSubmit={handleSignInSubmit} className="space-y-3.5">
-            <div className="space-y-1">
-              <label className="block text-[10px] font-bold text-[#FFFCF8]/50 uppercase tracking-wider">{t('auth.sign-in-name')}</label>
+          <form onSubmit={handleSignInSubmit} className="space-y-4">
+            <div className="space-y-1.5">
+              <label className="block text-[9px] font-bold text-[#FFFCF8]/40 uppercase tracking-widest">{t('auth.sign-in-name')}</label>
               <div className="relative">
-                <User className="absolute left-3 top-3 h-4 w-4 text-[#FFFCF8]/30" />
-                <input type="text" required value={signInName} onChange={(e) => setSignInName(e.target.value)} placeholder="Enter your registered name" className="w-full pl-9 pr-3.5 py-2.5 bg-[#FFFCF8]/5 border border-[#FFFCF8]/10 rounded-xl text-sm text-[#FFFCF8] placeholder:text-[#FFFCF8]/25 focus:outline-none focus:border-[#C9A84C]/60 transition-colors" />
+                <User className="absolute left-3.5 top-3 h-4 w-4 text-[#FFFCF8]/30" />
+                <input type="text" required value={signInName} onChange={(e) => setSignInName(e.target.value)} placeholder="e.g. Dawit Haile" className="w-full pl-10 pr-4 py-2.5 bg-[#FFFCF8]/5 border border-[#FFFCF8]/10 rounded-xl text-sm text-[#FFFCF8] placeholder:text-[#FFFCF8]/25 focus:outline-none focus:border-[#C9A84C]/60 transition-colors" />
               </div>
             </div>
-            <div className="space-y-1">
-              <label className="block text-[10px] font-bold text-[#FFFCF8]/50 uppercase tracking-wider">{t('auth.sign-in-phone')}</label>
-              <div className="relative">
-                <Phone className="absolute left-3 top-3 h-4 w-4 text-[#FFFCF8]/30" />
-                <input type="tel" value={signInPhone} onChange={(e) => setSignInPhone(e.target.value)} placeholder="0911XXXXXX" className="w-full pl-9 pr-3.5 py-2.5 bg-[#FFFCF8]/5 border border-[#FFFCF8]/10 rounded-xl text-sm text-[#FFFCF8] placeholder:text-[#FFFCF8]/25 focus:outline-none focus:border-[#C9A84C]/60 transition-colors" />
+
+            <div className="space-y-1.5">
+              <label className="block text-[9px] font-bold text-[#FFFCF8]/40 uppercase tracking-widest">Sign in with</label>
+              <div className="grid grid-cols-3 gap-1.5 p-1 bg-[#FFFCF8]/5 rounded-xl border border-[#FFFCF8]/10">
+                {(['phone', 'telegram', 'instagram'] as const).map((type) => {
+                  const Icon = type === 'phone' ? Phone : type === 'telegram' ? TelegramIcon : Instagram;
+                  const label = type === 'phone' ? t('auth.phone-label') : type === 'telegram' ? t('auth.telegram-label') : t('auth.instagram-label');
+                  return (
+                    <button
+                      key={type}
+                      type="button"
+                      onClick={() => { setSignInContactType(type); setSignInContact(''); }}
+                      className={`flex items-center justify-center gap-1.5 py-2 text-[10px] font-bold rounded-lg transition-all cursor-pointer ${
+                        signInContactType === type
+                          ? 'bg-[#C9A84C] text-[#1A1118]'
+                          : 'text-[#FFFCF8]/50 hover:text-[#FFFCF8]/80'
+                      }`}
+                    >
+                      <Icon className="h-3.5 w-3.5" />
+                      <span className="hidden sm:inline">{label}</span>
+                      <span className="sm:hidden">{type === 'phone' ? 'Phone' : type === 'telegram' ? 'TG' : 'IG'}</span>
+                    </button>
+                  );
+                })}
               </div>
             </div>
-            <button type="submit" className="w-full py-3 bg-[#EB317A] hover:bg-[#F04B8E] text-white font-bold rounded-xl flex items-center justify-center gap-2 transition-all cursor-pointer shadow-lg shadow-[#EB317A]/20">
+
+            <div className="space-y-1.5">
+              <label className="block text-[9px] font-bold text-[#FFFCF8]/40 uppercase tracking-widest">
+                {signInContactType === 'phone' ? t('auth.phone-label') : signInContactType === 'telegram' ? t('auth.telegram-label') : t('auth.instagram-label')}
+              </label>
+              <div className="relative">
+                {(() => {
+                  const Icon = signInContactType === 'phone' ? Phone : signInContactType === 'telegram' ? TelegramIcon : Instagram;
+                  const placeholder = signInContactType === 'phone' ? '+251 9XX XXX XXX' : signInContactType === 'telegram' ? '@yourusername' : '@instahandle';
+                  const inputType = signInContactType === 'phone' ? 'tel' : 'text';
+                  return (
+                    <>
+                      <Icon className="absolute left-3.5 top-3 h-4 w-4 text-[#FFFCF8]/30" />
+                      <input
+                        type={inputType}
+                        value={signInContact}
+                        onChange={(e) => setSignInContact(e.target.value)}
+                        placeholder={placeholder}
+                        className="w-full pl-10 pr-4 py-2.5 bg-[#FFFCF8]/5 border border-[#FFFCF8]/10 rounded-xl text-sm text-[#FFFCF8] placeholder:text-[#FFFCF8]/25 focus:outline-none focus:border-[#C9A84C]/60 transition-colors"
+                      />
+                    </>
+                  );
+                })()}
+              </div>
+            </div>
+
+            <button type="submit" className="w-full py-3 bg-[#EB317A] hover:bg-[#F04B8E] text-white font-bold rounded-xl flex items-center justify-center gap-2 transition-all cursor-pointer shadow-lg shadow-[#EB317A]/20 mt-1">
               <LogIn className="h-4 w-4" /> {t('auth.sign-in-btn')}
             </button>
           </form>
@@ -417,9 +496,12 @@ export default function OnboardingFlow({ onComplete, onSignIn, authIntent }: Onb
                     {regErrors.age && <p className="text-red-400 text-[10px] mt-1">{regErrors.age}</p>}
                   </div>
 
+                  {/* Contact info hint */}
+                  <p className="text-[10px] text-[#FFFCF8]/40 -mt-1">{t('auth.required-one-contact')}</p>
+
                   {/* Phone */}
                   <div>
-                    <label className="block text-[10px] font-bold text-[#FFFCF8]/50 uppercase tracking-wider mb-1">{t('onboarding.phone-label')}</label>
+                    <label className="block text-[10px] font-bold text-[#FFFCF8]/50 uppercase tracking-wider mb-1">{t('auth.phone-label')}</label>
                     <div className="relative">
                       <Phone className="absolute left-3 top-2.5 h-4 w-4 text-[#FFFCF8]/30" />
                       <input
@@ -434,9 +516,9 @@ export default function OnboardingFlow({ onComplete, onSignIn, authIntent }: Onb
 
                   {/* Telegram */}
                   <div>
-                    <label className="block text-[10px] font-bold text-[#FFFCF8]/50 uppercase tracking-wider mb-1">{t('onboarding.telegram-label')}</label>
+                    <label className="block text-[10px] font-bold text-[#FFFCF8]/50 uppercase tracking-wider mb-1">{t('auth.telegram-label')}</label>
                     <div className="relative">
-                      <MessageCircle className="absolute left-3 top-2.5 h-4 w-4 text-[#FFFCF8]/30" />
+                      <TelegramIcon className="absolute left-3 top-2.5 h-4 w-4 text-[#FFFCF8]/30" />
                       <input
                         id="reg-telegram" type="text" value={form.telegram}
                         onChange={e => setField('telegram', e.target.value)}
@@ -447,10 +529,10 @@ export default function OnboardingFlow({ onComplete, onSignIn, authIntent }: Onb
                     {regErrors.telegram && <p className="text-red-400 text-[10px] mt-1">{regErrors.telegram}</p>}
                   </div>
 
-                  {/* Instagram (optional) */}
+                  {/* Instagram */}
                   <div>
                     <label className="block text-[10px] font-bold text-[#FFFCF8]/50 uppercase tracking-wider mb-1">
-                      {t('onboarding.instagram-label')} <span className="text-[#FFFCF8]/25 normal-case">{t('onboarding.optional')}</span>
+                      {t('auth.instagram-label')} <span className="text-[#FFFCF8]/25 normal-case">{t('onboarding.optional')}</span>
                     </label>
                     <div className="relative">
                       <Instagram className="absolute left-3 top-2.5 h-4 w-4 text-[#FFFCF8]/30" />
@@ -470,7 +552,7 @@ export default function OnboardingFlow({ onComplete, onSignIn, authIntent }: Onb
                       <MapPin className="absolute left-3 top-3 h-4 w-4 text-[#FFFCF8]/30 z-10" />
                       <SelectDropdown
                         value={form.city}
-                        onChange={(v) => { setField('city', v); setField('address', ''); }}
+                        onChange={(v) => { setField('city', v); setField('address', DEFAULT_AREA[v] || ''); }}
                         options={CITIES}
                         placeholder={t('onboarding.select-city')}
                         error={!!regErrors.city}

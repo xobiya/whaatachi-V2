@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Heart, Menu, X, User, LogOut, Crown, ChevronDown, Moon, Sun, Compass, History, HeartHandshake, MessageCircle, UserCircle } from 'lucide-react';
+import { Heart, Menu, X, User, LogOut, Crown, ChevronDown, Moon, Sun, Compass, History, HeartHandshake, UserCircle } from 'lucide-react';
+import TelegramIcon from './TelegramIcon';
 import { Profile } from '../types';
 import type { Lang } from '../i18n';
 import { useAppContext } from '../context/AppContext';
@@ -27,7 +28,7 @@ const BOTTOM_NAV = [
   { labelKey: 'nav.matches', view: 'browse', icon: Compass },
   { labelKey: 'nav.unlocked', view: 'history', icon: History },
   { labelKey: 'nav.stories', view: 'stories', icon: HeartHandshake },
-  { labelKey: 'nav.support', view: 'support', icon: MessageCircle },
+  { labelKey: 'nav.support', view: 'support', icon: TelegramIcon },
 ];
 
 export default function Header({
@@ -68,7 +69,7 @@ export default function Header({
               <button onClick={() => handleNav('browse')} className={`text-sm font-semibold transition-colors cursor-pointer ${isActive('browse') ? 'text-[#C9A84C]' : 'text-[#EDE6D9]/70 hover:text-[#FFFCF8]'}`}>{t('nav.matches')}</button>
               <button onClick={() => handleNav('history')} className={`text-sm font-semibold transition-colors cursor-pointer ${currentView === 'history' ? 'text-[#C9A84C]' : 'text-[#EDE6D9]/70 hover:text-[#FFFCF8]'}`}>{t('nav.unlocked')}</button>
               <button onClick={() => handleNav('stories')} className={`text-sm font-semibold transition-colors cursor-pointer ${currentView === 'stories' ? 'text-[#C9A84C]' : 'text-[#EDE6D9]/70 hover:text-[#FFFCF8]'}`}>{t('nav.stories')}</button>
-              <button onClick={() => handleNav('support')} className={`text-sm font-semibold transition-colors cursor-pointer ${currentView === 'support' ? 'text-[#C9A84C]' : 'text-[#EDE6D9]/70 hover:text-[#FFFCF8]'}`}>{t('nav.support')}</button>
+              <button onClick={() => window.open('https://t.me/whaatachi_support', '_blank', 'noopener,noreferrer')} className="text-sm font-semibold transition-colors cursor-pointer text-[#EDE6D9]/70 hover:text-[#FFFCF8]">{t('nav.support')}</button>
             </div>
 
             {/* Desktop Right Side */}
@@ -129,7 +130,7 @@ export default function Header({
           {BOTTOM_NAV.map(({ labelKey, view, icon: Icon }) => (
             <button
               key={view}
-              onClick={() => handleNav(view)}
+              onClick={() => view === 'support' ? window.open('https://t.me/whaatachi_support', '_blank', 'noopener,noreferrer') : handleNav(view)}
               className={`flex flex-col items-center gap-0.5 px-2 py-1 rounded-lg transition-all cursor-pointer min-w-0 ${
                 isActive(view)
                   ? 'text-[#C9A84C]'

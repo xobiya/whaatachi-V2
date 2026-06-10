@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { Profile, PaymentRequest } from '../types';
-import { MapPin, Lock, Phone, MessageCircle, Sparkles, Heart, Search, Filter, X } from 'lucide-react';
+import { MapPin, Lock, Phone, Instagram, Sparkles, Heart, Search, Filter, X } from 'lucide-react';
+import TelegramIcon from '../components/TelegramIcon';
 import { useAppContext } from '../context/AppContext';
 import { blurContactInfo } from '../utils/contactBlur';
 
@@ -30,9 +31,9 @@ export default function ProfileListing({
 }: ProfileListingProps) {
   const { t } = useAppContext();
   const [searchQuery, setSearchQuery] = useState('');
-  const [filterIntent, setFilterIntent] = useState<string | null>(null);
+  const [filterIntent, setFilterIntent] = useState<string | null>(currentUser.relationshipIntent);
   const [filterCity, setFilterCity] = useState<string | null>(null);
-  const [usePreference, setUsePreference] = useState(true);
+  const [usePreference, setUsePreference] = useState(false);
   const [ageMin, setAgeMin] = useState<number>(18);
   const [ageMax, setAgeMax] = useState<number>(60);
   const [showFilters, setShowFilters] = useState(false);
@@ -71,7 +72,14 @@ export default function ProfileListing({
     return ['All', ...Array.from(set)];
   }, [profiles]);
 
-  const intents = ['All', 'True Relationship', 'Friendship', 'Friends with Benefits', 'Only Sex'];
+  const intents = useMemo(() => {
+    const base = ['True Relationship', 'Friendship', 'Friends with Benefits', 'Only Sex'];
+    return ['All', ...base.sort((a, b) => {
+      if (a === currentUser.relationshipIntent) return -1;
+      if (b === currentUser.relationshipIntent) return 1;
+      return 0;
+    })];
+  }, [currentUser.relationshipIntent]);
 
   return (
     <div className="bg-[#FFFCF8] dark:bg-[#120A0E] min-h-screen transition-colors duration-200">
@@ -285,8 +293,12 @@ function ProfileListCard({
                 <span className="truncate">{profile.contactInfo.phone}</span>
               </div>
               <div className="flex items-center gap-1.5 text-[10px] text-gray-700 dark:text-gray-300">
-                <MessageCircle className="h-3 w-3 text-[#EB317A] dark:text-[#C9A84C] shrink-0" />
+                <TelegramIcon className="h-3 w-3 text-[#EB317A] dark:text-[#C9A84C] shrink-0" />
                 <span className="truncate">{profile.contactInfo.telegram}</span>
+              </div>
+              <div className="flex items-center gap-1.5 text-[10px] text-gray-700 dark:text-gray-300">
+                <Instagram className="h-3 w-3 text-[#EB317A] dark:text-[#C9A84C] shrink-0" />
+                <span className="truncate">{profile.contactInfo.instagram || '---'}</span>
               </div>
             </div>
           ) : pending ? (
@@ -302,8 +314,12 @@ function ProfileListCard({
                   <span className="truncate">{blurred.phone}</span>
                 </div>
                 <div className="flex items-center gap-1.5 text-[10px] text-gray-700 dark:text-gray-300">
-                  <MessageCircle className="h-3 w-3 text-[#EB317A] dark:text-[#C9A84C] shrink-0" />
+                  <TelegramIcon className="h-3 w-3 text-[#EB317A] dark:text-[#C9A84C] shrink-0" />
                   <span className="truncate">{blurred.telegram}</span>
+                </div>
+                <div className="flex items-center gap-1.5 text-[10px] text-gray-700 dark:text-gray-300">
+                  <Instagram className="h-3 w-3 text-[#EB317A] dark:text-[#C9A84C] shrink-0" />
+                  <span className="truncate">{blurred.instagram || '---'}</span>
                 </div>
               </div>
               <button

@@ -1,5 +1,6 @@
 import React from 'react';
-import { Eye, Sparkles, Phone, MessageCircle, ArrowLeft, ShieldCheck, Mail, Instagram } from 'lucide-react';
+import { Eye, Sparkles, Phone, ArrowLeft, ShieldCheck, Mail, Instagram } from 'lucide-react';
+import TelegramIcon from '../components/TelegramIcon';
 import { Profile } from '../types';
 import { useAppContext } from '../context/AppContext';
 
@@ -71,7 +72,7 @@ export default function UnlockHistory({ unlockedProfiles, onBackToFinder, onView
 
                     <a href={`https://t.me/${profile.contactInfo.telegram.replace('@', '')}`} target="_blank" rel="noreferrer" className="flex items-center gap-3 p-2.5 bg-[#F8F4ED] dark:bg-[#120A0E] hover:bg-sky-50 dark:hover:bg-sky-900/10 border border-[#EDE6D9] dark:border-[#C9A84C]/10 rounded-xl text-xs text-gray-700 dark:text-gray-300 transition-colors cursor-pointer group">
                       <div className="bg-sky-100 dark:bg-sky-900/30 text-sky-700 dark:text-sky-400 p-2 rounded-lg shrink-0 group-hover:bg-sky-200 dark:group-hover:bg-sky-800/40 transition-colors">
-                        <MessageCircle className="h-4 w-4" />
+                        <TelegramIcon className="h-4 w-4" />
                       </div>
                       <div>
                         <p className="text-[10px] text-gray-400 dark:text-gray-500 font-bold uppercase tracking-widest">{t('history.telegram')}</p>

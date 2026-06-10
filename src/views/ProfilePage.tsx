@@ -1,5 +1,6 @@
 import React, { useState, useRef, useMemo } from 'react';
-import { ArrowLeft, MapPin, ShieldCheck, Phone, MessageCircle, Instagram, Mail, Lock, Sparkles, Star, Crown, Heart, Edit3, Check, X, Plus, User, Camera, Calendar } from 'lucide-react';
+import { ArrowLeft, MapPin, ShieldCheck, Phone, Instagram, Mail, Lock, Sparkles, Star, Crown, Heart, Edit3, Check, X, Plus, User, Camera, Calendar } from 'lucide-react';
+import TelegramIcon from '../components/TelegramIcon';
 import { Profile, PaymentRequest } from '../types';
 import { useAppContext } from '../context/AppContext';
 
@@ -433,7 +434,7 @@ export default function ProfilePage({ profile, isUnlocked, pendingPayment, userG
                 <div className="space-y-1">
                   <label className="text-[9px] sm:text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase">{t('profile.telegram')}</label>
                   <div className="relative">
-                    <MessageCircle className="absolute left-3 top-2.5 sm:left-3.5 sm:top-3.5 h-3.5 w-3.5 sm:h-4 sm:w-4 text-gray-400" />
+                    <TelegramIcon className="absolute left-3 top-2.5 sm:left-3.5 sm:top-3.5 h-3.5 w-3.5 sm:h-4 sm:w-4 text-gray-400" />
                     <input 
                       type="text" 
                       value={editTelegram} 
@@ -486,7 +487,7 @@ export default function ProfilePage({ profile, isUnlocked, pendingPayment, userG
 
               <div className="flex items-center gap-3 p-3 bg-[#F8F4ED] dark:bg-[#120A0E] border border-[#EDE6D9] dark:border-[#C9A84C]/10 rounded-xl">
                 <div className="bg-sky-100 dark:bg-sky-900/30 text-sky-700 dark:text-sky-400 p-2 rounded-lg shrink-0">
-                  <MessageCircle className="h-4 w-4" />
+                  <TelegramIcon className="h-4 w-4" />
                 </div>
                 <div>
                   <p className="text-[9px] text-gray-400 dark:text-gray-500 font-bold uppercase tracking-widest">{t('profile.telegram')}</p>
