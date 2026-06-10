@@ -173,25 +173,32 @@ function AppContent() {
 
   const handleRegisterUser = async (newProfile: Profile) => {
     const profileWithLookingFor = { ...newProfile, lookingFor: newProfile.lookingFor || (newProfile.gender === 'Male' ? 'Female' : 'Male') };
-    dispatch({ type: 'SET_PROFILES', payload: [profileWithLookingFor, ...state.profiles] });
-    localStorage.setItem('whaatachi_logged_in_user_v1', JSON.stringify(profileWithLookingFor));
     dispatch({ type: 'SET_CURRENT_USER', payload: profileWithLookingFor });
     dispatch({ type: 'SET_LOGGED_IN', payload: true });
     dispatch({ type: 'SET_USER_GENDER', payload: profileWithLookingFor.gender });
     dispatch({ type: 'SET_CURRENT_VIEW', payload: 'browse' });
+    dispatch({ type: 'SET_PROFILES', payload: [profileWithLookingFor, ...state.profiles] });
+    localStorage.setItem('whaatachi_logged_in_user_v1', JSON.stringify(profileWithLookingFor));
     triggerNotification('success', t('app.notify.welcome').replace('{name}', profileWithLookingFor.name));
     setRegistrationKey(k => k + 1);
 
     try {
       const result = await api.register({
+        id: newProfile.id,
         name: newProfile.name,
         gender: newProfile.gender,
         age: newProfile.age,
         city: newProfile.city,
+        address: newProfile.address,
+        bio: newProfile.bio,
+        image: newProfile.image,
+        status: newProfile.status,
+        relationshipIntent: newProfile.relationshipIntent,
         lookingFor: newProfile.lookingFor,
         phone: newProfile.contactInfo.phone,
         telegram: newProfile.contactInfo.telegram,
         instagram: newProfile.contactInfo.instagram,
+        email: newProfile.contactInfo.email,
       });
       localStorage.setItem('whaatachi_token_v1', result.token);
     } catch {

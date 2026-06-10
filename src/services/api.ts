@@ -33,8 +33,10 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
 
 // ── Auth ──
 export async function register(data: {
-  name: string; gender: 'Male' | 'Female'; age?: number; city?: string;
-  lookingFor?: string; phone?: string; telegram?: string; instagram?: string;
+  id?: string; name: string; gender: 'Male' | 'Female'; age?: number; city?: string;
+  address?: string; bio?: string; image?: string; status?: string;
+  relationshipIntent?: string; lookingFor?: string;
+  phone?: string; telegram?: string; instagram?: string; email?: string;
 }): Promise<{ token: string; user: Profile }> {
   return request('/auth/register', { method: 'POST', body: JSON.stringify(data) });
 }

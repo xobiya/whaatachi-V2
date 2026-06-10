@@ -67,7 +67,7 @@ function isValidEthiopianPhone(phone: string): boolean {
 
 interface OnboardingFlowProps {
   onComplete: (profile: Profile) => void;
-  onSignIn: (name: string, phone: string, telegram: string, instagram: string) => boolean | Promise<boolean>;
+  onSignIn: (name: string, phone: string, telegram: string, instagram: string) => Promise<boolean>;
   authIntent?: 'register' | 'signin';
 }
 
@@ -108,10 +108,11 @@ export default function OnboardingFlow({ onComplete, onSignIn, authIntent }: Onb
     const phone = signInContactType === 'phone' ? signInContact.trim() : '';
     const telegram = signInContactType === 'telegram' ? signInContact.trim() : '';
     const instagram = signInContactType === 'instagram' ? signInContact.trim() : '';
-    const success = onSignIn(signInName.trim(), phone, telegram, instagram);
-    if (!success) {
-      setSignInError(t('app.notify.no-account'));
-    }
+    onSignIn(signInName.trim(), phone, telegram, instagram).then(success => {
+      if (!success) {
+        setSignInError(t('app.notify.no-account'));
+      }
+    });
   };
 
   // Registration wizard

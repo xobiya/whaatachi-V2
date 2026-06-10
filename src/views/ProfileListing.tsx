@@ -36,7 +36,7 @@ export default function ProfileListing({
 
   const filteredProfiles = useMemo(() => {
     let list = profiles
-      .filter((p) => p.id !== currentUser.id && p.gender === targetGender);
+      .filter((p) => p.gender === targetGender);
 
     if (usePreference) {
       const prefAgeMin = Math.max(18, currentUser.age - 5);
