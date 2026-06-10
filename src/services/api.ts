@@ -126,3 +126,40 @@ export async function adminLogin(passcode: string): Promise<{ token: string }> {
 export async function fetchAdminStats(): Promise<{ stats: any }> {
   return request('/admin/stats');
 }
+
+export async function updateAdminPasscode(newPasscode: string): Promise<{ success: boolean }> {
+  return request('/admin/passcode', { method: 'PUT', body: JSON.stringify({ newPasscode }) });
+}
+
+// ── Admin: Articles ──
+export async function createArticle(data: {
+  title: string; excerpt?: string; category?: string;
+  readTime?: string; date?: string; image?: string; content?: string;
+}): Promise<{ article: any }> {
+  return request('/articles', { method: 'POST', body: JSON.stringify(data) });
+}
+
+export async function deleteArticle(id: string): Promise<{ success: boolean }> {
+  return request(`/articles/${id}`, { method: 'DELETE' });
+}
+
+// ── Admin: FAQs ──
+export async function fetchAllFaqs(): Promise<{ faqs: any[] }> {
+  return request('/faqs/all');
+}
+
+export async function createFaq(data: {
+  category: string; question: string; answer: string; sortOrder?: number;
+}): Promise<{ faq: any }> {
+  return request('/faqs', { method: 'POST', body: JSON.stringify(data) });
+}
+
+export async function updateFaq(id: string, data: {
+  category?: string; question?: string; answer?: string; sortOrder?: number;
+}): Promise<{ faq: any }> {
+  return request(`/faqs/${id}`, { method: 'PUT', body: JSON.stringify(data) });
+}
+
+export async function deleteFaq(id: string): Promise<{ success: boolean }> {
+  return request(`/faqs/${id}`, { method: 'DELETE' });
+}

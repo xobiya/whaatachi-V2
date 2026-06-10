@@ -7,7 +7,8 @@ import {
   MapPin, Check, CheckCircle, FileText, LayoutDashboard,
   Menu, X, ChevronRight, RefreshCw, Smartphone, Heart
 } from 'lucide-react';
-import { Profile, PaymentRequest, SuccessStory } from '../types';
+import { Profile, PaymentRequest, SuccessStory, Article } from '../types';
+import * as api from '../services/api';
 
 interface AdminPanelProps {
   allPayments: PaymentRequest[];
@@ -40,7 +41,7 @@ export default function AdminPanel({
   darkMode,
   setDarkMode
 }: AdminPanelProps) {
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'payments' | 'members' | 'stories' | 'support' | 'settings'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'payments' | 'members' | 'stories' | 'articles' | 'faqs' | 'support' | 'settings'>('dashboard');
   const [selectedRequest, setSelectedRequest] = useState<PaymentRequest | null>(null);
   
   // Mobile Sidebar toggle
@@ -84,6 +85,35 @@ export default function AdminPanel({
   // Security passcode drawer controls inside Settings view
   const [newPasscode, setNewPasscode] = useState('');
   const [changeSuccess, setChangeSuccess] = useState(false);
+
+  // Member list/grid view mode toggle
+  const [memberViewMode, setMemberViewMode] = useState<'grid' | 'list'>('grid');
+  const [memberPage, setMemberPage] = useState(1);
+  const [memberPageSize, setMemberPageSize] = useState(10);
+
+  // Articles management
+  const [articles, setArticles] = useState<Article[]>([]);
+  const [newArticleTitle, setNewArticleTitle] = useState('');
+  const [newArticleExcerpt, setNewArticleExcerpt] = useState('');
+  const [newArticleCategory, setNewArticleCategory] = useState('Dating Tips');
+  const [newArticleContent, setNewArticleContent] = useState('');
+
+  // FAQs management
+  const [allFaqs, setAllFaqs] = useState<any[]>([]);
+  const [newFaqCategory, setNewFaqCategory] = useState('');
+  const [newFaqQuestion, setNewFaqQuestion] = useState('');
+  const [newFaqAnswer, setNewFaqAnswer] = useState('');
+  const [editingFaq, setEditingFaq] = useState<any | null>(null);
+
+  // Dashboard stats from API
+  const [apiStats, setApiStats] = useState<any>(null);
+
+  // Fetch articles and FAQs on mount
+  useEffect(() => {
+    api.fetchArticles().then((res) => setArticles(res.articles)).catch(() => {});
+    api.fetchAllFaqs().then((res) => setAllFaqs(res.faqs)).catch(() => {});
+    api.fetchAdminStats().then((res) => setApiStats(res.stats)).catch(() => {});
+  }, []);
 
   // Support / Help Desk simulating replies
   const [selectedTicketId, setSelectedTicketId] = useState<string | null>('t-1');
@@ -158,16 +188,26 @@ export default function AdminPanel({
   const [newProfilePhone, setNewProfilePhone] = useState('');
   const [newProfileInterests, setNewProfileInterests] = useState('Coffee, Music, Literature');
 
-  const handleAuthSubmit = (e: React.FormEvent) => {
+  const handleAuthSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const storedPass = getStoredPasscode();
-    if (passcode.trim() === storedPass) {
+    setError(null);
+    try {
+      const res = await api.adminLogin(passcode.trim());
       localStorage.setItem('whaatachi_admin_auth_v1', 'true');
+      if (res.token) localStorage.setItem('whaatachi_token_v1', res.token);
       setIsAuthenticated(true);
-      setError(null);
       setUserRole('admin');
-    } else {
-      setError('Invalid administrative passcode. Please verify your bypass key credentials.');
+    } catch {
+      // Fallback to local passcode
+      const storedPass = getStoredPasscode();
+      if (passcode.trim() === storedPass) {
+        localStorage.setItem('whaatachi_admin_auth_v1', 'true');
+        setIsAuthenticated(true);
+        setError(null);
+        setUserRole('admin');
+      } else {
+        setError('Invalid administrative passcode. Please verify your bypass key credentials.');
+      }
     }
   };
 
@@ -178,9 +218,14 @@ export default function AdminPanel({
     setCurrentView(isLoggedIn ? 'dashboard' : 'home');
   };
 
-  const handleUpdatePasscode = (e: React.FormEvent) => {
+  const handleUpdatePasscode = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newPasscode.trim()) return;
+    try {
+      await api.updateAdminPasscode(newPasscode.trim());
+    } catch {
+      // local-only fallback
+    }
     localStorage.setItem('whaatachi_admin_passcode_v1', newPasscode.trim());
     setChangeSuccess(true);
     setNewPasscode('');
@@ -333,18 +378,30 @@ export default function AdminPanel({
     });
   }, [profiles, searchQuery, genderFilter, cityFilter, verificationFilter]);
 
+  // Pagination for list view
+  const totalFiltered = filteredProfiles.length;
+  const totalPages = Math.max(1, Math.ceil(totalFiltered / memberPageSize));
+  const safePage = Math.min(memberPage, totalPages);
+  const paginatedProfiles = filteredProfiles.slice((safePage - 1) * memberPageSize, safePage * memberPageSize);
+
   // Cities extracted
+  // Reset page when filters change
+  useEffect(() => { setMemberPage(1); }, [searchQuery, genderFilter, cityFilter, verificationFilter]);
+
   const uniqueCities = useMemo(() => {
     const list = profiles.map(p => p.city);
     return Array.from(new Set(list));
   }, [profiles]);
 
-  // Statistics Computations
+  // Statistics Computations (merge local + API)
   const pendingCount = allPayments.filter(p => p.status === 'Pending').length;
   const approvedPaymentsList = allPayments.filter(p => p.status === 'Approved');
-  const revenueSum = approvedPaymentsList.reduce((sum, p) => sum + p.amount, 0);
+  const revenueSum = apiStats?.revenue ?? approvedPaymentsList.reduce((sum, p) => sum + p.amount, 0);
   const malePremiumCount = profiles.filter(p => p.gender === 'Male' && p.verified).length;
   const femalePremiumCount = profiles.filter(p => p.gender === 'Female').length;
+  const totalUsers = apiStats?.totalUsers ?? profiles.length;
+  const verifiedCount = apiStats?.verifiedUsers ?? profiles.filter(p => p.verified).length;
+  const totalApprovedPayments = apiStats?.approvedPayments ?? approvedPaymentsList.length;
 
   const getStatusBadge = (status: PaymentRequest['status']) => {
     switch (status) {
@@ -356,6 +413,67 @@ export default function AdminPanel({
         return 'bg-amber-50 text-amber-700 border border-amber-200 animate-pulse';
     }
   };
+
+  // Action dropdown component for members table
+  function ActionDropdown({ profile, onToggleVerify, onEdit, onDelete }: {
+    profile: Profile;
+    onToggleVerify: (id: string) => void;
+    onEdit: (p: Profile) => void;
+    onDelete: (id: string) => void;
+  }) {
+    const [open, setOpen] = useState(false);
+    const ref = React.useRef<HTMLDivElement>(null);
+
+    React.useEffect(() => {
+      const handleClick = (e: MouseEvent) => {
+        if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+      };
+      if (open) document.addEventListener('mousedown', handleClick);
+      return () => document.removeEventListener('mousedown', handleClick);
+    }, [open]);
+
+    return (
+      <div ref={ref} className="relative inline-block">
+        <button
+          onClick={() => setOpen(!open)}
+          className="p-1.5 rounded-lg bg-gray-50 border border-gray-200 text-gray-400 hover:text-gray-600 hover:border-gray-300 transition-all cursor-pointer"
+          title="Actions"
+        >
+          <svg className="h-4 w-4" viewBox="0 0 16 16" fill="currentColor">
+            <circle cx="8" cy="3" r="1.5" />
+            <circle cx="8" cy="8" r="1.5" />
+            <circle cx="8" cy="13" r="1.5" />
+          </svg>
+        </button>
+        {open && (
+          <div className="absolute right-0 top-full mt-1 w-40 bg-white border border-gray-200 rounded-xl shadow-xl z-50 overflow-hidden">
+            <button
+              onClick={() => { onToggleVerify(profile.id); setOpen(false); }}
+              className="w-full flex items-center gap-2 px-3 py-2 text-[11px] font-bold text-left hover:bg-gray-50 transition-colors cursor-pointer"
+            >
+              {profile.verified ? (
+                <><X className="h-3.5 w-3.5 text-gray-400" /> Unverify</>
+              ) : (
+                <><CheckCircle className="h-3.5 w-3.5 text-emerald-500" /> Verify</>
+              )}
+            </button>
+            <button
+              onClick={() => { onEdit(profile); setOpen(false); }}
+              className="w-full flex items-center gap-2 px-3 py-2 text-[11px] font-bold text-left hover:bg-gray-50 transition-colors cursor-pointer"
+            >
+              <Edit className="h-3.5 w-3.5 text-pink-500" /> Edit
+            </button>
+            <button
+              onClick={() => { onDelete(profile.id); setOpen(false); }}
+              className="w-full flex items-center gap-2 px-3 py-2 text-[11px] font-bold text-left hover:bg-red-50 text-red-500 transition-colors cursor-pointer"
+            >
+              <Trash2 className="h-3.5 w-3.5" /> Ban
+            </button>
+          </div>
+        )}
+      </div>
+    );
+  }
 
   // Auth gate check
   if (!isAuthenticated) {
@@ -531,6 +649,8 @@ export default function AdminPanel({
               { id: 'payments', icon: Smartphone, label: 'Receipt Queue', badge: pendingCount > 0 ? { text: String(pendingCount), className: 'bg-amber-400 text-white' } : null },
               { id: 'members', icon: Users, label: 'Member Candidates', badge: { text: String(profiles.length), className: 'bg-gray-700 text-gray-300' } },
               { id: 'stories', icon: Sparkles, label: 'Success Stories', badge: null },
+              { id: 'articles', icon: FileText, label: 'Blog Articles', badge: null },
+              { id: 'faqs', icon: MessageSquare, label: 'FAQs', badge: null },
               { id: 'support', icon: MessageSquare, label: 'Help Desk', badge: null },
             ].map((item) => {
               const Icon = item.icon;
@@ -690,6 +810,8 @@ export default function AdminPanel({
               {activeTab === 'members' && <Users className="h-6 w-6 text-pink-500" />}
               {activeTab === 'stories' && <Sparkles className="h-6 w-6 text-pink-500" />}
               {activeTab === 'support' && <MessageSquare className="h-6 w-6 text-pink-500" />}
+              {activeTab === 'articles' && <FileText className="h-6 w-6 text-pink-500" />}
+              {activeTab === 'faqs' && <MessageSquare className="h-6 w-6 text-pink-500" />}
               {activeTab === 'settings' && <Sliders className="h-6 w-6 text-pink-500" />}
               {activeTab} Workspace
             </h2>
@@ -757,13 +879,13 @@ export default function AdminPanel({
                 </div>
               </div>
 
-              {/* Card 3: Member count details */}
+              {/* Card 3: Total users */}
               <div className="bg-white border border-gray-200 rounded-2xl p-5 flex items-center justify-between shadow-sm">
                 <div className="space-y-1">
-                  <p className="text-[10px] font-black uppercase tracking-wider text-gray-500">Matchmaking Candidates</p>
-                  <h3 className="text-3xl font-black text-gray-900">{profiles.length} <span className="text-xs font-semibold text-gray-500">singles</span></h3>
+                  <p className="text-[10px] font-black uppercase tracking-wider text-gray-500">Total Registered Users</p>
+                  <h3 className="text-3xl font-black text-gray-900">{totalUsers} <span className="text-xs font-semibold text-gray-500">users</span></h3>
                   <p className="text-[10px] text-pink-600 font-bold flex items-center gap-0.5 mt-2">
-                    <Heart className="h-3.5 w-3.5 fill-pink-500 text-pink-500" /> Active pool
+                    <Heart className="h-3.5 w-3.5 fill-pink-500 text-pink-500" /> {malePremiumCount} Male · {femalePremiumCount} Female
                   </p>
                 </div>
                 <div className="bg-pink-50 text-pink-600 p-3 rounded-xl border border-pink-200">
@@ -771,7 +893,21 @@ export default function AdminPanel({
                 </div>
               </div>
 
-              {/* Card 4: Base connections fee */}
+              {/* Card 4: Verified users */}
+              <div className="bg-white border border-gray-200 rounded-2xl p-5 flex items-center justify-between shadow-sm">
+                <div className="space-y-1">
+                  <p className="text-[10px] font-black uppercase tracking-wider text-gray-500">Verified Users</p>
+                  <h3 className="text-3xl font-black text-gray-900">{verifiedCount} <span className="text-xs font-semibold text-gray-500">verified</span></h3>
+                  <p className="text-[10px] text-emerald-600 font-bold flex items-center gap-0.5 mt-2">
+                    <ShieldCheck className="h-3.5 w-3.5" /> {totalApprovedPayments} approved payments
+                  </p>
+                </div>
+                <div className="bg-emerald-50 text-emerald-600 p-3 rounded-xl border border-emerald-200">
+                  <ShieldCheck className="h-6 w-6" />
+                </div>
+              </div>
+
+              {/* Card 5: Base connections fee */}
               <div className="bg-white border border-gray-200 rounded-2xl p-5 flex items-center justify-between shadow-sm">
                 <div className="space-y-1">
                   <p className="text-[10px] font-black uppercase tracking-wider text-gray-500">Standard Connections Rate</p>
@@ -1318,6 +1454,36 @@ export default function AdminPanel({
                   <option value="Unverified">Unverified Only</option>
                 </select>
 
+                {/* View mode toggle */}
+                <div className="flex bg-gray-100 rounded-xl border border-gray-200 p-0.5">
+                  <button
+                    onClick={() => setMemberViewMode('grid')}
+                    className={`px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                      memberViewMode === 'grid' ? 'bg-white text-pink-600 shadow-xs' : 'text-gray-500 hover:text-gray-700'
+                    }`}
+                    title="Grid view"
+                  >
+                    <div className="flex gap-0.5">
+                      <div className="w-1.5 h-1.5 rounded-xs bg-current" />
+                      <div className="w-1.5 h-1.5 rounded-xs bg-current" />
+                      <div className="w-1.5 h-1.5 rounded-xs bg-current" />
+                    </div>
+                  </button>
+                  <button
+                    onClick={() => setMemberViewMode('list')}
+                    className={`px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                      memberViewMode === 'list' ? 'bg-white text-pink-600 shadow-xs' : 'text-gray-500 hover:text-gray-700'
+                    }`}
+                    title="List view"
+                  >
+                    <div className="flex flex-col gap-0.5">
+                      <div className="w-3 h-0.5 rounded-xs bg-current" />
+                      <div className="w-3 h-0.5 rounded-xs bg-current" />
+                      <div className="w-3 h-0.5 rounded-xs bg-current" />
+                    </div>
+                  </button>
+                </div>
+
                 {/* Create Profile toggle button */}
                 <button
                   onClick={() => setIsCreatingProfile(true)}
@@ -1329,70 +1495,176 @@ export default function AdminPanel({
 
             </div>
 
-            {/* Profiles lists Grid card views */}
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-              {filteredProfiles.map((profile) => (
-                <div key={profile.id} className="bg-white border border-gray-200 rounded-3xl p-5 space-y-4 flex flex-col justify-between shadow-sm hover:border-gray-300 transition-all">
-                  
-                  {/* Top user bar info */}
-                  <div className="flex gap-4 items-start">
-                    <img src={profile.image} alt={profile.name} className="w-14 h-14 rounded-full object-cover shrink-0 border border-gray-200" />
-                    <div>
-                      <div className="flex items-center gap-1.5">
-                        <span className="font-extrabold text-sm text-gray-900">{profile.name}</span>
-                        {profile.verified && <ShieldCheck className="h-4 w-4 text-emerald-500 shrink-0 fill-emerald-500/10" />}
+            {/* Profiles lists - Grid / List toggle */}
+            {memberViewMode === 'grid' ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                {filteredProfiles.map((profile) => (
+                  <div key={profile.id} className="bg-white border border-gray-200 rounded-3xl p-5 space-y-4 flex flex-col justify-between shadow-sm hover:border-gray-300 transition-all">
+                    
+                    <div className="flex gap-4 items-start">
+                      <img src={profile.image} alt={profile.name} className="w-14 h-14 rounded-full object-cover shrink-0 border border-gray-200" />
+                      <div>
+                        <div className="flex items-center gap-1.5">
+                          <span className="font-extrabold text-sm text-gray-900">{profile.name}</span>
+                          {profile.verified && <ShieldCheck className="h-4 w-4 text-emerald-500 shrink-0 fill-emerald-500/10" />}
+                        </div>
+                        <p className="text-[11px] text-gray-500 font-medium">{profile.age} years old · {profile.city}</p>
+                        
+                        <div className="flex gap-2 mt-1.5">
+                          <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold ${
+                            profile.gender === 'Male' ? 'bg-blue-50 text-blue-600' : 'bg-pink-50 text-pink-600'
+                          }`}>
+                            {profile.gender}
+                          </span>
+                          <span className="bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full text-[9px] font-bold truncate max-w-[125px]">
+                            {profile.relationshipIntent}
+                          </span>
+                        </div>
                       </div>
-                      <p className="text-[11px] text-gray-500 font-medium">{profile.age} years old · {profile.city}</p>
-                      
-                      <div className="flex gap-2 mt-1.5">
-                        <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold ${
-                          profile.gender === 'Male' ? 'bg-blue-50 text-blue-600' : 'bg-pink-50 text-pink-600'
-                        }`}>
-                          {profile.gender}
-                        </span>
-                        <span className="bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full text-[9px] font-bold truncate max-w-[125px]">
-                          {profile.relationshipIntent}
-                        </span>
+                    </div>
+
+                    <p className="text-xs text-gray-500 line-clamp-2 font-light">{profile.bio}</p>
+
+                    <div className="p-3 bg-gray-50 border border-gray-200 rounded-2xl space-y-1 font-mono text-[10px]">
+                      <p className="text-gray-400 font-bold uppercase tracking-wider text-[8px]">DISCLOSED ACCESS MATRIX:</p>
+                      <p>Telegram: <span className="text-pink-600 font-extrabold select-all">{profile.contactInfo.telegram}</span></p>
+                      <p>Phone: <span className="text-gray-700 font-bold select-all">{profile.contactInfo.phone}</span></p>
+                    </div>
+
+                    <div className="flex gap-2 justify-end pt-1 border-t border-gray-100">
+                      <button
+                        onClick={() => handleToggleProfileVerification(profile.id)}
+                        className="px-2.5 py-1.5 rounded-xl border border-gray-200 hover:bg-gray-100 text-gray-500 text-[10px] font-black transition-all flex items-center gap-1 cursor-pointer"
+                        title="Toggle verified badge status"
+                      >
+                        {profile.verified ? 'Unverify' : 'Verify Match'}
+                      </button>
+                      <button
+                        onClick={() => setEditingProfile(profile)}
+                        className="px-2.5 py-1.5 rounded-xl bg-gray-50 border border-gray-200 hover:border-pink-300 text-pink-600 text-[10px] font-black transition-all flex items-center gap-1 cursor-pointer"
+                      >
+                        <Edit className="h-3 w-3" /> Edit
+                      </button>
+                      <button
+                        onClick={() => handleDeleteProfile(profile.id)}
+                        className="px-2.5 py-1.5 rounded-xl bg-red-50 hover:bg-red-100 border border-red-200 text-red-500 text-[10px] font-black transition-all flex items-center gap-1 cursor-pointer"
+                      >
+                        <Trash2 className="h-3 w-3" /> Ban
+                      </button>
+                    </div>
+
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-sm">
+                <div className="px-5 py-3 border-b border-gray-200 flex items-center justify-between">
+                  <span className="text-[10px] font-bold text-gray-500">
+                    Showing {paginatedProfiles.length} of {totalFiltered} members
+                  </span>
+                </div>
+                <div className="overflow-x-auto scrollbar-thin">
+                  <table className="w-full text-left border-collapse text-xs">
+                    <thead>
+                      <tr className="bg-gray-50 text-gray-500 border-b border-gray-200">
+                        <th className="p-3 font-bold uppercase tracking-wider text-[10px]">Member</th>
+                        <th className="p-3 font-bold uppercase tracking-wider text-[10px]">Age</th>
+                        <th className="p-3 font-bold uppercase tracking-wider text-[10px]">City</th>
+                        <th className="p-3 font-bold uppercase tracking-wider text-[10px]">Gender</th>
+                        <th className="p-3 font-bold uppercase tracking-wider text-[10px]">Intent</th>
+                        <th className="p-3 font-bold uppercase tracking-wider text-[10px]">Telegram</th>
+                        <th className="p-3 font-bold uppercase tracking-wider text-[10px]">Verified</th>
+                        <th className="p-3 font-bold uppercase tracking-wider text-[10px] text-right">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-100 font-medium text-gray-600">
+                      {paginatedProfiles.map((profile) => (
+                        <tr key={profile.id} className="hover:bg-gray-50 transition-colors">
+                          <td className="p-3">
+                            <div className="flex items-center gap-2.5">
+                              <img src={profile.image} alt={profile.name} className="w-8 h-8 rounded-full object-cover shrink-0 border border-gray-200" />
+                              <span className="font-bold text-gray-900">{profile.name}</span>
+                            </div>
+                          </td>
+                          <td className="p-3">{profile.age}</td>
+                          <td className="p-3">{profile.city}</td>
+                          <td className="p-3">
+                            <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold ${
+                              profile.gender === 'Male' ? 'bg-blue-50 text-blue-600' : 'bg-pink-50 text-pink-600'
+                            }`}>
+                              {profile.gender}
+                            </span>
+                          </td>
+                          <td className="p-3 text-gray-500">{profile.relationshipIntent}</td>
+                          <td className="p-3 font-mono text-[10px] text-pink-600 font-bold">{profile.contactInfo.telegram}</td>
+                          <td className="p-3">
+                            {profile.verified ? (
+                              <span className="text-emerald-600 flex items-center gap-1 text-[10px] font-bold">
+                                <ShieldCheck className="h-3.5 w-3.5" /> Verified
+                              </span>
+                            ) : (
+                              <span className="text-gray-400 text-[10px]">Unverified</span>
+                            )}
+                          </td>
+                          <td className="p-3 text-right relative">
+                            <ActionDropdown
+                              profile={profile}
+                              onToggleVerify={handleToggleProfileVerification}
+                              onEdit={setEditingProfile}
+                              onDelete={handleDeleteProfile}
+                            />
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                {totalFiltered === 0 && (
+                  <div className="py-12 text-center text-xs text-gray-400 space-y-2">
+                    <Users className="h-8 w-8 text-gray-300 mx-auto" />
+                    <p>No matching members found.</p>
+                    <p className="text-[10px]">Try adjusting your search or filters.</p>
+                  </div>
+                )}
+                {totalFiltered > 0 && (
+                  <div className="px-5 py-3 border-t border-gray-200 flex items-center justify-between gap-4 flex-wrap">
+                    <div className="flex items-center gap-2 text-xs text-gray-500">
+                      <span className="font-bold">Rows per page:</span>
+                      <select
+                        value={memberPageSize}
+                        onChange={(e) => { setMemberPageSize(Number(e.target.value)); setMemberPage(1); }}
+                        className="bg-gray-50 border border-gray-200 rounded-lg px-2 py-1 text-xs font-bold text-gray-600 outline-hidden cursor-pointer"
+                      >
+                        {[10, 25, 50, 100].map(n => (
+                          <option key={n} value={n}>{n}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="flex items-center gap-2 text-xs text-gray-500">
+                      <span className="font-bold">
+                        Page {safePage} of {totalPages}
+                      </span>
+                      <div className="flex gap-1">
+                        <button
+                          onClick={() => setMemberPage(p => Math.max(1, p - 1))}
+                          disabled={safePage <= 1}
+                          className="px-2.5 py-1.5 rounded-lg border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed font-bold text-[11px] transition-all cursor-pointer"
+                        >
+                          Prev
+                        </button>
+                        <button
+                          onClick={() => setMemberPage(p => Math.min(totalPages, p + 1))}
+                          disabled={safePage >= totalPages}
+                          className="px-2.5 py-1.5 rounded-lg border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed font-bold text-[11px] transition-all cursor-pointer"
+                        >
+                          Next
+                        </button>
                       </div>
                     </div>
                   </div>
-
-                  {/* Bio brief */}
-                  <p className="text-xs text-gray-500 line-clamp-2 font-light">{profile.bio}</p>
-
-                  {/* Direct Contact info sensitive tags */}
-                  <div className="p-3 bg-gray-50 border border-gray-200 rounded-2xl space-y-1 font-mono text-[10px]">
-                    <p className="text-gray-400 font-bold uppercase tracking-wider text-[8px]">DISCLOSED ACCESS MATRIX:</p>
-                    <p>Telegram: <span className="text-pink-600 font-extrabold select-all">{profile.contactInfo.telegram}</span></p>
-                    <p>Phone: <span className="text-gray-700 font-bold select-all">{profile.contactInfo.phone}</span></p>
-                  </div>
-
-                  {/* Action buttons */}
-                  <div className="flex gap-2 justify-end pt-1 border-t border-gray-100">
-                    <button
-                      onClick={() => handleToggleProfileVerification(profile.id)}
-                      className="px-2.5 py-1.5 rounded-xl border border-gray-200 hover:bg-gray-100 text-gray-500 text-[10px] font-black transition-all flex items-center gap-1 cursor-pointer"
-                      title="Toggle verified badge status"
-                    >
-                      {profile.verified ? 'Unverify' : 'Verify Match'}
-                    </button>
-                    <button
-                      onClick={() => setEditingProfile(profile)}
-                      className="px-2.5 py-1.5 rounded-xl bg-gray-50 border border-gray-200 hover:border-pink-300 text-pink-600 text-[10px] font-black transition-all flex items-center gap-1 cursor-pointer"
-                    >
-                      <Edit className="h-3 w-3" /> Edit
-                    </button>
-                    <button
-                      onClick={() => handleDeleteProfile(profile.id)}
-                      className="px-2.5 py-1.5 rounded-xl bg-red-50 hover:bg-red-100 border border-red-200 text-red-500 text-[10px] font-black transition-all flex items-center gap-1 cursor-pointer"
-                    >
-                      <Trash2 className="h-3 w-3" /> Ban
-                    </button>
-                  </div>
-
-                </div>
-              ))}
-            </div>
+                )}
+              </div>
+            )}
 
             {/* Profile Creation Dialog Modal */}
             {isCreatingProfile && (
@@ -1482,43 +1754,62 @@ export default function AdminPanel({
                       />
                     </div>
 
-                    {/* Image URL with standard defaults */}
+                    {/* Photo upload */}
                     <div className="space-y-1">
-                      <label className="font-bold text-gray-500 block uppercase">Photo URL</label>
-                      <input
-                        type="text"
-                        placeholder="Paste image link manually, or use sample"
-                        value={newProfileImage}
-                        onChange={(e) => setNewProfileImage(e.target.value)}
-                        className="w-full bg-gray-50 border border-gray-200 p-2.5 rounded-xl text-gray-900 text-xs font-mono outline-hidden focus:border-pink-500"
-                      />
-                      <div className="flex gap-2 pt-1">
-                        <button
-                          type="button"
-                          onClick={() => setNewProfileImage('https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=500&auto=format&fit=crop&q=80')}
-                          className="px-2 py-0.5 rounded-md bg-gray-50 border border-gray-200 text-[9px] hover:text-gray-900"
-                        >
-                          Unsplash Female
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setNewProfileImage('https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=500&auto=format&fit=crop&q=80')}
-                          className="px-2 py-0.5 rounded-md bg-gray-50 border border-gray-200 text-[9px] hover:text-gray-900"
-                        >
-                          Unsplash Male
-                        </button>
+                      <label className="font-bold text-gray-500 block uppercase">Photo</label>
+                      <div className="flex items-center gap-3">
+                        <label className="flex-1 flex items-center gap-2 bg-gray-50 border border-gray-200 p-2.5 rounded-xl cursor-pointer hover:border-pink-300 transition-colors">
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) {
+                                const reader = new FileReader();
+                                reader.onload = (ev) => {
+                                  if (ev.target?.result) setNewProfileImage(ev.target.result as string);
+                                };
+                                reader.readAsDataURL(file);
+                              }
+                            }}
+                            className="hidden"
+                          />
+                          <svg className="h-5 w-5 text-gray-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
+                          </svg>
+                          <span className="text-xs text-gray-500 font-medium truncate">
+                            {newProfileImage?.startsWith('data:') ? 'Photo uploaded' : 'Upload photo...'}
+                          </span>
+                        </label>
+                        {newProfileImage?.startsWith('data:') && (
+                          <button
+                            type="button"
+                            onClick={() => setNewProfileImage('')}
+                            className="p-2 bg-red-50 border border-red-200 rounded-xl text-red-400 hover:text-red-600 transition-colors cursor-pointer"
+                            title="Remove photo"
+                          >
+                            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                          </button>
+                        )}
                       </div>
+                      {newProfileImage?.startsWith('data:') && (
+                        <div className="mt-2 w-16 h-16 rounded-xl overflow-hidden border border-gray-200 bg-gray-50">
+                          <img src={newProfileImage} alt="Preview" className="w-full h-full object-cover" />
+                        </div>
+                      )}
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       
-                      {/* Telegram handle */}
+                      {/* Telegram username */}
                       <div className="space-y-1">
-                        <label className="font-bold text-gray-500 block uppercase">Telegram Handle (Required)</label>
+                        <label className="font-bold text-gray-500 block uppercase">Telegram Username (Required)</label>
                         <input
                           type="text"
                           required
-                          placeholder="e.g. @mahlet_des"
+                          placeholder="mahlet_des"
                           value={newProfileTelegram}
                           onChange={(e) => setNewProfileTelegram(e.target.value)}
                           className="w-full bg-gray-50 border border-gray-200 p-2.5 rounded-xl text-gray-900 text-xs outline-hidden focus:border-pink-500"
@@ -1537,12 +1828,24 @@ export default function AdminPanel({
                         />
                       </div>
 
+                      {/* Instagram */}
+                      <div className="space-y-1">
+                        <label className="font-bold text-gray-500 block uppercase">Instagram</label>
+                        <input
+                          type="text"
+                          placeholder="username"
+                          value={newProfileInstagram}
+                          onChange={(e) => setNewProfileInstagram(e.target.value)}
+                          className="w-full bg-gray-50 border border-gray-200 p-2.5 rounded-xl text-gray-900 text-xs outline-hidden focus:border-pink-500"
+                        />
+                      </div>
+
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       {/* Intent selector */}
-                      <div className="space-y-1 block font-bold text-gray-500 block">
-                        <label className="uppercase">Relationship Intent</label>
+                      <div className="space-y-1 font-bold text-gray-500 block">
+                        <label className="uppercase">Intent</label>
                         <select
                           value={newProfileIntent}
                           onChange={(e) => setNewProfileIntent(e.target.value as any)}
@@ -1551,6 +1854,7 @@ export default function AdminPanel({
                           <option value="True Relationship">True Relationship</option>
                           <option value="Friendship">Friendship</option>
                           <option value="Friends with Benefits">Friends with Benefits</option>
+                          <option value="Sex">Sex</option>
                         </select>
                       </div>
 
@@ -1842,7 +2146,354 @@ export default function AdminPanel({
         )}
 
         {/* ========================================================= */}
-        {/* SUBVIEW 5: CHAT TICKETS DIRECT RESOLUTION DESK            */}
+        {/* SUBVIEW 5: ARTICLES / BLOG MANAGEMENT                    */}
+        {/* ========================================================= */}
+        {activeTab === 'articles' && (
+          <div className="space-y-6 animate-fadeIn">
+            
+            <div className="bg-white border border-gray-200 rounded-2xl p-5 space-y-5">
+              <div className="pb-3 border-b border-gray-200">
+                <h4 className="text-xs font-black uppercase tracking-widest text-pink-600 flex items-center gap-1.5">
+                  <FileText className="h-4 w-4" /> Create New Article
+                </h4>
+                <p className="text-[10px] text-gray-400">Publish a blog article to the Whaatachi community</p>
+              </div>
+
+              <form
+                onSubmit={async (e) => {
+                  e.preventDefault();
+                  if (!newArticleTitle.trim()) return;
+                  try {
+                    const res = await api.createArticle({
+                      title: newArticleTitle.trim(),
+                      excerpt: newArticleExcerpt.trim(),
+                      category: newArticleCategory,
+                      content: newArticleContent.trim()
+                    });
+                    setArticles(prev => [res.article, ...prev]);
+                  } catch {
+                    // local fallback
+                    const localArticle: Article = {
+                      id: `article-${Date.now()}`,
+                      title: newArticleTitle.trim(),
+                      excerpt: newArticleExcerpt.trim() || 'Read more...',
+                      category: newArticleCategory,
+                      content: newArticleContent.trim() || 'Full article content here.',
+                      readTime: '3 min',
+                      date: new Date().toISOString().split('T')[0],
+                      image: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=600&auto=format&fit=crop&q=80'
+                    };
+                    setArticles(prev => [localArticle, ...prev]);
+                  }
+                  setNewArticleTitle('');
+                  setNewArticleExcerpt('');
+                  setNewArticleContent('');
+                }}
+                className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs"
+              >
+                <div className="space-y-1 md:col-span-2">
+                  <label className="font-bold text-gray-500 block uppercase">Title</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. 5 Tips for a Great First Date in Addis"
+                    value={newArticleTitle}
+                    onChange={(e) => setNewArticleTitle(e.target.value)}
+                    className="w-full bg-gray-50 border border-gray-200 p-2.5 rounded-xl text-gray-900 outline-hidden focus:border-pink-500"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="font-bold text-gray-500 block uppercase">Category</label>
+                  <select
+                    value={newArticleCategory}
+                    onChange={(e) => setNewArticleCategory(e.target.value)}
+                    className="w-full bg-gray-50 border border-gray-200 p-2.5 rounded-xl text-gray-600 outline-hidden"
+                  >
+                    <option value="Dating Tips">Dating Tips</option>
+                    <option value="Relationships">Relationships</option>
+                    <option value="Ethiopian Culture">Ethiopian Culture</option>
+                    <option value="Success Stories">Success Stories</option>
+                  </select>
+                </div>
+                <div className="space-y-1">
+                  <label className="font-bold text-gray-500 block uppercase">Read Time</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. 5 min"
+                    className="w-full bg-gray-50 border border-gray-200 p-2.5 rounded-xl text-gray-900 outline-hidden focus:border-pink-500"
+                    disabled
+                  />
+                </div>
+                <div className="space-y-1 md:col-span-2">
+                  <label className="font-bold text-gray-500 block uppercase">Excerpt</label>
+                  <input
+                    type="text"
+                    placeholder="Brief summary of the article..."
+                    value={newArticleExcerpt}
+                    onChange={(e) => setNewArticleExcerpt(e.target.value)}
+                    className="w-full bg-gray-50 border border-gray-200 p-2.5 rounded-xl text-gray-900 outline-hidden focus:border-pink-500"
+                  />
+                </div>
+                <div className="space-y-1 md:col-span-2">
+                  <label className="font-bold text-gray-500 block uppercase">Content</label>
+                  <textarea
+                    rows={6}
+                    placeholder="Write the full article content here..."
+                    value={newArticleContent}
+                    onChange={(e) => setNewArticleContent(e.target.value)}
+                    className="w-full bg-gray-50 border border-gray-200 p-2.5 rounded-xl text-gray-900 outline-hidden focus:border-pink-500 resize-none"
+                  />
+                </div>
+                <div className="md:col-span-2 flex justify-end pt-2">
+                  <button
+                    type="submit"
+                    className="px-6 py-2.5 bg-pink-600 hover:bg-pink-700 text-white font-extrabold rounded-xl text-xs cursor-pointer transition-all flex items-center gap-1.5"
+                  >
+                    <Plus className="h-4 w-4" /> Publish Article
+                  </button>
+                </div>
+              </form>
+            </div>
+
+            {/* Articles List */}
+            <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-sm">
+              <div className="px-5 py-4 border-b border-gray-200 flex justify-between items-center">
+                <h4 className="text-xs font-black uppercase tracking-widest text-gray-500 flex items-center gap-2">
+                  <FileText className="h-4 w-4 text-pink-500" />
+                  Published Articles ({articles.length})
+                </h4>
+              </div>
+
+              {articles.length > 0 ? (
+                <div className="divide-y divide-gray-100">
+                  {articles.map((article) => (
+                    <div key={article.id} className="p-4 sm:p-5 flex items-start gap-4 hover:bg-gray-50 transition-colors">
+                      <div className="w-14 h-14 rounded-xl overflow-hidden shrink-0 bg-gray-100 border border-gray-200">
+                        <img src={article.image} alt={article.title} className="w-full h-full object-cover" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-start justify-between gap-3">
+                          <div>
+                            <h5 className="text-sm font-bold text-gray-900 truncate">{article.title}</h5>
+                            <p className="text-[11px] text-gray-500 mt-0.5 line-clamp-1">{article.excerpt}</p>
+                          </div>
+                          <span className="text-[9px] font-mono font-bold text-gray-400 bg-gray-50 border border-gray-200 px-2 py-0.5 rounded-md shrink-0">
+                            {article.date}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2 mt-2">
+                          <span className="text-[9px] font-bold bg-pink-50 text-pink-600 px-2 py-0.5 rounded-md border border-pink-200">
+                            {article.category}
+                          </span>
+                          <span className="text-[9px] text-gray-400">{article.readTime}</span>
+                          <button
+                            onClick={async () => {
+                              if (!window.confirm('Delete this article?')) return;
+                              try {
+                                await api.deleteArticle(article.id);
+                              } catch {}
+                              setArticles(prev => prev.filter(a => a.id !== article.id));
+                            }}
+                            className="ml-auto text-red-400 hover:text-red-600 transition-colors cursor-pointer"
+                            title="Delete article"
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="py-16 text-center text-xs text-gray-400 space-y-2">
+                  <FileText className="h-8 w-8 text-gray-300 mx-auto" />
+                  <p>No articles published yet.</p>
+                  <p className="text-[10px]">Use the form above to create your first article.</p>
+                </div>
+              )}
+            </div>
+
+          </div>
+        )}
+
+        {/* ========================================================= */}
+        {/* SUBVIEW 6: FAQS MANAGEMENT                                */}
+        {/* ========================================================= */}
+        {activeTab === 'faqs' && (
+          <div className="space-y-6 animate-fadeIn">
+
+            {/* Create / Edit FAQ Form */}
+            <div className="bg-white border border-gray-200 rounded-2xl p-5 space-y-5">
+              <div className="pb-3 border-b border-gray-200">
+                <h4 className="text-xs font-black uppercase tracking-widest text-pink-600 flex items-center gap-1.5">
+                  <MessageSquare className="h-4 w-4" /> {editingFaq ? 'Edit FAQ' : 'Create New FAQ'}
+                </h4>
+                <p className="text-[10px] text-gray-400">{editingFaq ? 'Modify the existing FAQ entry' : 'Add a new frequently asked question'}</p>
+              </div>
+
+              <form
+                onSubmit={async (e) => {
+                  e.preventDefault();
+                  const category = editingFaq ? editingFaq.category : newFaqCategory;
+                  const question = editingFaq ? editingFaq.question : newFaqQuestion;
+                  const answer = editingFaq ? editingFaq.answer : newFaqAnswer;
+                  if (!category.trim() || !question.trim() || !answer.trim()) return;
+
+                  try {
+                    if (editingFaq) {
+                      const res = await api.updateFaq(editingFaq.id, { category, question, answer });
+                      setAllFaqs(prev => prev.map(f => f.id === editingFaq.id ? res.faq : f));
+                      setEditingFaq(null);
+                    } else {
+                      const res = await api.createFaq({ category, question, answer });
+                      setAllFaqs(prev => [...prev, res.faq]);
+                    }
+                  } catch {
+                    if (editingFaq) {
+                      setAllFaqs(prev => prev.map(f => f.id === editingFaq.id ? { ...f, category, question, answer } : f));
+                      setEditingFaq(null);
+                    } else {
+                      const localFaq = { id: `faq-${Date.now()}`, category, question, answer, sortOrder: 0 };
+                      setAllFaqs(prev => [...prev, localFaq]);
+                    }
+                  }
+
+                  setNewFaqCategory('');
+                  setNewFaqQuestion('');
+                  setNewFaqAnswer('');
+                }}
+                className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs"
+              >
+                <div className="space-y-1">
+                  <label className="font-bold text-gray-500 block uppercase">Category</label>
+                  <select
+                    value={editingFaq ? editingFaq.category : newFaqCategory}
+                    onChange={(e) => editingFaq ? setEditingFaq({ ...editingFaq, category: e.target.value }) : setNewFaqCategory(e.target.value)}
+                    className="w-full bg-gray-50 border border-gray-200 p-2.5 rounded-xl text-gray-600 outline-hidden"
+                  >
+                    <option value="">Select category</option>
+                    <option value="General">General</option>
+                    <option value="Payments">Payments</option>
+                    <option value="Privacy">Privacy</option>
+                    <option value="Safety">Safety</option>
+                    <option value="Account">Account</option>
+                  </select>
+                </div>
+                <div className="space-y-1">
+                  <label className="font-bold text-gray-500 block uppercase">Question</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. How does matchmaking work?"
+                    value={editingFaq ? editingFaq.question : newFaqQuestion}
+                    onChange={(e) => editingFaq ? setEditingFaq({ ...editingFaq, question: e.target.value }) : setNewFaqQuestion(e.target.value)}
+                    className="w-full bg-gray-50 border border-gray-200 p-2.5 rounded-xl text-gray-900 outline-hidden focus:border-pink-500"
+                  />
+                </div>
+                <div className="space-y-1 md:col-span-2">
+                  <label className="font-bold text-gray-500 block uppercase">Answer</label>
+                  <textarea
+                    rows={4}
+                    required
+                    placeholder="Write the answer here..."
+                    value={editingFaq ? editingFaq.answer : newFaqAnswer}
+                    onChange={(e) => editingFaq ? setEditingFaq({ ...editingFaq, answer: e.target.value }) : setNewFaqAnswer(e.target.value)}
+                    className="w-full bg-gray-50 border border-gray-200 p-2.5 rounded-xl text-gray-900 outline-hidden focus:border-pink-500 resize-none"
+                  />
+                </div>
+                <div className="md:col-span-2 flex justify-end gap-2 pt-2">
+                  {editingFaq && (
+                    <button
+                      type="button"
+                      onClick={() => setEditingFaq(null)}
+                      className="px-4 py-2 bg-gray-50 border border-gray-200 hover:bg-gray-100 rounded-xl text-gray-600 transition-colors text-xs cursor-pointer"
+                    >
+                      Cancel Edit
+                    </button>
+                  )}
+                  <button
+                    type="submit"
+                    className="px-6 py-2.5 bg-pink-600 hover:bg-pink-700 text-white font-extrabold rounded-xl text-xs cursor-pointer transition-all flex items-center gap-1.5"
+                  >
+                    {editingFaq ? <><Edit className="h-4 w-4" /> Update FAQ</> : <><Plus className="h-4 w-4" /> Add FAQ</>}
+                  </button>
+                </div>
+              </form>
+            </div>
+
+            {/* FAQs List grouped by category */}
+            <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-sm">
+              <div className="px-5 py-4 border-b border-gray-200">
+                <h4 className="text-xs font-black uppercase tracking-widest text-gray-500 flex items-center gap-2">
+                  <MessageSquare className="h-4 w-4 text-pink-500" />
+                  Frequently Asked Questions ({allFaqs.length})
+                </h4>
+              </div>
+
+              {allFaqs.length > 0 ? (
+                <div className="divide-y divide-gray-100">
+                  {(() => {
+                    const grouped: Record<string, any[]> = {};
+                    allFaqs.forEach(faq => {
+                      const cat = faq.category || 'Uncategorized';
+                      if (!grouped[cat]) grouped[cat] = [];
+                      grouped[cat].push(faq);
+                    });
+                    return Object.entries(grouped).map(([category, faqs]) => (
+                      <div key={category} className="p-4 sm:p-5">
+                        <h5 className="text-[10px] font-black uppercase tracking-widest text-pink-600 mb-3 border-b border-gray-100 pb-2">
+                          {category} ({faqs.length})
+                        </h5>
+                        <div className="space-y-3">
+                          {faqs.map((faq) => (
+                            <div key={faq.id} className="flex items-start justify-between gap-3 p-3 bg-gray-50 border border-gray-200 rounded-xl">
+                              <div className="flex-1 min-w-0">
+                                <p className="text-xs font-bold text-gray-900">{faq.question}</p>
+                                <p className="text-[10px] text-gray-500 mt-1 leading-relaxed">{faq.answer}</p>
+                              </div>
+                              <div className="flex gap-1.5 shrink-0">
+                                <button
+                                  onClick={() => setEditingFaq(faq)}
+                                  className="p-1.5 bg-white border border-gray-200 rounded-lg text-gray-400 hover:text-pink-600 hover:border-pink-300 transition-colors cursor-pointer"
+                                  title="Edit FAQ"
+                                >
+                                  <Edit className="h-3.5 w-3.5" />
+                                </button>
+                                <button
+                                  onClick={async () => {
+                                    if (!window.confirm('Delete this FAQ?')) return;
+                                    try {
+                                      await api.deleteFaq(faq.id);
+                                    } catch {}
+                                    setAllFaqs(prev => prev.filter(f => f.id !== faq.id));
+                                  }}
+                                  className="p-1.5 bg-white border border-gray-200 rounded-lg text-gray-400 hover:text-red-600 hover:border-red-300 transition-colors cursor-pointer"
+                                  title="Delete FAQ"
+                                >
+                                  <Trash2 className="h-3.5 w-3.5" />
+                                </button>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ));
+                  })()}
+                </div>
+              ) : (
+                <div className="py-16 text-center text-xs text-gray-400 space-y-2">
+                  <MessageSquare className="h-8 w-8 text-gray-300 mx-auto" />
+                  <p>No FAQs added yet.</p>
+                  <p className="text-[10px]">Use the form above to add frequently asked questions.</p>
+                </div>
+              )}
+            </div>
+
+          </div>
+        )}
+
+        {/* ========================================================= */}
+        {/* SUBVIEW 7: CHAT TICKETS DIRECT RESOLUTION DESK            */}
         {/* ========================================================= */}
         {activeTab === 'support' && (
           <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden grid grid-cols-1 md:grid-cols-3 font-sans shadow-sm animate-fadeIn h-[65vh]">
