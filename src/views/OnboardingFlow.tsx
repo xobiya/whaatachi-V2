@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Heart, Users, ArrowRight, ArrowLeft, User, Phone, Instagram, MapPin, Camera, Check, LogIn, UserPlus } from 'lucide-react';
+import { Heart, Users, ArrowRight, ArrowLeft, User, Phone, Instagram, MapPin, Camera, Check, LogIn, UserPlus, X } from 'lucide-react';
 import TelegramIcon from '../components/TelegramIcon';
 import { Profile } from '../types';
 import { useAppContext } from '../context/AppContext';
@@ -123,6 +123,7 @@ export default function OnboardingFlow({ onComplete, onSignIn, authIntent }: Onb
     city: 'Addis Ababa', address: '', image: '', gender: 'Male',
   });
   const [regErrors, setRegErrors] = useState<Partial<RegFormData>>({});
+  const [toastError, setToastError] = useState<string | null>(null);
   const { t } = useAppContext();
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -131,26 +132,31 @@ export default function OnboardingFlow({ onComplete, onSignIn, authIntent }: Onb
   const setField = (field: keyof RegFormData, value: string) => {
     setForm(prev => ({ ...prev, [field]: value }));
     setRegErrors(prev => ({ ...prev, [field]: undefined }));
+    if (toastError) setToastError(null);
   };
 
   const validateReg = (): boolean => {
     const e: Partial<RegFormData> = {};
-    if (!form.name.trim())                                       e.name    = 'Full name is required';
-    if (!form.age || Number(form.age) < 18 || Number(form.age) > 60) e.age = 'Age must be 18–60';
+    const msgs: string[] = [];
+    if (!form.name.trim()) { e.name = 'Full name is required'; msgs.push('Full name is required'); }
+    if (!form.age || Number(form.age) < 18 || Number(form.age) > 60) { e.age = 'Age must be 18–60'; msgs.push('Age must be 18–60'); }
     const hasPhone = form.phone.trim().length > 0;
     const hasTelegram = form.telegram.trim().length > 0;
     const hasInstagram = form.instagram.trim().length > 0;
     if (!hasPhone && !hasTelegram && !hasInstagram) {
       const msg = 'At least phone, Telegram, or Instagram is required';
       e.phone = msg; e.telegram = msg; e.instagram = msg;
+      msgs.push(msg);
     }
     if (hasPhone && !isValidEthiopianPhone(form.phone)) {
       e.phone = 'Please enter a valid Ethiopian phone number (e.g., +251 9XX XXX XXX)';
+      msgs.push('Invalid Ethiopian phone number');
     }
-    if (!form.city)                                              e.city    = 'City is required';
-    if (!form.address.trim())                                    e.address = 'Area / Location is required';
-    if (!form.image)                                             e.image   = 'Profile photo is required';
+    if (!form.city) { e.city = 'City is required'; msgs.push('City is required'); }
+    if (!form.address.trim()) { e.address = 'Area / Location is required'; msgs.push('Area / Location is required'); }
+    if (!form.image) { e.image = 'Profile photo is required'; msgs.push('Profile photo is required'); }
     setRegErrors(e);
+    if (msgs.length > 0) setToastError(msgs.join(' • '));
     return Object.keys(e).length === 0;
   };
 
@@ -422,6 +428,17 @@ export default function OnboardingFlow({ onComplete, onSignIn, authIntent }: Onb
                 <h2 className="text-xl font-black text-[#FFFCF8] mb-0.5">{t('onboarding.step3-title')}</h2>
                 <p className="text-xs text-[#EDE6D9]/50 mb-4">{t('onboarding.step3-desc')}</p>
 
+                {toastError && (
+                  <div className="mb-4 p-3 rounded-xl bg-red-500/10 border border-red-400/30 animate-fade-in">
+                    <div className="flex items-start gap-2">
+                      <span className="text-red-400 text-[10px] font-bold leading-relaxed">{toastError}</span>
+                      <button onClick={() => setToastError(null)} className="ml-auto shrink-0 text-red-400/60 hover:text-red-400 cursor-pointer">
+                        <X className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
+                  </div>
+                )}
+
                 <div className="space-y-3 max-h-[55vh] overflow-y-auto pr-1">
 
                    {/* Gender toggle */}
@@ -466,7 +483,6 @@ export default function OnboardingFlow({ onComplete, onSignIn, authIntent }: Onb
                         <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
                       </div>
                     </div>
-                    {regErrors.image && <p className="text-red-400 text-[10px] mt-1">{regErrors.image}</p>}
                   </div>
 
                   {/* Name */}
@@ -481,7 +497,6 @@ export default function OnboardingFlow({ onComplete, onSignIn, authIntent }: Onb
                         className={`w-full pl-9 pr-3.5 py-2.5 bg-[#FFFCF8]/5 border ${regErrors.name ? 'border-red-500' : 'border-[#FFFCF8]/10'} rounded-xl text-sm text-[#FFFCF8] placeholder:text-[#FFFCF8]/25 focus:outline-none focus:border-[#C9A84C]/60 transition-colors`}
                       />
                     </div>
-                    {regErrors.name && <p className="text-red-400 text-[10px] mt-1">{regErrors.name}</p>}
                   </div>
 
                   {/* Age */}
@@ -493,7 +508,6 @@ export default function OnboardingFlow({ onComplete, onSignIn, authIntent }: Onb
                       placeholder="Your age (18–60)"
                       className={`w-full px-3.5 py-2.5 bg-[#FFFCF8]/5 border ${regErrors.age ? 'border-red-500' : 'border-[#FFFCF8]/10'} rounded-xl text-sm text-[#FFFCF8] placeholder:text-[#FFFCF8]/25 focus:outline-none focus:border-[#C9A84C]/60 transition-colors`}
                     />
-                    {regErrors.age && <p className="text-red-400 text-[10px] mt-1">{regErrors.age}</p>}
                   </div>
 
                   {/* Contact info hint */}
@@ -511,7 +525,6 @@ export default function OnboardingFlow({ onComplete, onSignIn, authIntent }: Onb
                         className={`w-full pl-9 pr-3.5 py-2.5 bg-[#FFFCF8]/5 border ${regErrors.phone ? 'border-red-500' : 'border-[#FFFCF8]/10'} rounded-xl text-sm text-[#FFFCF8] placeholder:text-[#FFFCF8]/25 focus:outline-none focus:border-[#C9A84C]/60 transition-colors`}
                       />
                     </div>
-                    {regErrors.phone && <p className="text-red-400 text-[10px] mt-1">{regErrors.phone}</p>}
                   </div>
 
                   {/* Telegram */}
@@ -526,7 +539,6 @@ export default function OnboardingFlow({ onComplete, onSignIn, authIntent }: Onb
                         className={`w-full pl-9 pr-3.5 py-2.5 bg-[#FFFCF8]/5 border ${regErrors.telegram ? 'border-red-500' : 'border-[#FFFCF8]/10'} rounded-xl text-sm text-[#FFFCF8] placeholder:text-[#FFFCF8]/25 focus:outline-none focus:border-[#C9A84C]/60 transition-colors`}
                       />
                     </div>
-                    {regErrors.telegram && <p className="text-red-400 text-[10px] mt-1">{regErrors.telegram}</p>}
                   </div>
 
                   {/* Instagram */}
@@ -558,7 +570,6 @@ export default function OnboardingFlow({ onComplete, onSignIn, authIntent }: Onb
                         error={!!regErrors.city}
                       />
                     </div>
-                    {regErrors.city && <p className="text-red-400 text-[10px] mt-1">{regErrors.city}</p>}
                   </div>
 
                   {/* Area */}
@@ -583,7 +594,6 @@ export default function OnboardingFlow({ onComplete, onSignIn, authIntent }: Onb
                         />
                       )}
                     </div>
-                    {regErrors.address && <p className="text-red-400 text-[10px] mt-1">{regErrors.address}</p>}
                   </div>
                 </div>
 
