@@ -4,6 +4,7 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import rateLimit from 'express-rate-limit';
 
+import mongoose from 'mongoose';
 import { errorHandler, notFoundHandler } from './middleware/errorHandler';
 import authRoutes from './routes/auth.routes';
 import profileRoutes from './routes/profile.routes';
@@ -42,7 +43,18 @@ app.use('/api/articles', articleRoutes);
 app.use('/api/faqs', faqRoutes);
 
 app.get('/api/health', (_req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+  const dbState = mongoose.connection.readyState;
+  const dbStatus: Record<number, string> = {
+    0: 'disconnected',
+    1: 'connected',
+    2: 'connecting',
+    3: 'disconnecting',
+  };
+  res.json({
+    status: dbState === 1 ? 'ok' : 'error',
+    database: dbStatus[dbState] || 'unknown',
+    timestamp: new Date().toISOString(),
+  });
 });
 
 app.use(notFoundHandler);
