@@ -91,6 +91,23 @@ export default function AdminPanel({
   const [memberPage, setMemberPage] = useState(1);
   const [memberPageSize, setMemberPageSize] = useState(10);
 
+  // Toast notification system
+  const [toast, setToast] = useState<{ type: 'success' | 'error' | 'loading'; message: string } | null>(null);
+  const toastTimer = React.useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+
+  const showToast = (type: 'success' | 'error' | 'loading', message: string, duration = 3000) => {
+    if (toastTimer.current) clearTimeout(toastTimer.current);
+    setToast({ type, message });
+    if (type !== 'loading') {
+      toastTimer.current = setTimeout(() => setToast(null), duration);
+    }
+  };
+
+  const clearToast = () => {
+    if (toastTimer.current) clearTimeout(toastTimer.current);
+    setToast(null);
+  };
+
   // Articles management
   const [articles, setArticles] = useState<Article[]>([]);
   const [newArticleTitle, setNewArticleTitle] = useState('');
@@ -110,9 +127,9 @@ export default function AdminPanel({
 
   // Fetch articles and FAQs on mount
   useEffect(() => {
-    api.fetchArticles().then((res) => setArticles(res.articles)).catch(() => {});
-    api.fetchAllFaqs().then((res) => setAllFaqs(res.faqs)).catch(() => {});
-    api.fetchAdminStats().then((res) => setApiStats(res.stats)).catch(() => {});
+    api.fetchArticles().then((res) => setArticles(res.articles)).catch(() => showToast('error', 'Failed to load articles'));
+    api.fetchAllFaqs().then((res) => setAllFaqs(res.faqs)).catch(() => showToast('error', 'Failed to load FAQs'));
+    api.fetchAdminStats().then((res) => setApiStats(res.stats)).catch(() => showToast('error', 'Failed to load stats'));
   }, []);
 
   // Support / Help Desk simulating replies
@@ -237,7 +254,7 @@ export default function AdminPanel({
   const handleSaveMatchFee = (fee: number) => {
     setMatchFee(fee);
     localStorage.setItem('whaatachi_match_fee_v1', fee.toString());
-    alert(`Match fee updated to ${fee} ETB successfully globally!`);
+    showToast('success', `Match fee updated to ${fee} ETB`);
   };
 
   // Toggle Maintenance Mode
@@ -278,8 +295,8 @@ export default function AdminPanel({
 
   const handleCreateNewProfile = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newProfileName.trim() || !newProfileTelegram.trim()) {
-      alert('Please fill out Name and Telegram handle fields.');
+      if (!newProfileName.trim() || !newProfileTelegram.trim()) {
+      showToast('error', 'Please fill out Name and Telegram fields.');
       return;
     }
 
@@ -313,7 +330,7 @@ export default function AdminPanel({
     setNewProfileBio('');
     setNewProfileTelegram('');
     setNewProfilePhone('');
-    alert('Match candidate created and verified instantly!');
+    showToast('success', 'Match candidate created and verified!');
   };
 
   // Success Stories CRUD
@@ -326,7 +343,7 @@ export default function AdminPanel({
   const handleCreateSuccessStory = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newStoryNames.trim() || !newStoryText.trim()) {
-      alert('Fill in couple names and their story text.');
+      showToast('error', 'Fill in couple names and their story text.');
       return;
     }
     const created: SuccessStory = {
@@ -339,7 +356,7 @@ export default function AdminPanel({
     setStories(prev => [created, ...prev]);
     setNewStoryNames('');
     setNewStoryText('');
-    alert('Success story published successfully!');
+    showToast('success', 'Success story published!');
   };
 
   // Support Inbox simulator
@@ -1033,7 +1050,7 @@ export default function AdminPanel({
                       contactInfo: { phone: '0900112233', telegram: '@zene_abera', instagram: '@zenebech', email: 'zenebech@whaatachi.com' }
                     };
                     setProfiles(prev => [sample, ...prev]);
-                    alert('Simulated FEMALE candidate injected! Verify discover match feed.');
+                    showToast('success', 'Female candidate injected into discovery feed');
                   }}
                   className="px-4 py-2.5 bg-gray-50 border border-gray-200 hover:border-pink-300 text-gray-600 hover:text-gray-900 rounded-xl text-xs font-extrabold flex items-center gap-1.5 transition-all text-center justify-center cursor-pointer"
                 >
@@ -1059,7 +1076,7 @@ export default function AdminPanel({
                       contactInfo: { phone: '0933445566', telegram: '@brook_shif', instagram: '@brook_shif', email: 'brook@whaatachi.com' }
                     };
                     setProfiles(prev => [sample, ...prev]);
-                    alert('Simulated MALE candidate injected! Verify discover list.');
+                    showToast('success', 'Male candidate injected into discovery feed');
                   }}
                   className="px-4 py-2.5 bg-gray-50 border border-gray-200 hover:border-blue-300 text-gray-600 hover:text-gray-900 rounded-xl text-xs font-extrabold flex items-center gap-1.5 transition-all text-center justify-center cursor-pointer"
                 >
@@ -2164,6 +2181,7 @@ export default function AdminPanel({
                   e.preventDefault();
                   if (!newArticleTitle.trim()) return;
                   try {
+                    showToast('loading', 'Publishing article...');
                     const res = await api.createArticle({
                       title: newArticleTitle.trim(),
                       excerpt: newArticleExcerpt.trim(),
@@ -2171,8 +2189,9 @@ export default function AdminPanel({
                       content: newArticleContent.trim()
                     });
                     setArticles(prev => [res.article, ...prev]);
+                    showToast('success', 'Article published');
                   } catch {
-                    // local fallback
+                    showToast('error', 'API unavailable, saved locally');
                     const localArticle: Article = {
                       id: `article-${Date.now()}`,
                       title: newArticleTitle.trim(),

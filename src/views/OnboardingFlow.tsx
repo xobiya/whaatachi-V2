@@ -78,7 +78,7 @@ const INTENT_OPTIONS: { value: Intent; emoji: string; desc: string }[] = [
   { value: 'Only Sex',          emoji: '🔥', desc: 'onboarding.intent-sex'            },
 ];
 
-const STEP_LABEL_KEYS = ['onboarding.step1-title', 'onboarding.step2-title', 'onboarding.step3-title'];
+const STEP_LABEL_KEYS = ['onboarding.step1-title', 'onboarding.step-gender-title', 'onboarding.step2-title', 'onboarding.step3-title'];
 
 export default function OnboardingFlow({ onComplete, onSignIn, authIntent }: OnboardingFlowProps) {
   // Sign-in state
@@ -120,7 +120,7 @@ export default function OnboardingFlow({ onComplete, onSignIn, authIntent }: Onb
   const [selectedLookingFor, setSelectedLookingFor] = useState<Gender | null>(null);
   const [form, setForm] = useState<RegFormData>({
     name: '', age: '', phone: '', telegram: '', instagram: '',
-    city: 'Addis Ababa', address: '', image: '', gender: 'Male',
+    city: 'Addis Ababa', address: DEFAULT_AREA['Addis Ababa'], image: '', gender: 'Male',
   });
   const [regErrors, setRegErrors] = useState<Partial<RegFormData>>({});
   const [toastError, setToastError] = useState<string | null>(null);
@@ -373,10 +373,57 @@ export default function OnboardingFlow({ onComplete, onSignIn, authIntent }: Onb
               </div>
             )}
 
-            {/* ── STEP 2: Looking For (Gender) ── */}
+            {/* ── STEP 2: I am (Gender) ── */}
             {step === 2 && (
               <div>
                 <button onClick={() => setStep(1)} className="flex items-center gap-1 text-[#FFFCF8]/40 hover:text-[#C9A84C] text-xs font-bold mb-4 cursor-pointer transition-colors">
+                  <ArrowLeft className="h-3.5 w-3.5" /> {t('onboarding.back')}
+                </button>
+                <h2 className="text-xl font-black text-[#FFFCF8] mb-0.5">{t('onboarding.step-gender-title')}</h2>
+                <p className="text-xs text-[#EDE6D9]/50 mb-5">{t('onboarding.step-gender-desc')}</p>
+
+                <div className="flex gap-3">
+                  {(['Male', 'Female'] as Gender[]).map(g => {
+                    const active = form.gender === g;
+                    const label = g === 'Male' ? t('auth.man') : t('auth.woman');
+                    return (
+                      <button
+                        key={g}
+                        id={`gender-step-${g.toLowerCase()}`}
+                        onClick={() => {
+                          setField('gender', g);
+                          setSelectedLookingFor(g === 'Male' ? 'Female' : 'Male');
+                        }}
+                        className={`flex-1 flex flex-col items-center justify-center gap-2 py-8 rounded-2xl border-2 cursor-pointer transition-all duration-250 ${
+                          active
+                            ? 'border-[#C9A84C] bg-[#C9A84C]/10 shadow-xl shadow-[#C9A84C]/10'
+                            : 'border-[#FFFCF8]/8 bg-[#FFFCF8]/3 hover:border-[#C9A84C]/40'
+                        }`}
+                      >
+                        <div className={`w-12 h-12 rounded-full flex items-center justify-center ${active ? 'bg-[#C9A84C]/20' : 'bg-[#FFFCF8]/5'}`}>
+                          <User className={`h-6 w-6 ${active ? 'text-[#C9A84C]' : 'text-[#FFFCF8]/50'}`} />
+                        </div>
+                        <span className={`text-base font-black ${active ? 'text-[#C9A84C]' : 'text-[#FFFCF8]'}`}>{label}</span>
+                        {active && <Check className="h-4 w-4 text-[#C9A84C]" />}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                <button
+                  id="gender-next-btn"
+                  onClick={() => setStep(3)}
+                  className="mt-5 w-full py-3 bg-[#EB317A] hover:bg-[#F04B8E] text-white font-bold rounded-xl flex items-center justify-center gap-2 transition-all cursor-pointer shadow-lg shadow-[#EB317A]/20"
+                >
+                  {t('onboarding.continue')} <ArrowRight className="h-4 w-4" />
+                </button>
+              </div>
+            )}
+
+            {/* ── STEP 3: Looking For ── */}
+            {step === 3 && (
+              <div>
+                <button onClick={() => setStep(2)} className="flex items-center gap-1 text-[#FFFCF8]/40 hover:text-[#C9A84C] text-xs font-bold mb-4 cursor-pointer transition-colors">
                   <ArrowLeft className="h-3.5 w-3.5" /> {t('onboarding.back')}
                 </button>
                 <h2 className="text-xl font-black text-[#FFFCF8] mb-0.5">{t('onboarding.step2-title')}</h2>
@@ -411,7 +458,7 @@ export default function OnboardingFlow({ onComplete, onSignIn, authIntent }: Onb
                 <button
                   id="looking-for-next-btn"
                   disabled={!selectedLookingFor}
-                  onClick={() => setStep(3)}
+                  onClick={() => setStep(4)}
                   className="mt-5 w-full py-3 bg-[#EB317A] hover:bg-[#F04B8E] disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold rounded-xl flex items-center justify-center gap-2 transition-all cursor-pointer shadow-lg shadow-[#EB317A]/20"
                 >
                   {t('onboarding.continue')} <ArrowRight className="h-4 w-4" />
@@ -419,10 +466,10 @@ export default function OnboardingFlow({ onComplete, onSignIn, authIntent }: Onb
               </div>
             )}
 
-            {/* ── STEP 3: Registration Form ── */}
-            {step === 3 && (
+            {/* ── STEP 4: Registration Form ── */}
+            {step === 4 && (
               <div>
-                <button onClick={() => setStep(2)} className="flex items-center gap-1 text-[#FFFCF8]/40 hover:text-[#C9A84C] text-xs font-bold mb-4 cursor-pointer transition-colors">
+                <button onClick={() => setStep(3)} className="flex items-center gap-1 text-[#FFFCF8]/40 hover:text-[#C9A84C] text-xs font-bold mb-4 cursor-pointer transition-colors">
                   <ArrowLeft className="h-3.5 w-3.5" /> {t('onboarding.back')}
                 </button>
                 <h2 className="text-xl font-black text-[#FFFCF8] mb-0.5">{t('onboarding.step3-title')}</h2>
@@ -441,23 +488,13 @@ export default function OnboardingFlow({ onComplete, onSignIn, authIntent }: Onb
 
                 <div className="space-y-3 max-h-[55vh] overflow-y-auto pr-1">
 
-                   {/* Gender toggle */}
-                  <div className="flex gap-2">
-                    {(['Male', 'Female'] as Gender[]).map(g => (
-                      <button
-                        key={g}
-                        id={`gender-${g.toLowerCase()}`}
-                        type="button"
-                        onClick={() => { setField('gender', g); setField('image', ''); }}
-                        className={`flex-1 py-2 rounded-xl text-xs font-bold border-2 transition-all cursor-pointer ${
-                          form.gender === g
-                            ? 'border-[#C9A84C] bg-[#C9A84C]/10 text-[#C9A84C]'
-                            : 'border-[#FFFCF8]/10 text-[#FFFCF8]/50 hover:border-[#FFFCF8]/20'
-                        }`}
-                      >
-                        {g === 'Male' ? t('onboarding.male') : t('onboarding.female')}
-                      </button>
-                    ))}
+                   {/* Gender (read-only, chosen in step 2) */}
+                  <div className="flex items-center gap-2 px-3 py-2 bg-[#C9A84C]/8 border border-[#C9A84C]/20 rounded-xl">
+                    <User className="h-4 w-4 text-[#C9A84C] shrink-0" />
+                    <span className="text-[11px] font-bold text-[#C9A84C]">
+                      {form.gender === 'Male' ? t('auth.man') : t('auth.woman')}
+                    </span>
+                    <span className="text-[8px] text-[#FFFCF8]/30 ml-auto">{t('onboarding.back')} to change</span>
                   </div>
 
                    {/* Profile Photo */}

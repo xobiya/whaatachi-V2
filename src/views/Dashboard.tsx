@@ -306,7 +306,7 @@ export default function Dashboard({
             {filteredProfiles.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
                 {filteredProfiles.map((profile) => {
-                  const showContact = hasPaid;
+                  const showContact = hasPaid || userGender === 'Female';
                   return (
                     <ProfileCard
                       key={profile.id}

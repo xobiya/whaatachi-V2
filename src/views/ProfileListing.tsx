@@ -184,7 +184,7 @@ export default function ProfileListing({
         {filteredProfiles.length > 0 ? (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4 lg:gap-5">
             {filteredProfiles.map((profile) => {
-              const showContact = hasPaid;
+              const showContact = hasPaid || currentUser.gender === 'Female';
               const badge = INTENT_BADGE[profile.relationshipIntent] || INTENT_BADGE['Friendship'];
               return (
                 <ProfileListCard
