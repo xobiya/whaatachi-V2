@@ -426,218 +426,231 @@ export default function AdminPanel({
       {/* ========================================================= */}
       {/* 1. LEFT ADMIN SIDEBAR PANEL                               */}
       {/* ========================================================= */}
-      
+
+      {/* Mobile backdrop overlay */}
+      {isSidebarOpen && (
+        <div
+          className="fixed inset-0 z-30 bg-black/50 backdrop-blur-sm lg:hidden"
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
+
       {/* Mobile Header bar */}
       <div className="lg:hidden bg-[#0F0F1A] border-b border-gray-800 px-4 py-3 flex items-center justify-between shrink-0">
         <div className="flex items-center gap-2">
-          <div className="bg-gradient-to-tr from-pink-600 to-rose-500 p-1.5 rounded-lg text-white">
+          <div className="bg-gradient-to-tr from-pink-600 to-rose-500 p-1.5 rounded-lg text-white shadow-lg shadow-pink-600/20">
             <ShieldCheck className="h-5 w-5" />
           </div>
           <span className="font-extrabold tracking-tight text-white shrink-0 text-sm">Whaatachi Control Panel</span>
         </div>
-        <button 
+        <button
           onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-          className="p-1.5 bg-gray-800 rounded-lg text-gray-400 border border-gray-700 hover:text-white hover:bg-gray-700 cursor-pointer"
+          className="p-1.5 bg-gray-800 rounded-lg text-gray-400 border border-gray-700 hover:text-white hover:bg-gray-700 transition-colors cursor-pointer"
+          aria-label={isSidebarOpen ? 'Close menu' : 'Open menu'}
         >
           {isSidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
         </button>
       </div>
 
       {/* Actual Sidebar responsive shell */}
-      <aside className={`
+      <aside
+        className={`
         ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
         ${sidebarCollapsed ? 'lg:w-16' : 'lg:w-64'}
         fixed lg:static top-0 bottom-0 left-0 z-40 bg-[#0F0F1A] border-r border-gray-800 flex flex-col shrink-0 transition-all duration-300 ease-in-out
-      `}>
-        
+        shadow-[inset_-1px_0_0_0_rgba(255,255,255,0.03)]
+      `}
+      >
+
         {/* Admin Brand Logo Wrapper */}
         <div className={`border-b border-gray-800 flex items-center ${sidebarCollapsed ? 'p-3 justify-center' : 'p-4 justify-between'}`}>
           {sidebarCollapsed ? (
-            <div className="bg-gradient-to-tr from-pink-600 to-rose-500 p-2 rounded-xl text-white">
+            <div className="bg-gradient-to-tr from-pink-600 to-rose-500 p-2 rounded-xl text-white shadow-lg shadow-pink-600/20">
               <ShieldCheck className="h-5 w-5" />
             </div>
           ) : (
-            <>
-              <div className="flex items-center gap-2.5">
-                <div className="bg-gradient-to-tr from-pink-600 to-rose-500 p-2 rounded-xl text-white">
-                  <ShieldCheck className="h-5 w-5" />
-                </div>
-                <div>
-                  <span className="font-black text-[15px] tracking-tight text-white block">Whaatachi B2B</span>
-                  <span className="text-[9px] font-bold text-pink-400 tracking-wider block uppercase">Control Suite v1.2</span>
+            <div className="flex items-center gap-3">
+              <div className="bg-gradient-to-tr from-pink-600 to-rose-500 p-2 rounded-xl text-white shadow-lg shadow-pink-600/20 shrink-0">
+                <ShieldCheck className="h-5 w-5" />
+              </div>
+              <div>
+                <span className="font-black text-[15px] tracking-tight text-white block leading-tight">Whaatachi</span>
+                <div className="flex items-center gap-1.5 mt-0.5">
+                  <span className="text-[9px] font-bold text-pink-400 tracking-wider uppercase">Admin Panel</span>
+                  <span className="px-1 py-0.5 rounded bg-pink-600/20 border border-pink-500/30 text-[8px] font-bold text-pink-300 uppercase">v1.2</span>
                 </div>
               </div>
-            </>
-          )}
-          <button 
-            onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-            className="hidden lg:block p-1 bg-gray-800 rounded-md text-gray-400 hover:text-white hover:bg-gray-700 cursor-pointer"
-            title={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-          >
-            <ChevronRight className={`h-3.5 w-3.5 transition-transform ${sidebarCollapsed ? '' : 'rotate-180'}`} />
-          </button>
-          <button 
-            onClick={() => setIsSidebarOpen(false)}
-            className="lg:hidden p-1 bg-gray-800 rounded-md text-gray-400 hover:text-white cursor-pointer"
-          >
-            <X className="h-3.5 w-3.5" />
-          </button>
-        </div>
-
-        {/* Navigation Tab selection lists */}
-        <nav className="flex-1 overflow-y-auto scrollbar-thin py-2">
-          {!sidebarCollapsed && (
-            <div className="px-4 mb-1">
-              <span className="text-[9px] font-bold text-gray-500 uppercase tracking-[0.2em]">MANAGEMENT</span>
             </div>
           )}
-          
+          <div className="flex items-center gap-1">
+            <button
+              onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+              className="hidden lg:flex items-center justify-center w-6 h-6 bg-gray-800/60 rounded-md text-gray-500 hover:text-white hover:bg-gray-700 transition-colors cursor-pointer"
+              title={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+              aria-label={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+            >
+              <ChevronRight className={`h-3.5 w-3.5 transition-transform duration-200 ${sidebarCollapsed ? '' : 'rotate-180'}`} />
+            </button>
+            <button
+              onClick={() => setIsSidebarOpen(false)}
+              className="lg:hidden flex items-center justify-center w-6 h-6 bg-gray-800/60 rounded-md text-gray-500 hover:text-white transition-colors cursor-pointer"
+              aria-label="Close sidebar"
+            >
+              <X className="h-3.5 w-3.5" />
+            </button>
+          </div>
+        </div>
+
+        {/* Admin Profile Summary (expanded only) */}
+        {!sidebarCollapsed && (
+          <div className="px-4 py-3 border-b border-gray-800/60">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-pink-500 to-rose-600 flex items-center justify-center text-white text-xs font-black shrink-0 shadow-sm">
+                A
+              </div>
+              <div className="min-w-0">
+                <p className="text-xs font-bold text-white truncate">Administrator</p>
+                <p className="text-[9px] text-gray-500 truncate">Full access · Root</p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Navigation */}
+        <nav className="flex-1 overflow-y-auto scrollbar-thin py-3" role="navigation" aria-label="Admin navigation">
+          {!sidebarCollapsed && (
+            <div className="px-4 mb-2 flex items-center gap-3">
+              <span className="text-[9px] font-bold text-gray-600 uppercase tracking-[0.2em]">Management</span>
+              <div className="flex-1 h-px bg-gray-800" />
+            </div>
+          )}
+
           <div className="space-y-0.5 px-2">
-            {/* Dashboard tab */}
-            <button
-              onClick={() => { setActiveTab('dashboard'); setIsSidebarOpen(false); }}
-              className={`w-full flex items-center px-3 py-2.5 rounded-lg text-xs font-bold transition-all ${
-                sidebarCollapsed ? 'justify-center' : 'justify-between'
-              } ${
-                activeTab === 'dashboard' 
-                  ? 'bg-gradient-to-r from-pink-600 to-rose-500 text-white shadow-xs' 
-                  : 'text-gray-400 hover:text-white hover:bg-gray-800/60'
-              }`}
-              title={sidebarCollapsed ? 'Dashboard' : ''}
-            >
-              <span className="flex items-center gap-2.5">
-                <LayoutDashboard className="h-4.5 w-4.5 shrink-0" />
-                {!sidebarCollapsed && <span>Metrics Overview</span>}
-              </span>
-              {!sidebarCollapsed && activeTab !== 'dashboard' && <ChevronRight className="h-3 w-3 opacity-40 shrink-0" />}
-            </button>
-
-            {/* Payments verifications tab */}
-            <button
-              onClick={() => { setActiveTab('payments'); setIsSidebarOpen(false); }}
-              className={`w-full flex items-center px-3 py-2.5 rounded-lg text-xs font-bold transition-all ${
-                sidebarCollapsed ? 'justify-center' : 'justify-between'
-              } ${
-                activeTab === 'payments' 
-                  ? 'bg-gradient-to-r from-pink-600 to-rose-500 text-white shadow-xs' 
-                  : 'text-gray-400 hover:text-white hover:bg-gray-800/60'
-              }`}
-              title={sidebarCollapsed ? 'Payments' : ''}
-            >
-              <span className="flex items-center gap-2.5">
-                <Smartphone className="h-4.5 w-4.5 shrink-0" />
-                {!sidebarCollapsed && <span>Receipt Queue</span>}
-              </span>
-              {!sidebarCollapsed && pendingCount > 0 ? (
-                <span className="bg-amber-400 text-white text-[10px] px-1.5 py-0.5 rounded-full font-black animate-pulse shrink-0">
-                  {pendingCount}
-                </span>
-              ) : !sidebarCollapsed ? null : null}
-            </button>
-
-            {/* Profiles matches manager tab */}
-            <button
-              onClick={() => { setActiveTab('members'); setIsSidebarOpen(false); }}
-              className={`w-full flex items-center px-3 py-2.5 rounded-lg text-xs font-bold transition-all ${
-                sidebarCollapsed ? 'justify-center' : 'justify-between'
-              } ${
-                activeTab === 'members' 
-                  ? 'bg-gradient-to-r from-pink-600 to-rose-500 text-white shadow-xs' 
-                  : 'text-gray-400 hover:text-white hover:bg-gray-800/60'
-              }`}
-              title={sidebarCollapsed ? 'Members' : ''}
-            >
-              <span className="flex items-center gap-2.5">
-                <Users className="h-4.5 w-4.5 shrink-0" />
-                {!sidebarCollapsed && <span>Member Candidates</span>}
-              </span>
-              {!sidebarCollapsed && (
-                <span className="bg-gray-700 text-gray-300 text-[10px] px-1.5 py-0.5 rounded-md font-semibold shrink-0">
-                  {profiles.length}
-                </span>
-              )}
-            </button>
-
-            {/* Success Stories moderator tab */}
-            <button
-              onClick={() => { setActiveTab('stories'); setIsSidebarOpen(false); }}
-              className={`w-full flex items-center px-3 py-2.5 rounded-lg text-xs font-bold transition-all ${
-                sidebarCollapsed ? 'justify-center' : 'justify-between'
-              } ${
-                activeTab === 'stories' 
-                  ? 'bg-gradient-to-r from-pink-600 to-rose-500 text-white shadow-xs' 
-                  : 'text-gray-400 hover:text-white hover:bg-gray-800/60'
-              }`}
-              title={sidebarCollapsed ? 'Stories' : ''}
-            >
-              <span className="flex items-center gap-2.5">
-                <Sparkles className="h-4.5 w-4.5 shrink-0" />
-                {!sidebarCollapsed && <span>Success Stories</span>}
-              </span>
-              {!sidebarCollapsed && activeTab !== 'stories' && <ChevronRight className="h-3 w-3 opacity-40 shrink-0" />}
-            </button>
-
-            {/* Resolution Desk support tab */}
-            <button
-              onClick={() => { setActiveTab('support'); setIsSidebarOpen(false); }}
-              className={`w-full flex items-center px-3 py-2.5 rounded-lg text-xs font-bold transition-all ${
-                sidebarCollapsed ? 'justify-center' : 'justify-between'
-              } ${
-                activeTab === 'support' 
-                  ? 'bg-gradient-to-r from-pink-600 to-rose-500 text-white shadow-xs' 
-                  : 'text-gray-400 hover:text-white hover:bg-gray-800/60'
-              }`}
-              title={sidebarCollapsed ? 'Support' : ''}
-            >
-              <span className="flex items-center gap-2.5">
-                <MessageSquare className="h-4.5 w-4.5 shrink-0" />
-                {!sidebarCollapsed && <span>Help Desk</span>}
-              </span>
-              {!sidebarCollapsed && activeTab !== 'support' && <ChevronRight className="h-3 w-3 opacity-40 shrink-0" />}
-            </button>
+            {[
+              { id: 'dashboard', icon: LayoutDashboard, label: 'Metrics Overview', badge: null },
+              { id: 'payments', icon: Smartphone, label: 'Receipt Queue', badge: pendingCount > 0 ? { text: String(pendingCount), className: 'bg-amber-400 text-white' } : null },
+              { id: 'members', icon: Users, label: 'Member Candidates', badge: { text: String(profiles.length), className: 'bg-gray-700 text-gray-300' } },
+              { id: 'stories', icon: Sparkles, label: 'Success Stories', badge: null },
+              { id: 'support', icon: MessageSquare, label: 'Help Desk', badge: null },
+            ].map((item) => {
+              const Icon = item.icon;
+              const isActive = activeTab === item.id;
+              return (
+                <div key={item.id} className="relative group">
+                  <button
+                    onClick={() => { setActiveTab(item.id as typeof activeTab); setIsSidebarOpen(false); }}
+                    className={`
+                      w-full flex items-center text-xs font-bold transition-all duration-150 cursor-pointer
+                      ${sidebarCollapsed ? 'justify-center px-0 py-2.5' : 'justify-between px-3 py-2.5'}
+                      ${isActive
+                        ? 'text-white'
+                        : 'text-gray-400 hover:text-gray-200'
+                      }
+                    `}
+                    aria-current={isActive ? 'page' : undefined}
+                  >
+                    {isActive && (
+                      <div className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 bg-gradient-to-b from-pink-500 to-rose-500 rounded-full" />
+                    )}
+                    <span className={`flex items-center gap-2.5 ${sidebarCollapsed ? '' : 'pl-1'}`}>
+                      <div className={`
+                        flex items-center justify-center w-8 h-8 rounded-lg shrink-0 transition-all duration-150
+                        ${isActive
+                          ? 'bg-gradient-to-br from-pink-600 to-rose-500 text-white shadow-sm shadow-pink-600/20'
+                          : 'text-gray-400 group-hover:bg-gray-800/80 group-hover:text-gray-200'
+                        }
+                      `}>
+                        <Icon className="h-4 w-4" />
+                      </div>
+                      {!sidebarCollapsed && <span>{item.label}</span>}
+                    </span>
+                    {!sidebarCollapsed && item.badge && (
+                      <span className={`${item.badge.className} text-[10px] px-1.5 py-0.5 rounded-full font-black shrink-0 ml-2`}>
+                        {item.badge.text}
+                      </span>
+                    )}
+                  </button>
+                  {/* CSS tooltip for collapsed state */}
+                  {sidebarCollapsed && (
+                    <div className="absolute left-full ml-2 top-1/2 -translate-y-1/2 px-2.5 py-1.5 bg-gray-900 text-white text-[11px] font-bold rounded-md whitespace-nowrap shadow-xl border border-gray-800 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 pointer-events-none z-50">
+                      {item.label}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
           </div>
 
           {!sidebarCollapsed && (
-            <div className="px-4 mt-4 mb-1">
-              <span className="text-[9px] font-bold text-gray-500 uppercase tracking-[0.2em]">SYSTEM</span>
+            <div className="px-4 mt-5 mb-2 flex items-center gap-3">
+              <span className="text-[9px] font-bold text-gray-600 uppercase tracking-[0.2em]">System</span>
+              <div className="flex-1 h-px bg-gray-800" />
             </div>
           )}
 
           <div className="space-y-0.5 px-2">
-            {/* Config Settings tab */}
-            <button
-              onClick={() => { setActiveTab('settings'); setIsSidebarOpen(false); }}
-              className={`w-full flex items-center px-3 py-2.5 rounded-lg text-xs font-bold transition-all ${
-                sidebarCollapsed ? 'justify-center' : 'justify-between'
-              } ${
-                activeTab === 'settings' 
-                  ? 'bg-gradient-to-r from-pink-600 to-rose-500 text-white shadow-xs' 
-                  : 'text-gray-400 hover:text-white hover:bg-gray-800/60'
-              }`}
-              title={sidebarCollapsed ? 'Settings' : ''}
-            >
-              <span className="flex items-center gap-2.5">
-                <Sliders className="h-4.5 w-4.5 shrink-0" />
-                {!sidebarCollapsed && <span>Platform Settings</span>}
-              </span>
-              {!sidebarCollapsed && activeTab !== 'settings' && <ChevronRight className="h-3 w-3 opacity-40 shrink-0" />}
-            </button>
+            {[
+              { id: 'settings', icon: Sliders, label: 'Platform Settings', badge: null },
+            ].map((item) => {
+              const Icon = item.icon;
+              const isActive = activeTab === item.id;
+              return (
+                <div key={item.id} className="relative group">
+                  <button
+                    onClick={() => { setActiveTab(item.id as typeof activeTab); setIsSidebarOpen(false); }}
+                    className={`
+                      w-full flex items-center text-xs font-bold transition-all duration-150 cursor-pointer
+                      ${sidebarCollapsed ? 'justify-center px-0 py-2.5' : 'justify-between px-3 py-2.5'}
+                      ${isActive
+                        ? 'text-white'
+                        : 'text-gray-400 hover:text-gray-200'
+                      }
+                    `}
+                    aria-current={isActive ? 'page' : undefined}
+                  >
+                    {isActive && (
+                      <div className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 bg-gradient-to-b from-pink-500 to-rose-500 rounded-full" />
+                    )}
+                    <span className={`flex items-center gap-2.5 ${sidebarCollapsed ? '' : 'pl-1'}`}>
+                      <div className={`
+                        flex items-center justify-center w-8 h-8 rounded-lg shrink-0 transition-all duration-150
+                        ${isActive
+                          ? 'bg-gradient-to-br from-pink-600 to-rose-500 text-white shadow-sm shadow-pink-600/20'
+                          : 'text-gray-400 group-hover:bg-gray-800/80 group-hover:text-gray-200'
+                        }
+                      `}>
+                        <Icon className="h-4 w-4" />
+                      </div>
+                      {!sidebarCollapsed && <span>{item.label}</span>}
+                    </span>
+                  </button>
+                  {sidebarCollapsed && (
+                    <div className="absolute left-full ml-2 top-1/2 -translate-y-1/2 px-2.5 py-1.5 bg-gray-900 text-white text-[11px] font-bold rounded-md whitespace-nowrap shadow-xl border border-gray-800 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 pointer-events-none z-50">
+                      {item.label}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
           </div>
         </nav>
 
-        {/* Sidebar Footer lock back links */}
+        {/* Sidebar Footer */}
         <div className="p-3 border-t border-gray-800 space-y-2">
-          
           <button
             onClick={() => setDarkMode(!darkMode)}
-            className={`w-full flex items-center ${sidebarCollapsed ? 'justify-center' : 'justify-between'} p-2 rounded-lg text-xs font-bold text-gray-400 hover:text-white hover:bg-gray-800/60 transition-colors cursor-pointer`}
+            className={`w-full flex items-center ${sidebarCollapsed ? 'justify-center' : 'justify-between'} p-2 rounded-lg text-xs font-bold text-gray-400 hover:text-white hover:bg-gray-800/60 transition-colors cursor-pointer group`}
             title={sidebarCollapsed ? 'Toggle theme' : ''}
+            aria-label="Toggle theme"
           >
             {sidebarCollapsed ? (
-              <span className="text-[10px] font-mono text-pink-400">D</span>
+              <span className="text-xs text-pink-400">{darkMode ? '\u2600' : '\u263D'}</span>
             ) : (
               <>
-                <span>Theme</span>
+                <span className="flex items-center gap-2">
+                  {darkMode ? <span className="text-amber-400">\u2600</span> : <span className="text-indigo-400">\u263D</span>}
+                  Theme
+                </span>
                 <span className="px-2 py-0.5 rounded-md bg-gray-800 font-mono text-[10px] text-pink-400 border border-gray-700">
                   {darkMode ? 'DARK' : 'LIGHT'}
                 </span>
@@ -646,9 +659,14 @@ export default function AdminPanel({
           </button>
 
           <button
-            onClick={handleAdminLogout}
-            className={`w-full py-2.5 rounded-lg bg-gray-800/60 border border-gray-700 hover:bg-red-900/30 hover:border-red-800/50 text-red-400 text-xs font-extrabold flex items-center ${sidebarCollapsed ? 'justify-center' : 'justify-center gap-2'} cursor-pointer transition-all`}
+            onClick={() => {
+              if (window.confirm('Are you sure you want to lock the admin session?')) {
+                handleAdminLogout();
+              }
+            }}
+            className={`w-full py-2.5 rounded-lg bg-gray-800/60 border border-gray-700 hover:bg-red-900/30 hover:border-red-800/50 text-red-400 hover:text-red-300 text-xs font-extrabold flex items-center ${sidebarCollapsed ? 'justify-center' : 'justify-center gap-2'} cursor-pointer transition-all group`}
             title={sidebarCollapsed ? 'Lock Session' : ''}
+            aria-label="Lock Session"
           >
             <LogOut className="h-4 w-4 shrink-0" />
             {!sidebarCollapsed && <span>Lock Session</span>}
