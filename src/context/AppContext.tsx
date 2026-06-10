@@ -91,7 +91,11 @@ function appReducer(state: AppState, action: Action): AppState {
 
 function savedOr<T>(key: string, fallback: T): T {
   const v = localStorage.getItem(key);
-  if (v) try { return JSON.parse(v); } catch { return fallback; }
+  if (v) try {
+    const parsed = JSON.parse(v);
+    if (Array.isArray(fallback) && !Array.isArray(parsed)) return fallback;
+    return parsed;
+  } catch { return fallback; }
   return fallback;
 }
 
@@ -159,15 +163,15 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
       if (cancelled) return;
 
-      if (profilesRes) {
+      if (profilesRes && Array.isArray(profilesRes.profiles)) {
         dispatch({ type: 'SET_PROFILES', payload: profilesRes.profiles });
         localStorage.setItem('whaatachi_profiles_v1', JSON.stringify(profilesRes.profiles));
       }
-      if (storiesRes) {
+      if (storiesRes && Array.isArray(storiesRes.stories)) {
         dispatch({ type: 'SET_STORIES', payload: storiesRes.stories });
         localStorage.setItem('whaatachi_stories_v1', JSON.stringify(storiesRes.stories));
       }
-      if (articlesRes) {
+      if (articlesRes && Array.isArray(articlesRes.articles)) {
         dispatch({ type: 'SET_ARTICLES', payload: articlesRes.articles });
         localStorage.setItem('whaatachi_articles_v1', JSON.stringify(articlesRes.articles));
       }
@@ -175,7 +179,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       const token = localStorage.getItem('whaatachi_token_v1');
       if (token) {
         const paymentsRes = await api.fetchPayments().catch(() => null);
-        if (paymentsRes && !cancelled) {
+        if (paymentsRes && Array.isArray(paymentsRes.payments) && !cancelled) {
           dispatch({ type: 'SET_PAYMENTS', payload: paymentsRes.payments });
           localStorage.setItem('whaatachi_payments_v1', JSON.stringify(paymentsRes.payments));
         }
