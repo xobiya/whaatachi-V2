@@ -32,7 +32,7 @@ router.post('/', authenticate, validatePayment, async (req: AuthRequest, res: Re
       res.status(500).json({ error: 'Failed to create payment' });
       return;
     }
-    res.status(201).json({ payment: paymentRowToPayment(payment) });
+    res.status(201).json({ payment: paymentRowToPayment(payment as any) });
   } catch (err: any) {
     console.error('Submit payment error:', err);
     res.status(500).json({ error: 'Failed to submit payment' });
@@ -44,7 +44,7 @@ router.get('/', authenticate, async (req: AuthRequest, res: Response) => {
     const rows = req.isAdmin
       ? await paymentModel.findAllPayments()
       : await paymentModel.findPaymentsByUser(req.userId!);
-    const payments = rows.map(paymentRowToPayment);
+    const payments = rows.map((r: any) => paymentRowToPayment(r));
     res.json({ payments });
   } catch (err: any) {
     console.error('Get payments error:', err);
@@ -65,7 +65,7 @@ router.put('/:id/approve', authenticate, adminOnly, async (req: AuthRequest, res
 
     await userModel.verifyUser(payment.userId);
 
-    res.json({ payment: paymentRowToPayment(payment) });
+    res.json({ payment: paymentRowToPayment(payment as any) });
   } catch (err: any) {
     console.error('Approve payment error:', err);
     res.status(500).json({ error: 'Failed to approve payment' });
@@ -83,7 +83,7 @@ router.put('/:id/reject', authenticate, adminOnly, async (req: AuthRequest, res:
       return;
     }
 
-    res.json({ payment: paymentRowToPayment(payment) });
+    res.json({ payment: paymentRowToPayment(payment as any) });
   } catch (err: any) {
     console.error('Reject payment error:', err);
     res.status(500).json({ error: 'Failed to reject payment' });

@@ -20,7 +20,7 @@ router.get('/', async (req: AuthRequest, res: Response) => {
       limit: limit ? Number(limit) : undefined,
     });
 
-    const profiles = result.rows.map(userRowToProfile);
+    const profiles = result.rows.map((row: any) => userRowToProfile(row));
     res.json({ profiles, total: result.total });
   } catch (err: any) {
     console.error('Get profiles error:', err);
@@ -35,7 +35,7 @@ router.get('/:id', async (req: AuthRequest, res: Response) => {
       res.status(404).json({ error: 'Profile not found' });
       return;
     }
-    res.json({ profile: userRowToProfile(user) });
+    res.json({ profile: userRowToProfile(user as any) });
   } catch (err: any) {
     console.error('Get profile error:', err);
     res.status(500).json({ error: 'Failed to fetch profile' });
@@ -60,7 +60,7 @@ router.put('/:id', authenticate, async (req: AuthRequest, res: Response) => {
       res.status(404).json({ error: 'Profile not found' });
       return;
     }
-    res.json({ user: userRowToProfile(user) });
+    res.json({ user: userRowToProfile(user as any) });
   } catch (err: any) {
     console.error('Update profile error:', err);
     res.status(500).json({ error: 'Failed to update profile' });

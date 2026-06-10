@@ -1,11 +1,6 @@
 import { Profile, PaymentRequest, SuccessStory, UserRow, PaymentRow, StoryRow } from '../types';
 
 export function userRowToProfile(row: UserRow): Profile {
-  let interests: string[] = [];
-  if (row.interests) {
-    try { interests = JSON.parse(row.interests); } catch { interests = []; }
-  }
-
   return {
     id: row.id,
     name: row.name,
@@ -18,8 +13,8 @@ export function userRowToProfile(row: UserRow): Profile {
     image: row.image ?? '',
     status: row.status ?? 'Offline',
     relationshipIntent: (row.relationshipIntent as Profile['relationshipIntent']) ?? 'Friendship',
-    interests,
-    verified: row.verified === 1,
+    interests: row.interests ?? [],
+    verified: row.verified === true,
     contactInfo: {
       phone: row.phone ?? '',
       telegram: row.telegram ?? '',

@@ -66,8 +66,8 @@ export interface UserRow {
   image: string | null;
   status: 'Online' | 'Offline' | 'Recently Active';
   relationshipIntent: string | null;
-  interests: string | null;
-  verified: number;
+  interests: string[];
+  verified: boolean;
   phone: string | null;
   telegram: string | null;
   instagram: string | null;

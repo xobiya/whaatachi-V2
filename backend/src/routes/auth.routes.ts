@@ -15,7 +15,7 @@ router.post('/register', validateRegister, async (req: AuthRequest, res: Respons
     await userModel.createUser({
       id, name, age, city, address, bio, gender, lookingFor, image,
       status, relationshipIntent,
-      interests: interests ? JSON.stringify(interests) : undefined,
+      interests,
       phone, telegram, instagram, email,
     });
 
@@ -26,10 +26,10 @@ router.post('/register', validateRegister, async (req: AuthRequest, res: Respons
     }
 
     const token = generateToken({ id });
-    res.status(201).json({ token, user: userRowToProfile(user) });
+    res.status(201).json({ token, user: userRowToProfile(user as any) });
   } catch (err: any) {
     console.error('Register error:', err);
-    if (err.code === 'ER_DUP_ENTRY') {
+    if (err?.code === 11000) {
       res.status(409).json({ error: 'A user with this information already exists' });
       return;
     }
@@ -51,13 +51,13 @@ router.post('/login', validateLogin, async (req: AuthRequest, res: Response) => 
     if (phone) {
       const normalizedPhone = phone.replace(/\s/g, '');
       const exact = users.find(
-        (u) => u.phone?.replace(/\s/g, '') === normalizedPhone
+        (u: any) => u.phone?.replace(/\s/g, '') === normalizedPhone
       );
       if (exact) found = exact;
     }
 
-    const token = generateToken({ id: found.id });
-    res.json({ token, user: userRowToProfile(found) });
+    const token = generateToken({ id: found._id });
+    res.json({ token, user: userRowToProfile(found as any) });
   } catch (err: any) {
     console.error('Login error:', err);
     res.status(500).json({ error: 'Login failed' });
@@ -71,7 +71,7 @@ router.get('/me', authenticate, async (req: AuthRequest, res: Response) => {
       res.status(404).json({ error: 'User not found' });
       return;
     }
-    res.json({ user: userRowToProfile(user) });
+    res.json({ user: userRowToProfile(user as any) });
   } catch (err: any) {
     console.error('Get me error:', err);
     res.status(500).json({ error: 'Failed to fetch user' });

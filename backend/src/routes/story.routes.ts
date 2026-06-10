@@ -10,7 +10,7 @@ const router = Router();
 router.get('/', async (_req: AuthRequest, res: Response) => {
   try {
     const rows = await storyModel.findAllStories();
-    const stories = rows.map(storyRowToStory);
+    const stories = rows.map((r: any) => storyRowToStory(r));
     res.json({ stories });
   } catch (err: any) {
     console.error('Get stories error:', err);
@@ -25,8 +25,8 @@ router.post('/', authenticate, adminOnly, validateStory, async (req: AuthRequest
 
     await storyModel.createStory({ id, coupleNames, story, year, image });
     const created = await storyModel.findAllStories();
-    const stories = created.map(storyRowToStory);
-    res.status(201).json({ story: stories.find((s) => s.id === id) });
+    const stories = created.map((r: any) => storyRowToStory(r));
+    res.status(201).json({ story: stories.find((s: any) => s.id === id) });
   } catch (err: any) {
     console.error('Create story error:', err);
     res.status(500).json({ error: 'Failed to create story' });

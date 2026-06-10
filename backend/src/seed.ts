@@ -142,19 +142,29 @@ function slugify(name: string): string {
   return name.toLowerCase().replace(/\s/g, '');
 }
 
+async function clearCollections(): Promise<void> {
+  const { default: User } = await import('./models/user.model');
+  const { default: Payment } = await import('./models/payment.model');
+  const { default: Story } = await import('./models/story.model');
+  const { default: Article } = await import('./models/article.model');
+  const { default: Faq } = await import('./models/faq.model');
+  await Promise.all([
+    Payment.deleteMany({}),
+    Story.deleteMany({}),
+    Article.deleteMany({}),
+    Faq.deleteMany({}),
+    User.deleteMany({}),
+  ]);
+  console.log('Cleared existing data.');
+}
+
 async function seed(): Promise<void> {
   try {
     await initDatabase();
 
     const force = process.argv.includes('--force');
     if (force) {
-      const { query } = await import('./config/database');
-      await query('DELETE FROM payments');
-      await query('DELETE FROM success_stories');
-      await query('DELETE FROM articles');
-      await query('DELETE FROM faqs');
-      await query('DELETE FROM users');
-      console.log('Cleared existing data.');
+      await clearCollections();
     } else {
       const existing = await userModel.countUsers();
       if (existing > 0) {
@@ -180,7 +190,7 @@ async function seed(): Promise<void> {
         image: pickAt(FEMALE_IMAGES, i),
         status: pickAt(STATUSES, i),
         relationshipIntent: pickAt(INTENTS, i),
-        interests: JSON.stringify(pickN(INTERESTS_POOL, i * 3, 3)),
+        interests: pickN(INTERESTS_POOL, i * 3, 3),
         phone: `+251 91${String(1000000 + i * 123456).slice(0, 7)}`,
         telegram: `@${parts[0].toLowerCase()}_${i}`,
         instagram: `@${parts[0].toLowerCase()}_eth`,
@@ -204,7 +214,7 @@ async function seed(): Promise<void> {
         image: pickAt(MALE_IMAGES, i),
         status: pickAt(STATUSES, i + 2),
         relationshipIntent: pickAt(INTENTS, i),
-        interests: JSON.stringify(pickN(INTERESTS_POOL, i * 3 + 1, 3)),
+        interests: pickN(INTERESTS_POOL, i * 3 + 1, 3),
         phone: `+251 91${String(2000000 + i * 123456).slice(0, 7)}`,
         telegram: `@${parts[0].toLowerCase()}_${i}`,
         instagram: `@${parts[0].toLowerCase()}_eth`,
@@ -229,7 +239,7 @@ async function seed(): Promise<void> {
         image: pickAt(FEMALE_IMAGES, i),
         status: pickAt(STATUSES, i + 1),
         relationshipIntent: intent,
-        interests: JSON.stringify(pickN(INTERESTS_POOL, i * 2 + 10, 3)),
+        interests: pickN(INTERESTS_POOL, i * 2 + 10, 3),
         phone: `+251 91${String(3000000 + i * 123456).slice(0, 7)}`,
         telegram: `@${parts[0].toLowerCase()}_${i}`,
         instagram: `@${parts[0].toLowerCase()}_eth`,
@@ -254,7 +264,7 @@ async function seed(): Promise<void> {
         image: pickAt(MALE_IMAGES, i + 3),
         status: pickAt(STATUSES, i),
         relationshipIntent: intent,
-        interests: JSON.stringify(pickN(INTERESTS_POOL, i * 2 + 20, 3)),
+        interests: pickN(INTERESTS_POOL, i * 2 + 20, 3),
         phone: `+251 91${String(4000000 + i * 123456).slice(0, 7)}`,
         telegram: `@${parts[0].toLowerCase()}_${i}`,
         instagram: `@${parts[0].toLowerCase()}_eth`,

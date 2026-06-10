@@ -2,9 +2,11 @@ import { Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { Request } from 'express';
 
-const JWT_SECRET: string = process.env.JWT_SECRET ?? (() => {
-  throw new Error('JWT_SECRET environment variable is required');
-})();
+function getSecret(): string {
+  const secret = process.env.JWT_SECRET;
+  if (!secret) throw new Error('JWT_SECRET environment variable is required');
+  return secret;
+}
 
 export interface AuthPayload {
   id: string;
@@ -25,7 +27,7 @@ export function authenticate(req: AuthRequest, res: Response, next: NextFunction
 
   const token = header.slice(7);
   try {
-    const decoded = jwt.verify(token, JWT_SECRET) as unknown as AuthPayload;
+    const decoded = jwt.verify(token, getSecret()) as unknown as AuthPayload;
     req.userId = decoded.id;
     req.isAdmin = decoded.isAdmin;
     next();
@@ -43,5 +45,5 @@ export function adminOnly(req: AuthRequest, res: Response, next: NextFunction): 
 }
 
 export function generateToken(payload: AuthPayload): string {
-  return jwt.sign(payload, JWT_SECRET, { expiresIn: '7d' });
+  return jwt.sign(payload, getSecret(), { expiresIn: '7d' });
 }
