@@ -5,10 +5,10 @@ import path from 'path';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 dotenv.config({ path: path.resolve(__dirname, '../backend/.env') });
 
-import app from './src/app';
-import { initDatabase } from './src/config/schema';
-import { seedData } from './src/config/seed-data';
-import { countUsers } from './src/models/user.model';
+import app from '../api-src/app';
+import { initDatabase } from '../api-src/config/schema';
+import { seedData } from '../api-src/config/seed-data';
+import { countUsers } from '../api-src/models/user.model';
 
 let dbReady: Promise<void> | null = null;
 let seeded = false;
