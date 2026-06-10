@@ -13,7 +13,7 @@ const AdminPanel = lazy(() => import('./views/AdminPanel'));
 const SupportPanel = lazy(() => import('./views/SupportPanel'));
 const ProfilePage = lazy(() => import('./views/ProfilePage'));
 import { Profile, PaymentRequest, SuccessStory } from './types';
-import { INITIAL_PROFILES, INITIAL_SUCCESS_STORIES, INITIAL_ARTICLES } from './mockData';
+import * as api from './services/api';
 import { CheckCircle, ShieldAlert } from 'lucide-react';
 import { AppProvider, useAppContext } from './context/AppContext';
 import ErrorBoundary from './components/ErrorBoundary';
@@ -23,7 +23,6 @@ function AppContent() {
   const [authIntent, setAuthIntent] = useState<'register' | 'signin'>('register');
   const [registrationKey, setRegistrationKey] = useState(0);
 
-  // Check location on load and handle direct routing pathways
   useEffect(() => {
     const checkPath = () => {
       const path = window.location.pathname;
@@ -71,7 +70,6 @@ function AppContent() {
     return () => window.removeEventListener('popstate', handlePopState);
   }, [dispatch]);
 
-  // Sync currentView back to pathname for clean back/forward routing
   useEffect(() => {
     const currentPath = window.location.pathname;
     let targetPath = '/';
@@ -84,7 +82,6 @@ function AppContent() {
     }
   }, [state.currentView]);
 
-  // Clear user data on logout
   useEffect(() => {
     if (!state.isLoggedIn) {
       localStorage.removeItem('whaatachi_logged_in_user_v1');
@@ -92,14 +89,12 @@ function AppContent() {
     }
   }, [state.isLoggedIn, dispatch]);
 
-  // Toast notifications helper
   const triggerNotification = (type: 'success' | 'info', text: string) => {
     dispatch({ type: 'SET_NOTIFICATION', payload: { type, text } });
     setTimeout(() => dispatch({ type: 'SET_NOTIFICATION', payload: null }), 5000);
   };
 
-  // 1. Submit Payment Receipt
-  const handleSubmitPayment = (
+  const handleSubmitPayment = async (
     profileId: string,
     profileName: string,
     profileImage: string,
@@ -120,14 +115,24 @@ function AppContent() {
       method,
       amount,
       timestamp: new Date().toLocaleString([], { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' }),
-      status: 'Pending'
+      status: 'Pending',
+      receiptImage: undefined
     };
 
     dispatch({ type: 'ADD_PAYMENT', payload: newRequest });
     triggerNotification('info', t('app.notify.submitted').replace('{txId}', transactionId));
+
+    try {
+      await api.submitPayment({
+        profileId, profileName, profileImage,
+        senderName, senderPhone, transactionId,
+        method, amount,
+      });
+    } catch {
+      // local-only fallback
+    }
   };
 
-  // 2. Approve Payment (Admin Function)
   const handleApprovePayment = (paymentId: string) => {
     const payment = state.allPayments.find(p => p.id === paymentId);
     if (!payment) return;
@@ -142,17 +147,17 @@ function AppContent() {
       return profile;
     });
     dispatch({ type: 'SET_PROFILES', payload: updatedProfiles });
-
     triggerNotification('success', t('app.notify.approved').replace('{name}', payment.profileName));
+
+    api.approvePayment(paymentId).catch(() => {});
   };
 
-  // 3. Reject Payment (Admin Function)
   const handleRejectPayment = (paymentId: string) => {
     dispatch({ type: 'UPDATE_PAYMENT', payload: { id: paymentId, status: 'Rejected' } });
     triggerNotification('info', t('app.notify.rejected'));
+    api.rejectPayment(paymentId).catch(() => {});
   };
 
-  // 4. Register manual couple success story
   const handleAddStory = (coupleNames: string, story: string, year: string, image: string) => {
     const newStory: SuccessStory = {
       id: `story-${Date.now()}`,
@@ -163,10 +168,10 @@ function AppContent() {
     };
     dispatch({ type: 'ADD_STORY', payload: newStory });
     triggerNotification('success', t('app.notify.story-saved'));
+    api.createStory({ coupleNames, story, year, image }).catch(() => {});
   };
 
-  // 5. Onboarding: Register new user from the wizard
-  const handleRegisterUser = (newProfile: Profile) => {
+  const handleRegisterUser = async (newProfile: Profile) => {
     const profileWithLookingFor = { ...newProfile, lookingFor: newProfile.lookingFor || (newProfile.gender === 'Male' ? 'Female' : 'Male') };
     dispatch({ type: 'SET_PROFILES', payload: [profileWithLookingFor, ...state.profiles] });
     localStorage.setItem('whaatachi_logged_in_user_v1', JSON.stringify(profileWithLookingFor));
@@ -176,10 +181,25 @@ function AppContent() {
     dispatch({ type: 'SET_CURRENT_VIEW', payload: 'browse' });
     triggerNotification('success', t('app.notify.welcome').replace('{name}', profileWithLookingFor.name));
     setRegistrationKey(k => k + 1);
+
+    try {
+      const result = await api.register({
+        name: newProfile.name,
+        gender: newProfile.gender,
+        age: newProfile.age,
+        city: newProfile.city,
+        lookingFor: newProfile.lookingFor,
+        phone: newProfile.contactInfo.phone,
+        telegram: newProfile.contactInfo.telegram,
+        instagram: newProfile.contactInfo.instagram,
+      });
+      localStorage.setItem('whaatachi_token_v1', result.token);
+    } catch {
+      // local-only fallback
+    }
   };
 
-  // 6. Quick sign-in (find existing user by name + any contact method)
-  const handleSignInUser = (name: string, phone: string, telegram?: string, instagram?: string): boolean => {
+  const handleSignInUser = async (name: string, phone: string, telegram?: string, instagram?: string): Promise<boolean> => {
     const normalize = (s: string) => s.replace(/[@\s]/g, '').toLowerCase();
     const found = state.profiles.find((p) => {
       if (p.name.toLowerCase() !== name.toLowerCase()) return false;
@@ -199,14 +219,21 @@ function AppContent() {
       dispatch({ type: 'SET_USER_GENDER', payload: profileWithLookingFor.gender });
       dispatch({ type: 'SET_CURRENT_VIEW', payload: 'browse' });
       triggerNotification('success', t('app.notify.welcome-back').replace('{name}', found.name));
+
+      try {
+        const result = await api.login(name, phone);
+        localStorage.setItem('whaatachi_token_v1', result.token);
+      } catch {
+        // local-only fallback
+      }
+
       return true;
     } else {
       return false;
     }
   };
 
-  // 7. Simulate test login from AuthModal quick-test buttons
-  const handleSimulateTestLogin = (profile: Profile) => {
+  const handleSimulateTestLogin = async (profile: Profile) => {
     const updatedProfile = { ...profile, lookingFor: profile.lookingFor || (profile.gender === 'Male' ? 'Female' : 'Male') };
     localStorage.setItem('whaatachi_logged_in_user_v1', JSON.stringify(updatedProfile));
     dispatch({ type: 'SET_CURRENT_USER', payload: updatedProfile });
@@ -214,9 +241,14 @@ function AppContent() {
     dispatch({ type: 'SET_USER_GENDER', payload: updatedProfile.gender });
     dispatch({ type: 'SET_CURRENT_VIEW', payload: 'browse' });
     triggerNotification('success', t('app.notify.welcome-back').replace('{name}', profile.name));
+    try {
+      const result = await api.login(profile.name);
+      localStorage.setItem('whaatachi_token_v1', result.token);
+    } catch {
+      // local-only fallback
+    }
   };
 
-  // 8. Profile customization handlers
   const handleUpdateBio = (newBio: string) => {
     if (!state.currentUser) return;
     const updatedUser = { ...state.currentUser, bio: newBio };
@@ -239,6 +271,7 @@ function AppContent() {
       localStorage.setItem('whaatachi_logged_in_user_v1', JSON.stringify(updated));
     }
     triggerNotification('success', t('app.notify.profile-updated'));
+    api.updateProfile(updated.id, updated).catch(() => {});
   };
 
   const handleViewProfile = (profile: Profile) => {
@@ -273,6 +306,14 @@ function AppContent() {
     const name = state.currentUser.name.toLowerCase();
     return state.allPayments.some(p => p.status === 'Approved' && p.senderName.toLowerCase() === name);
   }, [state.allPayments, state.currentUser]);
+
+  if (state.loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-[#FFFCF8] dark:bg-[#120A0E]">
+        <div className="w-10 h-10 border-2 border-[#EB317A] border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   // ── Admin Panel (no header/footer) ──
   if (state.currentView === 'admin') {
@@ -322,6 +363,7 @@ function AppContent() {
           dispatch({ type: 'SET_LOGGED_IN', payload: v });
           if (!v) {
             localStorage.removeItem('whaatachi_logged_in_user_v1');
+            localStorage.removeItem('whaatachi_token_v1');
             dispatch({ type: 'SET_CURRENT_VIEW', payload: 'home' });
           }
         }}
@@ -425,7 +467,7 @@ function AppContent() {
           )}
 
           {/* Blog */}
-          {state.currentView === 'blog' && <BlogPage articles={INITIAL_ARTICLES} />}
+          {state.currentView === 'blog' && <BlogPage articles={state.articles} />}
 
           {/* Support */}
           {state.currentView === 'support' && <SupportPanel />}

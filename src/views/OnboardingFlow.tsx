@@ -67,7 +67,7 @@ function isValidEthiopianPhone(phone: string): boolean {
 
 interface OnboardingFlowProps {
   onComplete: (profile: Profile) => void;
-  onSignIn: (name: string, phone: string, telegram: string, instagram: string) => boolean;
+  onSignIn: (name: string, phone: string, telegram: string, instagram: string) => boolean | Promise<boolean>;
   authIntent?: 'register' | 'signin';
 }
 

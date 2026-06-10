@@ -292,15 +292,15 @@ function ProfileListCard({
             <div className="space-y-2">
               <div className="space-y-1.5 bg-[#F8F4ED] dark:bg-[#120A0E] rounded-xl p-2.5 border border-[#EDE6D9] dark:border-[#C9A84C]/10">
                 <div className="flex items-center gap-1.5 text-[10px] text-gray-400 dark:text-gray-500">
-                  <Phone className="h-3 w-3 shrink-0" />
+                  <Phone className="h-3 w-3 shrink-0 text-[#EB317A] dark:text-[#C9A84C]" />
                   <span className="truncate">{maskPhone(profile.contactInfo.phone)}</span>
                 </div>
                 <div className="flex items-center gap-1.5 text-[10px] text-gray-400 dark:text-gray-500">
-                  <TelegramIcon className="h-3 w-3 shrink-0" />
+                  <TelegramIcon className="h-3 w-3 shrink-0 text-[#EB317A] dark:text-[#C9A84C]" />
                   <span className="truncate">{maskHandle(profile.contactInfo.telegram)}</span>
                 </div>
                 <div className="flex items-center gap-1.5 text-[10px] text-gray-400 dark:text-gray-500">
-                  <Instagram className="h-3 w-3 shrink-0" />
+                  <Instagram className="h-3 w-3 shrink-0 text-[#EB317A] dark:text-[#C9A84C]" />
                   <span className="truncate">{maskHandle(profile.contactInfo.instagram)}</span>
                 </div>
               </div>

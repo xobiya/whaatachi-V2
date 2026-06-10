@@ -32,6 +32,7 @@ export interface PaymentRequest {
   amount: number;
   timestamp: string;
   status: 'Pending' | 'Approved' | 'Rejected';
+  receiptImage?: string; // Screenshot/photo of the payment receipt
 }
 
 export interface SuccessStory {

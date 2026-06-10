@@ -98,15 +98,15 @@ export default function ProfileCard({
             <div className="space-y-2">
               <div className="bg-[#F8F4ED] dark:bg-[#120A0E] rounded-xl p-3 space-y-2 border border-[#EDE6D9] dark:border-[#C9A84C]/10">
                 <div className="flex items-center gap-2 text-xs text-gray-400 dark:text-gray-500">
-                  <Phone className="h-3.5 w-3.5 shrink-0" />
+                  <Phone className="h-3.5 w-3.5 shrink-0 text-[#EB317A] dark:text-[#C9A84C]" />
                   <span>{maskPhone(profile.contactInfo.phone)}</span>
                 </div>
                 <div className="flex items-center gap-2 text-xs text-gray-400 dark:text-gray-500">
-                  <TelegramIcon className="h-3.5 w-3.5 shrink-0" />
+                  <TelegramIcon className="h-3.5 w-3.5 shrink-0 text-[#EB317A] dark:text-[#C9A84C]" />
                   <span>{maskHandle(profile.contactInfo.telegram)}</span>
                 </div>
                 <div className="flex items-center gap-2 text-xs text-gray-400 dark:text-gray-500">
-                  <Instagram className="h-3.5 w-3.5 shrink-0" />
+                  <Instagram className="h-3.5 w-3.5 shrink-0 text-[#EB317A] dark:text-[#C9A84C]" />
                   <span>{maskHandle(profile.contactInfo.instagram)}</span>
                 </div>
               </div>

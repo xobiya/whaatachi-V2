@@ -148,7 +148,7 @@ export default function HomeLanding({ onJoinNowClick, onGoToDashboard }: HomeLan
                 <div className="p-4">
                   <div className="bg-[#F8F4ED] dark:bg-[#120A0E] rounded-xl p-3 mb-3 relative overflow-hidden border border-[#EDE6D9] dark:border-[#C9A84C]/5">
                     <div className="flex items-center gap-2 text-xs text-gray-400 mb-1">
-                      <Phone className="h-3 w-3" />
+                      <Phone className="h-3 w-3 text-[#EB317A] dark:text-[#C9A84C]" />
                       <span className="blur-sm select-none">+251 911 234 567</span>
                     </div>
                     <div className="flex items-center gap-2 text-xs text-gray-400">

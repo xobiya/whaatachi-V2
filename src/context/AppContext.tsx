@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useReducer, useEffect, useMemo } from 'react';
-import { Profile, PaymentRequest, SuccessStory } from '../types';
-import { INITIAL_PROFILES, INITIAL_SUCCESS_STORIES, INITIAL_ARTICLES } from '../mockData';
+import { Profile, PaymentRequest, SuccessStory, Article } from '../types';
 import { t as i18nTranslate, Lang } from '../i18n';
+import * as api from '../services/api';
 
 interface AppState {
   isLoggedIn: boolean;
@@ -15,12 +15,14 @@ interface AppState {
   unlockedIds: string[];
   allPayments: PaymentRequest[];
   stories: SuccessStory[];
+  articles: Article[];
   viewingProfile: Profile | null;
   activeUnlockTarget: Profile | null;
   isPaymentModalOpen: boolean;
   isAuthModalOpen: boolean;
   authModalInitialTab: 'register' | 'signin';
   notification: { type: 'success' | 'info'; text: string } | null;
+  loading: boolean;
 }
 
 type Action =
@@ -35,11 +37,13 @@ type Action =
   | { type: 'SET_UNLOCKED_IDS'; payload: string[] }
   | { type: 'SET_PAYMENTS'; payload: PaymentRequest[] }
   | { type: 'SET_STORIES'; payload: SuccessStory[] }
+  | { type: 'SET_ARTICLES'; payload: Article[] }
   | { type: 'SET_VIEWING_PROFILE'; payload: Profile | null }
   | { type: 'SET_UNLOCK_TARGET'; payload: Profile | null }
   | { type: 'SET_PAYMENT_MODAL'; payload: boolean }
   | { type: 'SET_AUTH_MODAL'; payload: { open: boolean; tab: 'register' | 'signin' } }
   | { type: 'SET_NOTIFICATION'; payload: { type: 'success' | 'info'; text: string } | null }
+  | { type: 'SET_LOADING'; payload: boolean }
   | { type: 'UPDATE_PROFILE'; payload: Profile }
   | { type: 'ADD_UNLOCK'; payload: string }
   | { type: 'ADD_PAYMENT'; payload: PaymentRequest }
@@ -59,11 +63,13 @@ function appReducer(state: AppState, action: Action): AppState {
     case 'SET_UNLOCKED_IDS': return { ...state, unlockedIds: action.payload };
     case 'SET_PAYMENTS': return { ...state, allPayments: action.payload };
     case 'SET_STORIES': return { ...state, stories: action.payload };
+    case 'SET_ARTICLES': return { ...state, articles: action.payload };
     case 'SET_VIEWING_PROFILE': return { ...state, viewingProfile: action.payload };
     case 'SET_UNLOCK_TARGET': return { ...state, activeUnlockTarget: action.payload };
     case 'SET_PAYMENT_MODAL': return { ...state, isPaymentModalOpen: action.payload };
     case 'SET_AUTH_MODAL': return { ...state, isAuthModalOpen: action.payload.open, authModalInitialTab: action.payload.tab };
     case 'SET_NOTIFICATION': return { ...state, notification: action.payload };
+    case 'SET_LOADING': return { ...state, loading: action.payload };
     case 'UPDATE_PROFILE':
       return {
         ...state,
@@ -83,13 +89,14 @@ function appReducer(state: AppState, action: Action): AppState {
   }
 }
 
+function savedOr<T>(key: string, fallback: T): T {
+  const v = localStorage.getItem(key);
+  if (v) try { return JSON.parse(v); } catch { return fallback; }
+  return fallback;
+}
+
 const initialState = (): AppState => {
-  const savedUser = (() => {
-    const u = localStorage.getItem('whaatachi_logged_in_user_v1');
-    if (u) try { return JSON.parse(u); } catch { return null; }
-    return null;
-  })();
-  const saved = (key: string) => { const v = localStorage.getItem(key); if (v) try { return JSON.parse(v); } catch { return null; } return null; };
+  const savedUser = savedOr<Profile | null>('whaatachi_logged_in_user_v1', null);
 
   return {
     isLoggedIn: savedUser !== null,
@@ -97,21 +104,20 @@ const initialState = (): AppState => {
     userGender: savedUser?.gender || 'Male',
     currentView: typeof window !== 'undefined' && window.location.pathname === '/admin' ? 'admin' : 'home',
     userRole: typeof window !== 'undefined' && (window.location.pathname === '/admin' || localStorage.getItem('whaatachi_admin_auth_v1') === 'true') ? 'admin' : 'user',
-    darkMode: (() => { const d = localStorage.getItem('whaatachi_dark_mode_v1'); return d ? JSON.parse(d) : true; })(),
+    darkMode: savedOr<boolean>('whaatachi_dark_mode_v1', true),
     lang: (localStorage.getItem('whaatachi_lang') as Lang) || 'en',
-    profiles: (() => { const p = saved('whaatachi_profiles_v1'); if (p) { const ids = new Set(p.map((x: Profile) => x.id)); const missing = INITIAL_PROFILES.filter(ip => !ids.has(ip.id)); return missing.length ? [...p, ...missing] : p; } return INITIAL_PROFILES; })(),
-    unlockedIds: saved('whaatachi_unlocked_v1') || [],
-    allPayments: saved('whaatachi_payments_v1') || [
-      { id: 'pay-mock-1', profileId: 'p1', profileName: 'Selamawit Tekle', profileImage: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=500&auto=format&fit=crop&q=80', senderName: 'Abel Mekonnen', senderPhone: '0911223344', transactionId: 'FT2401120015', method: 'CBE Birr', amount: 200, timestamp: 'June 8, 2026 09:30 AM', status: 'Pending' },
-      { id: 'pay-mock-2', profileId: 'p3', profileName: 'Kidist Hailu', profileImage: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=500&auto=format&fit=crop&q=80', senderName: 'Daniel Tadesse', senderPhone: '0922445566', transactionId: 'RE8520359811', method: 'Telebirr', amount: 200, timestamp: 'June 8, 2026 10:15 AM', status: 'Pending' },
-    ],
-    stories: saved('whaatachi_stories_v1') || INITIAL_SUCCESS_STORIES,
+    profiles: savedOr<Profile[]>('whaatachi_profiles_v1', []),
+    unlockedIds: savedOr<string[]>('whaatachi_unlocked_v1', []),
+    allPayments: savedOr<PaymentRequest[]>('whaatachi_payments_v1', []),
+    stories: savedOr<SuccessStory[]>('whaatachi_stories_v1', []),
+    articles: savedOr<Article[]>('whaatachi_articles_v1', []),
     viewingProfile: null,
     activeUnlockTarget: null,
     isPaymentModalOpen: false,
     isAuthModalOpen: false,
     authModalInitialTab: 'register',
     notification: null,
+    loading: true,
   };
 };
 
@@ -125,6 +131,61 @@ const AppContext = createContext<AppContextType | null>(null);
 
 export function AppProvider({ children }: { children: React.ReactNode }) {
   const [state, dispatch] = useReducer(appReducer, undefined, initialState);
+
+  useEffect(() => {
+    const savedUser = savedOr<Profile | null>('whaatachi_logged_in_user_v1', null);
+    if (savedUser?.id) {
+      const savedToken = localStorage.getItem('whaatachi_token_v1');
+      if (savedToken) {
+        api.getMe().then(({ user }) => {
+          dispatch({ type: 'SET_CURRENT_USER', payload: user });
+          dispatch({ type: 'SET_LOGGED_IN', payload: true });
+          dispatch({ type: 'SET_USER_GENDER', payload: user.gender });
+        }).catch(() => {
+          // Token expired - keep localStorage user as fallback
+        });
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    async function loadData() {
+      const [profilesRes, storiesRes, articlesRes] = await Promise.all([
+        api.fetchProfiles({ limit: 100 }).catch(() => null),
+        api.fetchStories().catch(() => null),
+        api.fetchArticles().catch(() => null),
+      ]);
+
+      if (cancelled) return;
+
+      if (profilesRes) {
+        dispatch({ type: 'SET_PROFILES', payload: profilesRes.profiles });
+        localStorage.setItem('whaatachi_profiles_v1', JSON.stringify(profilesRes.profiles));
+      }
+      if (storiesRes) {
+        dispatch({ type: 'SET_STORIES', payload: storiesRes.stories });
+        localStorage.setItem('whaatachi_stories_v1', JSON.stringify(storiesRes.stories));
+      }
+      if (articlesRes) {
+        dispatch({ type: 'SET_ARTICLES', payload: articlesRes.articles });
+        localStorage.setItem('whaatachi_articles_v1', JSON.stringify(articlesRes.articles));
+      }
+
+      const token = localStorage.getItem('whaatachi_token_v1');
+      if (token) {
+        const paymentsRes = await api.fetchPayments().catch(() => null);
+        if (paymentsRes && !cancelled) {
+          dispatch({ type: 'SET_PAYMENTS', payload: paymentsRes.payments });
+          localStorage.setItem('whaatachi_payments_v1', JSON.stringify(paymentsRes.payments));
+        }
+      }
+
+      if (!cancelled) dispatch({ type: 'SET_LOADING', payload: false });
+    }
+    loadData();
+    return () => { cancelled = true; };
+  }, []);
 
   useEffect(() => {
     localStorage.setItem('whaatachi_dark_mode_v1', JSON.stringify(state.darkMode));
@@ -146,6 +207,10 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     localStorage.setItem('whaatachi_stories_v1', JSON.stringify(state.stories));
   }, [state.stories]);
+
+  useEffect(() => {
+    localStorage.setItem('whaatachi_articles_v1', JSON.stringify(state.articles));
+  }, [state.articles]);
 
   useEffect(() => {
     localStorage.setItem('whaatachi_lang', state.lang);

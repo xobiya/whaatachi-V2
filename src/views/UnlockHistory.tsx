@@ -60,8 +60,8 @@ export default function UnlockHistory({ unlockedProfiles, onBackToFinder, onView
                   <div className="py-4 space-y-2.5">
                     <p className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">{t('history.direct-contacts')}</p>
 
-                    <a href={`tel:${profile.contactInfo.phone}`} className="flex items-center gap-3 p-2.5 bg-[#F8F4ED] dark:bg-[#120A0E] hover:bg-emerald-50 dark:hover:bg-emerald-900/10 border border-[#EDE6D9] dark:border-[#C9A84C]/10 rounded-xl text-xs text-gray-700 dark:text-gray-300 transition-colors cursor-pointer group">
-                      <div className="bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 p-2 rounded-lg shrink-0 group-hover:bg-emerald-200 dark:group-hover:bg-emerald-800/40 transition-colors">
+                    <a href={`tel:${profile.contactInfo.phone}`} className="flex items-center gap-3 p-2.5 bg-[#F8F4ED] dark:bg-[#120A0E] hover:bg-[#EB317A]/5 dark:hover:bg-[#EB317A]/20 border border-[#EDE6D9] dark:border-[#C9A84C]/10 rounded-xl text-xs text-gray-700 dark:text-gray-300 transition-colors cursor-pointer group">
+                      <div className="bg-[#EB317A]/10 dark:bg-[#EB317A]/30 text-[#EB317A] dark:text-[#C9A84C] p-2 rounded-lg shrink-0 group-hover:bg-[#EB317A]/20 dark:group-hover:bg-[#EB317A]/40 transition-colors">
                         <Phone className="h-4 w-4" />
                       </div>
                       <div>
@@ -70,13 +70,13 @@ export default function UnlockHistory({ unlockedProfiles, onBackToFinder, onView
                       </div>
                     </a>
 
-                    <a href={`https://t.me/${profile.contactInfo.telegram.replace('@', '')}`} target="_blank" rel="noreferrer" className="flex items-center gap-3 p-2.5 bg-[#F8F4ED] dark:bg-[#120A0E] hover:bg-sky-50 dark:hover:bg-sky-900/10 border border-[#EDE6D9] dark:border-[#C9A84C]/10 rounded-xl text-xs text-gray-700 dark:text-gray-300 transition-colors cursor-pointer group">
-                      <div className="bg-sky-100 dark:bg-sky-900/30 text-sky-700 dark:text-sky-400 p-2 rounded-lg shrink-0 group-hover:bg-sky-200 dark:group-hover:bg-sky-800/40 transition-colors">
+                    <a href={`https://t.me/${profile.contactInfo.telegram.replace('@', '')}`} target="_blank" rel="noreferrer" className="flex items-center gap-3 p-2.5 bg-[#F8F4ED] dark:bg-[#120A0E] hover:bg-[#EB317A]/5 dark:hover:bg-[#EB317A]/20 border border-[#EDE6D9] dark:border-[#C9A84C]/10 rounded-xl text-xs text-gray-700 dark:text-gray-300 transition-colors cursor-pointer group">
+                      <div className="bg-[#EB317A]/10 dark:bg-[#EB317A]/30 text-[#EB317A] dark:text-[#C9A84C] p-2 rounded-lg shrink-0 group-hover:bg-[#EB317A]/20 dark:group-hover:bg-[#EB317A]/40 transition-colors">
                         <TelegramIcon className="h-4 w-4" />
                       </div>
                       <div>
                         <p className="text-[10px] text-gray-400 dark:text-gray-500 font-bold uppercase tracking-widest">{t('history.telegram')}</p>
-                        <p className="font-bold text-sky-600 dark:text-sky-400 mt-0.5">{profile.contactInfo.telegram}</p>
+                        <p className="font-bold text-[#EB317A] dark:text-[#C9A84C] mt-0.5">{profile.contactInfo.telegram}</p>
                       </div>
                     </a>
 

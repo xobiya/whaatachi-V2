@@ -1,0 +1,47 @@
+import { Response, NextFunction } from 'express';
+import jwt from 'jsonwebtoken';
+import { Request } from 'express';
+
+const JWT_SECRET: string = process.env.JWT_SECRET ?? (() => {
+  throw new Error('JWT_SECRET environment variable is required');
+})();
+
+export interface AuthPayload {
+  id: string;
+  isAdmin?: boolean;
+}
+
+export interface AuthRequest extends Request {
+  userId?: string;
+  isAdmin?: boolean;
+}
+
+export function authenticate(req: AuthRequest, res: Response, next: NextFunction): void {
+  const header = req.headers.authorization;
+  if (!header || !header.startsWith('Bearer ')) {
+    res.status(401).json({ error: 'Authentication required' });
+    return;
+  }
+
+  const token = header.slice(7);
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET) as unknown as AuthPayload;
+    req.userId = decoded.id;
+    req.isAdmin = decoded.isAdmin;
+    next();
+  } catch {
+    res.status(401).json({ error: 'Invalid or expired token' });
+  }
+}
+
+export function adminOnly(req: AuthRequest, res: Response, next: NextFunction): void {
+  if (!req.isAdmin) {
+    res.status(403).json({ error: 'Admin access required' });
+    return;
+  }
+  next();
+}
+
+export function generateToken(payload: AuthPayload): string {
+  return jwt.sign(payload, JWT_SECRET, { expiresIn: '7d' });
+}

@@ -476,7 +476,7 @@ export default function ProfilePage({ profile, isUnlocked, pendingPayment, userG
           ) : isUnlocked ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="flex items-center gap-3 p-3 bg-[#F8F4ED] dark:bg-[#120A0E] border border-[#EDE6D9] dark:border-[#C9A84C]/10 rounded-xl">
-                <div className="bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 p-2 rounded-lg shrink-0">
+                <div className="bg-[#EB317A]/10 dark:bg-[#EB317A]/30 text-[#EB317A] dark:text-[#C9A84C] p-2 rounded-lg shrink-0">
                   <Phone className="h-4 w-4" />
                 </div>
                 <div>
@@ -486,12 +486,12 @@ export default function ProfilePage({ profile, isUnlocked, pendingPayment, userG
               </div>
 
               <div className="flex items-center gap-3 p-3 bg-[#F8F4ED] dark:bg-[#120A0E] border border-[#EDE6D9] dark:border-[#C9A84C]/10 rounded-xl">
-                <div className="bg-sky-100 dark:bg-sky-900/30 text-sky-700 dark:text-sky-400 p-2 rounded-lg shrink-0">
+                <div className="bg-[#EB317A]/10 dark:bg-[#EB317A]/30 text-[#EB317A] dark:text-[#C9A84C] p-2 rounded-lg shrink-0">
                   <TelegramIcon className="h-4 w-4" />
                 </div>
                 <div>
                   <p className="text-[9px] text-gray-400 dark:text-gray-500 font-bold uppercase tracking-widest">{t('profile.telegram')}</p>
-                  <p className="font-bold text-sky-600 dark:text-sky-400 text-xs sm:text-sm">{profile.contactInfo.telegram}</p>
+                  <p className="font-bold text-[#EB317A] dark:text-[#C9A84C] text-xs sm:text-sm">{profile.contactInfo.telegram}</p>
                 </div>
               </div>
 

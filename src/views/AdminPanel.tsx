@@ -428,16 +428,16 @@ export default function AdminPanel({
       {/* ========================================================= */}
       
       {/* Mobile Header bar */}
-      <div className="lg:hidden bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between shrink-0">
+      <div className="lg:hidden bg-[#0F0F1A] border-b border-gray-800 px-4 py-3 flex items-center justify-between shrink-0">
         <div className="flex items-center gap-2">
-          <div className="bg-pink-100 p-1.5 rounded-lg text-pink-600">
+          <div className="bg-gradient-to-tr from-pink-600 to-rose-500 p-1.5 rounded-lg text-white">
             <ShieldCheck className="h-5 w-5" />
           </div>
-          <span className="font-extrabold tracking-tight text-gray-900 shrink-0 text-sm">Whaatachi Control Panel</span>
+          <span className="font-extrabold tracking-tight text-white shrink-0 text-sm">Whaatachi Control Panel</span>
         </div>
         <button 
           onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-          className="p-1.5 bg-gray-100 rounded-lg text-gray-500 border border-gray-200"
+          className="p-1.5 bg-gray-800 rounded-lg text-gray-400 border border-gray-700 hover:text-white hover:bg-gray-700 cursor-pointer"
         >
           {isSidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
         </button>
@@ -447,11 +447,11 @@ export default function AdminPanel({
       <aside className={`
         ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
         ${sidebarCollapsed ? 'lg:w-16' : 'lg:w-64'}
-        fixed lg:static top-0 bottom-0 left-0 z-40 bg-white border-r border-gray-200 flex flex-col shrink-0 transition-all duration-300 ease-in-out
+        fixed lg:static top-0 bottom-0 left-0 z-40 bg-[#0F0F1A] border-r border-gray-800 flex flex-col shrink-0 transition-all duration-300 ease-in-out
       `}>
         
         {/* Admin Brand Logo Wrapper */}
-        <div className={`border-b border-gray-200 flex items-center ${sidebarCollapsed ? 'p-3 justify-center' : 'p-4 justify-between'}`}>
+        <div className={`border-b border-gray-800 flex items-center ${sidebarCollapsed ? 'p-3 justify-center' : 'p-4 justify-between'}`}>
           {sidebarCollapsed ? (
             <div className="bg-gradient-to-tr from-pink-600 to-rose-500 p-2 rounded-xl text-white">
               <ShieldCheck className="h-5 w-5" />
@@ -463,173 +463,182 @@ export default function AdminPanel({
                   <ShieldCheck className="h-5 w-5" />
                 </div>
                 <div>
-                  <span className="font-black text-[15px] tracking-tight text-gray-900 block">Whaatachi B2B</span>
-                  <span className="text-[9px] font-bold text-pink-500 tracking-wider block uppercase">Control Suite v1.2</span>
+                  <span className="font-black text-[15px] tracking-tight text-white block">Whaatachi B2B</span>
+                  <span className="text-[9px] font-bold text-pink-400 tracking-wider block uppercase">Control Suite v1.2</span>
                 </div>
               </div>
             </>
           )}
           <button 
             onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-            className="hidden lg:block p-1 bg-gray-100 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-200"
+            className="hidden lg:block p-1 bg-gray-800 rounded-md text-gray-400 hover:text-white hover:bg-gray-700 cursor-pointer"
             title={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
           >
             <ChevronRight className={`h-3.5 w-3.5 transition-transform ${sidebarCollapsed ? '' : 'rotate-180'}`} />
           </button>
           <button 
             onClick={() => setIsSidebarOpen(false)}
-            className="lg:hidden p-1 bg-gray-100 rounded-md text-gray-400"
+            className="lg:hidden p-1 bg-gray-800 rounded-md text-gray-400 hover:text-white cursor-pointer"
           >
             <X className="h-3.5 w-3.5" />
           </button>
         </div>
 
         {/* Navigation Tab selection lists */}
-        <nav className="p-2 flex-1 space-y-1 overflow-y-auto scrollbar-thin">
-          {!sidebarCollapsed && <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest pl-3 mb-2">MANAGEMENT DESKS</p>}
+        <nav className="flex-1 overflow-y-auto scrollbar-thin py-2">
+          {!sidebarCollapsed && (
+            <div className="px-4 mb-1">
+              <span className="text-[9px] font-bold text-gray-500 uppercase tracking-[0.2em]">MANAGEMENT</span>
+            </div>
+          )}
           
-          {/* Dashboard tab */}
-          <button
-            onClick={() => { setActiveTab('dashboard'); setIsSidebarOpen(false); }}
-            className={`w-full flex items-center px-3 py-2.5 rounded-xl text-xs font-bold transition-all ${
-              sidebarCollapsed ? 'justify-center' : 'justify-between'
-            } ${
-              activeTab === 'dashboard' 
-                ? 'bg-gradient-to-r from-pink-600 to-rose-500 text-white shadow-xs' 
-                : 'text-gray-500 hover:text-gray-900 hover:bg-gray-100'
-            }`}
-            title={sidebarCollapsed ? 'Dashboard' : ''}
-          >
-            <span className="flex items-center gap-2.5">
-              <LayoutDashboard className="h-4.5 w-4.5 shrink-0" />
-              {!sidebarCollapsed && <span>Metrics Overview</span>}
-            </span>
-            {!sidebarCollapsed && <ChevronRight className="h-3.5 w-3.5 opacity-60 shrink-0" />}
-          </button>
-
-          {/* Payments verifications tab */}
-          <button
-            onClick={() => { setActiveTab('payments'); setIsSidebarOpen(false); }}
-            className={`w-full flex items-center px-3 py-2.5 rounded-xl text-xs font-bold transition-all ${
-              sidebarCollapsed ? 'justify-center' : 'justify-between'
-            } ${
-              activeTab === 'payments' 
-                ? 'bg-gradient-to-r from-pink-600 to-rose-500 text-white shadow-xs' 
-                : 'text-gray-500 hover:text-gray-900 hover:bg-gray-100'
-            }`}
-            title={sidebarCollapsed ? 'Payments' : ''}
-          >
-            <span className="flex items-center gap-2.5">
-              <Smartphone className="h-4.5 w-4.5 shrink-0" />
-              {!sidebarCollapsed && <span>Receipt Verification Queue</span>}
-            </span>
-            {!sidebarCollapsed && pendingCount > 0 ? (
-              <span className="bg-amber-400 text-white text-[10px] px-1.5 py-0.5 rounded-full font-black animate-pulse shrink-0">
-                {pendingCount}
+          <div className="space-y-0.5 px-2">
+            {/* Dashboard tab */}
+            <button
+              onClick={() => { setActiveTab('dashboard'); setIsSidebarOpen(false); }}
+              className={`w-full flex items-center px-3 py-2.5 rounded-lg text-xs font-bold transition-all ${
+                sidebarCollapsed ? 'justify-center' : 'justify-between'
+              } ${
+                activeTab === 'dashboard' 
+                  ? 'bg-gradient-to-r from-pink-600 to-rose-500 text-white shadow-xs' 
+                  : 'text-gray-400 hover:text-white hover:bg-gray-800/60'
+              }`}
+              title={sidebarCollapsed ? 'Dashboard' : ''}
+            >
+              <span className="flex items-center gap-2.5">
+                <LayoutDashboard className="h-4.5 w-4.5 shrink-0" />
+                {!sidebarCollapsed && <span>Metrics Overview</span>}
               </span>
-            ) : !sidebarCollapsed ? (
-              <ChevronRight className="h-3.5 w-3.5 opacity-60 shrink-0" />
-            ) : null}
-          </button>
+              {!sidebarCollapsed && activeTab !== 'dashboard' && <ChevronRight className="h-3 w-3 opacity-40 shrink-0" />}
+            </button>
 
-          {/* Profiles matches manager tab */}
-          <button
-            onClick={() => { setActiveTab('members'); setIsSidebarOpen(false); }}
-            className={`w-full flex items-center px-3 py-2.5 rounded-xl text-xs font-bold transition-all ${
-              sidebarCollapsed ? 'justify-center' : 'justify-between'
-            } ${
-              activeTab === 'members' 
-                ? 'bg-gradient-to-r from-pink-600 to-rose-500 text-white shadow-xs' 
-                : 'text-gray-500 hover:text-gray-900 hover:bg-gray-100'
-            }`}
-            title={sidebarCollapsed ? 'Members' : ''}
-          >
-            <span className="flex items-center gap-2.5">
-              <Users className="h-4.5 w-4.5 shrink-0" />
-              {!sidebarCollapsed && <span>Member Candidates</span>}
-            </span>
-            {!sidebarCollapsed && (
-              <span className="bg-gray-200 text-gray-600 text-[10px] px-1.5 py-0.5 rounded-md font-semibold shrink-0">
-                {profiles.length}
+            {/* Payments verifications tab */}
+            <button
+              onClick={() => { setActiveTab('payments'); setIsSidebarOpen(false); }}
+              className={`w-full flex items-center px-3 py-2.5 rounded-lg text-xs font-bold transition-all ${
+                sidebarCollapsed ? 'justify-center' : 'justify-between'
+              } ${
+                activeTab === 'payments' 
+                  ? 'bg-gradient-to-r from-pink-600 to-rose-500 text-white shadow-xs' 
+                  : 'text-gray-400 hover:text-white hover:bg-gray-800/60'
+              }`}
+              title={sidebarCollapsed ? 'Payments' : ''}
+            >
+              <span className="flex items-center gap-2.5">
+                <Smartphone className="h-4.5 w-4.5 shrink-0" />
+                {!sidebarCollapsed && <span>Receipt Queue</span>}
               </span>
-            )}
-          </button>
+              {!sidebarCollapsed && pendingCount > 0 ? (
+                <span className="bg-amber-400 text-white text-[10px] px-1.5 py-0.5 rounded-full font-black animate-pulse shrink-0">
+                  {pendingCount}
+                </span>
+              ) : !sidebarCollapsed ? null : null}
+            </button>
 
-          {/* Success Stories moderator tab */}
-          <button
-            onClick={() => { setActiveTab('stories'); setIsSidebarOpen(false); }}
-            className={`w-full flex items-center px-3 py-2.5 rounded-xl text-xs font-bold transition-all ${
-              sidebarCollapsed ? 'justify-center' : 'justify-between'
-            } ${
-              activeTab === 'stories' 
-                ? 'bg-gradient-to-r from-pink-600 to-rose-500 text-white shadow-xs' 
-                : 'text-gray-500 hover:text-gray-900 hover:bg-gray-100'
-            }`}
-            title={sidebarCollapsed ? 'Stories' : ''}
-          >
-            <span className="flex items-center gap-2.5">
-              <Sparkles className="h-4.5 w-4.5 shrink-0" />
-              {!sidebarCollapsed && <span>Landing Stories Moderator</span>}
-            </span>
-            {!sidebarCollapsed && <ChevronRight className="h-3.5 w-3.5 opacity-60 shrink-0" />}
-          </button>
+            {/* Profiles matches manager tab */}
+            <button
+              onClick={() => { setActiveTab('members'); setIsSidebarOpen(false); }}
+              className={`w-full flex items-center px-3 py-2.5 rounded-lg text-xs font-bold transition-all ${
+                sidebarCollapsed ? 'justify-center' : 'justify-between'
+              } ${
+                activeTab === 'members' 
+                  ? 'bg-gradient-to-r from-pink-600 to-rose-500 text-white shadow-xs' 
+                  : 'text-gray-400 hover:text-white hover:bg-gray-800/60'
+              }`}
+              title={sidebarCollapsed ? 'Members' : ''}
+            >
+              <span className="flex items-center gap-2.5">
+                <Users className="h-4.5 w-4.5 shrink-0" />
+                {!sidebarCollapsed && <span>Member Candidates</span>}
+              </span>
+              {!sidebarCollapsed && (
+                <span className="bg-gray-700 text-gray-300 text-[10px] px-1.5 py-0.5 rounded-md font-semibold shrink-0">
+                  {profiles.length}
+                </span>
+              )}
+            </button>
 
-          {/* Resolution Desk support tab */}
-          <button
-            onClick={() => { setActiveTab('support'); setIsSidebarOpen(false); }}
-            className={`w-full flex items-center px-3 py-2.5 rounded-xl text-xs font-bold transition-all ${
-              sidebarCollapsed ? 'justify-center' : 'justify-between'
-            } ${
-              activeTab === 'support' 
-                ? 'bg-gradient-to-r from-pink-600 to-rose-500 text-white shadow-xs' 
-                : 'text-gray-500 hover:text-gray-900 hover:bg-gray-100'
-            }`}
-            title={sidebarCollapsed ? 'Support' : ''}
-          >
-            <span className="flex items-center gap-2.5">
-              <MessageSquare className="h-4.5 w-4.5 shrink-0" />
-              {!sidebarCollapsed && <span>Direct Support Help Desk</span>}
-            </span>
-            {!sidebarCollapsed && <ChevronRight className="h-3.5 w-3.5 opacity-60 shrink-0" />}
-          </button>
+            {/* Success Stories moderator tab */}
+            <button
+              onClick={() => { setActiveTab('stories'); setIsSidebarOpen(false); }}
+              className={`w-full flex items-center px-3 py-2.5 rounded-lg text-xs font-bold transition-all ${
+                sidebarCollapsed ? 'justify-center' : 'justify-between'
+              } ${
+                activeTab === 'stories' 
+                  ? 'bg-gradient-to-r from-pink-600 to-rose-500 text-white shadow-xs' 
+                  : 'text-gray-400 hover:text-white hover:bg-gray-800/60'
+              }`}
+              title={sidebarCollapsed ? 'Stories' : ''}
+            >
+              <span className="flex items-center gap-2.5">
+                <Sparkles className="h-4.5 w-4.5 shrink-0" />
+                {!sidebarCollapsed && <span>Success Stories</span>}
+              </span>
+              {!sidebarCollapsed && activeTab !== 'stories' && <ChevronRight className="h-3 w-3 opacity-40 shrink-0" />}
+            </button>
 
-          {!sidebarCollapsed && <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest pl-3 pt-4 mb-2">SYSTEM CONTROL</p>}
+            {/* Resolution Desk support tab */}
+            <button
+              onClick={() => { setActiveTab('support'); setIsSidebarOpen(false); }}
+              className={`w-full flex items-center px-3 py-2.5 rounded-lg text-xs font-bold transition-all ${
+                sidebarCollapsed ? 'justify-center' : 'justify-between'
+              } ${
+                activeTab === 'support' 
+                  ? 'bg-gradient-to-r from-pink-600 to-rose-500 text-white shadow-xs' 
+                  : 'text-gray-400 hover:text-white hover:bg-gray-800/60'
+              }`}
+              title={sidebarCollapsed ? 'Support' : ''}
+            >
+              <span className="flex items-center gap-2.5">
+                <MessageSquare className="h-4.5 w-4.5 shrink-0" />
+                {!sidebarCollapsed && <span>Help Desk</span>}
+              </span>
+              {!sidebarCollapsed && activeTab !== 'support' && <ChevronRight className="h-3 w-3 opacity-40 shrink-0" />}
+            </button>
+          </div>
 
-          {/* Config Settings tab */}
-          <button
-            onClick={() => { setActiveTab('settings'); setIsSidebarOpen(false); }}
-            className={`w-full flex items-center px-3 py-2.5 rounded-xl text-xs font-bold transition-all ${
-              sidebarCollapsed ? 'justify-center' : 'justify-between'
-            } ${
-              activeTab === 'settings' 
-                ? 'bg-gradient-to-r from-pink-600 to-rose-500 text-white shadow-xs' 
-                : 'text-gray-500 hover:text-gray-900 hover:bg-gray-100'
-            }`}
-            title={sidebarCollapsed ? 'Settings' : ''}
-          >
-            <span className="flex items-center gap-2.5">
-              <Sliders className="h-4.5 w-4.5 shrink-0" />
-              {!sidebarCollapsed && <span>Platform Admin Settings</span>}
-            </span>
-            {!sidebarCollapsed && <ChevronRight className="h-3.5 w-3.5 opacity-60 shrink-0" />}
-          </button>
+          {!sidebarCollapsed && (
+            <div className="px-4 mt-4 mb-1">
+              <span className="text-[9px] font-bold text-gray-500 uppercase tracking-[0.2em]">SYSTEM</span>
+            </div>
+          )}
 
+          <div className="space-y-0.5 px-2">
+            {/* Config Settings tab */}
+            <button
+              onClick={() => { setActiveTab('settings'); setIsSidebarOpen(false); }}
+              className={`w-full flex items-center px-3 py-2.5 rounded-lg text-xs font-bold transition-all ${
+                sidebarCollapsed ? 'justify-center' : 'justify-between'
+              } ${
+                activeTab === 'settings' 
+                  ? 'bg-gradient-to-r from-pink-600 to-rose-500 text-white shadow-xs' 
+                  : 'text-gray-400 hover:text-white hover:bg-gray-800/60'
+              }`}
+              title={sidebarCollapsed ? 'Settings' : ''}
+            >
+              <span className="flex items-center gap-2.5">
+                <Sliders className="h-4.5 w-4.5 shrink-0" />
+                {!sidebarCollapsed && <span>Platform Settings</span>}
+              </span>
+              {!sidebarCollapsed && activeTab !== 'settings' && <ChevronRight className="h-3 w-3 opacity-40 shrink-0" />}
+            </button>
+          </div>
         </nav>
 
         {/* Sidebar Footer lock back links */}
-        <div className="p-3 border-t border-gray-200 space-y-2">
+        <div className="p-3 border-t border-gray-800 space-y-2">
           
           <button
             onClick={() => setDarkMode(!darkMode)}
-            className={`w-full flex items-center ${sidebarCollapsed ? 'justify-center' : 'justify-between'} p-2 rounded-xl text-xs font-bold text-gray-500 hover:bg-gray-100 hover:text-gray-900 transition-colors`}
+            className={`w-full flex items-center ${sidebarCollapsed ? 'justify-center' : 'justify-between'} p-2 rounded-lg text-xs font-bold text-gray-400 hover:text-white hover:bg-gray-800/60 transition-colors cursor-pointer`}
             title={sidebarCollapsed ? 'Toggle theme' : ''}
           >
             {sidebarCollapsed ? (
-              <span className="text-[10px] font-mono text-pink-500">D</span>
+              <span className="text-[10px] font-mono text-pink-400">D</span>
             ) : (
               <>
-                <span>Theme Control:</span>
-                <span className="px-2 py-0.5 rounded-md bg-gray-100 font-mono text-[10px] text-pink-500 border border-gray-200">
+                <span>Theme</span>
+                <span className="px-2 py-0.5 rounded-md bg-gray-800 font-mono text-[10px] text-pink-400 border border-gray-700">
                   {darkMode ? 'DARK' : 'LIGHT'}
                 </span>
               </>
@@ -638,7 +647,7 @@ export default function AdminPanel({
 
           <button
             onClick={handleAdminLogout}
-            className={`w-full py-2.5 rounded-xl bg-gray-100 border border-gray-200 hover:bg-red-50 text-red-500 text-xs font-extrabold flex items-center ${sidebarCollapsed ? 'justify-center' : 'justify-center gap-2'} cursor-pointer transition-colors`}
+            className={`w-full py-2.5 rounded-lg bg-gray-800/60 border border-gray-700 hover:bg-red-900/30 hover:border-red-800/50 text-red-400 text-xs font-extrabold flex items-center ${sidebarCollapsed ? 'justify-center' : 'justify-center gap-2'} cursor-pointer transition-all`}
             title={sidebarCollapsed ? 'Lock Session' : ''}
           >
             <LogOut className="h-4 w-4 shrink-0" />
@@ -908,6 +917,8 @@ export default function AdminPanel({
                 <button
                   onClick={() => {
                     const randTx = `RE${Math.floor(Math.random() * 9000000) + 1000000}`;
+                    const methods = ['Telebirr', 'CBE Birr'] as const;
+                    const method = methods[Math.floor(Math.random() * methods.length)];
                     const customReq: PaymentRequest = {
                       id: `t-pay-${Date.now()}`,
                       profileId: 'p5',
@@ -916,13 +927,16 @@ export default function AdminPanel({
                       senderName: 'Lomi Teklu',
                       senderPhone: '0988000444',
                       transactionId: randTx,
-                      method: 'Telebirr',
+                      method,
                       amount: matchFee,
                       timestamp: 'Just now',
-                      status: 'Pending'
+                      status: 'Pending',
+                      receiptImage: method === 'Telebirr'
+                        ? 'https://placehold.co/400x600/fef3c7/92400e?text=Telebirr+Receipt'
+                        : 'https://placehold.co/400x600/e0e7ff/3730a3?text=CBE+Birr+Receipt'
                     };
                     setAllPayments(prev => [customReq, ...prev]);
-                    alert(`Simulated Pending payment ${randTx} submitted. Check Receipt tab queue!`);
+                    alert(`Simulated ${method} payment ${randTx} submitted. Check Receipt tab queue!`);
                   }}
                   className="px-4 py-2.5 bg-gray-50 border border-gray-200 hover:border-amber-300 text-gray-600 hover:text-gray-900 rounded-xl text-xs font-extrabold flex items-center gap-1.5 transition-all text-center justify-center cursor-pointer"
                 >
@@ -964,182 +978,266 @@ export default function AdminPanel({
               Match verification requests must match the official Telebirr or CBE Birr reference. Inspect reference ID, Sender Name, and payment methods. Tap <strong>Verify & Approve</strong> to unlock the Telegram access immediately on their screens.
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-              
-              {/* Payment Receipt Table list */}
-              <div className="lg:col-span-2 bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-sm">
-                <div className="px-5 py-4 border-b border-gray-200 flex justify-between items-center bg-white">
-                  <h4 className="text-xs font-black uppercase tracking-widest text-gray-500 flex items-center gap-2">
-                    <Smartphone className="h-4.5 w-4.5 text-pink-500" />
-                    Pending & Historical Payments ({allPayments.length})
-                  </h4>
-                </div>
+            {/* Payment Receipt Table */}
+            <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-sm">
+              <div className="px-5 py-4 border-b border-gray-200 flex justify-between items-center bg-white">
+                <h4 className="text-xs font-black uppercase tracking-widest text-gray-500 flex items-center gap-2">
+                  <Smartphone className="h-4.5 w-4.5 text-pink-500" />
+                  Payment Queue ({allPayments.length})
+                </h4>
+              </div>
 
-                {allPayments.length > 0 ? (
-                  <div className="overflow-x-auto scrollbar-thin">
-                    <table className="w-full text-left border-collapse text-xs">
-                      <thead>
-                        <tr className="bg-gray-50 text-gray-500 border-b border-gray-200">
-                          <th className="p-4 font-bold uppercase tracking-wider text-[10px]">Depositor</th>
-                          <th className="p-4 font-bold uppercase tracking-wider text-[10px]">Unlocking Match</th>
-                          <th className="p-4 font-bold uppercase tracking-wider text-[10px]">Tx ID</th>
-                          <th className="p-4 font-bold uppercase tracking-wider text-[10px]">Amount</th>
-                          <th className="p-4 font-bold uppercase tracking-wider text-[10px]">Status</th>
-                          <th className="p-4 font-bold uppercase tracking-wider text-[10px] text-right">Actions</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-gray-100 font-medium text-gray-600">
-                        {allPayments.map((payment) => (
-                          <tr 
-                            key={payment.id}
-                            className={`hover:bg-gray-50 transition-colors cursor-pointer ${
-                              selectedRequest?.id === payment.id ? 'bg-pink-50' : ''
-                            }`}
-                            onClick={() => setSelectedRequest(payment)}
-                          >
-                            <td className="p-4">
-                              <div>
-                                <p className="font-extrabold text-gray-900">{payment.senderName}</p>
-                                <p className="text-[10px] text-gray-400">{payment.senderPhone}</p>
+              {allPayments.length > 0 ? (
+                <div className="overflow-x-auto scrollbar-thin">
+                  <table className="w-full text-left border-collapse text-xs">
+                    <thead>
+                      <tr className="bg-gray-50 text-gray-500 border-b border-gray-200">
+                        <th className="p-3 font-bold uppercase tracking-wider text-[10px]">Receipt</th>
+                        <th className="p-3 font-bold uppercase tracking-wider text-[10px]">Depositor</th>
+                        <th className="p-3 font-bold uppercase tracking-wider text-[10px]">Match</th>
+                        <th className="p-3 font-bold uppercase tracking-wider text-[10px]">Tx ID</th>
+                        <th className="p-3 font-bold uppercase tracking-wider text-[10px]">Amount</th>
+                        <th className="p-3 font-bold uppercase tracking-wider text-[10px]">Status</th>
+                        <th className="p-3 font-bold uppercase tracking-wider text-[10px] text-right">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-100 font-medium text-gray-600">
+                      {allPayments.map((payment) => (
+                        <tr
+                          key={payment.id}
+                          className={`hover:bg-gray-50 transition-colors cursor-pointer ${
+                            selectedRequest?.id === payment.id ? 'bg-pink-50' : ''
+                          }`}
+                          onClick={() => setSelectedRequest(payment)}
+                        >
+                          <td className="p-3" onClick={(e) => e.stopPropagation()}>
+                            <button
+                              onClick={() => setSelectedRequest(payment)}
+                              className="w-10 h-12 rounded-lg overflow-hidden border border-gray-200 bg-gray-50 hover:border-pink-300 transition-colors shrink-0 block"
+                            >
+                              <img
+                                src={payment.receiptImage || 'https://placehold.co/80x96/f5f5f5/ccc?text=N/A'}
+                                alt="Receipt"
+                                className="w-full h-full object-cover"
+                              />
+                            </button>
+                          </td>
+                          <td className="p-3">
+                            <p className="font-extrabold text-gray-900">{payment.senderName}</p>
+                            <p className="text-[10px] text-gray-400">{payment.senderPhone}</p>
+                          </td>
+                          <td className="p-3">
+                            <div className="flex items-center gap-2">
+                              <img src={payment.profileImage} alt={payment.profileName} className="w-6 h-6 rounded-full object-cover shrink-0" />
+                              <span className="truncate max-w-[80px] sm:max-w-none text-gray-600">{payment.profileName}</span>
+                            </div>
+                          </td>
+                          <td className="p-3">
+                            <span className={`px-2 py-0.5 rounded-sm text-[9px] font-extrabold uppercase ${
+                              payment.method === 'Telebirr' ? 'bg-blue-50 text-blue-600' : 'bg-purple-50 text-purple-600'
+                            }`}>
+                              {payment.method}
+                            </span>
+                            <p className="font-mono text-[9px] text-gray-400 uppercase mt-1">{payment.transactionId}</p>
+                          </td>
+                          <td className="p-3 font-extrabold text-gray-900">
+                            {payment.amount} ETB
+                          </td>
+                          <td className="p-3">
+                            <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${getStatusBadge(payment.status)}`}>
+                              {payment.status}
+                            </span>
+                          </td>
+                          <td className="p-3 text-right" onClick={(e) => e.stopPropagation()}>
+                            {payment.status === 'Pending' ? (
+                              <div className="flex gap-1.5 justify-end">
+                                <button
+                                  onClick={() => onApprove(payment.id)}
+                                  className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg px-2.5 py-1.5 text-[10px] font-black uppercase tracking-wider cursor-pointer transition-all shadow-xs flex items-center gap-1"
+                                >
+                                  <Check className="h-3.5 w-3.5" />
+                                  Approve
+                                </button>
+                                <button
+                                  onClick={() => onReject(payment.id)}
+                                  className="bg-rose-600 hover:bg-rose-700 text-white rounded-lg px-2.5 py-1.5 text-[10px] font-black uppercase tracking-wider cursor-pointer transition-all shadow-xs flex items-center gap-1"
+                                >
+                                  <X className="h-3.5 w-3.5" />
+                                  Reject
+                                </button>
                               </div>
-                            </td>
-                            <td className="p-4">
-                              <div className="flex items-center gap-2">
-                                <img src={payment.profileImage} alt={payment.profileName} className="w-6 h-6 rounded-full object-cover shrink-0" />
-                                <span className="truncate max-w-[80px] sm:max-w-none text-gray-600">{payment.profileName}</span>
-                              </div>
-                            </td>
-                            <td className="p-4">
-                              <span className={`px-2 py-0.5 rounded-sm text-[9px] font-extrabold uppercase ${
-                                payment.method === 'Telebirr' ? 'bg-blue-50 text-blue-600' : 'bg-purple-50 text-purple-600'
+                            ) : (
+                              <span className={`text-[10px] font-bold uppercase ${
+                                payment.status === 'Approved' ? 'text-emerald-600' : 'text-red-400'
                               }`}>
-                                {payment.method}
+                                {payment.status === 'Approved' ? 'Verified' : 'Flagged'}
                               </span>
-                              <p className="font-mono text-[9px] text-gray-400 uppercase mt-1">{payment.transactionId}</p>
-                            </td>
-                            <td className="p-4 font-extrabold text-gray-900">
-                              {payment.amount} ETB
-                            </td>
-                            <td className="p-4">
-                              <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${getStatusBadge(payment.status)}`}>
-                                {payment.status}
-                              </span>
-                            </td>
-                            <td className="p-4 text-right" onClick={(e) => e.stopPropagation()}>
-                              {payment.status === 'Pending' ? (
-                                <div className="flex gap-1 justify-end">
-                                  <button
-                                    onClick={() => onApprove(payment.id)}
-                                    className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-md p-1 cursor-pointer shadow-xs transition-colors"
-                                    title="Approve immediately"
-                                  >
-                                    <Check className="h-4 w-4" />
-                                  </button>
-                                  <button
-                                    onClick={() => onReject(payment.id)}
-                                    className="bg-rose-600 hover:bg-rose-700 text-white rounded-md p-1 cursor-pointer shadow-xs transition-colors"
-                                    title="Reject or flag slip"
-                                  >
-                                    <X className="h-4 w-4" />
-                                  </button>
-                                </div>
-                              ) : (
-                                <span className="text-[9px] text-gray-400 font-bold uppercase italic">Verified</span>
-                              )}
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                ) : (
-                  <div className="py-16 text-center text-xs text-gray-400 space-y-2">
-                    <Smartphone className="h-8 w-8 text-gray-300 mx-auto" />
-                    <p>No active transactions submitted yet inside mock environment.</p>
-                  </div>
-                )}
-              </div>
-
-              {/* Inspector Panel detail */}
-              <div className="bg-white border border-gray-200 rounded-2xl p-5 space-y-5 lg:sticky lg:top-24">
-                <div className="pb-3 border-b border-gray-200">
-                  <h4 className="text-xs font-black uppercase tracking-widest text-emerald-700 flex items-center gap-1.5">
-                    <CheckCircle className="h-4.5 w-4.5 text-emerald-600" />
-                    TELEBIRR/CBE INVESTIGATOR
-                  </h4>
-                  <p className="text-[10px] text-gray-400">Inspect simulated bank terminal transfer logs</p>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
-
-                {selectedRequest ? (
-                  <div className="space-y-4 text-xs animate-fadeIn">
-                    
-                    {/* Simulated mobile success ticket screen */}
-                    <div className="bg-gray-50 border border-gray-200 rounded-2xl p-4 font-mono text-[10px] text-gray-500 space-y-3 relative">
-                      <div className="absolute top-2 right-2 border border-emerald-200 bg-emerald-50 px-1.5 py-0.5 text-emerald-700 text-[8px] rounded-sm uppercase tracking-widest font-sans font-bold animate-pulse">
-                        Terminal Active
-                      </div>
-                      
-                      <div className="text-center font-sans">
-                        <p className="font-black text-rose-600 tracking-wider">WHAATACHI MERCH BANK</p>
-                        <p className="text-[8px] text-gray-400">ETHIOPIA PAYMENT RESOLUTION</p>
-                      </div>
-
-                      <div className="space-y-1 pt-2 border-t border-dashed border-gray-200">
-                        <p>REF NO: <span className="text-gray-900 font-bold">{selectedRequest.transactionId}</span></p>
-                        <p>METHOD: <span className="text-blue-600 uppercase font-black">{selectedRequest.method}</span></p>
-                        <p>AMOUNT: <span className="text-emerald-700 font-extrabold">{selectedRequest.amount}.00 ETB</span></p>
-                        <p>DEPOSITOR: <span className="text-gray-900 font-bold">{selectedRequest.senderName}</span></p>
-                        <p>PHONE: <span>{selectedRequest.senderPhone}</span></p>
-                        <p>MATCH REVEAL: <span>{selectedRequest.profileName}</span></p>
-                        <p>TIMESTAMP: <span className="text-gray-500">{selectedRequest.timestamp}</span></p>
-                      </div>
-
-                      <div className="text-center text-[8px] text-gray-400 font-sans pt-1 border-t border-dashed border-gray-200">
-                        *** AUTOMATED AUDIT OK ***
-                      </div>
-                    </div>
-
-                    <div className="space-y-3 pt-2">
-                      <p className="font-extrabold text-gray-700">Quick Moderation Review:</p>
-                      <ul className="space-y-1.5 text-gray-500 list-disc pl-4 font-light text-[11px]">
-                        <li>Ensure transaction reference is not repetitive.</li>
-                        <li>Receipt values are checked against real standard fee of {selectedRequest.amount} Birr.</li>
-                      </ul>
-                    </div>
-
-                    {selectedRequest.status === 'Pending' && (
-                      <div className="grid grid-cols-2 gap-2 pt-2">
-                        <button
-                          onClick={() => {
-                            onApprove(selectedRequest.id);
-                            setSelectedRequest(null);
-                          }}
-                          className="py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-[10px] font-black uppercase tracking-wider cursor-pointer text-center"
-                        >
-                          Approve reveal
-                        </button>
-                        <button
-                          onClick={() => {
-                            onReject(selectedRequest.id);
-                            setSelectedRequest(null);
-                          }}
-                          className="py-2.5 bg-rose-600 hover:bg-rose-700 text-white rounded-lg text-[10px] font-bold uppercase tracking-wider cursor-pointer text-center"
-                        >
-                          Flag fraud
-                        </button>
-                      </div>
-                    )}
-
-                  </div>
-                ) : (
-                  <div className="py-12 text-center text-xs text-gray-400 font-light">
-                    <Smartphone className="h-7 w-7 text-gray-300 mx-auto mb-2 animate-bounce" />
-                    Select a payment reference from the queue to run receipt terminal auditing.
-                  </div>
-                )}
-              </div>
-
+              ) : (
+                <div className="py-16 text-center text-xs text-gray-400 space-y-2">
+                  <Smartphone className="h-8 w-8 text-gray-300 mx-auto" />
+                  <p>No active transactions submitted yet inside mock environment.</p>
+                </div>
+              )}
             </div>
+
+            {/* Receipt Detail Modal */}
+            {selectedRequest && (
+              <div className="fixed inset-0 z-55 flex items-center justify-center p-4">
+                <div className="absolute inset-0 bg-gray-900/60 backdrop-blur-xs" onClick={() => setSelectedRequest(null)}></div>
+                <div className="bg-white border border-gray-200 rounded-3xl p-6 sm:p-8 max-w-2xl w-full relative z-10 shadow-2xl max-h-[90vh] overflow-y-auto scrollbar-thin animate-fadeIn">
+                  
+                  {/* Modal header */}
+                  <div className="flex justify-between items-center pb-4 border-b border-gray-200 mb-5">
+                    <div className="flex items-center gap-3">
+                      <div className="bg-gradient-to-tr from-pink-600 to-rose-500 p-2 rounded-xl text-white">
+                        <Smartphone className="h-5 w-5" />
+                      </div>
+                      <div>
+                        <h3 className="font-black text-base text-gray-900">Receipt Verification</h3>
+                        <p className="text-[10px] text-gray-400 font-medium">Transaction #{selectedRequest.transactionId}</p>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => setSelectedRequest(null)}
+                      className="p-1.5 bg-gray-100 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-200 transition-colors cursor-pointer"
+                    >
+                      <X className="h-5 w-5" />
+                    </button>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    
+                    {/* Left: Receipt Image */}
+                    <div>
+                      <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-2">Uploaded Receipt</p>
+                      <div className="bg-gray-50 border border-gray-200 rounded-2xl overflow-hidden">
+                        {selectedRequest.receiptImage ? (
+                          <img
+                            src={selectedRequest.receiptImage}
+                            alt="Payment Receipt"
+                            className="w-full h-auto max-h-[400px] object-contain bg-white"
+                          />
+                        ) : (
+                          <div className="flex flex-col items-center justify-center py-16 text-gray-300">
+                            <Smartphone className="h-12 w-12 mb-2" />
+                            <p className="text-xs font-medium">No receipt image uploaded</p>
+                            <p className="text-[10px]">User submitted without screenshot</p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Right: Transaction Details */}
+                    <div className="space-y-5">
+                      <div>
+                        <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-2">Transaction Details</p>
+                        <div className="bg-gray-50 border border-gray-200 rounded-2xl p-4 space-y-2.5 text-xs">
+                          <div className="flex justify-between">
+                            <span className="text-gray-400 font-bold uppercase text-[10px]">Reference</span>
+                            <span className="font-mono font-bold text-gray-900">{selectedRequest.transactionId}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-gray-400 font-bold uppercase text-[10px]">Method</span>
+                            <span className={`font-extrabold uppercase ${
+                              selectedRequest.method === 'Telebirr' ? 'text-blue-600' : 'text-purple-600'
+                            }`}>{selectedRequest.method}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-gray-400 font-bold uppercase text-[10px]">Amount</span>
+                            <span className="font-extrabold text-emerald-700">{selectedRequest.amount}.00 ETB</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-gray-400 font-bold uppercase text-[10px]">Status</span>
+                            <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${getStatusBadge(selectedRequest.status)}`}>
+                              {selectedRequest.status}
+                            </span>
+                          </div>
+                          <div className="border-t border-gray-200 pt-2 mt-2">
+                            <div className="flex justify-between">
+                              <span className="text-gray-400 font-bold uppercase text-[10px]">Timestamp</span>
+                              <span className="text-gray-500">{selectedRequest.timestamp}</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div>
+                        <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-2">Sender Info</p>
+                        <div className="bg-gray-50 border border-gray-200 rounded-2xl p-4 space-y-2.5 text-xs">
+                          <div className="flex justify-between">
+                            <span className="text-gray-400 font-bold uppercase text-[10px]">Name</span>
+                            <span className="font-bold text-gray-900">{selectedRequest.senderName}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-gray-400 font-bold uppercase text-[10px]">Phone</span>
+                            <span className="text-gray-600">{selectedRequest.senderPhone}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-gray-400 font-bold uppercase text-[10px]">Target</span>
+                            <span className="text-gray-600">{selectedRequest.profileName}</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Approve / Reject Actions */}
+                      {selectedRequest.status === 'Pending' && (
+                        <div className="space-y-2 pt-2">
+                          <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">Moderation Action</p>
+                          <div className="grid grid-cols-2 gap-3">
+                            <button
+                              onClick={() => {
+                                onApprove(selectedRequest.id);
+                                setSelectedRequest(null);
+                              }}
+                              className="py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-black uppercase tracking-wider cursor-pointer transition-all shadow-md shadow-emerald-600/20 flex items-center justify-center gap-2"
+                            >
+                              <CheckCircle className="h-4 w-4" />
+                              Approve & Verify
+                            </button>
+                            <button
+                              onClick={() => {
+                                onReject(selectedRequest.id);
+                                setSelectedRequest(null);
+                              }}
+                              className="py-3 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-black uppercase tracking-wider cursor-pointer transition-all shadow-md shadow-rose-600/20 flex items-center justify-center gap-2"
+                            >
+                              <XCircle className="h-4 w-4" />
+                              Reject & Flag
+                            </button>
+                          </div>
+                          <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 text-[10px] text-amber-700 flex items-start gap-2 mt-3">
+                            <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5" />
+                            <span>Verify the receipt image matches the transaction reference before approving. This action cannot be undone.</span>
+                          </div>
+                        </div>
+                      )}
+
+                      {selectedRequest.status !== 'Pending' && (
+                        <div className={`p-4 rounded-xl text-xs font-bold flex items-center gap-2 ${
+                          selectedRequest.status === 'Approved'
+                            ? 'bg-emerald-50 border border-emerald-200 text-emerald-700'
+                            : 'bg-red-50 border border-red-200 text-red-600'
+                        }`}>
+                          {selectedRequest.status === 'Approved' ? (
+                            <><CheckCircle className="h-5 w-5" /> This payment has been verified and approved</>
+                          ) : (
+                            <><XCircle className="h-5 w-5" /> This payment has been rejected and flagged</>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            )}
 
           </div>
         )}
