@@ -26,23 +26,31 @@ async function ensureDb() {
 
 async function ensureSeeded() {
   if (seeded) return;
-  const count = await countUsers();
-  if (count === 0) {
-    console.log('Database empty, auto-seeding...');
-    await seedData(false);
+  try {
+    const count = await countUsers();
+    if (count === 0) {
+      console.log('Database empty, auto-seeding...');
+      await seedData(false);
+    }
+  } catch (err) {
+    console.error('Seed check failed (non-fatal):', err);
   }
   seeded = true;
 }
 
-const handler = async (req: any, res: any) => {
+export default async function handler(req: any, res: any) {
+  console.log(`[${req.method}] ${req.url}`);
+
   try {
     await ensureDb();
     await ensureSeeded();
-  } catch {
-    res.status(500).json({ error: 'Database connection failed' });
+  } catch (err: any) {
+    console.error('Handler init error:', err?.message || err);
+    res.statusCode = 500;
+    res.setHeader('Content-Type', 'application/json');
+    res.end(JSON.stringify({ error: 'Database connection failed', detail: err?.message }));
     return;
   }
-  app(req, res);
-};
 
-export default handler;
+  app(req, res);
+}
