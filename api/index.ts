@@ -4,9 +4,10 @@ import path from 'path';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 dotenv.config({ path: path.resolve(__dirname, '../backend/.env') });
+dotenv.config({ path: path.resolve(__dirname, '../.env') });
 
 import app from '../api-src/app';
-import { initDatabase } from '../api-src/config/schema';
+import { connectDB } from '../api-src/config/database';
 import { seedData } from '../api-src/config/seed-data';
 import { countUsers } from '../api-src/models/user.model';
 
@@ -15,7 +16,9 @@ let seeded = false;
 
 async function ensureDb() {
   if (!dbReady) {
-    dbReady = initDatabase().catch((err) => {
+    dbReady = connectDB().then(() => {
+      console.log('Database initialized.');
+    }).catch((err) => {
       console.error('Failed to connect to MongoDB:', err);
       dbReady = null;
       throw err;
