@@ -20,9 +20,9 @@ export function validateRegister(req: Request, res: Response, next: NextFunction
 }
 
 export function validateLogin(req: Request, res: Response, next: NextFunction): void {
-  const { name } = req.body;
-  if (!isPresent(name)) {
-    res.status(400).json({ error: 'Name is required' });
+  const { name, telegram, instagram } = req.body;
+  if (!isPresent(name) && !isPresent(telegram) && !isPresent(instagram)) {
+    res.status(400).json({ error: 'Name, telegram, or instagram is required' });
     return;
   }
   next();

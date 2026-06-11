@@ -1,16 +1,36 @@
 import { Profile, PaymentRequest, SuccessStory, Article } from '../types';
 
 const API_BASE = import.meta.env.VITE_API_URL || '/api';
-const REQUEST_TIMEOUT = 15000;
+const REQUEST_TIMEOUT = 30000;
 
-let authToken: string | null = null;
+const TOKEN_COOKIE = 'whaatachi_token';
+
+function getTokenFromCookie(): string | null {
+  const match = document.cookie.match(new RegExp(`(?:^|;\\s*)${TOKEN_COOKIE}=([^;]*)`));
+  return match ? decodeURIComponent(match[1]) : null;
+}
+
+function setTokenCookie(token: string | null) {
+  if (token) {
+    const maxAge = 2 * 24 * 60 * 60;
+    document.cookie = `${TOKEN_COOKIE}=${encodeURIComponent(token)}; path=/; max-age=${maxAge}; SameSite=Lax`;
+  } else {
+    document.cookie = `${TOKEN_COOKIE}=; path=/; max-age=0; SameSite=Lax`;
+  }
+}
+
+let authToken: string | null = getTokenFromCookie();
 const inflightMap = new Map<string, Promise<any>>();
 
 export function setAuthToken(token: string | null) {
   authToken = token;
+  setTokenCookie(token);
 }
 
 export function getAuthToken(): string | null {
+  if (!authToken) {
+    authToken = getTokenFromCookie();
+  }
   return authToken;
 }
 
@@ -82,8 +102,8 @@ export async function register(data: {
   return request('/auth/register', { method: 'POST', body: JSON.stringify(data) });
 }
 
-export async function login(name: string, phone?: string): Promise<{ token: string; user: Profile }> {
-  return request('/auth/login', { method: 'POST', body: JSON.stringify({ name, phone }) });
+export async function login(name?: string, phone?: string, telegram?: string, instagram?: string): Promise<{ token: string; user: Profile }> {
+  return request('/auth/login', { method: 'POST', body: JSON.stringify({ name, phone, telegram, instagram }) });
 }
 
 export async function getMe(): Promise<{ user: Profile }> {
@@ -159,6 +179,11 @@ export async function fetchArticles(): Promise<{ articles: Article[] }> {
 // ── FAQs ──
 export async function fetchFaqs(): Promise<{ faqs: Record<string, { question: string; answer: string }[]> }> {
   return request('/faqs');
+}
+
+// ── Admin: Verification ──
+export async function toggleProfileVerification(id: string): Promise<{ verified: boolean }> {
+  return request(`/admin/profiles/${id}/verify`, { method: 'PUT' });
 }
 
 // ── Admin ──

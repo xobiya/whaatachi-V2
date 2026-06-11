@@ -48,6 +48,6 @@ export function adminOnly(req: AuthRequest, res: Response, next: NextFunction): 
   next();
 }
 
-export function generateToken(payload: AuthPayload): string {
-  return jwt.sign(payload, getSecret(), { expiresIn: '7d' });
+export function generateToken(payload: AuthPayload, expiresIn: string = '7d'): string {
+  return jwt.sign(payload, getSecret(), { expiresIn: expiresIn as any });
 }

@@ -24,7 +24,7 @@ router.post('/login', validateAdminLogin, async (req: AuthRequest, res: Response
       return;
     }
 
-    const token = generateToken({ id: String(admin.id), isAdmin: true });
+    const token = generateToken({ id: String(admin.id), isAdmin: true }, '1h');
     res.json({ token });
   } catch (err: any) {
     console.error('Admin login error:', err);
@@ -60,6 +60,21 @@ router.get('/stats', authenticate, adminOnly, async (_req: AuthRequest, res: Res
   } catch (err: any) {
     console.error('Admin stats error:', err);
     res.status(500).json({ error: 'Failed to fetch stats' });
+  }
+});
+
+router.put('/profiles/:id/verify', authenticate, adminOnly, async (req: AuthRequest, res: Response) => {
+  try {
+    const id = String(req.params.id);
+    const result = await userModel.toggleUserVerification(id);
+    if (!result) {
+      res.status(404).json({ error: 'User not found' });
+      return;
+    }
+    res.json({ verified: result.verified });
+  } catch (err: any) {
+    console.error('Toggle verification error:', err);
+    res.status(500).json({ error: 'Failed to toggle verification' });
   }
 });
 

@@ -24,7 +24,7 @@ router.post('/register', validateRegister, async (req: AuthRequest, res: Respons
       return;
     }
 
-    const token = generateToken({ id });
+    const token = generateToken({ id }, '2d');
     const plain = typeof created.toObject === 'function' ? created.toObject() : created;
     res.status(201).json({ token, user: userRowToProfile(plain) });
   } catch (err: any) {
@@ -39,24 +39,34 @@ router.post('/register', validateRegister, async (req: AuthRequest, res: Respons
 
 router.post('/login', validateLogin, async (req: AuthRequest, res: Response) => {
   try {
-    const { name, phone } = req.body;
-    const users = await userModel.findUserByName(name);
+    const { name, phone, telegram, instagram } = req.body;
 
-    if (users.length === 0) {
-      res.status(404).json({ error: 'No account found with that name' });
+    let found: any = null;
+
+    if (telegram || instagram) {
+      found = await userModel.findUserByContact(telegram || null, instagram || null);
+    }
+
+    if (!found && name) {
+      const users = await userModel.findUserByName(name);
+      if (users.length > 0) {
+        found = users[0];
+        if (phone) {
+          const normalizedPhone = phone.replace(/\s/g, '');
+          const exact = users.find(
+            (u: any) => u.phone?.replace(/\s/g, '') === normalizedPhone
+          );
+          if (exact) found = exact;
+        }
+      }
+    }
+
+    if (!found) {
+      res.status(404).json({ error: 'No account found with that name and phone' });
       return;
     }
 
-    let found = users[0];
-    if (phone) {
-      const normalizedPhone = phone.replace(/\s/g, '');
-      const exact = users.find(
-        (u: any) => u.phone?.replace(/\s/g, '') === normalizedPhone
-      );
-      if (exact) found = exact;
-    }
-
-    const token = generateToken({ id: found._id });
+    const token = generateToken({ id: found._id }, '2d');
     res.json({ token, user: userRowToProfile(found as any) });
   } catch (err: any) {
     console.error('Login error:', err);

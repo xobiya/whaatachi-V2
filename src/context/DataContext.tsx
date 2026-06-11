@@ -16,6 +16,7 @@ type DataAction =
   | { type: 'SET_PROFILES'; payload: Profile[] }
   | { type: 'SET_UNLOCKED_IDS'; payload: string[] }
   | { type: 'SET_PAYMENTS'; payload: PaymentRequest[] }
+  | { type: 'MERGE_PAYMENTS'; payload: PaymentRequest[] }
   | { type: 'SET_STORIES'; payload: SuccessStory[] }
   | { type: 'SET_ARTICLES'; payload: Article[] }
   | { type: 'SET_VIEWING_PROFILE'; payload: Profile | null }
@@ -32,6 +33,19 @@ function dataReducer(state: DataState, action: DataAction): DataState {
     case 'SET_PROFILES': return { ...state, profiles: action.payload };
     case 'SET_UNLOCKED_IDS': return { ...state, unlockedIds: action.payload };
     case 'SET_PAYMENTS': return { ...state, allPayments: action.payload };
+    case 'MERGE_PAYMENTS':
+      const existingIds = new Set(state.allPayments.map(p => p.id));
+      const merged = [...state.allPayments];
+      for (const p of action.payload) {
+        if (!existingIds.has(p.id)) {
+          merged.push(p);
+          existingIds.add(p.id);
+        } else {
+          const idx = merged.findIndex(m => m.id === p.id);
+          if (idx >= 0) merged[idx] = p;
+        }
+      }
+      return { ...state, allPayments: merged };
     case 'SET_STORIES': return { ...state, stories: action.payload };
     case 'SET_ARTICLES': return { ...state, articles: action.payload };
     case 'SET_VIEWING_PROFILE': return { ...state, viewingProfile: action.payload };

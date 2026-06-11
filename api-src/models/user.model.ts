@@ -37,6 +37,20 @@ export async function findUserByName(name: string): Promise<any[]> {
   return User.find({ name }).collation({ locale: 'en', strength: 2 }).lean();
 }
 
+export async function findUserByContact(telegram: string | null, instagram: string | null): Promise<any> {
+  const orClauses: any[] = [];
+  if (telegram) {
+    const tg = telegram.replace(/^@/, '');
+    orClauses.push({ telegram: { $regex: new RegExp(`^@?${tg.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i') } });
+  }
+  if (instagram) {
+    const ig = instagram.replace(/^@/, '');
+    orClauses.push({ instagram: { $regex: new RegExp(`^@?${ig.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i') } });
+  }
+  if (orClauses.length === 0) return null;
+  return User.findOne({ $or: orClauses }).lean();
+}
+
 function buildFilterObject(filters: Record<string, any>): Record<string, any> {
   const filter: Record<string, any> = {};
   if (filters.gender) filter.gender = filters.gender;
@@ -117,6 +131,14 @@ export async function updateUser(id: string, data: Record<string, any>): Promise
 
 export async function verifyUser(userId: string): Promise<void> {
   await User.findByIdAndUpdate(userId, { $set: { verified: true } });
+}
+
+export async function toggleUserVerification(userId: string): Promise<{ verified: boolean } | null> {
+  const user = await User.findById(userId);
+  if (!user) return null;
+  const newVal = !user.verified;
+  await User.findByIdAndUpdate(userId, { $set: { verified: newVal } });
+  return { verified: newVal };
 }
 
 export async function countUsers(): Promise<number> {

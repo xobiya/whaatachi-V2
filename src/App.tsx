@@ -31,6 +31,22 @@ function AppContent() {
   const paymentTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
+    const token = api.getAuthToken();
+    if (token) {
+      api.getMe().then(res => {
+        if (res.user) {
+          const p = res.user;
+          auth.dispatch({ type: 'SET_CURRENT_USER', payload: p });
+          auth.dispatch({ type: 'SET_LOGGED_IN', payload: true });
+          auth.dispatch({ type: 'SET_USER_GENDER', payload: p.gender });
+        }
+      }).catch(() => {
+        api.setAuthToken(null);
+      });
+    }
+  }, []);
+
+  useEffect(() => {
     const checkPath = () => {
       const path = window.location.pathname;
       if (path === '/admin') {
@@ -116,7 +132,7 @@ function AppContent() {
       if (api.getAuthToken()) {
         api.fetchPayments().then(res => {
           if (res && Array.isArray(res.payments)) {
-            data.dispatch({ type: 'SET_PAYMENTS', payload: res.payments });
+            data.dispatch({ type: 'MERGE_PAYMENTS', payload: res.payments });
           }
         }).catch((err) => console.error('Failed to fetch payments:', err));
       }
@@ -280,7 +296,7 @@ function AppContent() {
       ui.dispatch({ type: 'SET_CURRENT_VIEW', payload: 'browse' });
       triggerNotification('success', ui.t('app.notify.welcome-back').replace('{name}', found.name));
 
-      const result = await api.login(found.name, phone);
+      const result = await api.login(found.name, phone, telegram, instagram);
       api.setAuthToken(result.token);
       return true;
     } else {
@@ -296,7 +312,7 @@ function AppContent() {
     ui.dispatch({ type: 'SET_CURRENT_VIEW', payload: 'browse' });
     triggerNotification('success', ui.t('app.notify.welcome-back').replace('{name}', profile.name));
     try {
-      const result = await api.login(profile.name);
+      const result = await api.login(profile.name, undefined, profile.contactInfo.telegram, profile.contactInfo.instagram);
       api.setAuthToken(result.token);
     } catch (err) {
       console.error('Test login API error:', err);

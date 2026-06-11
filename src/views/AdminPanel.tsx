@@ -246,13 +246,30 @@ export default function AdminPanel({
     }
   };
 
-  const handleToggleProfileVerification = (profileId: string) => {
+  const handleToggleProfileVerification = async (profileId: string) => {
     setProfiles(prev => prev.map(p => {
       if (p.id === profileId) {
         return { ...p, verified: !p.verified };
       }
       return p;
     }));
+    try {
+      const res = await api.toggleProfileVerification(profileId);
+      setProfiles(prev => prev.map(p => {
+        if (p.id === profileId) {
+          return { ...p, verified: res.verified };
+        }
+        return p;
+      }));
+    } catch {
+      setProfiles(prev => prev.map(p => {
+        if (p.id === profileId) {
+          return { ...p, verified: !p.verified };
+        }
+        return p;
+      }));
+      showToast('error', 'Failed to update verification status on server');
+    }
   };
 
   const handleSaveEditedProfile = (e: React.FormEvent) => {
