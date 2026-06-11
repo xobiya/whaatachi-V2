@@ -1,63 +1,54 @@
 import dotenv from 'dotenv';
-import { fileURLToPath } from 'url';
-import path from 'path';
+dotenv.config();
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-dotenv.config({ path: path.resolve(__dirname, '../backend/.env') });
-dotenv.config({ path: path.resolve(__dirname, '../.env') });
-
-import app from '../api-src/app';
-import { connectDB } from '../api-src/config/database';
+import express from 'express';
+import mongoose from 'mongoose';
+import mainApp from '../api-src/app';
 import { seedData } from '../api-src/config/seed-data';
 import { countUsers } from '../api-src/models/user.model';
 
-let dbReady: Promise<void> | null = null;
-let seeded = false;
+const app = express();
 
-async function ensureDb() {
-  if (!dbReady) {
-    dbReady = connectDB().then(() => {
-      console.log('Database initialized.');
-    }).catch((err) => {
-      console.error('Failed to connect to MongoDB:', err);
-      dbReady = null;
-      throw err;
-    });
-  }
-  return dbReady;
-}
+let seedingDone = false;
 
-async function ensureSeeded() {
-  if (seeded) return;
-  try {
-    const count = await countUsers();
-    if (count === 0) {
-      console.log('Database empty, auto-seeding...');
-      await seedData(false);
+app.use((req, res, next) => {
+  if (mongoose.connection.readyState === 1) {
+    if (!seedingDone) {
+      countUsers().then(count => {
+        if (count === 0) {
+          console.log('Seeding database...');
+          return seedData(false);
+        }
+      }).catch(err => console.error('Seed check failed:', err))
+        .finally(() => { seedingDone = true; });
     }
-  } catch (err) {
-    console.error('Seed check failed (non-fatal):', err);
+    return next();
   }
-  seeded = true;
-}
 
-export default async function handler(req: any, res: any) {
-  console.log(`[${req.method}] ${req.url}`);
-
-  try {
-    await ensureDb();
-    await ensureSeeded();
-  } catch (err: any) {
-    console.error('Handler init error:', err?.message || err);
-    res.statusCode = 500;
-    res.setHeader('Content-Type', 'application/json');
-    res.end(JSON.stringify({ error: 'Database connection failed', detail: err?.message }));
+  const uri = process.env.MONGODB_URI;
+  if (!uri) {
+    res.status(500).json({ error: 'Database connection failed', detail: 'MONGODB_URI environment variable is not set' });
     return;
   }
 
-  return new Promise<void>((resolve, reject) => {
-    res.on('finish', resolve);
-    res.on('error', reject);
-    app(req, res);
-  });
-}
+  mongoose.connect(uri, { bufferCommands: false, serverSelectionTimeoutMS: 10000, connectTimeoutMS: 10000 })
+    .then(() => {
+      console.log('MongoDB connected');
+      countUsers().then(count => {
+        if (count === 0) {
+          console.log('Seeding database...');
+          return seedData(false);
+        }
+      }).catch(err => console.error('Seed check failed:', err))
+        .finally(() => { seedingDone = true; });
+      next();
+    })
+    .catch((err) => {
+      console.error('MongoDB connection error:', err.message);
+      res.status(500).json({ error: 'Database connection failed', detail: err.message });
+    });
+});
+
+app.use(mainApp);
+
+export default app;
