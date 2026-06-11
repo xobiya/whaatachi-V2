@@ -59,28 +59,17 @@ export default function AdminPanel({
       }
     }
   }, [activeTab]);
-  const getStoredPasscode = () => {
-    return localStorage.getItem('whaatachi_admin_passcode_v1') || 'admin123';
-  };
-
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
-    return localStorage.getItem('whaatachi_admin_auth_v1') === 'true';
-  });
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
 
   const [passcode, setPasscode] = useState('');
   const [showPasscode, setShowPasscode] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   // Platform Matchmaking fee control (Dynamic Birr)
-  const [matchFee, setMatchFee] = useState<number>(() => {
-    const saved = localStorage.getItem('whaatachi_match_fee_v1');
-    return saved ? parseInt(saved, 10) : 200;
-  });
+  const [matchFee, setMatchFee] = useState<number>(200);
 
   // Maintenance mode state
-  const [maintenanceMode, setMaintenanceMode] = useState<boolean>(() => {
-    return localStorage.getItem('whaatachi_maintenance_mode') === 'true';
-  });
+  const [maintenanceMode, setMaintenanceMode] = useState<boolean>(false);
 
   // Security passcode drawer controls inside Settings view
   const [newPasscode, setNewPasscode] = useState('');
@@ -210,26 +199,16 @@ export default function AdminPanel({
     setError(null);
     try {
       const res = await api.adminLogin(passcode.trim());
-      localStorage.setItem('whaatachi_admin_auth_v1', 'true');
-      if (res.token) localStorage.setItem('whaatachi_token_v1', res.token);
+      if (res.token) api.setAuthToken(res.token);
       setIsAuthenticated(true);
       setUserRole('admin');
     } catch {
-      // Fallback to local passcode
-      const storedPass = getStoredPasscode();
-      if (passcode.trim() === storedPass) {
-        localStorage.setItem('whaatachi_admin_auth_v1', 'true');
-        setIsAuthenticated(true);
-        setError(null);
-        setUserRole('admin');
-      } else {
-        setError('Invalid administrative passcode. Please verify your bypass key credentials.');
-      }
+      setError('Invalid administrative passcode.');
     }
   };
 
   const handleAdminLogout = () => {
-    localStorage.removeItem('whaatachi_admin_auth_v1');
+    api.setAuthToken(null);
     setIsAuthenticated(false);
     setUserRole('user');
     setCurrentView(isLoggedIn ? 'dashboard' : 'home');
@@ -240,28 +219,24 @@ export default function AdminPanel({
     if (!newPasscode.trim()) return;
     try {
       await api.updateAdminPasscode(newPasscode.trim());
+      setChangeSuccess(true);
+      setNewPasscode('');
+      setTimeout(() => {
+        setChangeSuccess(false);
+      }, 2500);
     } catch {
-      // local-only fallback
+      showToast('error', 'Failed to update passcode');
     }
-    localStorage.setItem('whaatachi_admin_passcode_v1', newPasscode.trim());
-    setChangeSuccess(true);
-    setNewPasscode('');
-    setTimeout(() => {
-      setChangeSuccess(false);
-    }, 2500);
   };
 
   const handleSaveMatchFee = (fee: number) => {
     setMatchFee(fee);
-    localStorage.setItem('whaatachi_match_fee_v1', fee.toString());
     showToast('success', `Match fee updated to ${fee} ETB`);
   };
 
   // Toggle Maintenance Mode
   const handleToggleMaintenance = () => {
-    const nextVal = !maintenanceMode;
-    setMaintenanceMode(nextVal);
-    localStorage.setItem('whaatachi_maintenance_mode', nextVal.toString());
+    setMaintenanceMode(prev => !prev);
   };
 
   // Profiles Manager CRUD
@@ -1107,19 +1082,17 @@ export default function AdminPanel({
                   Simulate Male Payment Submit
                 </button>
 
-                {/* Reset local matches */}
+                {/* Reload data from API */}
                 <button
                   onClick={() => {
-                    if (window.confirm('Reset state to factory values? This clears manual candidates.')) {
-                      localStorage.clear();
-                      alert('Local Storage pruned. Reload application component to fetch initial baseline data.');
+                    if (window.confirm('Reload all data from the server?')) {
                       window.location.reload();
                     }
                   }}
                   className="px-4 py-2.5 bg-gray-50 border border-gray-200 hover:bg-gray-100 hover:border-red-300 text-gray-500 hover:text-red-500 rounded-xl text-xs font-extrabold flex items-center gap-1.5 transition-all text-center justify-center cursor-pointer"
                 >
                   <RefreshCw className="h-3.5 w-3.5" />
-                  Reset Demo DB
+                  Reload from Server
                 </button>
 
               </div>
@@ -2173,7 +2146,7 @@ export default function AdminPanel({
                 {changeSuccess && (
                   <p className="text-[11px] text-emerald-600 font-bold flex items-center gap-1 animate-fadeIn">
                     <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" />
-                    Passcode updated inside browser localStorage successfully!
+                    Passcode updated successfully!
                   </p>
                 )}
 

@@ -20,10 +20,11 @@ interface PaymentModalProps {
   ) => void;
   onPaymentSuccess: () => void;
   userGender: 'Male' | 'Female';
+  currentUser: Profile | null;
 }
 
 export default function PaymentModal({
-  profile, isOpen, onClose, onSubmitPayment, onPaymentSuccess, userGender
+  profile, isOpen, onClose, onSubmitPayment, onPaymentSuccess, userGender, currentUser
 }: PaymentModalProps) {
   const { t } = useAppContext();
   const [copiedText, setCopiedText] = useState<'tele' | 'cbe' | null>(null);
@@ -82,7 +83,7 @@ export default function PaymentModal({
       setSubmitting(true);
       const autoTxId = 'TXN_' + Math.random().toString(36).substring(2, 9).toUpperCase();
       setTimeout(() => {
-        onSubmitPayment(profile.id, profile.name, profile.image, 'Male Member', 'Auto', autoTxId, method, 0, uploadedFileData || undefined);
+        onSubmitPayment(profile.id, profile.name, profile.image, currentUser?.name || 'Male Member', currentUser?.contactInfo?.phone || 'Auto', autoTxId, method, 0, uploadedFileData || undefined);
         setSubmitting(false);
         onPaymentSuccess();
       }, 800);
@@ -95,7 +96,7 @@ export default function PaymentModal({
       setTimeout(() => {
         onSubmitPayment(
           profile.id, profile.name, profile.image,
-          'Free Female Member', senderPhone,
+          currentUser?.name || 'Free Female Member', senderPhone || currentUser?.contactInfo?.phone || '',
           'FREE_' + Math.random().toString(36).substring(2, 7).toUpperCase(),
           'Telebirr', 0
         );

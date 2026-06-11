@@ -47,15 +47,9 @@ function AppContent() {
       } else if (path === '/support') {
         dispatch({ type: 'SET_CURRENT_VIEW', payload: 'support' });
       } else if (path === '/profile') {
-        const savedUser = localStorage.getItem('whaatachi_logged_in_user_v1');
-        if (savedUser) {
-          try {
-            const parsedUser = JSON.parse(savedUser);
-            dispatch({ type: 'SET_VIEWING_PROFILE', payload: parsedUser });
-            dispatch({ type: 'SET_CURRENT_VIEW', payload: 'profile' });
-          } catch (e) {
-            dispatch({ type: 'SET_CURRENT_VIEW', payload: 'home' });
-          }
+        if (state.currentUser) {
+          dispatch({ type: 'SET_VIEWING_PROFILE', payload: state.currentUser });
+          dispatch({ type: 'SET_CURRENT_VIEW', payload: 'profile' });
         } else {
           dispatch({ type: 'SET_CURRENT_VIEW', payload: 'home' });
         }
@@ -92,9 +86,8 @@ function AppContent() {
         api.fetchProfiles({ limit: 100 }).then(res => {
           if (res && Array.isArray(res.profiles)) {
             dispatch({ type: 'SET_PROFILES', payload: res.profiles });
-            localStorage.setItem('whaatachi_profiles_v1', JSON.stringify(res.profiles));
           }
-        }).catch(() => {});
+        }).catch((err) => console.error('Failed to fetch profiles:', err));
       }
     }
     if (view === 'stories') {
@@ -102,9 +95,8 @@ function AppContent() {
         api.fetchStories().then(res => {
           if (res && Array.isArray(res.stories)) {
             dispatch({ type: 'SET_STORIES', payload: res.stories });
-            localStorage.setItem('whaatachi_stories_v1', JSON.stringify(res.stories));
           }
-        }).catch(() => {});
+        }).catch((err) => console.error('Failed to fetch stories:', err));
       }
     }
     if (view === 'blog') {
@@ -112,27 +104,23 @@ function AppContent() {
         api.fetchArticles().then(res => {
           if (res && Array.isArray(res.articles)) {
             dispatch({ type: 'SET_ARTICLES', payload: res.articles });
-            localStorage.setItem('whaatachi_articles_v1', JSON.stringify(res.articles));
           }
-        }).catch(() => {});
+        }).catch((err) => console.error('Failed to fetch articles:', err));
       }
     }
     if (view === 'admin') {
-      const token = localStorage.getItem('whaatachi_token_v1');
-      if (token && state.allPayments.length === 0) {
+      if (api.getAuthToken()) {
         api.fetchPayments().then(res => {
           if (res && Array.isArray(res.payments)) {
             dispatch({ type: 'SET_PAYMENTS', payload: res.payments });
-            localStorage.setItem('whaatachi_payments_v1', JSON.stringify(res.payments));
           }
-        }).catch(() => {});
+        }).catch((err) => console.error('Failed to fetch payments:', err));
       }
     }
   }, [state.currentView]);
 
   useEffect(() => {
     if (!state.isLoggedIn) {
-      localStorage.removeItem('whaatachi_logged_in_user_v1');
       dispatch({ type: 'SET_CURRENT_USER', payload: null });
     }
   }, [state.isLoggedIn, dispatch]);
@@ -177,8 +165,8 @@ function AppContent() {
         senderName, senderPhone, transactionId,
         method, amount, receiptImage,
       });
-    } catch {
-      // local-only fallback
+    } catch (err) {
+      console.error('Payment submission to server failed (saved locally):', err);
     }
   };
 
@@ -190,7 +178,7 @@ function AppContent() {
     dispatch({ type: 'ADD_UNLOCK', payload: payment.profileId });
 
     const updatedProfiles = state.profiles.map((profile) => {
-      if (profile.name.toLowerCase() === payment.senderName.toLowerCase()) {
+      if (profile.id === payment.profileId) {
         return { ...profile, verified: true };
       }
       return profile;
@@ -198,13 +186,13 @@ function AppContent() {
     dispatch({ type: 'SET_PROFILES', payload: updatedProfiles });
     triggerNotification('success', t('app.notify.approved').replace('{name}', payment.profileName));
 
-    api.approvePayment(paymentId).catch(() => {});
+    api.approvePayment(paymentId).catch((err) => console.error('Approve payment API error:', err));
   };
 
   const handleRejectPayment = (paymentId: string) => {
     dispatch({ type: 'UPDATE_PAYMENT', payload: { id: paymentId, status: 'Rejected' } });
     triggerNotification('info', t('app.notify.rejected'));
-    api.rejectPayment(paymentId).catch(() => {});
+    api.rejectPayment(paymentId).catch((err) => console.error('Reject payment API error:', err));
   };
 
   const handleAddStory = (coupleNames: string, story: string, year: string, image: string) => {
@@ -217,7 +205,7 @@ function AppContent() {
     };
     dispatch({ type: 'ADD_STORY', payload: newStory });
     triggerNotification('success', t('app.notify.story-saved'));
-    api.createStory({ coupleNames, story, year, image }).catch(() => {});
+    api.createStory({ coupleNames, story, year, image }).catch((err) => console.error('Create story API error:', err));
   };
 
   const handleRegisterUser = async (newProfile: Profile) => {
@@ -229,7 +217,6 @@ function AppContent() {
     dispatch({ type: 'SET_USER_GENDER', payload: profileWithLookingFor.gender });
     dispatch({ type: 'SET_CURRENT_VIEW', payload: 'browse' });
     dispatch({ type: 'SET_PROFILES', payload: [profileWithLookingFor, ...state.profiles] });
-    localStorage.setItem('whaatachi_logged_in_user_v1', JSON.stringify(profileWithLookingFor));
     triggerNotification('success', t('app.notify.welcome').replace('{name}', profileWithLookingFor.name));
 
     try {
@@ -250,9 +237,9 @@ function AppContent() {
         instagram: newProfile.contactInfo.instagram,
         email: newProfile.contactInfo.email,
       });
-      localStorage.setItem('whaatachi_token_v1', result.token);
-    } catch {
-      // local-only fallback
+      api.setAuthToken(result.token);
+    } catch (err) {
+      console.error('Registration API error:', err);
     }
   };
 
@@ -283,7 +270,6 @@ function AppContent() {
 
     if (found) {
       const profileWithLookingFor = { ...found, lookingFor: found.lookingFor || (found.gender === 'Male' ? 'Female' : 'Male') };
-      localStorage.setItem('whaatachi_logged_in_user_v1', JSON.stringify(profileWithLookingFor));
       dispatch({ type: 'SET_CURRENT_USER', payload: profileWithLookingFor });
       dispatch({ type: 'SET_LOGGED_IN', payload: true });
       dispatch({ type: 'SET_USER_GENDER', payload: profileWithLookingFor.gender });
@@ -291,8 +277,7 @@ function AppContent() {
       triggerNotification('success', t('app.notify.welcome-back').replace('{name}', found.name));
 
       const result = await api.login(found.name, phone);
-      localStorage.setItem('whaatachi_token_v1', result.token);
-
+      api.setAuthToken(result.token);
       return true;
     } else {
       return false;
@@ -301,7 +286,6 @@ function AppContent() {
 
   const handleSimulateTestLogin = async (profile: Profile) => {
     const updatedProfile = { ...profile, lookingFor: profile.lookingFor || (profile.gender === 'Male' ? 'Female' : 'Male') };
-    localStorage.setItem('whaatachi_logged_in_user_v1', JSON.stringify(updatedProfile));
     dispatch({ type: 'SET_CURRENT_USER', payload: updatedProfile });
     dispatch({ type: 'SET_LOGGED_IN', payload: true });
     dispatch({ type: 'SET_USER_GENDER', payload: updatedProfile.gender });
@@ -309,9 +293,9 @@ function AppContent() {
     triggerNotification('success', t('app.notify.welcome-back').replace('{name}', profile.name));
     try {
       const result = await api.login(profile.name);
-      localStorage.setItem('whaatachi_token_v1', result.token);
-    } catch {
-      // local-only fallback
+      api.setAuthToken(result.token);
+    } catch (err) {
+      console.error('Test login API error:', err);
     }
   };
 
@@ -319,7 +303,6 @@ function AppContent() {
     if (!state.currentUser) return;
     const updatedUser = { ...state.currentUser, bio: newBio };
     dispatch({ type: 'UPDATE_PROFILE', payload: updatedUser });
-    localStorage.setItem('whaatachi_logged_in_user_v1', JSON.stringify(updatedUser));
     triggerNotification('success', t('app.notify.bio-updated'));
   };
 
@@ -327,17 +310,13 @@ function AppContent() {
     if (!state.currentUser) return;
     const updatedUser = { ...state.currentUser, status: newStatus };
     dispatch({ type: 'UPDATE_PROFILE', payload: updatedUser });
-    localStorage.setItem('whaatachi_logged_in_user_v1', JSON.stringify(updatedUser));
     triggerNotification('success', t('app.notify.status-set').replace('{status}', newStatus));
   };
 
   const handleSaveProfile = (updated: Profile) => {
     dispatch({ type: 'UPDATE_PROFILE', payload: updated });
-    if (state.currentUser?.id === updated.id) {
-      localStorage.setItem('whaatachi_logged_in_user_v1', JSON.stringify(updated));
-    }
     triggerNotification('success', t('app.notify.profile-updated'));
-    api.updateProfile(updated.id, updated).catch(() => {});
+    api.updateProfile(updated.id, updated).catch((err) => console.error('Update profile API error:', err));
   };
 
   const handleViewProfile = (profile: Profile) => {
@@ -428,8 +407,7 @@ function AppContent() {
         setIsLoggedIn={(v) => {
           dispatch({ type: 'SET_LOGGED_IN', payload: v });
           if (!v) {
-            localStorage.removeItem('whaatachi_logged_in_user_v1');
-            localStorage.removeItem('whaatachi_token_v1');
+            api.setAuthToken(null);
             dispatch({ type: 'SET_CURRENT_VIEW', payload: 'home' });
           }
         }}
@@ -553,6 +531,7 @@ function AppContent() {
           onSubmitPayment={handleSubmitPayment}
           onPaymentSuccess={handlePaymentSuccess}
           userGender={state.userGender}
+          currentUser={state.currentUser}
         />
       )}
 

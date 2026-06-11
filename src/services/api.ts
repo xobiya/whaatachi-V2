@@ -3,10 +3,19 @@ import { Profile, PaymentRequest, SuccessStory, Article } from '../types';
 
 const API_BASE = import.meta.env.VITE_API_URL || '/api';
 
+let authToken: string | null = null;
+
+export function setAuthToken(token: string | null) {
+  authToken = token;
+}
+
+export function getAuthToken(): string | null {
+  return authToken;
+}
+
 function getHeaders(): Record<string, string> {
   const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-  const token = localStorage.getItem('whaatachi_token_v1');
-  if (token) headers['Authorization'] = `Bearer ${token}`;
+  if (authToken) headers['Authorization'] = `Bearer ${authToken}`;
   return headers;
 }
 

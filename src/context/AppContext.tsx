@@ -1,7 +1,6 @@
 import React, { createContext, useContext, useReducer, useEffect, useMemo } from 'react';
 import { Profile, PaymentRequest, SuccessStory, Article } from '../types';
 import { t as i18nTranslate, Lang } from '../i18n';
-import * as api from '../services/api';
 
 interface AppState {
   isLoggedIn: boolean;
@@ -89,41 +88,27 @@ function appReducer(state: AppState, action: Action): AppState {
   }
 }
 
-function savedOr<T>(key: string, fallback: T): T {
-  const v = localStorage.getItem(key);
-  if (v) try {
-    const parsed = JSON.parse(v);
-    if (Array.isArray(fallback) && !Array.isArray(parsed)) return fallback;
-    return parsed;
-  } catch { return fallback; }
-  return fallback;
-}
-
-const initialState = (): AppState => {
-  const savedUser = savedOr<Profile | null>('whaatachi_logged_in_user_v1', null);
-
-  return {
-    isLoggedIn: savedUser !== null,
-    currentUser: savedUser,
-    userGender: savedUser?.gender || 'Male',
-    currentView: typeof window !== 'undefined' && window.location.pathname === '/admin' ? 'admin' : 'home',
-    userRole: typeof window !== 'undefined' && (window.location.pathname === '/admin' || localStorage.getItem('whaatachi_admin_auth_v1') === 'true') ? 'admin' : 'user',
-    darkMode: savedOr<boolean>('whaatachi_dark_mode_v1', true),
-    lang: (localStorage.getItem('whaatachi_lang') as Lang) || 'en',
-    profiles: savedOr<Profile[]>('whaatachi_profiles_v1', []),
-    unlockedIds: savedOr<string[]>('whaatachi_unlocked_v1', []),
-    allPayments: savedOr<PaymentRequest[]>('whaatachi_payments_v1', []),
-    stories: savedOr<SuccessStory[]>('whaatachi_stories_v1', []),
-    articles: savedOr<Article[]>('whaatachi_articles_v1', []),
-    viewingProfile: null,
-    activeUnlockTarget: null,
-    isPaymentModalOpen: false,
-    isAuthModalOpen: false,
-    authModalInitialTab: 'register',
-    notification: null,
-    loading: false,
-  };
-};
+const initialState = (): AppState => ({
+  isLoggedIn: false,
+  currentUser: null,
+  userGender: 'Male',
+  currentView: 'home',
+  userRole: 'user',
+  darkMode: true,
+  lang: 'en',
+  profiles: [],
+  unlockedIds: [],
+  allPayments: [],
+  stories: [],
+  articles: [],
+  viewingProfile: null,
+  activeUnlockTarget: null,
+  isPaymentModalOpen: false,
+  isAuthModalOpen: false,
+  authModalInitialTab: 'register',
+  notification: null,
+  loading: false,
+});
 
 interface AppContextType {
   state: AppState;
@@ -137,49 +122,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [state, dispatch] = useReducer(appReducer, undefined, initialState);
 
   useEffect(() => {
-    const savedUser = savedOr<Profile | null>('whaatachi_logged_in_user_v1', null);
-    if (savedUser?.id) {
-      const savedToken = localStorage.getItem('whaatachi_token_v1');
-      if (savedToken) {
-        api.getMe().then(({ user }) => {
-          dispatch({ type: 'SET_CURRENT_USER', payload: user });
-          dispatch({ type: 'SET_LOGGED_IN', payload: true });
-          dispatch({ type: 'SET_USER_GENDER', payload: user.gender });
-        }).catch(() => {
-          // Token expired - keep localStorage user as fallback
-        });
-      }
-    }
-  }, []);
-
-  useEffect(() => {
-    localStorage.setItem('whaatachi_dark_mode_v1', JSON.stringify(state.darkMode));
     document.documentElement.classList.toggle('dark', state.darkMode);
   }, [state.darkMode]);
-
-  useEffect(() => {
-    localStorage.setItem('whaatachi_profiles_v1', JSON.stringify(state.profiles));
-  }, [state.profiles]);
-
-  useEffect(() => {
-    localStorage.setItem('whaatachi_unlocked_v1', JSON.stringify(state.unlockedIds));
-  }, [state.unlockedIds]);
-
-  useEffect(() => {
-    localStorage.setItem('whaatachi_payments_v1', JSON.stringify(state.allPayments));
-  }, [state.allPayments]);
-
-  useEffect(() => {
-    localStorage.setItem('whaatachi_stories_v1', JSON.stringify(state.stories));
-  }, [state.stories]);
-
-  useEffect(() => {
-    localStorage.setItem('whaatachi_articles_v1', JSON.stringify(state.articles));
-  }, [state.articles]);
-
-  useEffect(() => {
-    localStorage.setItem('whaatachi_lang', state.lang);
-  }, [state.lang]);
 
   const translate = useMemo(() => (key: string) => i18nTranslate(key, state.lang), [state.lang]);
 
