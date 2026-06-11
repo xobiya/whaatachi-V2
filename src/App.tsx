@@ -86,6 +86,51 @@ function AppContent() {
   }, [state.currentView]);
 
   useEffect(() => {
+    const view = state.currentView;
+    if (view === 'browse' || view === 'dashboard' || view === 'profile' || view === 'admin') {
+      if (state.profiles.length === 0) {
+        api.fetchProfiles({ limit: 100 }).then(res => {
+          if (res && Array.isArray(res.profiles)) {
+            dispatch({ type: 'SET_PROFILES', payload: res.profiles });
+            localStorage.setItem('whaatachi_profiles_v1', JSON.stringify(res.profiles));
+          }
+        }).catch(() => {});
+      }
+    }
+    if (view === 'stories') {
+      if (state.stories.length === 0) {
+        api.fetchStories().then(res => {
+          if (res && Array.isArray(res.stories)) {
+            dispatch({ type: 'SET_STORIES', payload: res.stories });
+            localStorage.setItem('whaatachi_stories_v1', JSON.stringify(res.stories));
+          }
+        }).catch(() => {});
+      }
+    }
+    if (view === 'blog') {
+      if (state.articles.length === 0) {
+        api.fetchArticles().then(res => {
+          if (res && Array.isArray(res.articles)) {
+            dispatch({ type: 'SET_ARTICLES', payload: res.articles });
+            localStorage.setItem('whaatachi_articles_v1', JSON.stringify(res.articles));
+          }
+        }).catch(() => {});
+      }
+    }
+    if (view === 'admin') {
+      const token = localStorage.getItem('whaatachi_token_v1');
+      if (token && state.allPayments.length === 0) {
+        api.fetchPayments().then(res => {
+          if (res && Array.isArray(res.payments)) {
+            dispatch({ type: 'SET_PAYMENTS', payload: res.payments });
+            localStorage.setItem('whaatachi_payments_v1', JSON.stringify(res.payments));
+          }
+        }).catch(() => {});
+      }
+    }
+  }, [state.currentView]);
+
+  useEffect(() => {
     if (!state.isLoggedIn) {
       localStorage.removeItem('whaatachi_logged_in_user_v1');
       dispatch({ type: 'SET_CURRENT_USER', payload: null });
@@ -105,7 +150,8 @@ function AppContent() {
     senderPhone: string,
     transactionId: string,
     method: 'Telebirr' | 'CBE Birr',
-    amount: number
+    amount: number,
+    receiptImage?: string
   ) => {
     const newRequest: PaymentRequest = {
       id: `p-${Date.now()}`,
@@ -119,7 +165,7 @@ function AppContent() {
       amount,
       timestamp: new Date().toLocaleString([], { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' }),
       status: 'Pending',
-      receiptImage: undefined
+      receiptImage
     };
 
     dispatch({ type: 'ADD_PAYMENT', payload: newRequest });
@@ -129,7 +175,7 @@ function AppContent() {
       await api.submitPayment({
         profileId, profileName, profileImage,
         senderName, senderPhone, transactionId,
-        method, amount,
+        method, amount, receiptImage,
       });
     } catch {
       // local-only fallback

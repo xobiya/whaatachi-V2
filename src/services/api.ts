@@ -74,7 +74,7 @@ export async function updateProfile(id: string, data: Partial<Profile>): Promise
 export async function submitPayment(data: {
   profileId: string; profileName: string; profileImage?: string;
   senderName: string; senderPhone: string; transactionId: string;
-  method: 'Telebirr' | 'CBE Birr'; amount?: number;
+  method: 'Telebirr' | 'CBE Birr'; amount?: number; receiptImage?: string;
 }): Promise<{ payment: PaymentRequest }> {
   return request('/payments', { method: 'POST', body: JSON.stringify(data) });
 }

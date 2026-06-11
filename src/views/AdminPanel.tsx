@@ -1151,97 +1151,160 @@ export default function AdminPanel({
               </div>
 
               {allPayments.length > 0 ? (
-                <div className="overflow-x-auto scrollbar-thin">
-                  <table className="w-full text-left border-collapse text-xs">
-                    <thead>
-                      <tr className="bg-gray-50 text-gray-500 border-b border-gray-200">
-                        <th className="p-3 font-bold uppercase tracking-wider text-[10px]">Receipt</th>
-                        <th className="p-3 font-bold uppercase tracking-wider text-[10px]">Depositor</th>
-                        <th className="p-3 font-bold uppercase tracking-wider text-[10px]">Match</th>
-                        <th className="p-3 font-bold uppercase tracking-wider text-[10px]">Tx ID</th>
-                        <th className="p-3 font-bold uppercase tracking-wider text-[10px]">Amount</th>
-                        <th className="p-3 font-bold uppercase tracking-wider text-[10px]">Status</th>
-                        <th className="p-3 font-bold uppercase tracking-wider text-[10px] text-right">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-100 font-medium text-gray-600">
-                      {allPayments.map((payment) => (
-                        <tr
-                          key={payment.id}
-                          className={`hover:bg-gray-50 transition-colors cursor-pointer ${
-                            selectedRequest?.id === payment.id ? 'bg-pink-50' : ''
-                          }`}
-                          onClick={() => setSelectedRequest(payment)}
-                        >
-                          <td className="p-3" onClick={(e) => e.stopPropagation()}>
-                            <button
-                              onClick={() => setSelectedRequest(payment)}
-                              className="w-10 h-12 rounded-lg overflow-hidden border border-gray-200 bg-gray-50 hover:border-pink-300 transition-colors shrink-0 block"
-                            >
-                              <img
-                                src={payment.receiptImage || 'https://placehold.co/80x96/f5f5f5/ccc?text=N/A'}
-                                alt="Receipt"
-                                className="w-full h-full object-cover"
-                              />
-                            </button>
-                          </td>
-                          <td className="p-3">
-                            <p className="font-extrabold text-gray-900">{payment.senderName}</p>
-                            <p className="text-[10px] text-gray-400">{payment.senderPhone}</p>
-                          </td>
-                          <td className="p-3">
-                            <div className="flex items-center gap-2">
-                              <img src={payment.profileImage} alt={payment.profileName} className="w-6 h-6 rounded-full object-cover shrink-0" />
-                              <span className="truncate max-w-[80px] sm:max-w-none text-gray-600">{payment.profileName}</span>
+                <>
+                  {/* Desktop table */}
+                  <div className="overflow-x-auto scrollbar-thin hidden sm:block">
+                    <table className="w-full text-left border-collapse text-xs">
+                      <thead>
+                        <tr className="bg-gray-50 text-gray-500 border-b border-gray-200">
+                          <th className="p-3 font-bold uppercase tracking-wider text-[10px]">Receipt</th>
+                          <th className="p-3 font-bold uppercase tracking-wider text-[10px]">Depositor</th>
+                          <th className="p-3 font-bold uppercase tracking-wider text-[10px]">Match</th>
+                          <th className="p-3 font-bold uppercase tracking-wider text-[10px]">Tx ID</th>
+                          <th className="p-3 font-bold uppercase tracking-wider text-[10px]">Amount</th>
+                          <th className="p-3 font-bold uppercase tracking-wider text-[10px]">Status</th>
+                          <th className="p-3 font-bold uppercase tracking-wider text-[10px] text-right">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-gray-100 font-medium text-gray-600">
+                        {allPayments.map((payment) => (
+                          <tr
+                            key={payment.id}
+                            className={`hover:bg-gray-50 transition-colors cursor-pointer ${
+                              selectedRequest?.id === payment.id ? 'bg-pink-50' : ''
+                            }`}
+                            onClick={() => setSelectedRequest(payment)}
+                          >
+                            <td className="p-3" onClick={(e) => e.stopPropagation()}>
+                              <button
+                                onClick={() => setSelectedRequest(payment)}
+                                className="w-10 h-12 rounded-lg overflow-hidden border border-gray-200 bg-gray-50 hover:border-pink-300 transition-colors shrink-0 block"
+                              >
+                                <img
+                                  src={payment.receiptImage || 'https://placehold.co/80x96/f5f5f5/ccc?text=N/A'}
+                                  alt="Receipt"
+                                  className="w-full h-full object-cover"
+                                />
+                              </button>
+                            </td>
+                            <td className="p-3">
+                              <p className="font-extrabold text-gray-900">{payment.senderName}</p>
+                              <p className="text-[10px] text-gray-400">{payment.senderPhone}</p>
+                            </td>
+                            <td className="p-3">
+                              <div className="flex items-center gap-2">
+                                <img src={payment.profileImage} alt={payment.profileName} className="w-6 h-6 rounded-full object-cover shrink-0" />
+                                <span className="truncate max-w-[80px] sm:max-w-none text-gray-600">{payment.profileName}</span>
+                              </div>
+                            </td>
+                            <td className="p-3">
+                              <span className={`px-2 py-0.5 rounded-sm text-[9px] font-extrabold uppercase ${
+                                payment.method === 'Telebirr' ? 'bg-blue-50 text-blue-600' : 'bg-purple-50 text-purple-600'
+                              }`}>
+                                {payment.method}
+                              </span>
+                              <p className="font-mono text-[9px] text-gray-400 uppercase mt-1">{payment.transactionId}</p>
+                            </td>
+                            <td className="p-3 font-extrabold text-gray-900">
+                              {payment.amount} ETB
+                            </td>
+                            <td className="p-3">
+                              <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${getStatusBadge(payment.status)}`}>
+                                {payment.status}
+                              </span>
+                            </td>
+                            <td className="p-3 text-right" onClick={(e) => e.stopPropagation()}>
+                              {payment.status === 'Pending' ? (
+                                <div className="flex gap-1.5 justify-end">
+                                  <button
+                                    onClick={() => onApprove(payment.id)}
+                                    className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg px-2.5 py-1.5 text-[10px] font-black uppercase tracking-wider cursor-pointer transition-all shadow-xs flex items-center gap-1"
+                                  >
+                                    <Check className="h-3.5 w-3.5" />
+                                    Approve
+                                  </button>
+                                  <button
+                                    onClick={() => onReject(payment.id)}
+                                    className="bg-rose-600 hover:bg-rose-700 text-white rounded-lg px-2.5 py-1.5 text-[10px] font-black uppercase tracking-wider cursor-pointer transition-all shadow-xs flex items-center gap-1"
+                                  >
+                                    <X className="h-3.5 w-3.5" />
+                                    Reject
+                                  </button>
+                                </div>
+                              ) : (
+                                <span className={`text-[10px] font-bold uppercase ${
+                                  payment.status === 'Approved' ? 'text-emerald-600' : 'text-red-400'
+                                }`}>
+                                  {payment.status === 'Approved' ? 'Verified' : 'Flagged'}
+                                </span>
+                              )}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+
+                  {/* Mobile cards */}
+                  <div className="sm:hidden divide-y divide-gray-100">
+                    {allPayments.map((payment) => (
+                      <div key={payment.id} className="p-4 hover:bg-gray-50 transition-colors" onClick={() => setSelectedRequest(payment)}>
+                        <div className="flex items-start gap-3 mb-3">
+                          <button
+                            onClick={(e) => { e.stopPropagation(); setSelectedRequest(payment); }}
+                            className="w-14 h-16 rounded-lg overflow-hidden border border-gray-200 bg-gray-50 shrink-0"
+                          >
+                            <img
+                              src={payment.receiptImage || 'https://placehold.co/80x96/f5f5f5/ccc?text=N/A'}
+                              alt="Receipt"
+                              className="w-full h-full object-cover"
+                            />
+                          </button>
+                          <div className="flex-1 min-w-0">
+                            <p className="font-extrabold text-gray-900 text-sm">{payment.senderName}</p>
+                            <p className="text-[11px] text-gray-400">{payment.senderPhone}</p>
+                            <div className="flex items-center gap-2 mt-1.5">
+                              <img src={payment.profileImage} alt={payment.profileName} className="w-5 h-5 rounded-full object-cover shrink-0" />
+                              <span className="text-xs text-gray-500 truncate">{payment.profileName}</span>
                             </div>
-                          </td>
-                          <td className="p-3">
-                            <span className={`px-2 py-0.5 rounded-sm text-[9px] font-extrabold uppercase ${
+                          </div>
+                          <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold shrink-0 ${getStatusBadge(payment.status)}`}>
+                            {payment.status}
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between text-xs">
+                          <div className="flex items-center gap-2">
+                            <span className={`px-1.5 py-0.5 rounded-sm text-[9px] font-extrabold uppercase ${
                               payment.method === 'Telebirr' ? 'bg-blue-50 text-blue-600' : 'bg-purple-50 text-purple-600'
                             }`}>
                               {payment.method}
                             </span>
-                            <p className="font-mono text-[9px] text-gray-400 uppercase mt-1">{payment.transactionId}</p>
-                          </td>
-                          <td className="p-3 font-extrabold text-gray-900">
-                            {payment.amount} ETB
-                          </td>
-                          <td className="p-3">
-                            <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${getStatusBadge(payment.status)}`}>
-                              {payment.status}
-                            </span>
-                          </td>
-                          <td className="p-3 text-right" onClick={(e) => e.stopPropagation()}>
-                            {payment.status === 'Pending' ? (
-                              <div className="flex gap-1.5 justify-end">
-                                <button
-                                  onClick={() => onApprove(payment.id)}
-                                  className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg px-2.5 py-1.5 text-[10px] font-black uppercase tracking-wider cursor-pointer transition-all shadow-xs flex items-center gap-1"
-                                >
-                                  <Check className="h-3.5 w-3.5" />
-                                  Approve
-                                </button>
-                                <button
-                                  onClick={() => onReject(payment.id)}
-                                  className="bg-rose-600 hover:bg-rose-700 text-white rounded-lg px-2.5 py-1.5 text-[10px] font-black uppercase tracking-wider cursor-pointer transition-all shadow-xs flex items-center gap-1"
-                                >
-                                  <X className="h-3.5 w-3.5" />
-                                  Reject
-                                </button>
-                              </div>
-                            ) : (
-                              <span className={`text-[10px] font-bold uppercase ${
-                                payment.status === 'Approved' ? 'text-emerald-600' : 'text-red-400'
-                              }`}>
-                                {payment.status === 'Approved' ? 'Verified' : 'Flagged'}
-                              </span>
-                            )}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+                            <span className="font-mono text-[9px] text-gray-400 uppercase">{payment.transactionId}</span>
+                          </div>
+                          <span className="font-extrabold text-gray-900">{payment.amount} ETB</span>
+                        </div>
+                        {payment.status === 'Pending' && (
+                          <div className="flex gap-2 mt-3" onClick={(e) => e.stopPropagation()}>
+                            <button
+                              onClick={() => onApprove(payment.id)}
+                              className="flex-1 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-[10px] font-black uppercase tracking-wider cursor-pointer transition-all flex items-center justify-center gap-1"
+                            >
+                              <Check className="h-3.5 w-3.5" />
+                              Approve
+                            </button>
+                            <button
+                              onClick={() => onReject(payment.id)}
+                              className="flex-1 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-lg text-[10px] font-black uppercase tracking-wider cursor-pointer transition-all flex items-center justify-center gap-1"
+                            >
+                              <X className="h-3.5 w-3.5" />
+                              Reject
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </>
               ) : (
                 <div className="py-16 text-center text-xs text-gray-400 space-y-2">
                   <Smartphone className="h-8 w-8 text-gray-300 mx-auto" />
@@ -1252,9 +1315,9 @@ export default function AdminPanel({
 
             {/* Receipt Detail Modal */}
             {selectedRequest && (
-              <div className="fixed inset-0 z-55 flex items-center justify-center p-4">
+              <div className="fixed inset-0 z-55 flex items-center justify-center sm:p-4">
                 <div className="absolute inset-0 bg-gray-900/60 backdrop-blur-xs" onClick={() => setSelectedRequest(null)}></div>
-                <div className="bg-white border border-gray-200 rounded-3xl p-6 sm:p-8 max-w-2xl w-full relative z-10 shadow-2xl max-h-[90vh] overflow-y-auto scrollbar-thin animate-fadeIn">
+                <div className="bg-white border border-gray-200 sm:rounded-3xl rounded-none p-4 sm:p-8 max-w-2xl w-full relative z-10 shadow-2xl h-full sm:max-h-[90vh] overflow-y-auto scrollbar-thin animate-fadeIn">
                   
                   {/* Modal header */}
                   <div className="flex justify-between items-center pb-4 border-b border-gray-200 mb-5">

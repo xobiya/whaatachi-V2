@@ -15,7 +15,8 @@ interface PaymentModalProps {
     senderPhone: string,
     transactionId: string,
     method: 'Telebirr' | 'CBE Birr',
-    amount: number
+    amount: number,
+    receiptImage?: string
   ) => void;
   onPaymentSuccess: () => void;
   userGender: 'Male' | 'Female';
@@ -33,6 +34,7 @@ export default function PaymentModal({
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [uploadedFileName, setUploadedFileName] = useState<string | null>(null);
+  const [uploadedFileData, setUploadedFileData] = useState<string | null>(null);
   const [uploadTouched, setUploadTouched] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [showPaymentForm, setShowPaymentForm] = useState(false);
@@ -40,6 +42,7 @@ export default function PaymentModal({
   useEffect(() => {
     if (!isOpen) {
       setUploadedFileName(null);
+      setUploadedFileData(null);
       setUploadTouched(false);
       setError('');
       setSubmitting(false);
@@ -54,6 +57,9 @@ export default function PaymentModal({
     if (file) {
       setUploadedFileName(file.name);
       setError('');
+      const reader = new FileReader();
+      reader.onload = ev => setUploadedFileData(ev.target?.result as string);
+      reader.readAsDataURL(file);
     }
   };
 
@@ -76,7 +82,7 @@ export default function PaymentModal({
       setSubmitting(true);
       const autoTxId = 'TXN_' + Math.random().toString(36).substring(2, 9).toUpperCase();
       setTimeout(() => {
-        onSubmitPayment(profile.id, profile.name, profile.image, 'Male Member', 'Auto', autoTxId, method, 0);
+        onSubmitPayment(profile.id, profile.name, profile.image, 'Male Member', 'Auto', autoTxId, method, 0, uploadedFileData || undefined);
         setSubmitting(false);
         onPaymentSuccess();
       }, 800);
