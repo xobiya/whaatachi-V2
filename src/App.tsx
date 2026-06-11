@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, Suspense, lazy, useState } from 'react';
+import React, { useEffect, useMemo, Suspense, lazy, useState, useRef } from 'react';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import PaymentModal from './components/PaymentModal';
@@ -15,7 +15,7 @@ const ProfilePage = lazy(() => import('./views/ProfilePage'));
 import { Heart } from 'lucide-react';
 import { Profile, PaymentRequest, SuccessStory } from './types';
 import * as api from './services/api';
-import { CheckCircle, ShieldAlert } from 'lucide-react';
+import { CheckCircle, ShieldAlert, Clock } from 'lucide-react';
 import { AppProvider, useAppContext } from './context/AppContext';
 import ErrorBoundary from './components/ErrorBoundary';
 
@@ -23,6 +23,8 @@ function AppContent() {
   const { state, dispatch, t } = useAppContext();
   const [authIntent, setAuthIntent] = useState<'register' | 'signin'>('register');
   const [isRegistering, setIsRegistering] = useState(false);
+  const [paymentCountdown, setPaymentCountdown] = useState(0);
+  const paymentTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
     const checkPath = () => {
@@ -206,6 +208,22 @@ function AppContent() {
     } catch {
       // local-only fallback
     }
+  };
+
+  const handlePaymentSuccess = () => {
+    setPaymentCountdown(300);
+    dispatch({ type: 'SET_PAYMENT_MODAL', payload: false });
+    dispatch({ type: 'SET_UNLOCK_TARGET', payload: null });
+    if (paymentTimerRef.current) clearInterval(paymentTimerRef.current);
+    paymentTimerRef.current = setInterval(() => {
+      setPaymentCountdown(prev => {
+        if (prev <= 1) {
+          if (paymentTimerRef.current) clearInterval(paymentTimerRef.current);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
   };
 
   const handleSignInUser = async (name: string, phone: string, telegram?: string, instagram?: string): Promise<boolean> => {
@@ -494,6 +512,7 @@ function AppContent() {
             dispatch({ type: 'SET_UNLOCK_TARGET', payload: null });
           }}
           onSubmitPayment={handleSubmitPayment}
+          onPaymentSuccess={handlePaymentSuccess}
           userGender={state.userGender}
         />
       )}
@@ -520,6 +539,27 @@ function AppContent() {
             <div className="w-2 h-2 rounded-full bg-[#C9A84C] animate-bounce" style={{ animationDelay: '150ms' }} />
             <div className="w-2 h-2 rounded-full bg-pink-400 animate-bounce" style={{ animationDelay: '300ms' }} />
           </div>
+        </div>
+      )}
+
+      {paymentCountdown > 0 && (
+        <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-[#1A1118]/95 backdrop-blur-sm transition-opacity duration-500">
+          <div className="w-16 h-16 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center mb-6">
+            <CheckCircle className="h-8 w-8 text-green-600" />
+          </div>
+          <h2 className="text-xl font-black text-[#FFFCF8] tracking-tight">Payment Submitted!</h2>
+          <p className="text-sm text-[#EDE6D9]/60 font-light mt-2 max-w-xs text-center">
+            Please wait approximately 5 minutes for admin approval. Your contact will be unlocked once approved.
+          </p>
+          <div className="flex items-center gap-3 bg-[#F8F4ED]/10 border border-[#C9A84C]/20 rounded-xl px-8 py-4 mt-8">
+            <Clock className="h-6 w-6 text-[#C9A84C]" />
+            <span className="text-3xl font-black text-[#FFFCF8] tabular-nums">
+              {String(Math.floor(paymentCountdown / 60)).padStart(2, '0')}:{String(paymentCountdown % 60).padStart(2, '0')}
+            </span>
+          </div>
+          <p className="text-xs text-gray-400 mt-4">
+            Estimated time remaining for review
+          </p>
         </div>
       )}
     </div>

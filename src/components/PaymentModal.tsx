@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { X, Copy, Check, ShieldAlert, CheckCircle, Upload, ArrowRight, DollarSign, File, Lock, Clock } from 'lucide-react';
+import { X, Copy, Check, ShieldAlert, CheckCircle, Upload, ArrowRight, DollarSign, File, Lock } from 'lucide-react';
 import { Profile } from '../types';
 import { useAppContext } from '../context/AppContext';
 
@@ -17,11 +17,12 @@ interface PaymentModalProps {
     method: 'Telebirr' | 'CBE Birr',
     amount: number
   ) => void;
+  onPaymentSuccess: () => void;
   userGender: 'Male' | 'Female';
 }
 
 export default function PaymentModal({
-  profile, isOpen, onClose, onSubmitPayment, userGender
+  profile, isOpen, onClose, onSubmitPayment, onPaymentSuccess, userGender
 }: PaymentModalProps) {
   const { t } = useAppContext();
   const [copiedText, setCopiedText] = useState<'tele' | 'cbe' | null>(null);
@@ -34,26 +35,6 @@ export default function PaymentModal({
   const [uploadedFileName, setUploadedFileName] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [showPaymentForm, setShowPaymentForm] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
-  const [countdown, setCountdown] = useState(300);
-  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
-
-  useEffect(() => {
-    if (!isOpen) {
-      setSubmitted(false);
-      setCountdown(300);
-      if (timerRef.current) {
-        clearInterval(timerRef.current);
-        timerRef.current = null;
-      }
-    }
-  }, [isOpen]);
-
-  useEffect(() => {
-    return () => {
-      if (timerRef.current) clearInterval(timerRef.current);
-    };
-  }, []);
 
   if (!isOpen) return null;
 
@@ -70,20 +51,6 @@ export default function PaymentModal({
     setTimeout(() => setCopiedText(null), 2000);
   };
 
-  const startCountdown = () => {
-    setSubmitted(true);
-    setCountdown(300);
-    timerRef.current = setInterval(() => {
-      setCountdown(prev => {
-        if (prev <= 1) {
-          if (timerRef.current) clearInterval(timerRef.current);
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-  };
-
   const handleFormSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
@@ -94,7 +61,7 @@ export default function PaymentModal({
       setTimeout(() => {
         onSubmitPayment(profile.id, profile.name, profile.image, 'Male Member', 'Auto', autoTxId, method, 0);
         setSubmitting(false);
-        startCountdown();
+        onPaymentSuccess();
       }, 800);
     } else {
       if (!senderPhone.trim()) {
@@ -110,7 +77,7 @@ export default function PaymentModal({
           'Telebirr', 0
         );
         setSubmitting(false);
-        startCountdown();
+        onPaymentSuccess();
       }, 800);
     }
   };
@@ -132,31 +99,6 @@ export default function PaymentModal({
             </button>
           </div>
 
-          {submitted ? (
-            <div className="p-6 sm:p-8 flex flex-col items-center text-center space-y-4">
-              <div className="w-16 h-16 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
-                <CheckCircle className="h-8 w-8 text-green-600" />
-              </div>
-              <div>
-                <h3 className="text-lg font-black text-[#1A1118] dark:text-[#FFFCF8]">Payment Submitted!</h3>
-                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 max-w-xs">
-                  Please wait approximately 5 minutes for admin approval. Your contact will be unlocked once approved.
-                </p>
-              </div>
-              <div className="flex items-center gap-3 bg-[#F8F4ED] dark:bg-[#1A1118] border border-[#EDE6D9] dark:border-[#C9A84C]/15 rounded-xl px-6 py-3">
-                <Clock className="h-5 w-5 text-[#C9A84C]" />
-                <span className="text-2xl font-black text-[#1A1118] dark:text-[#FFFCF8] tabular-nums">
-                  {String(Math.floor(countdown / 60)).padStart(2, '0')}:{String(countdown % 60).padStart(2, '0')}
-                </span>
-              </div>
-              <p className="text-xs text-gray-400 dark:text-gray-500">
-                {countdown > 0 ? 'Estimated time remaining for review' : 'You can close this window now.'}
-              </p>
-              <button onClick={onClose} className="w-full py-3 bg-[#EB317A] hover:bg-[#F04B8E] text-white rounded-xl text-sm font-bold shadow-lg shadow-[#EB317A]/20 transition-all cursor-pointer">
-                Close
-              </button>
-            </div>
-          ) : (
           <form onSubmit={handleFormSubmit} className="p-4 sm:p-6 space-y-5 overflow-y-auto max-h-[80vh] scrollbar-thin">
             {error && (
               <div className="bg-[#EB317A]/5 dark:bg-[#EB317A]/10 border border-[#EB317A]/20 dark:border-[#EB317A]/30 text-[#EB317A] dark:text-[#FAD0E8] rounded-xl p-3 text-xs flex items-center gap-2">
@@ -298,7 +240,6 @@ export default function PaymentModal({
             </button>
             )}
           </form>
-          )}
         </div>
       </div>
     </div>
