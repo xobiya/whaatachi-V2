@@ -226,17 +226,14 @@ function AppContent() {
     }, 1000);
   };
 
-  const handleSignInUser = async (name: string, phone: string, telegram?: string, instagram?: string): Promise<boolean> => {
+  const handleSignInUser = async (phone: string, telegram: string, instagram: string): Promise<boolean> => {
     const normalize = (s: string) => s.replace(/[@\s]/g, '').toLowerCase();
     const found = state.profiles.find((p) => {
-      if (p.name.toLowerCase() !== name.toLowerCase()) return false;
       if (phone && (p.contactInfo.phone === phone || p.contactInfo.phone.replace(/\s/g, '') === phone.replace(/\s/g, ''))) return true;
       if (telegram && (normalize(p.contactInfo.telegram) === normalize(telegram) || p.contactInfo.telegram.toLowerCase() === telegram.toLowerCase())) return true;
       if (instagram && (normalize(p.contactInfo.instagram) === normalize(instagram) || p.contactInfo.instagram.toLowerCase() === instagram.toLowerCase())) return true;
       return false;
-    }) || state.profiles.find(
-      (p) => p.name.toLowerCase() === name.toLowerCase()
-    );
+    });
 
     if (found) {
       const profileWithLookingFor = { ...found, lookingFor: found.lookingFor || (found.gender === 'Male' ? 'Female' : 'Male') };
@@ -247,12 +244,8 @@ function AppContent() {
       dispatch({ type: 'SET_CURRENT_VIEW', payload: 'browse' });
       triggerNotification('success', t('app.notify.welcome-back').replace('{name}', found.name));
 
-      try {
-        const result = await api.login(name, phone);
-        localStorage.setItem('whaatachi_token_v1', result.token);
-      } catch {
-        // local-only fallback
-      }
+      const result = await api.login(found.name, phone);
+      localStorage.setItem('whaatachi_token_v1', result.token);
 
       return true;
     } else {
@@ -560,6 +553,12 @@ function AppContent() {
           <p className="text-xs text-gray-400 mt-4">
             Estimated time remaining for review
           </p>
+          <button onClick={() => {
+            setPaymentCountdown(0);
+            if (paymentTimerRef.current) clearInterval(paymentTimerRef.current);
+          }} className="mt-6 px-6 py-2.5 bg-[#FFFCF8]/10 hover:bg-[#FFFCF8]/20 text-[#FFFCF8] rounded-xl text-sm font-bold transition-all cursor-pointer border border-[#FFFCF8]/20">
+            Back to browsing
+          </button>
         </div>
       )}
     </div>

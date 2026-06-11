@@ -33,15 +33,27 @@ export default function PaymentModal({
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [uploadedFileName, setUploadedFileName] = useState<string | null>(null);
+  const [uploadTouched, setUploadTouched] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [showPaymentForm, setShowPaymentForm] = useState(false);
+
+  useEffect(() => {
+    if (!isOpen) {
+      setUploadedFileName(null);
+      setUploadTouched(false);
+      setError('');
+      setSubmitting(false);
+    }
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
+    setUploadTouched(true);
     if (file) {
       setUploadedFileName(file.name);
+      setError('');
     }
   };
 
@@ -56,6 +68,11 @@ export default function PaymentModal({
     setError('');
 
     if (userGender === 'Male') {
+      if (!uploadedFileName) {
+        setUploadTouched(true);
+        setError('Please upload a payment receipt/screenshot before submitting.');
+        return;
+      }
       setSubmitting(true);
       const autoTxId = 'TXN_' + Math.random().toString(36).substring(2, 9).toUpperCase();
       setTimeout(() => {
@@ -205,12 +222,12 @@ export default function PaymentModal({
                     </button>
                   </div>
 
-                  <div className="border border-dashed border-[#EDE6D9] dark:border-[#C9A84C]/15 rounded-xl p-3 bg-[#F8F4ED] dark:bg-[#1A1118] flex items-center justify-between text-xs">
+                  <div className={`border border-dashed rounded-xl p-3 bg-[#F8F4ED] dark:bg-[#1A1118] flex items-center justify-between text-xs ${uploadTouched && !uploadedFileName ? 'border-[#EB317A]' : 'border-[#EDE6D9] dark:border-[#C9A84C]/15'}`}>
                     <div className="flex items-center gap-2">
                       {uploadedFileName ? <File className="h-5 w-5 text-[#EB317A]" /> : <Upload className="h-5 w-5 text-gray-400" />}
                       <div>
                         <p className="font-bold text-gray-700 dark:text-gray-300">{uploadedFileName || t('payment.upload-slip')}</p>
-                        <p className="text-[10px] text-gray-400">{uploadedFileName ? 'File selected' : t('payment.optional-screenshot')}</p>
+                        <p className="text-[10px] text-gray-400">{uploadedFileName ? 'File selected' : 'Upload receipt (required)'}</p>
                       </div>
                     </div>
                     <button type="button" onClick={() => fileInputRef.current?.click()} className="bg-white dark:bg-[#120A0E] border border-[#EDE6D9] dark:border-[#C9A84C]/10 rounded-md px-2 py-1 font-semibold text-gray-500 dark:text-gray-400 cursor-pointer hover:bg-gray-50 dark:hover:bg-[#1A1118] text-[10px]">

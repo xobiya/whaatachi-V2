@@ -67,7 +67,7 @@ function isValidEthiopianPhone(phone: string): boolean {
 
 interface OnboardingFlowProps {
   onComplete: (profile: Profile) => void;
-  onSignIn: (name: string, phone: string, telegram: string, instagram: string) => Promise<boolean>;
+  onSignIn: (phone: string, telegram: string, instagram: string) => Promise<boolean>;
   authIntent?: 'register' | 'signin';
 }
 
@@ -83,7 +83,6 @@ const STEP_LABEL_KEYS = ['onboarding.step1-title', 'onboarding.step-gender-title
 export default function OnboardingFlow({ onComplete, onSignIn, authIntent }: OnboardingFlowProps) {
   // Sign-in state
   const [showSignIn, setShowSignIn] = useState(false);
-  const [signInName, setSignInName] = useState('');
   const [signInContactType, setSignInContactType] = useState<'phone' | 'telegram' | 'instagram'>('phone');
   const [signInContact, setSignInContact] = useState('');
   const [signInError, setSignInError] = useState<string | null>(null);
@@ -97,10 +96,6 @@ export default function OnboardingFlow({ onComplete, onSignIn, authIntent }: Onb
   const handleSignInSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setSignInError(null);
-    if (!signInName.trim()) {
-      setSignInError(t('auth.required-name-signin'));
-      return;
-    }
     if (!signInContact.trim()) {
       setSignInError(t('auth.required-one-contact'));
       return;
@@ -108,7 +103,7 @@ export default function OnboardingFlow({ onComplete, onSignIn, authIntent }: Onb
     const phone = signInContactType === 'phone' ? signInContact.trim() : '';
     const telegram = signInContactType === 'telegram' ? signInContact.trim() : '';
     const instagram = signInContactType === 'instagram' ? signInContact.trim() : '';
-    onSignIn(signInName.trim(), phone, telegram, instagram).then(success => {
+    onSignIn(phone, telegram, instagram).then(success => {
       if (!success) {
         setSignInError(t('app.notify.no-account'));
       }
@@ -232,14 +227,6 @@ export default function OnboardingFlow({ onComplete, onSignIn, authIntent }: Onb
             <div className="mb-4 p-3 rounded-xl bg-pink-500/10 border border-pink-400/30 text-pink-300 text-xs">{signInError}</div>
           )}
           <form onSubmit={handleSignInSubmit} className="space-y-4">
-            <div className="space-y-1.5">
-              <label className="block text-[9px] font-bold text-[#FFFCF8]/40 uppercase tracking-widest">{t('auth.sign-in-name')}</label>
-              <div className="relative">
-                <User className="absolute left-3.5 top-3 h-4 w-4 text-[#FFFCF8]/30" />
-                <input type="text" required value={signInName} onChange={(e) => setSignInName(e.target.value)} placeholder="e.g. Dawit Haile" className="w-full pl-10 pr-4 py-2.5 bg-[#FFFCF8]/5 border border-[#FFFCF8]/10 rounded-xl text-sm text-[#FFFCF8] placeholder:text-[#FFFCF8]/25 focus:outline-none focus:border-[#C9A84C]/60 transition-colors" />
-              </div>
-            </div>
-
             <div className="space-y-1.5">
               <label className="block text-[9px] font-bold text-[#FFFCF8]/40 uppercase tracking-widest">Sign in with</label>
               <div className="grid grid-cols-3 gap-1.5 p-1 bg-[#FFFCF8]/5 rounded-xl border border-[#FFFCF8]/10">
