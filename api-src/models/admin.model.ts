@@ -15,6 +15,16 @@ export async function findOrCreateAdmin(passcode: string): Promise<{ id: string;
   if (!admin) {
     const hashed = await bcrypt.hash(passcode, 10);
     admin = await Admin.create({ username: ADMIN_USERNAME, password: hashed });
+  } else {
+    const storedMatch = await bcrypt.compare(passcode, admin.password);
+    if (!storedMatch) {
+      const hashed = await bcrypt.hash(passcode, 10);
+      admin = await Admin.findOneAndUpdate(
+        { username: ADMIN_USERNAME },
+        { $set: { password: hashed } },
+        { new: true }
+      );
+    }
   }
   return {
     id: String(admin._id),
