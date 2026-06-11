@@ -21,7 +21,7 @@ import ErrorBoundary from './components/ErrorBoundary';
 function AppContent() {
   const { state, dispatch, t } = useAppContext();
   const [authIntent, setAuthIntent] = useState<'register' | 'signin'>('register');
-  const [registrationKey, setRegistrationKey] = useState(0);
+  const [isRegistering, setIsRegistering] = useState(false);
 
   useEffect(() => {
     const checkPath = () => {
@@ -172,6 +172,8 @@ function AppContent() {
   };
 
   const handleRegisterUser = async (newProfile: Profile) => {
+    setIsRegistering(true);
+    setTimeout(() => setIsRegistering(false), 2000);
     const profileWithLookingFor = { ...newProfile, lookingFor: newProfile.lookingFor || (newProfile.gender === 'Male' ? 'Female' : 'Male') };
     dispatch({ type: 'SET_CURRENT_USER', payload: profileWithLookingFor });
     dispatch({ type: 'SET_LOGGED_IN', payload: true });
@@ -180,7 +182,6 @@ function AppContent() {
     dispatch({ type: 'SET_PROFILES', payload: [profileWithLookingFor, ...state.profiles] });
     localStorage.setItem('whaatachi_logged_in_user_v1', JSON.stringify(profileWithLookingFor));
     triggerNotification('success', t('app.notify.welcome').replace('{name}', profileWithLookingFor.name));
-    setRegistrationKey(k => k + 1);
 
     try {
       const result = await api.register({
@@ -408,7 +409,7 @@ function AppContent() {
       )}
 
       {/* 3. Core views */}
-      <main key={registrationKey || '0'} className="grow" id="primary-view-stage">
+      <main className="grow" id="primary-view-stage">
         <Suspense fallback={<div className="flex items-center justify-center py-20"><div className="w-8 h-8 border-2 border-[#EB317A] border-t-transparent rounded-full animate-spin" /></div>}>
 
           {/* Browse — main post-registration listing */}
@@ -501,6 +502,25 @@ function AppContent() {
         setCurrentView={(v) => dispatch({ type: 'SET_CURRENT_VIEW', payload: v })}
         isLoggedIn={state.isLoggedIn}
       />
+
+      {isRegistering && (
+        <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-[#1A1118]/95 backdrop-blur-sm transition-opacity duration-500">
+          <div className="relative">
+            <Heart className="h-16 w-16 text-[#EB317A] animate-pulse" fill="#EB317A" />
+            <Heart className="absolute -top-4 -right-8 h-8 w-8 text-[#C9A84C] animate-bounce" fill="#C9A84C" />
+            <Heart className="absolute -bottom-4 -left-8 h-8 w-8 text-pink-400 animate-ping" fill="#F472B6" />
+          </div>
+          <div className="mt-8 text-center space-y-2">
+            <h2 className="text-xl font-black text-[#FFFCF8] tracking-tight">Finding your match...</h2>
+            <p className="text-sm text-[#EDE6D9]/60 font-light">Setting up your romantic journey</p>
+          </div>
+          <div className="mt-8 flex gap-3">
+            <div className="w-2 h-2 rounded-full bg-[#EB317A] animate-bounce" style={{ animationDelay: '0ms' }} />
+            <div className="w-2 h-2 rounded-full bg-[#C9A84C] animate-bounce" style={{ animationDelay: '150ms' }} />
+            <div className="w-2 h-2 rounded-full bg-pink-400 animate-bounce" style={{ animationDelay: '300ms' }} />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

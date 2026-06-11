@@ -3,8 +3,6 @@ import { Heart, ShieldCheck, Users, Sparkles, ArrowRight, ChevronRight, Lock, Ph
 import { Profile } from '../types';
 import { useAppContext } from '../context/AppContext';
 
-const asset = (file: string) => `/assets/${file}`;
-
 interface HomeLandingProps {
   onJoinNowClick: (tab?: 'register' | 'signin') => void;
   featuredProfiles: Profile[];
@@ -16,10 +14,10 @@ interface HomeLandingProps {
 }
 
 const featured = [
-  { name: 'Sara', age: 24, city: 'Addis Ababa', image: asset('Gemini_Generated_Image_48jenf48jenf48je.png'), intent: 'Relationship' },
-  { name: 'Hana', age: 26, city: 'Hawassa', image: asset('Gemini_Generated_Image_4zte6t4zte6t4zte.png'), intent: 'Dating' },
-  { name: 'Maya', age: 23, city: 'Bahir Dar', image: asset('Gemini_Generated_Image_69df6669df6669df.png'), intent: 'Open Connection' },
-  { name: 'Bethel', age: 22, city: 'Addis Ababa', image: asset('ChatGPT Image Jun 8, 2026, 03_15_56 PM.png'), intent: 'Casual' },
+  { name: 'Sara', age: 24, city: 'Addis Ababa', image: '/assets/One.avif', intent: 'Relationship' },
+  { name: 'Hana', age: 26, city: 'Hawassa', image: '/assets/two.avif', intent: 'Dating' },
+  { name: 'Maya', age: 23, city: 'Bahir Dar', image: '/assets/three.avif', intent: 'Open Connection' },
+  { name: 'Bethel', age: 22, city: 'Addis Ababa', image: '/assets/four.avif', intent: 'Casual' },
 ];
 
 export default function HomeLanding({ onJoinNowClick, onGoToDashboard }: HomeLandingProps) {
@@ -28,7 +26,7 @@ export default function HomeLanding({ onJoinNowClick, onGoToDashboard }: HomeLan
     <div className="bg-[#FFFCF8] dark:bg-[#120A0E] text-gray-900 dark:text-[#FFFCF8] min-h-screen font-sans transition-colors duration-200">
 
       <section className="relative min-h-[90vh] flex items-center overflow-hidden">
-        <img src={asset('Gemini_Generated_Image_oicvomoicvomoicv.png')} alt="" className="absolute inset-0 w-full h-full object-cover object-[center_30%] pointer-events-none select-none" referrerPolicy="no-referrer" />
+        <img src="https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?w=1920&auto=format&fit=crop&q=80" alt="" className="absolute inset-0 w-full h-full object-cover object-[center_30%] pointer-events-none select-none" referrerPolicy="no-referrer" />
         <div className="absolute inset-0 bg-gradient-to-r from-[#1A1118]/90 via-[#1A1118]/70 to-transparent"></div>
         <div className="absolute inset-0 bg-gradient-to-t from-[#1A1118]/60 via-transparent to-transparent"></div>
         <div className="absolute top-1/4 right-0 w-96 h-96 bg-[#C9A84C]/5 rounded-full blur-[120px] pointer-events-none"></div>

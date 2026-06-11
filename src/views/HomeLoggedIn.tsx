@@ -33,7 +33,7 @@ export default function HomeLoggedIn({
     city: 'Addis Ababa',
     bio: 'Looking for a genuine connection and sharing interesting coffee stories.',
     gender: 'Male',
-    image: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=150&auto=format&fit=crop&q=85',
+    image: '/assets/1.avif',
     status: 'Online',
     relationshipIntent: 'True Relationship',
     interests: ['Ethio Coffee', 'Dating Out'],

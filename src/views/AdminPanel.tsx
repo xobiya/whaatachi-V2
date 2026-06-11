@@ -41,7 +41,7 @@ export default function AdminPanel({
   darkMode,
   setDarkMode
 }: AdminPanelProps) {
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'payments' | 'members' | 'stories' | 'articles' | 'faqs' | 'support' | 'settings'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'payments' | 'members' | 'settings'>('dashboard');
   const [selectedRequest, setSelectedRequest] = useState<PaymentRequest | null>(null);
   
   // Mobile Sidebar toggle
@@ -190,7 +190,7 @@ export default function AdminPanel({
   const [newStoryNames, setNewStoryNames] = useState('');
   const [newStoryText, setNewStoryText] = useState('');
   const [newStoryYear, setNewStoryYear] = useState('2026');
-  const [newStoryImage, setNewStoryImage] = useState('https://images.unsplash.com/photo-1464746133101-a2c3f88e0dd9?w=600&auto=format&fit=crop&q=80');
+  const [newStoryImage, setNewStoryImage] = useState('/assets/1.avif');
 
   // New Profile Form inputs
   const [newProfileName, setNewProfileName] = useState('');
@@ -198,7 +198,7 @@ export default function AdminPanel({
   const [newProfileCity, setNewProfileCity] = useState('Addis Ababa');
   const [newProfileBio, setNewProfileBio] = useState('');
   const [newProfileGender, setNewProfileGender] = useState<'Male' | 'Female'>('Female');
-  const [newProfileImage, setNewProfileImage] = useState('https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=500&auto=format&fit=crop&q=80');
+  const [newProfileImage, setNewProfileImage] = useState('/assets/One.avif');
   const [newProfileIntent, setNewProfileIntent] = useState<'True Relationship' | 'Friendship' | 'Friends with Benefits'>('True Relationship');
   const [newProfileTelegram, setNewProfileTelegram] = useState('');
   const [newProfileInstagram, setNewProfileInstagram] = useState('');
@@ -665,10 +665,6 @@ export default function AdminPanel({
               { id: 'dashboard', icon: LayoutDashboard, label: 'Metrics Overview', badge: null },
               { id: 'payments', icon: Smartphone, label: 'Receipt Queue', badge: pendingCount > 0 ? { text: String(pendingCount), className: 'bg-amber-400 text-white' } : null },
               { id: 'members', icon: Users, label: 'Member Candidates', badge: { text: String(profiles.length), className: 'bg-gray-700 text-gray-300' } },
-              { id: 'stories', icon: Sparkles, label: 'Success Stories', badge: null },
-              { id: 'articles', icon: FileText, label: 'Blog Articles', badge: null },
-              { id: 'faqs', icon: MessageSquare, label: 'FAQs', badge: null },
-              { id: 'support', icon: MessageSquare, label: 'Help Desk', badge: null },
             ].map((item) => {
               const Icon = item.icon;
               const isActive = activeTab === item.id;
@@ -825,10 +821,6 @@ export default function AdminPanel({
               {activeTab === 'dashboard' && <LayoutDashboard className="h-6 w-6 text-pink-500" />}
               {activeTab === 'payments' && <Smartphone className="h-6 w-6 text-pink-500" />}
               {activeTab === 'members' && <Users className="h-6 w-6 text-pink-500" />}
-              {activeTab === 'stories' && <Sparkles className="h-6 w-6 text-pink-500" />}
-              {activeTab === 'support' && <MessageSquare className="h-6 w-6 text-pink-500" />}
-              {activeTab === 'articles' && <FileText className="h-6 w-6 text-pink-500" />}
-              {activeTab === 'faqs' && <MessageSquare className="h-6 w-6 text-pink-500" />}
               {activeTab === 'settings' && <Sliders className="h-6 w-6 text-pink-500" />}
               {activeTab} Workspace
             </h2>
@@ -1042,7 +1034,7 @@ export default function AdminPanel({
                       city: 'Adama',
                       bio: 'Lover of acoustic Ethiopian jazz, hiking, and traditional Habesha kitfo. Say hi!',
                       gender: 'Female',
-                      image: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=500&auto=format&fit=crop&q=80',
+                      image: '/assets/two.avif',
                       status: 'Online',
                       relationshipIntent: 'True Relationship',
                       interests: ['Jazz', 'Hiking', 'Kitfo'],
@@ -1068,7 +1060,7 @@ export default function AdminPanel({
                       city: 'Addis Ababa',
                       bio: 'Pristine Macchiato addict, tech consultant. Sketching architectures, buscando genuine connection.',
                       gender: 'Male',
-                      image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=500&auto=format&fit=crop&q=80',
+                      image: '/assets/2.avif',
                       status: 'Recently Active',
                       relationshipIntent: 'True Relationship',
                       interests: ['Macchiato', 'Tech', 'Sketching'],
@@ -1094,7 +1086,7 @@ export default function AdminPanel({
                       id: `t-pay-${Date.now()}`,
                       profileId: 'p5',
                       profileName: 'Helen Gebru',
-                      profileImage: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=500&auto=format&fit=crop&q=80',
+                      profileImage: '/assets/three.avif',
                       senderName: 'Lomi Teklu',
                       senderPhone: '0988000444',
                       transactionId: randTx,
@@ -2045,605 +2037,6 @@ export default function AdminPanel({
                 </div>
               </div>
             )}
-
-          </div>
-        )}
-
-        {/* ========================================================= */}
-        {/* SUBVIEW 4: LANDING SUCCESS STORIES BOARD MODERATOR        */}
-        {/* ========================================================= */}
-        {activeTab === 'stories' && (
-          <div className="space-y-8 animate-fadeIn">
-            
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-              
-              {/* Story create form */}
-              <div className="bg-white border border-gray-200 p-5 rounded-2xl space-y-4">
-                <div className="pb-3 border-b border-gray-200">
-                  <h4 className="text-xs font-black uppercase tracking-widest text-pink-600 flex items-center gap-1.5">
-                    <Sparkles className="h-4.5 w-4.5" /> Publish Success Story
-                  </h4>
-                  <p className="text-[10px] text-gray-400">Feature a new happy couple on landing page</p>
-                </div>
-
-                <form onSubmit={handleCreateSuccessStory} className="space-y-3.5 text-xs">
-                  <div className="space-y-1">
-                    <label className="font-bold text-gray-500 block uppercase">Couple representation names</label>
-                    <input
-                      type="text"
-                      required
-                      placeholder="e.g. Mahlet & Brook"
-                      value={newStoryNames}
-                      onChange={(e) => setNewStoryNames(e.target.value)}
-                      className="w-full bg-gray-50 border border-gray-200 p-2.5 rounded-xl text-gray-900"
-                    />
-                  </div>
-
-                  <div className="space-y-1">
-                    <label className="font-bold text-gray-500 block uppercase">Couple story</label>
-                    <textarea
-                      rows={4}
-                      required
-                      placeholder="Share how Whaatachi private matchmaking helped them resolve their searches..."
-                      value={newStoryText}
-                      onChange={(e) => setNewStoryText(e.target.value)}
-                      className="w-full bg-gray-50 border border-gray-200 p-2.5 rounded-xl text-gray-900 resize-none"
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="space-y-1">
-                      <label className="font-bold text-gray-500 block uppercase">Match Year</label>
-                      <input
-                        type="text"
-                        required
-                        value={newStoryYear}
-                        onChange={(e) => setNewStoryYear(e.target.value)}
-                        className="w-full bg-gray-50 border border-gray-200 p-2.5 rounded-xl text-gray-900"
-                      />
-                    </div>
-                    <div className="space-y-1">
-                      <label className="font-bold text-gray-500 block uppercase border-gray-200">Mock Image Seed</label>
-                      <select
-                        value={newStoryImage}
-                        onChange={(e) => setNewStoryImage(e.target.value)}
-                        className="w-full bg-gray-50 border border-gray-200 p-2.5 rounded-xl text-gray-600"
-                      >
-                        <option value="https://images.unsplash.com/photo-1501196354995-cbb51c65aaea?w=600&auto=format&fit=crop&q=80">Couple cafe</option>
-                        <option value="https://images.unsplash.com/photo-1464746133101-a2c3f88e0dd9?w=600&auto=format&fit=crop&q=80">Couple sunset</option>
-                      </select>
-                    </div>
-                  </div>
-
-                  <button
-                    type="submit"
-                    className="w-full py-2.5 bg-pink-600 hover:bg-pink-700 text-white font-extrabold rounded-xl transition-colors cursor-pointer text-center"
-                  >
-                    Publish to Public Landing
-                  </button>
-                </form>
-              </div>
-
-              {/* Story visual grid lists */}
-              <div className="lg:col-span-2 bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-sm">
-                <div className="px-5 py-4 border-b border-gray-200 flex justify-between items-center">
-                  <h4 className="text-xs font-black uppercase tracking-widest text-gray-500 flex items-center gap-1.5">
-                    <FileText className="h-4.5 w-4.5 text-pink-500" /> Active Success Stories ({stories.length})
-                  </h4>
-                </div>
-
-                <div className="divide-y divide-gray-100 text-xs">
-                  {stories.map(story => (
-                    <div key={story.id} className="p-5 flex gap-4 sm:flex-row flex-col items-start hover:bg-gray-50 transition-colors">
-                      <img src={story.image} alt={story.coupleNames} className="w-20 h-20 rounded-xl object-cover shrink-0 border border-gray-200" />
-                      <div className="space-y-1 pl-1 flex-1">
-                        <div className="flex justify-between items-center">
-                          <span className="font-black text-gray-900 text-sm">{story.coupleNames}</span>
-                          <span className="text-[10px] bg-pink-50 text-pink-600 font-mono font-bold px-2 py-0.5 rounded-md border border-pink-200">MATCH YEAR: {story.year}</span>
-                        </div>
-                        <p className="text-gray-500 leading-relaxed font-light">{story.story}</p>
-                        
-                        <div className="pt-2 flex justify-end">
-                          <button
-                            onClick={() => handleDeleteStory(story.id)}
-                            className="px-2.5 py-1 text-[10px] text-red-500 bg-red-50 hover:bg-red-100 border border-red-200 rounded-lg flex items-center gap-1 cursor-pointer"
-                          >
-                            <Trash2 className="h-3 w-3" /> Remove Story
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-            </div>
-
-          </div>
-        )}
-
-        {/* ========================================================= */}
-        {/* SUBVIEW 5: ARTICLES / BLOG MANAGEMENT                    */}
-        {/* ========================================================= */}
-        {activeTab === 'articles' && (
-          <div className="space-y-6 animate-fadeIn">
-            
-            <div className="bg-white border border-gray-200 rounded-2xl p-5 space-y-5">
-              <div className="pb-3 border-b border-gray-200">
-                <h4 className="text-xs font-black uppercase tracking-widest text-pink-600 flex items-center gap-1.5">
-                  <FileText className="h-4 w-4" /> Create New Article
-                </h4>
-                <p className="text-[10px] text-gray-400">Publish a blog article to the Whaatachi community</p>
-              </div>
-
-              <form
-                onSubmit={async (e) => {
-                  e.preventDefault();
-                  if (!newArticleTitle.trim()) return;
-                  try {
-                    showToast('loading', 'Publishing article...');
-                    const res = await api.createArticle({
-                      title: newArticleTitle.trim(),
-                      excerpt: newArticleExcerpt.trim(),
-                      category: newArticleCategory,
-                      content: newArticleContent.trim()
-                    });
-                    setArticles(prev => [res.article, ...prev]);
-                    showToast('success', 'Article published');
-                  } catch {
-                    showToast('error', 'API unavailable, saved locally');
-                    const localArticle: Article = {
-                      id: `article-${Date.now()}`,
-                      title: newArticleTitle.trim(),
-                      excerpt: newArticleExcerpt.trim() || 'Read more...',
-                      category: newArticleCategory,
-                      content: newArticleContent.trim() || 'Full article content here.',
-                      readTime: '3 min',
-                      date: new Date().toISOString().split('T')[0],
-                      image: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=600&auto=format&fit=crop&q=80'
-                    };
-                    setArticles(prev => [localArticle, ...prev]);
-                  }
-                  setNewArticleTitle('');
-                  setNewArticleExcerpt('');
-                  setNewArticleContent('');
-                }}
-                className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs"
-              >
-                <div className="space-y-1 md:col-span-2">
-                  <label className="font-bold text-gray-500 block uppercase">Title</label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="e.g. 5 Tips for a Great First Date in Addis"
-                    value={newArticleTitle}
-                    onChange={(e) => setNewArticleTitle(e.target.value)}
-                    className="w-full bg-gray-50 border border-gray-200 p-2.5 rounded-xl text-gray-900 outline-hidden focus:border-pink-500"
-                  />
-                </div>
-                <div className="space-y-1">
-                  <label className="font-bold text-gray-500 block uppercase">Category</label>
-                  <select
-                    value={newArticleCategory}
-                    onChange={(e) => setNewArticleCategory(e.target.value)}
-                    className="w-full bg-gray-50 border border-gray-200 p-2.5 rounded-xl text-gray-600 outline-hidden"
-                  >
-                    <option value="Dating Tips">Dating Tips</option>
-                    <option value="Relationships">Relationships</option>
-                    <option value="Ethiopian Culture">Ethiopian Culture</option>
-                    <option value="Success Stories">Success Stories</option>
-                  </select>
-                </div>
-                <div className="space-y-1">
-                  <label className="font-bold text-gray-500 block uppercase">Read Time</label>
-                  <input
-                    type="text"
-                    placeholder="e.g. 5 min"
-                    className="w-full bg-gray-50 border border-gray-200 p-2.5 rounded-xl text-gray-900 outline-hidden focus:border-pink-500"
-                    disabled
-                  />
-                </div>
-                <div className="space-y-1 md:col-span-2">
-                  <label className="font-bold text-gray-500 block uppercase">Excerpt</label>
-                  <input
-                    type="text"
-                    placeholder="Brief summary of the article..."
-                    value={newArticleExcerpt}
-                    onChange={(e) => setNewArticleExcerpt(e.target.value)}
-                    className="w-full bg-gray-50 border border-gray-200 p-2.5 rounded-xl text-gray-900 outline-hidden focus:border-pink-500"
-                  />
-                </div>
-                <div className="space-y-1 md:col-span-2">
-                  <label className="font-bold text-gray-500 block uppercase">Content</label>
-                  <textarea
-                    rows={6}
-                    placeholder="Write the full article content here..."
-                    value={newArticleContent}
-                    onChange={(e) => setNewArticleContent(e.target.value)}
-                    className="w-full bg-gray-50 border border-gray-200 p-2.5 rounded-xl text-gray-900 outline-hidden focus:border-pink-500 resize-none"
-                  />
-                </div>
-                <div className="md:col-span-2 flex justify-end pt-2">
-                  <button
-                    type="submit"
-                    className="px-6 py-2.5 bg-pink-600 hover:bg-pink-700 text-white font-extrabold rounded-xl text-xs cursor-pointer transition-all flex items-center gap-1.5"
-                  >
-                    <Plus className="h-4 w-4" /> Publish Article
-                  </button>
-                </div>
-              </form>
-            </div>
-
-            {/* Articles List */}
-            <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-sm">
-              <div className="px-5 py-4 border-b border-gray-200 flex justify-between items-center">
-                <h4 className="text-xs font-black uppercase tracking-widest text-gray-500 flex items-center gap-2">
-                  <FileText className="h-4 w-4 text-pink-500" />
-                  Published Articles ({articles.length})
-                </h4>
-              </div>
-
-              {articles.length > 0 ? (
-                <div className="divide-y divide-gray-100">
-                  {articles.map((article) => (
-                    <div key={article.id} className="p-4 sm:p-5 flex items-start gap-4 hover:bg-gray-50 transition-colors">
-                      <div className="w-14 h-14 rounded-xl overflow-hidden shrink-0 bg-gray-100 border border-gray-200">
-                        <img src={article.image} alt={article.title} className="w-full h-full object-cover" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-start justify-between gap-3">
-                          <div>
-                            <h5 className="text-sm font-bold text-gray-900 truncate">{article.title}</h5>
-                            <p className="text-[11px] text-gray-500 mt-0.5 line-clamp-1">{article.excerpt}</p>
-                          </div>
-                          <span className="text-[9px] font-mono font-bold text-gray-400 bg-gray-50 border border-gray-200 px-2 py-0.5 rounded-md shrink-0">
-                            {article.date}
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-2 mt-2">
-                          <span className="text-[9px] font-bold bg-pink-50 text-pink-600 px-2 py-0.5 rounded-md border border-pink-200">
-                            {article.category}
-                          </span>
-                          <span className="text-[9px] text-gray-400">{article.readTime}</span>
-                          <button
-                            onClick={async () => {
-                              if (!window.confirm('Delete this article?')) return;
-                              try {
-                                await api.deleteArticle(article.id);
-                              } catch {}
-                              setArticles(prev => prev.filter(a => a.id !== article.id));
-                            }}
-                            className="ml-auto text-red-400 hover:text-red-600 transition-colors cursor-pointer"
-                            title="Delete article"
-                          >
-                            <Trash2 className="h-3.5 w-3.5" />
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="py-16 text-center text-xs text-gray-400 space-y-2">
-                  <FileText className="h-8 w-8 text-gray-300 mx-auto" />
-                  <p>No articles published yet.</p>
-                  <p className="text-[10px]">Use the form above to create your first article.</p>
-                </div>
-              )}
-            </div>
-
-          </div>
-        )}
-
-        {/* ========================================================= */}
-        {/* SUBVIEW 6: FAQS MANAGEMENT                                */}
-        {/* ========================================================= */}
-        {activeTab === 'faqs' && (
-          <div className="space-y-6 animate-fadeIn">
-
-            {/* Create / Edit FAQ Form */}
-            <div className="bg-white border border-gray-200 rounded-2xl p-5 space-y-5">
-              <div className="pb-3 border-b border-gray-200">
-                <h4 className="text-xs font-black uppercase tracking-widest text-pink-600 flex items-center gap-1.5">
-                  <MessageSquare className="h-4 w-4" /> {editingFaq ? 'Edit FAQ' : 'Create New FAQ'}
-                </h4>
-                <p className="text-[10px] text-gray-400">{editingFaq ? 'Modify the existing FAQ entry' : 'Add a new frequently asked question'}</p>
-              </div>
-
-              <form
-                onSubmit={async (e) => {
-                  e.preventDefault();
-                  const category = editingFaq ? editingFaq.category : newFaqCategory;
-                  const question = editingFaq ? editingFaq.question : newFaqQuestion;
-                  const answer = editingFaq ? editingFaq.answer : newFaqAnswer;
-                  if (!category.trim() || !question.trim() || !answer.trim()) return;
-
-                  try {
-                    if (editingFaq) {
-                      const res = await api.updateFaq(editingFaq.id, { category, question, answer });
-                      setAllFaqs(prev => prev.map(f => f.id === editingFaq.id ? res.faq : f));
-                      setEditingFaq(null);
-                    } else {
-                      const res = await api.createFaq({ category, question, answer });
-                      setAllFaqs(prev => [...prev, res.faq]);
-                    }
-                  } catch {
-                    if (editingFaq) {
-                      setAllFaqs(prev => prev.map(f => f.id === editingFaq.id ? { ...f, category, question, answer } : f));
-                      setEditingFaq(null);
-                    } else {
-                      const localFaq = { id: `faq-${Date.now()}`, category, question, answer, sortOrder: 0 };
-                      setAllFaqs(prev => [...prev, localFaq]);
-                    }
-                  }
-
-                  setNewFaqCategory('');
-                  setNewFaqQuestion('');
-                  setNewFaqAnswer('');
-                }}
-                className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs"
-              >
-                <div className="space-y-1">
-                  <label className="font-bold text-gray-500 block uppercase">Category</label>
-                  <select
-                    value={editingFaq ? editingFaq.category : newFaqCategory}
-                    onChange={(e) => editingFaq ? setEditingFaq({ ...editingFaq, category: e.target.value }) : setNewFaqCategory(e.target.value)}
-                    className="w-full bg-gray-50 border border-gray-200 p-2.5 rounded-xl text-gray-600 outline-hidden"
-                  >
-                    <option value="">Select category</option>
-                    <option value="General">General</option>
-                    <option value="Payments">Payments</option>
-                    <option value="Privacy">Privacy</option>
-                    <option value="Safety">Safety</option>
-                    <option value="Account">Account</option>
-                  </select>
-                </div>
-                <div className="space-y-1">
-                  <label className="font-bold text-gray-500 block uppercase">Question</label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="e.g. How does matchmaking work?"
-                    value={editingFaq ? editingFaq.question : newFaqQuestion}
-                    onChange={(e) => editingFaq ? setEditingFaq({ ...editingFaq, question: e.target.value }) : setNewFaqQuestion(e.target.value)}
-                    className="w-full bg-gray-50 border border-gray-200 p-2.5 rounded-xl text-gray-900 outline-hidden focus:border-pink-500"
-                  />
-                </div>
-                <div className="space-y-1 md:col-span-2">
-                  <label className="font-bold text-gray-500 block uppercase">Answer</label>
-                  <textarea
-                    rows={4}
-                    required
-                    placeholder="Write the answer here..."
-                    value={editingFaq ? editingFaq.answer : newFaqAnswer}
-                    onChange={(e) => editingFaq ? setEditingFaq({ ...editingFaq, answer: e.target.value }) : setNewFaqAnswer(e.target.value)}
-                    className="w-full bg-gray-50 border border-gray-200 p-2.5 rounded-xl text-gray-900 outline-hidden focus:border-pink-500 resize-none"
-                  />
-                </div>
-                <div className="md:col-span-2 flex justify-end gap-2 pt-2">
-                  {editingFaq && (
-                    <button
-                      type="button"
-                      onClick={() => setEditingFaq(null)}
-                      className="px-4 py-2 bg-gray-50 border border-gray-200 hover:bg-gray-100 rounded-xl text-gray-600 transition-colors text-xs cursor-pointer"
-                    >
-                      Cancel Edit
-                    </button>
-                  )}
-                  <button
-                    type="submit"
-                    className="px-6 py-2.5 bg-pink-600 hover:bg-pink-700 text-white font-extrabold rounded-xl text-xs cursor-pointer transition-all flex items-center gap-1.5"
-                  >
-                    {editingFaq ? <><Edit className="h-4 w-4" /> Update FAQ</> : <><Plus className="h-4 w-4" /> Add FAQ</>}
-                  </button>
-                </div>
-              </form>
-            </div>
-
-            {/* FAQs List grouped by category */}
-            <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-sm">
-              <div className="px-5 py-4 border-b border-gray-200">
-                <h4 className="text-xs font-black uppercase tracking-widest text-gray-500 flex items-center gap-2">
-                  <MessageSquare className="h-4 w-4 text-pink-500" />
-                  Frequently Asked Questions ({allFaqs.length})
-                </h4>
-              </div>
-
-              {allFaqs.length > 0 ? (
-                <div className="divide-y divide-gray-100">
-                  {(() => {
-                    const grouped: Record<string, any[]> = {};
-                    allFaqs.forEach(faq => {
-                      const cat = faq.category || 'Uncategorized';
-                      if (!grouped[cat]) grouped[cat] = [];
-                      grouped[cat].push(faq);
-                    });
-                    return Object.entries(grouped).map(([category, faqs]) => (
-                      <div key={category} className="p-4 sm:p-5">
-                        <h5 className="text-[10px] font-black uppercase tracking-widest text-pink-600 mb-3 border-b border-gray-100 pb-2">
-                          {category} ({faqs.length})
-                        </h5>
-                        <div className="space-y-3">
-                          {faqs.map((faq) => (
-                            <div key={faq.id} className="flex items-start justify-between gap-3 p-3 bg-gray-50 border border-gray-200 rounded-xl">
-                              <div className="flex-1 min-w-0">
-                                <p className="text-xs font-bold text-gray-900">{faq.question}</p>
-                                <p className="text-[10px] text-gray-500 mt-1 leading-relaxed">{faq.answer}</p>
-                              </div>
-                              <div className="flex gap-1.5 shrink-0">
-                                <button
-                                  onClick={() => setEditingFaq(faq)}
-                                  className="p-1.5 bg-white border border-gray-200 rounded-lg text-gray-400 hover:text-pink-600 hover:border-pink-300 transition-colors cursor-pointer"
-                                  title="Edit FAQ"
-                                >
-                                  <Edit className="h-3.5 w-3.5" />
-                                </button>
-                                <button
-                                  onClick={async () => {
-                                    if (!window.confirm('Delete this FAQ?')) return;
-                                    try {
-                                      await api.deleteFaq(faq.id);
-                                    } catch {}
-                                    setAllFaqs(prev => prev.filter(f => f.id !== faq.id));
-                                  }}
-                                  className="p-1.5 bg-white border border-gray-200 rounded-lg text-gray-400 hover:text-red-600 hover:border-red-300 transition-colors cursor-pointer"
-                                  title="Delete FAQ"
-                                >
-                                  <Trash2 className="h-3.5 w-3.5" />
-                                </button>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    ));
-                  })()}
-                </div>
-              ) : (
-                <div className="py-16 text-center text-xs text-gray-400 space-y-2">
-                  <MessageSquare className="h-8 w-8 text-gray-300 mx-auto" />
-                  <p>No FAQs added yet.</p>
-                  <p className="text-[10px]">Use the form above to add frequently asked questions.</p>
-                </div>
-              )}
-            </div>
-
-          </div>
-        )}
-
-        {/* ========================================================= */}
-        {/* SUBVIEW 7: CHAT TICKETS DIRECT RESOLUTION DESK            */}
-        {/* ========================================================= */}
-        {activeTab === 'support' && (
-          <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden grid grid-cols-1 md:grid-cols-3 font-sans shadow-sm animate-fadeIn h-[65vh]">
-            
-            {/* Inbox sidebar */}
-            <div className="border-r border-gray-200 flex flex-col max-h-full">
-              <div className="p-4 bg-gray-50 border-b border-gray-200">
-                <span className="text-[9px] font-bold text-gray-500 block uppercase tracking-widest mb-1">MEMBER CONCERNS</span>
-                <h4 className="text-sm font-black text-gray-900">Direct Chat Support Inbox</h4>
-              </div>
-              
-              <div className="flex-1 overflow-y-auto divide-y divide-gray-100 scrollbar-thin">
-                {mockTickets.map(ticker => (
-                  <div
-                    key={ticker.id}
-                    onClick={() => setSelectedTicketId(ticker.id)}
-                    className={`p-4 cursor-pointer transition-colors text-left space-y-1.5 ${
-                      selectedTicketId === ticker.id ? 'bg-pink-50 shadow-inner' : 'hover:bg-gray-50'
-                    }`}
-                  >
-                    <div className="flex justify-between items-center text-xs">
-                      <span className="font-bold text-gray-900">{ticker.username}</span>
-                      <span className={`text-[9px] font-mono px-2 py-0.5 rounded-full ${
-                        ticker.status === 'Open' ? 'bg-amber-50 text-amber-600' : 'bg-gray-100 text-gray-500'
-                      }`}>
-                        {ticker.status}
-                      </span>
-                    </div>
-                    <p className="text-[11px] text-gray-500 truncate font-light leading-none">{ticker.message}</p>
-                    <p className="text-[9px] text-gray-400 font-bold">{ticker.timestamp} · Sim: {ticker.senderType}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Conversation terminal pane */}
-            <div className="md:col-span-2 flex flex-col justify-between max-h-full bg-white">
-              
-              {/* Selected ticket details */}
-              {selectedTicketId ? (
-                <>
-                  {(() => {
-                    const ticket = mockTickets.find(t => t.id === selectedTicketId);
-                    if (!ticket) return null;
-                    return (
-                      <>
-                        {/* Conversation Header */}
-                        <div className="p-4 bg-gray-50 border-b border-gray-200 flex justify-between items-center shrink-0">
-                          <div>
-                            <h4 className="text-xs font-black text-gray-900">{ticket.username}</h4>
-                            <p className="text-[10px] text-gray-500">Contact: {ticket.phone} · Role: {ticket.senderType}</p>
-                          </div>
-                          <span className={`text-[9px] font-bold px-2.5 py-0.5 rounded-md border ${
-                            ticket.status === 'Open' ? 'border-amber-200 text-amber-600' : 'border-gray-200 text-gray-500'
-                          }`}>
-                            TICKET STATUS: {ticket.status}
-                          </span>
-                        </div>
-
-                        {/* Conversational timeline lists */}
-                        <div className="flex-1 p-4 overflow-y-auto space-y-4 scrollbar-thin text-xs">
-                          {ticket.chatHistory.map((chat, idx) => (
-                            <div 
-                              key={idx} 
-                              className={`flex flex-col max-w-[85%] ${
-                                chat.sender === 'user' ? 'text-left mr-auto' : 'text-right ml-auto'
-                              }`}
-                            >
-                              <span className="text-[9px] text-gray-400 font-bold mb-1">
-                                {chat.sender === 'user' ? ticket.username : 'Whaatachi Admin Team'} · {chat.time}
-                              </span>
-                              <div className={`p-3 rounded-2xl ${
-                                chat.sender === 'user' 
-                                  ? 'bg-gray-100 border border-gray-200 rounded-tl-none text-gray-700' 
-                                  : 'bg-gradient-to-r from-pink-600 to-rose-500 text-white rounded-tr-none font-bold shadow-xs'
-                              }`}>
-                                {chat.text}
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-
-                        {/* Presets macro replies & Input box form */}
-                        <div className="p-4 bg-gray-50 border-t border-gray-200 shrink-0 space-y-3">
-                          
-                          {/* Predefined replies quick triggers */}
-                          <div className="flex flex-wrap gap-2 text-[10px]">
-                            <button
-                              onClick={() => setTicketReplyInput('Hi! Your Telebirr transaction reference has been verified and approved by the moderator. Your target contact in Hawassa represents verified matches. Check history!')}
-                              className="px-2 py-1 rounded-md bg-white border border-gray-200 text-gray-500 hover:text-gray-900"
-                            >
-                              ✓ Telebirr Verified
-                            </button>
-                            <button
-                              onClick={() => setTicketReplyInput('Good day, your CBE Birr reference code cannot be located on our terminal logs. Please supply a screenshot of your slip or call our automated support at +251 911000000.')}
-                              className="px-2 py-1 rounded-md bg-white border border-gray-200 text-gray-500 hover:text-gray-900"
-                            >
-                              ✗ Invalid CBE Birr ID
-                            </button>
-                          </div>
-
-                          <form onSubmit={handleSendTicketReply} className="flex gap-2">
-                            <input
-                              type="text"
-                              required
-                              placeholder="Write administrative message reply as Whaatachi Moderator..."
-                              value={ticketReplyInput}
-                              onChange={(e) => setTicketReplyInput(e.target.value)}
-                              className="w-full border border-gray-200 p-2.5 rounded-xl bg-gray-50 text-gray-900 text-xs outline-hidden focus:border-pink-500"
-                            />
-                            <button
-                              type="submit"
-                              className="px-4 py-2 bg-pink-600 hover:bg-pink-700 font-extrabold text-white rounded-xl text-xs flex items-center gap-1 cursor-pointer transition-colors"
-                            >
-                              Reply
-                            </button>
-                          </form>
-                        </div>
-                      </>
-                    );
-                  })()}
-                </>
-              ) : (
-                <div className="m-auto text-xs text-gray-400 py-16 text-center space-y-2">
-                  <MessageSquare className="h-8 w-8 text-gray-300 mx-auto animate-bounce" />
-                  <p>Resolutions Inbox complete.</p>
-                  <p className="text-[10px] text-gray-400">Select active ticket from column to reply.</p>
-                </div>
-              )}
-
-            </div>
 
           </div>
         )}

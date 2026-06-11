@@ -15,18 +15,16 @@ interface AuthModalProps {
   onSimulateTestLogin: (profile: Profile) => void;
 }
 
-const asset = (file: string) => `/assets/${file}`;
-
 const PRESET_MALE_IMAGES = [
-  asset('Gemini_Generated_Image_f05mrgf05mrgf05m.png'),
-  asset('Gemini_Generated_Image_rj3k3urj3k3urj3k.png'),
-  asset('photo_2026-06-08_16-58-42.jpg'),
+  '/assets/1.avif',
+  '/assets/2.avif',
+  '/assets/3.avif',
 ];
 
 const PRESET_FEMALE_IMAGES = [
-  asset('Gemini_Generated_Image_48jenf48jenf48je.png'),
-  asset('Gemini_Generated_Image_4zte6t4zte6t4zte.png'),
-  asset('Gemini_Generated_Image_69df6669df6669df.png'),
+  '/assets/One.avif',
+  '/assets/two.avif',
+  '/assets/One.avif',
 ];
 
 const ETHIOPIAN_CITIES = [

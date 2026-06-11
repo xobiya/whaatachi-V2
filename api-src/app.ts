@@ -61,3 +61,5 @@ app.use(notFoundHandler);
 app.use(errorHandler);
 
 export default app;
+export { seedData } from './config/seed-data';
+export { countUsers } from './models/user.model';

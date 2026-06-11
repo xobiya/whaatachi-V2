@@ -8,29 +8,16 @@ import { v4 as uuid } from 'uuid';
 const asset = (file: string) => `/assets/${file}`;
 
 const FEMALE_IMAGES = [
-  asset('Gemini_Generated_Image_48jenf48jenf48je.png'),
-  asset('Gemini_Generated_Image_4zte6t4zte6t4zte.png'),
-  asset('Gemini_Generated_Image_69df6669df6669df.png'),
-  asset('ChatGPT Image Jun 8, 2026, 03_15_56 PM.png'),
-  'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=500&auto=format&fit=crop&q=80',
-  'https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?w=500&auto=format&fit=crop&q=80',
-  'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=500&auto=format&fit=crop&q=80',
-  'https://images.unsplash.com/photo-1523824921871-d6f1a15151f1?w=500&auto=format&fit=crop&q=80',
-  'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=500&auto=format&fit=crop&q=80',
-  'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=500&auto=format&fit=crop&q=80',
+  '/assets/One.avif', '/assets/two.avif', '/assets/three.avif', '/assets/four.avif',
+  '/assets/One.avif', '/assets/two.avif', '/assets/three.avif', '/assets/four.avif',
+  '/assets/One.avif', '/assets/two.avif',
 ];
 
 const MALE_IMAGES = [
-  asset('Gemini_Generated_Image_f05mrgf05mrgf05m.png'),
-  asset('Gemini_Generated_Image_rj3k3urj3k3urj3k.png'),
-  asset('photo_2026-06-08_16-58-42.jpg'),
-  asset('Gemini_Generated_Image_oicvomoicvomoicv.png'),
-  'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=500&auto=format&fit=crop&q=80',
-  'https://images.unsplash.com/photo-1501196354995-cbb51c65aaea?w=500&auto=format&fit=crop&q=80',
-  'https://images.unsplash.com/photo-1566492031773-4f4e44671857?w=500&auto=format&fit=crop&q=80',
-  'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=500&auto=format&fit=crop&q=80',
-  'https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?w=500&auto=format&fit=crop&q=80',
-  'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=500&auto=format&fit=crop&q=80',
+  '/assets/1.avif', '/assets/2.avif', '/assets/3.avif',
+  '/assets/1.avif', '/assets/2.avif', '/assets/3.avif',
+  '/assets/1.avif', '/assets/2.avif', '/assets/3.avif',
+  '/assets/1.avif',
 ];
 
 const CITIES = ['Addis Ababa', 'Adama', 'Hawassa', 'Bahir Dar', 'Dire Dawa', 'Gondar', 'Mekelle', 'Jimma', 'Dessie', 'Harar'];
@@ -155,7 +142,15 @@ export async function seedData(clearFirst: boolean = false): Promise<void> {
     await clearCollections();
   }
 
-  for (let i = 0; i < femaleNames.length; i++) {
+  const [userCount, storyCount, articleCount, faqCount] = await Promise.all([
+    userModel.default.countDocuments(),
+    storyModel.default.countDocuments(),
+    articleModel.default.countDocuments(),
+    faqModel.default.countDocuments(),
+  ]);
+
+  if (userCount === 0) {
+    for (let i = 0; i < femaleNames.length; i++) {
     const name = femaleNames[i];
     const parts = name.split(' ');
     await userModel.createUser({
@@ -250,25 +245,29 @@ export async function seedData(clearFirst: boolean = false): Promise<void> {
   }
 
   console.log('Seeded 60 users (20 female, 20 male, 10 additional female, 10 additional male).');
+  }
 
-  const stories = [
-    { coupleNames: 'Selam & Dawit', story: 'We met on Whaatachi in late 2024. After chatting for two weeks about architecture and Addis cafe culture, we met for coffee at Tomoca in Bole. Now we are engaged!', year: '2025', image: 'https://images.unsplash.com/photo-1501196354995-cbb51c65aaea?w=600&auto=format&fit=crop&q=80' },
-    { coupleNames: 'Hana & Michael', story: 'I was skeptical about online dating in Ethiopia, but Whaatachi felt secure. Michael verified his profile through Telebirr payment and reached out. We connected over volunteer work and now we are planning our wedding!', year: '2024', image: 'https://images.unsplash.com/photo-1464746133101-a2c3f88e0dd9?w=600&auto=format&fit=crop&q=80' },
-    { coupleNames: 'Meron & Abel', story: 'The verification process made me feel safe. We both had our profiles verified and it made all the difference. Now we are a happy couple living in Bole.', year: '2024', image: 'https://images.unsplash.com/photo-1529636798458-92182e662485?w=600&auto=format&fit=crop&q=80' },
+  if (storyCount === 0) {
+    const stories = [
+    { coupleNames: 'Selam & Dawit', story: 'We met on Whaatachi in late 2024. After chatting for two weeks about architecture and Addis cafe culture, we met for coffee at Tomoca in Bole. Now we are engaged!', year: '2025', image: '/assets/1.avif' },
+    { coupleNames: 'Hana & Michael', story: 'I was skeptical about online dating in Ethiopia, but Whaatachi felt secure. Michael verified his profile through Telebirr payment and reached out. We connected over volunteer work and now we are planning our wedding!', year: '2024', image: '/assets/One.avif' },
+    { coupleNames: 'Meron & Abel', story: 'The verification process made me feel safe. We both had our profiles verified and it made all the difference. Now we are a happy couple living in Bole.', year: '2024', image: '/assets/2.avif' },
   ];
   for (const s of stories) {
     await storyModel.createStory({ id: uuid(), ...s });
   }
   console.log('Seeded 3 success stories.');
+  }
 
-  const articles = [
+  if (articleCount === 0) {
+    const articles = [
     {
       title: 'The Modern Ethiopian Guide to Digital Courtship',
       excerpt: 'Dating in Ethiopia is shifting towards digital spaces. Learn how to navigate text etiquette, secure verification, and the transition from app to initial coffee dates.',
       category: 'Relationship Guide',
       readTime: '6 min read',
       date: 'June 5, 2026',
-      image: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=600&auto=format&fit=crop&q=80',
+      image: '/assets/three.avif',
       content: 'Dating in Ethiopia has traditionally been built on community connections. However, in the modern era of fast-paced cities like Addis Ababa, young professionals are increasingly turning to dedicated platforms to find meaningful relationships.',
     },
     {
@@ -277,7 +276,7 @@ export async function seedData(clearFirst: boolean = false): Promise<void> {
       category: 'Safety First',
       readTime: '4 min read',
       date: 'May 28, 2026',
-      image: 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=600&auto=format&fit=crop&q=80',
+      image: '/assets/four.avif',
       content: 'Never share your bank account or Telebirr PIN with anyone. Authentic admins will never ask for your OTP or security keys. Always verify through the platform\'s official channels.',
     },
     {
@@ -286,7 +285,7 @@ export async function seedData(clearFirst: boolean = false): Promise<void> {
       category: 'Dating Tips',
       readTime: '5 min read',
       date: 'April 12, 2026',
-      image: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=600&auto=format&fit=crop&q=80',
+      image: '/assets/One.avif',
       content: 'Keep it casual! A low-pressure afternoon macchiato is far better than a formal dinner. Respect boundaries and focus on laughing together. Choose a public, well-known cafe in Bole or Piassa for your first meeting.',
     },
   ];
@@ -294,8 +293,10 @@ export async function seedData(clearFirst: boolean = false): Promise<void> {
     await articleModel.createArticle({ id: uuid(), ...a });
   }
   console.log('Seeded 3 articles.');
+  }
 
-  const faqData = [
+  if (faqCount === 0) {
+    const faqData = [
     { category: 'Payments & Subscriptions', question: 'Why is there a payment for men but not women?', answer: 'To ensure a high safety ratio, reduce spam, and filter for genuine gentlemen. The 200 Birr fee acts as a quality barrier, making our platform safe for everyone.', sortOrder: 1 },
     { category: 'Payments & Subscriptions', question: 'What payment methods are accepted?', answer: 'We accept Telebirr and CBE Birr. Copy our merchant account details, send the payment, and paste your Transaction ID for verification.', sortOrder: 2 },
     { category: 'Payments & Subscriptions', question: 'How long does verification take?', answer: 'Our team reviews submissions 24/7. Accounts are typically verified within 15-30 minutes.', sortOrder: 3 },
@@ -308,6 +309,7 @@ export async function seedData(clearFirst: boolean = false): Promise<void> {
     await faqModel.createFaq({ id: uuid(), ...f });
   }
   console.log('Seeded 7 FAQs.');
+  }
 
   console.log('Seed complete!');
 }

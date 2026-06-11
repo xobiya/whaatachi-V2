@@ -38,4 +38,8 @@ export async function deleteArticle(id: string): Promise<void> {
   await Article.findByIdAndDelete(id);
 }
 
+export async function countArticles(): Promise<number> {
+  return Article.countDocuments();
+}
+
 export default Article;

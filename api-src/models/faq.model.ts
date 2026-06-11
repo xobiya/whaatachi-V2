@@ -43,4 +43,8 @@ export async function deleteFaq(id: string): Promise<void> {
   await Faq.findByIdAndDelete(id);
 }
 
+export async function countFaqs(): Promise<number> {
+  return Faq.countDocuments();
+}
+
 export default Faq;

@@ -12,7 +12,7 @@ export default function SuccessStories({ stories, onAddStory }: SuccessStoriesPr
   const [coupleNames, setCoupleNames] = useState('');
   const [story, setStory] = useState('');
   const [year, setYear] = useState('2026');
-  const [selectedPresetImage, setSelectedPresetImage] = useState('https://images.unsplash.com/photo-1501196354995-cbb51c65aaea?w=600&auto=format&fit=crop&q=80');
+  const [selectedPresetImage, setSelectedPresetImage] = useState('/assets/1.avif');
   const [submitted, setSubmitted] = useState(false);
   const [likesCount, setLikesCount] = useState<Record<string, number>>({});
   const { t } = useAppContext();
@@ -25,9 +25,9 @@ export default function SuccessStories({ stories, onAddStory }: SuccessStoriesPr
   };
 
   const imagePresets = [
-    { label: 'Couple 1', url: 'https://images.unsplash.com/photo-1501196354995-cbb51c65aaea?w=600&auto=format&fit=crop&q=80' },
-    { label: 'Couple 2', url: 'https://images.unsplash.com/photo-1464746133101-a2c3f88e0dd9?w=600&auto=format&fit=crop&q=80' },
-    { label: 'Couple 3', url: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=600&auto=format&fit=crop&q=80' }
+    { label: 'Couple 1', url: '/assets/1.avif' },
+    { label: 'Couple 2', url: '/assets/One.avif' },
+    { label: 'Couple 3', url: '/assets/2.avif' }
   ];
 
   const handleFormSubmit = (e: React.FormEvent) => {
