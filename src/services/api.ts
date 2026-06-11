@@ -1,9 +1,10 @@
-/// <reference types="vite/client" />
 import { Profile, PaymentRequest, SuccessStory, Article } from '../types';
 
 const API_BASE = import.meta.env.VITE_API_URL || '/api';
+const REQUEST_TIMEOUT = 15000;
 
 let authToken: string | null = null;
+const inflightMap = new Map<string, Promise<any>>();
 
 export function setAuthToken(token: string | null) {
   authToken = token;
@@ -19,25 +20,56 @@ function getHeaders(): Record<string, string> {
   return headers;
 }
 
+function dedupKey(path: string, options: RequestInit = {}): string | null {
+  if (options.method && options.method !== 'GET') return null;
+  return `GET ${path}`;
+}
+
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
-  let res: Response;
-  try {
-    res = await fetch(`${API_BASE}${path}`, {
-      ...options,
-      headers: { ...getHeaders(), ...(options.headers || {}) },
-    });
-  } catch {
-    throw new Error('Network error');
+  const key = dedupKey(path, options);
+  if (key && inflightMap.has(key)) return inflightMap.get(key) as Promise<T>;
+
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT);
+
+  const promise = (async () => {
+    let res: Response;
+    try {
+      res = await fetch(`${API_BASE}${path}`, {
+        ...options,
+        signal: controller.signal,
+        headers: { ...getHeaders(), ...(options.headers || {}) },
+      });
+    } catch (err: any) {
+      if (err?.name === 'AbortError') throw new Error('Request timeout');
+      throw new Error('Network error');
+    } finally {
+      clearTimeout(timer);
+    }
+
+    let data: any;
+    const contentType = res.headers.get('content-type') || '';
+    if (contentType.includes('application/json')) {
+      data = await res.json();
+    } else {
+      const text = await res.text();
+      try { data = JSON.parse(text); } catch { data = { error: text || 'Unknown error' }; }
+    }
+
+    if (!res.ok) {
+      const err = new Error(data.error || `Request failed (${res.status})`);
+      (err as any).status = res.status;
+      throw err;
+    }
+    return data as T;
+  })();
+
+  if (key) {
+    inflightMap.set(key, promise);
+    promise.finally(() => { if (inflightMap.get(key) === promise) inflightMap.delete(key); });
   }
-  const text = await res.text();
-  let data: any;
-  try { data = JSON.parse(text); } catch { data = { error: text || 'Unknown error' }; }
-  if (!res.ok) {
-    const err = new Error(data.error || `Request failed (${res.status})`);
-    (err as any).status = res.status;
-    throw err;
-  }
-  return data as T;
+
+  return promise;
 }
 
 // ── Auth ──

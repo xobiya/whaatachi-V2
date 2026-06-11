@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Heart, Sparkles, ThumbsUp, CheckSquare, Star } from 'lucide-react';
-import { useAppContext } from '../context/AppContext';
+import { useUIContext } from '../context/UIContext';
 import { SuccessStory } from '../types';
 
 interface SuccessStoriesProps {
@@ -15,7 +15,7 @@ export default function SuccessStories({ stories, onAddStory }: SuccessStoriesPr
   const [selectedPresetImage, setSelectedPresetImage] = useState('/assets/1.avif');
   const [submitted, setSubmitted] = useState(false);
   const [likesCount, setLikesCount] = useState<Record<string, number>>({});
-  const { t } = useAppContext();
+  const { t } = useUIContext();
 
   const handleLike = (storyId: string) => {
     setLikesCount(prev => ({

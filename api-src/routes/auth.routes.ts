@@ -12,21 +12,21 @@ router.post('/register', validateRegister, async (req: AuthRequest, res: Respons
     const { name, age, city, address, bio, gender, lookingFor, image, status, relationshipIntent, interests, phone, telegram, instagram, email } = req.body;
 
     const id = uuid();
-    await userModel.createUser({
+    const created = await userModel.createUser({
       id, name, age, city, address, bio, gender, lookingFor, image,
       status, relationshipIntent,
       interests,
       phone, telegram, instagram, email,
     });
 
-    const user = await userModel.findUserById(id);
-    if (!user) {
+    if (!created) {
       res.status(500).json({ error: 'Failed to create user' });
       return;
     }
 
     const token = generateToken({ id });
-    res.status(201).json({ token, user: userRowToProfile(user as any) });
+    const plain = typeof created.toObject === 'function' ? created.toObject() : created;
+    res.status(201).json({ token, user: userRowToProfile(plain) });
   } catch (err: any) {
     console.error('Register error:', err);
     if (err?.code === 11000) {

@@ -23,10 +23,9 @@ router.post('/', authenticate, adminOnly, validateStory, async (req: AuthRequest
     const { coupleNames, story, year, image } = req.body;
     const id = uuid();
 
-    await storyModel.createStory({ id, coupleNames, story, year, image });
-    const created = await storyModel.findAllStories();
-    const stories = created.map((r: any) => storyRowToStory(r));
-    res.status(201).json({ story: stories.find((s: any) => s.id === id) });
+    const created = await storyModel.createStory({ id, coupleNames, story, year, image });
+    const plain = typeof created.toObject === 'function' ? created.toObject() : created;
+    res.status(201).json({ story: storyRowToStory(plain) });
   } catch (err: any) {
     console.error('Create story error:', err);
     res.status(500).json({ error: 'Failed to create story' });

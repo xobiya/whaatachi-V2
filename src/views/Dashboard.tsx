@@ -2,7 +2,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { Search, MapPin, AlertCircle, Star, Sliders, CheckSquare, Square, RefreshCw, Lightbulb, ChevronLeft, ChevronRight, Filter, X } from 'lucide-react';
 import { Profile } from '../types';
 import ProfileCard from '../components/ProfileCard';
-import { useAppContext } from '../context/AppContext';
+import { useUIContext } from '../context/UIContext';
 
 const PRO_TIPS = [
   {
@@ -66,7 +66,7 @@ interface DashboardProps {
 export default function Dashboard({
   profiles, hasPaid, userGender, userLookingFor, isLoggedIn, onMakePayment
 }: DashboardProps) {
-  const { t } = useAppContext();
+  const { t } = useUIContext();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCity, setSelectedCity] = useState('All');
   const [filterType, setFilterType] = useState<'all' | 'recent' | 'verified' | 'unlocked'>('all');

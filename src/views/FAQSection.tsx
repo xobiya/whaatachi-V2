@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Search, HelpCircle, ChevronDown, ChevronUp, Mail, Phone, Sparkles } from 'lucide-react';
-import { useAppContext } from '../context/AppContext';
+import { useUIContext } from '../context/UIContext';
 import { fetchFaqs } from '../services/api';
 
 export default function FAQSection() {
@@ -8,7 +8,7 @@ export default function FAQSection() {
   const [activeCategory, setActiveCategory] = useState<string>('all');
   const [expandedIndex, setExpandedIndex] = useState<string | null>(null);
   const [faqs, setFaqs] = useState<Record<string, { question: string; answer: string }[]>>({});
-  const { t } = useAppContext();
+  const { t } = useUIContext();
 
   useEffect(() => {
     fetchFaqs().then(res => setFaqs(res.faqs)).catch(() => {});

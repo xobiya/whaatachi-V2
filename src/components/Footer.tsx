@@ -1,6 +1,6 @@
 import React from 'react';
 import { Heart, ShieldCheck, Crown } from 'lucide-react';
-import { useAppContext } from '../context/AppContext';
+import { useUIContext } from '../context/UIContext';
 
 interface FooterProps {
   setCurrentView: (view: string) => void;
@@ -8,7 +8,7 @@ interface FooterProps {
 }
 
 export default function Footer({ setCurrentView, isLoggedIn }: FooterProps) {
-  const { t } = useAppContext();
+  const { t } = useUIContext();
   return (
     <footer className="bg-[#1A1118] text-[#EDE6D9]/50 border-t border-[#C9A84C]/10">
       <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 py-12">

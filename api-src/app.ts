@@ -34,6 +34,14 @@ const limiter = rateLimit({
 });
 app.use('/api/', limiter);
 
+const cacheableRoutes = ['/api/faqs', '/api/articles', '/api/stories'];
+app.use((req, res, next) => {
+  if (req.method === 'GET' && cacheableRoutes.some(p => req.path.startsWith(p))) {
+    res.set('Cache-Control', 'public, max-age=300, s-maxage=600');
+  }
+  next();
+});
+
 app.use('/api/auth', authRoutes);
 app.use('/api/profiles', profileRoutes);
 app.use('/api/payments', paymentRoutes);

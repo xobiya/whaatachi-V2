@@ -2,7 +2,7 @@ import React, { useState, useRef, useMemo } from 'react';
 import { ArrowLeft, MapPin, ShieldCheck, Phone, Instagram, Mail, Lock, Sparkles, Star, Crown, Heart, Edit3, Check, X, Plus, User, Camera, Calendar } from 'lucide-react';
 import TelegramIcon from '../components/TelegramIcon';
 import { Profile, PaymentRequest } from '../types';
-import { useAppContext } from '../context/AppContext';
+import { useUIContext } from '../context/UIContext';
 
 
 const ALL_INTERESTS = [
@@ -40,7 +40,7 @@ interface ProfilePageProps {
 }
 
 export default function ProfilePage({ profile, isUnlocked, pendingPayment, userGender, isOwnProfile, onBack, onUnlockClick, onSaveProfile }: ProfilePageProps) {
-  const { t } = useAppContext();
+  const { t } = useUIContext();
   const [editing, setEditing] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);

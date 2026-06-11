@@ -51,11 +51,10 @@ router.put('/:id', authenticate, async (req: AuthRequest, res: Response) => {
 
     const { name, age, city, address, bio, lookingFor, image, status, relationshipIntent, interests, phone, telegram, instagram, email } = req.body;
 
-    await userModel.updateUser(String(req.params.id), {
+    const user = await userModel.updateUser(String(req.params.id), {
       name, age, city, address, bio, lookingFor, image, status, relationshipIntent, interests, phone, telegram, instagram, email,
     });
 
-    const user = await userModel.findUserById(String(req.params.id));
     if (!user) {
       res.status(404).json({ error: 'Profile not found' });
       return;

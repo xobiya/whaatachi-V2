@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { X, Copy, Check, ShieldAlert, CheckCircle, Upload, ArrowRight, DollarSign, File, Lock } from 'lucide-react';
 import { Profile } from '../types';
-import { useAppContext } from '../context/AppContext';
+import { useUIContext } from '../context/UIContext';
 
 interface PaymentModalProps {
   profile: Profile;
@@ -26,7 +26,7 @@ interface PaymentModalProps {
 export default function PaymentModal({
   profile, isOpen, onClose, onSubmitPayment, onPaymentSuccess, userGender, currentUser
 }: PaymentModalProps) {
-  const { t } = useAppContext();
+  const { t } = useUIContext();
   const [copiedText, setCopiedText] = useState<'tele' | 'cbe' | null>(null);
   const [senderName, setSenderName] = useState('');
   const [senderPhone, setSenderPhone] = useState('');

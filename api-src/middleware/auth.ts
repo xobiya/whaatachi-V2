@@ -2,10 +2,14 @@ import { Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { Request } from 'express';
 
+let cachedSecret: string | null = null;
+
 function getSecret(): string {
+  if (cachedSecret) return cachedSecret;
   const secret = process.env.JWT_SECRET;
   if (!secret) throw new Error('JWT_SECRET environment variable is required');
-  return secret;
+  cachedSecret = secret;
+  return cachedSecret;
 }
 
 export interface AuthPayload {

@@ -3,7 +3,7 @@ import { X, AlertCircle, User, Phone, Send, UserPlus, Camera, MapPin, Instagram 
 import TelegramIcon from './TelegramIcon';
 import { Profile } from '../types';
 import { sanitizeInput, sanitizePhone, sanitizeTelegram, sanitizeInstagram } from '../utils/sanitize';
-import { useAppContext } from '../context/AppContext';
+import { useUIContext } from '../context/UIContext';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -58,7 +58,7 @@ export default function AuthModal({
   const [signInContact, setSignInContact] = useState('');
 
   const [validationError, setValidationError] = useState<string | null>(null);
-  const { t } = useAppContext();
+  const { t } = useUIContext();
 
   useEffect(() => {
     setActiveTab(initialTab);

@@ -2,7 +2,7 @@ import React from 'react';
 import { ShieldCheck, MapPin, Phone, Crown, Star, Instagram } from 'lucide-react';
 import TelegramIcon from './TelegramIcon';
 import { Profile } from '../types';
-import { useAppContext } from '../context/AppContext';
+import { useUIContext } from '../context/UIContext';
 
 function maskPhone(val: string) {
   const digits = val.replace(/\D/g, '');
@@ -28,7 +28,7 @@ interface ProfileCardProps {
 export default function ProfileCard({
   profile, showContact, userGender, onMakePayment
 }: ProfileCardProps) {
-  const { t } = useAppContext();
+  const { t } = useUIContext();
 
   return (
     <div className="bg-white dark:bg-[#1A1118] rounded-2xl border border-[#EDE6D9] dark:border-[#C9A84C]/10 overflow-hidden shadow-sm hover:shadow-xl hover:border-[#C9A84C]/40 dark:hover:border-[#C9A84C]/30 transition-all duration-500 flex flex-col h-full group">

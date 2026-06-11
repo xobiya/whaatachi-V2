@@ -11,6 +11,8 @@ const articleSchema = new Schema({
   content: String,
 }, { timestamps: true, _id: false });
 
+articleSchema.index({ createdAt: -1 });
+
 const Article = mongoose.model('Article', articleSchema) as any;
 
 export async function findAllArticles(): Promise<any[]> {

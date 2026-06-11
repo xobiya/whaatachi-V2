@@ -5,7 +5,7 @@ import {
   Award, Lightbulb, Users, Key, AlertCircle, RefreshCw
 } from 'lucide-react';
 import { Profile } from '../types';
-import { useAppContext } from '../context/AppContext';
+import { useUIContext } from '../context/UIContext';
 
 interface HomeLoggedInProps {
   currentUser: Profile | null;
@@ -25,7 +25,7 @@ export default function HomeLoggedIn({
   onGoToMatches, onGoToHistory, onUnlockClick, profiles, unlockedIds,
   onViewProfile
 }: HomeLoggedInProps) {
-  const { t } = useAppContext();
+  const { t } = useUIContext();
   const user: Profile = currentUser || {
     id: 'placeholder-usr',
     name: 'Habesha Connector',

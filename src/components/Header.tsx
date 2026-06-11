@@ -3,7 +3,7 @@ import { Heart, Menu, X, User, LogOut, Crown, ChevronDown, Moon, Sun, Compass, U
 import TelegramIcon from './TelegramIcon';
 import { Profile } from '../types';
 import type { Lang } from '../i18n';
-import { useAppContext } from '../context/AppContext';
+import { useUIContext } from '../context/UIContext';
 
 interface HeaderProps {
   currentView: string;
@@ -38,7 +38,7 @@ export default function Header({
   onViewProfile
 }: HeaderProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const { t } = useAppContext();
+  const { t } = useUIContext();
 
   const handleNav = (view: string) => {
     setCurrentView(view);

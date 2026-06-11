@@ -1,10 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Send, ShieldCheck, Mail, Phone, ArrowUpRight } from 'lucide-react';
 import { SupportMessage } from '../types';
-import { useAppContext } from '../context/AppContext';
+import { useUIContext } from '../context/UIContext';
 
 export default function SupportPanel() {
-  const { t } = useAppContext();
+  const { t } = useUIContext();
   const [messages, setMessages] = useState<SupportMessage[]>([
     {
       id: 'm1',

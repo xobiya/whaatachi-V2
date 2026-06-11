@@ -13,7 +13,7 @@ router.post('/', authenticate, validatePayment, async (req: AuthRequest, res: Re
     const { profileId, profileName, profileImage, senderName, senderPhone, transactionId, method, amount, receiptImage } = req.body;
 
     const id = uuid();
-    await paymentModel.createPayment({
+    const created = await paymentModel.createPayment({
       id,
       userId: req.userId!,
       profileId,
@@ -27,12 +27,12 @@ router.post('/', authenticate, validatePayment, async (req: AuthRequest, res: Re
       receiptImage,
     });
 
-    const payment = await paymentModel.findPaymentById(id);
-    if (!payment) {
+    if (!created) {
       res.status(500).json({ error: 'Failed to create payment' });
       return;
     }
-    res.status(201).json({ payment: paymentRowToPayment(payment as any) });
+    const plain = typeof created.toObject === 'function' ? created.toObject() : created;
+    res.status(201).json({ payment: paymentRowToPayment(plain) });
   } catch (err: any) {
     console.error('Submit payment error:', err);
     res.status(500).json({ error: 'Failed to submit payment' });
@@ -55,8 +55,7 @@ router.get('/', authenticate, async (req: AuthRequest, res: Response) => {
 router.put('/:id/approve', authenticate, adminOnly, async (req: AuthRequest, res: Response) => {
   try {
     const id = String(req.params.id);
-    await paymentModel.updatePaymentStatus(id, 'Approved');
-    const payment = await paymentModel.findPaymentById(id);
+    const payment = await paymentModel.updatePaymentStatus(id, 'Approved');
 
     if (!payment) {
       res.status(404).json({ error: 'Payment not found' });
@@ -75,8 +74,7 @@ router.put('/:id/approve', authenticate, adminOnly, async (req: AuthRequest, res
 router.put('/:id/reject', authenticate, adminOnly, async (req: AuthRequest, res: Response) => {
   try {
     const id = String(req.params.id);
-    await paymentModel.updatePaymentStatus(id, 'Rejected');
-    const payment = await paymentModel.findPaymentById(id);
+    const payment = await paymentModel.updatePaymentStatus(id, 'Rejected');
 
     if (!payment) {
       res.status(404).json({ error: 'Payment not found' });

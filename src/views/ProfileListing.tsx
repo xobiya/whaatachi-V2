@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { Profile } from '../types';
 import { MapPin, Phone, Instagram, Heart, Search, Filter, X } from 'lucide-react';
 import TelegramIcon from '../components/TelegramIcon';
-import { useAppContext } from '../context/AppContext';
+import { useUIContext } from '../context/UIContext';
 const INTENT_BADGE: Record<string, { label: string; cls: string }> = {
   'True Relationship': { label: '❤️ True Relationship', cls: 'bg-rose-500/10 text-rose-400 border-rose-500/30' },
   'Friendship': { label: '🤝 Friendship', cls: 'bg-blue-500/10 text-blue-400 border-blue-500/30' },
@@ -23,7 +23,7 @@ export default function ProfileListing({
   hasPaid,
   onMakePayment,
 }: ProfileListingProps) {
-  const { t } = useAppContext();
+  const { t } = useUIContext();
   const [searchQuery, setSearchQuery] = useState('');
   const [filterIntent, setFilterIntent] = useState<string | null>(currentUser.relationshipIntent);
   const [filterCity, setFilterCity] = useState<string | null>(null);
@@ -240,7 +240,7 @@ function maskHandle(val: string) {
 function ProfileListCard({
   profile, showContact, badge, onMakePayment
 }: ProfileListCardProps) {
-  const { t } = useAppContext();
+  const { t } = useUIContext();
 
   return (
     <div className="bg-white dark:bg-[#1A1118] rounded-2xl border border-[#EDE6D9] dark:border-[#C9A84C]/10 overflow-hidden shadow-sm hover:shadow-xl hover:border-[#C9A84C]/30 dark:hover:border-[#C9A84C]/20 transition-all duration-400 flex flex-col group">

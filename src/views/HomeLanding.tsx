@@ -1,7 +1,7 @@
 import React from 'react';
 import { Heart, ShieldCheck, Users, Sparkles, ArrowRight, ChevronRight, Lock, Phone, MessageCircle, Star, CheckCircle, Crown, MapPin } from 'lucide-react';
 import { Profile } from '../types';
-import { useAppContext } from '../context/AppContext';
+import { useUIContext } from '../context/UIContext';
 
 interface HomeLandingProps {
   onJoinNowClick: (tab?: 'register' | 'signin') => void;
@@ -21,7 +21,7 @@ const featured = [
 ];
 
 export default function HomeLanding({ onJoinNowClick, onGoToDashboard }: HomeLandingProps) {
-  const { t } = useAppContext();
+  const { t } = useUIContext();
   return (
     <div className="bg-[#FFFCF8] dark:bg-[#120A0E] text-gray-900 dark:text-[#FFFCF8] min-h-screen font-sans transition-colors duration-200">
 

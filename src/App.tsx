@@ -16,11 +16,15 @@ import { Heart } from 'lucide-react';
 import { Profile, PaymentRequest, SuccessStory } from './types';
 import * as api from './services/api';
 import { CheckCircle, ShieldAlert, Clock } from 'lucide-react';
-import { AppProvider, useAppContext } from './context/AppContext';
+import { AuthProvider, useAuthContext } from './context/AuthContext';
+import { UIProvider, useUIContext } from './context/UIContext';
+import { DataProvider, useDataContext } from './context/DataContext';
 import ErrorBoundary from './components/ErrorBoundary';
 
 function AppContent() {
-  const { state, dispatch, t } = useAppContext();
+  const auth = useAuthContext();
+  const ui = useUIContext();
+  const data = useDataContext();
   const [authIntent, setAuthIntent] = useState<'register' | 'signin'>('register');
   const [isRegistering, setIsRegistering] = useState(false);
   const [paymentCountdown, setPaymentCountdown] = useState(0);
@@ -30,31 +34,31 @@ function AppContent() {
     const checkPath = () => {
       const path = window.location.pathname;
       if (path === '/admin') {
-        dispatch({ type: 'SET_USER_ROLE', payload: 'admin' });
-        dispatch({ type: 'SET_CURRENT_VIEW', payload: 'admin' });
+        auth.dispatch({ type: 'SET_USER_ROLE', payload: 'admin' });
+        ui.dispatch({ type: 'SET_CURRENT_VIEW', payload: 'admin' });
       } else if (path === '/history') {
-        dispatch({ type: 'SET_CURRENT_VIEW', payload: 'history' });
+        ui.dispatch({ type: 'SET_CURRENT_VIEW', payload: 'history' });
       } else if (path === '/dashboard') {
-        dispatch({ type: 'SET_CURRENT_VIEW', payload: 'dashboard' });
+        ui.dispatch({ type: 'SET_CURRENT_VIEW', payload: 'dashboard' });
       } else if (path === '/browse') {
-        dispatch({ type: 'SET_CURRENT_VIEW', payload: 'browse' });
+        ui.dispatch({ type: 'SET_CURRENT_VIEW', payload: 'browse' });
       } else if (path === '/faq') {
-        dispatch({ type: 'SET_CURRENT_VIEW', payload: 'faq' });
+        ui.dispatch({ type: 'SET_CURRENT_VIEW', payload: 'faq' });
       } else if (path === '/stories') {
-        dispatch({ type: 'SET_CURRENT_VIEW', payload: 'stories' });
+        ui.dispatch({ type: 'SET_CURRENT_VIEW', payload: 'stories' });
       } else if (path === '/blog') {
-        dispatch({ type: 'SET_CURRENT_VIEW', payload: 'blog' });
+        ui.dispatch({ type: 'SET_CURRENT_VIEW', payload: 'blog' });
       } else if (path === '/support') {
-        dispatch({ type: 'SET_CURRENT_VIEW', payload: 'support' });
+        ui.dispatch({ type: 'SET_CURRENT_VIEW', payload: 'support' });
       } else if (path === '/profile') {
-        if (state.currentUser) {
-          dispatch({ type: 'SET_VIEWING_PROFILE', payload: state.currentUser });
-          dispatch({ type: 'SET_CURRENT_VIEW', payload: 'profile' });
+        if (auth.state.currentUser) {
+          data.dispatch({ type: 'SET_VIEWING_PROFILE', payload: auth.state.currentUser });
+          ui.dispatch({ type: 'SET_CURRENT_VIEW', payload: 'profile' });
         } else {
-          dispatch({ type: 'SET_CURRENT_VIEW', payload: 'home' });
+          ui.dispatch({ type: 'SET_CURRENT_VIEW', payload: 'home' });
         }
       } else if (path === '/') {
-        dispatch({ type: 'SET_CURRENT_VIEW', payload: 'home' });
+        ui.dispatch({ type: 'SET_CURRENT_VIEW', payload: 'home' });
       }
     };
 
@@ -65,45 +69,45 @@ function AppContent() {
     };
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
-  }, [dispatch]);
+  }, [auth.dispatch, ui.dispatch, data.dispatch, auth.state.currentUser]);
 
   useEffect(() => {
     const currentPath = window.location.pathname;
     let targetPath = '/';
-    if (state.currentView === 'home') targetPath = '/';
-    else if (state.currentView === 'browse') targetPath = '/browse';
-    else targetPath = `/${state.currentView}`;
+    if (ui.state.currentView === 'home') targetPath = '/';
+    else if (ui.state.currentView === 'browse') targetPath = '/browse';
+    else targetPath = `/${ui.state.currentView}`;
 
     if (currentPath !== targetPath) {
       window.history.pushState({}, '', targetPath);
     }
-  }, [state.currentView]);
+  }, [ui.state.currentView]);
 
   useEffect(() => {
-    const view = state.currentView;
+    const view = ui.state.currentView;
     if (view === 'browse' || view === 'dashboard' || view === 'profile' || view === 'admin') {
-      if (state.profiles.length === 0) {
+      if (data.state.profiles.length === 0) {
         api.fetchProfiles({ limit: 100 }).then(res => {
           if (res && Array.isArray(res.profiles)) {
-            dispatch({ type: 'SET_PROFILES', payload: res.profiles });
+            data.dispatch({ type: 'SET_PROFILES', payload: res.profiles });
           }
         }).catch((err) => console.error('Failed to fetch profiles:', err));
       }
     }
     if (view === 'stories') {
-      if (state.stories.length === 0) {
+      if (data.state.stories.length === 0) {
         api.fetchStories().then(res => {
           if (res && Array.isArray(res.stories)) {
-            dispatch({ type: 'SET_STORIES', payload: res.stories });
+            data.dispatch({ type: 'SET_STORIES', payload: res.stories });
           }
         }).catch((err) => console.error('Failed to fetch stories:', err));
       }
     }
     if (view === 'blog') {
-      if (state.articles.length === 0) {
+      if (data.state.articles.length === 0) {
         api.fetchArticles().then(res => {
           if (res && Array.isArray(res.articles)) {
-            dispatch({ type: 'SET_ARTICLES', payload: res.articles });
+            data.dispatch({ type: 'SET_ARTICLES', payload: res.articles });
           }
         }).catch((err) => console.error('Failed to fetch articles:', err));
       }
@@ -112,22 +116,22 @@ function AppContent() {
       if (api.getAuthToken()) {
         api.fetchPayments().then(res => {
           if (res && Array.isArray(res.payments)) {
-            dispatch({ type: 'SET_PAYMENTS', payload: res.payments });
+            data.dispatch({ type: 'SET_PAYMENTS', payload: res.payments });
           }
         }).catch((err) => console.error('Failed to fetch payments:', err));
       }
     }
-  }, [state.currentView]);
+  }, [ui.state.currentView]);
 
   useEffect(() => {
-    if (!state.isLoggedIn) {
-      dispatch({ type: 'SET_CURRENT_USER', payload: null });
+    if (!auth.state.isLoggedIn) {
+      auth.dispatch({ type: 'SET_CURRENT_USER', payload: null });
     }
-  }, [state.isLoggedIn, dispatch]);
+  }, [auth.state.isLoggedIn, auth.dispatch]);
 
   const triggerNotification = (type: 'success' | 'info', text: string) => {
-    dispatch({ type: 'SET_NOTIFICATION', payload: { type, text } });
-    setTimeout(() => dispatch({ type: 'SET_NOTIFICATION', payload: null }), 5000);
+    ui.dispatch({ type: 'SET_NOTIFICATION', payload: { type, text } });
+    setTimeout(() => ui.dispatch({ type: 'SET_NOTIFICATION', payload: null }), 5000);
   };
 
   const handleSubmitPayment = async (
@@ -156,8 +160,8 @@ function AppContent() {
       receiptImage
     };
 
-    dispatch({ type: 'ADD_PAYMENT', payload: newRequest });
-    triggerNotification('info', t('app.notify.submitted').replace('{txId}', transactionId));
+    data.dispatch({ type: 'ADD_PAYMENT', payload: newRequest });
+    triggerNotification('info', ui.t('app.notify.submitted').replace('{txId}', transactionId));
 
     try {
       await api.submitPayment({
@@ -171,27 +175,27 @@ function AppContent() {
   };
 
   const handleApprovePayment = (paymentId: string) => {
-    const payment = state.allPayments.find(p => p.id === paymentId);
+    const payment = data.state.allPayments.find(p => p.id === paymentId);
     if (!payment) return;
 
-    dispatch({ type: 'UPDATE_PAYMENT', payload: { id: paymentId, status: 'Approved' } });
-    dispatch({ type: 'ADD_UNLOCK', payload: payment.profileId });
+    data.dispatch({ type: 'UPDATE_PAYMENT', payload: { id: paymentId, status: 'Approved' } });
+    data.dispatch({ type: 'ADD_UNLOCK', payload: payment.profileId });
 
-    const updatedProfiles = state.profiles.map((profile) => {
+    const updatedProfiles = data.state.profiles.map((profile) => {
       if (profile.id === payment.profileId) {
         return { ...profile, verified: true };
       }
       return profile;
     });
-    dispatch({ type: 'SET_PROFILES', payload: updatedProfiles });
-    triggerNotification('success', t('app.notify.approved').replace('{name}', payment.profileName));
+    data.dispatch({ type: 'SET_PROFILES', payload: updatedProfiles });
+    triggerNotification('success', ui.t('app.notify.approved').replace('{name}', payment.profileName));
 
     api.approvePayment(paymentId).catch((err) => console.error('Approve payment API error:', err));
   };
 
   const handleRejectPayment = (paymentId: string) => {
-    dispatch({ type: 'UPDATE_PAYMENT', payload: { id: paymentId, status: 'Rejected' } });
-    triggerNotification('info', t('app.notify.rejected'));
+    data.dispatch({ type: 'UPDATE_PAYMENT', payload: { id: paymentId, status: 'Rejected' } });
+    triggerNotification('info', ui.t('app.notify.rejected'));
     api.rejectPayment(paymentId).catch((err) => console.error('Reject payment API error:', err));
   };
 
@@ -203,8 +207,8 @@ function AppContent() {
       year,
       image
     };
-    dispatch({ type: 'ADD_STORY', payload: newStory });
-    triggerNotification('success', t('app.notify.story-saved'));
+    data.dispatch({ type: 'ADD_STORY', payload: newStory });
+    triggerNotification('success', ui.t('app.notify.story-saved'));
     api.createStory({ coupleNames, story, year, image }).catch((err) => console.error('Create story API error:', err));
   };
 
@@ -212,12 +216,12 @@ function AppContent() {
     setIsRegistering(true);
     setTimeout(() => setIsRegistering(false), 2000);
     const profileWithLookingFor = { ...newProfile, lookingFor: newProfile.lookingFor || (newProfile.gender === 'Male' ? 'Female' : 'Male') };
-    dispatch({ type: 'SET_CURRENT_USER', payload: profileWithLookingFor });
-    dispatch({ type: 'SET_LOGGED_IN', payload: true });
-    dispatch({ type: 'SET_USER_GENDER', payload: profileWithLookingFor.gender });
-    dispatch({ type: 'SET_CURRENT_VIEW', payload: 'browse' });
-    dispatch({ type: 'SET_PROFILES', payload: [profileWithLookingFor, ...state.profiles] });
-    triggerNotification('success', t('app.notify.welcome').replace('{name}', profileWithLookingFor.name));
+    auth.dispatch({ type: 'SET_CURRENT_USER', payload: profileWithLookingFor });
+    auth.dispatch({ type: 'SET_LOGGED_IN', payload: true });
+    auth.dispatch({ type: 'SET_USER_GENDER', payload: profileWithLookingFor.gender });
+    ui.dispatch({ type: 'SET_CURRENT_VIEW', payload: 'browse' });
+    data.dispatch({ type: 'SET_PROFILES', payload: [profileWithLookingFor, ...data.state.profiles] });
+    triggerNotification('success', ui.t('app.notify.welcome').replace('{name}', profileWithLookingFor.name));
 
     try {
       const result = await api.register({
@@ -245,8 +249,8 @@ function AppContent() {
 
   const handlePaymentSuccess = () => {
     setPaymentCountdown(300);
-    dispatch({ type: 'SET_PAYMENT_MODAL', payload: false });
-    dispatch({ type: 'SET_UNLOCK_TARGET', payload: null });
+    data.dispatch({ type: 'SET_PAYMENT_MODAL', payload: false });
+    data.dispatch({ type: 'SET_UNLOCK_TARGET', payload: null });
     if (paymentTimerRef.current) clearInterval(paymentTimerRef.current);
     paymentTimerRef.current = setInterval(() => {
       setPaymentCountdown(prev => {
@@ -261,7 +265,7 @@ function AppContent() {
 
   const handleSignInUser = async (phone: string, telegram: string, instagram: string): Promise<boolean> => {
     const normalize = (s: string) => s.replace(/[@\s]/g, '').toLowerCase();
-    const found = state.profiles.find((p) => {
+    const found = data.state.profiles.find((p) => {
       if (phone && (p.contactInfo.phone === phone || p.contactInfo.phone.replace(/\s/g, '') === phone.replace(/\s/g, ''))) return true;
       if (telegram && (normalize(p.contactInfo.telegram) === normalize(telegram) || p.contactInfo.telegram.toLowerCase() === telegram.toLowerCase())) return true;
       if (instagram && (normalize(p.contactInfo.instagram) === normalize(instagram) || p.contactInfo.instagram.toLowerCase() === instagram.toLowerCase())) return true;
@@ -270,11 +274,11 @@ function AppContent() {
 
     if (found) {
       const profileWithLookingFor = { ...found, lookingFor: found.lookingFor || (found.gender === 'Male' ? 'Female' : 'Male') };
-      dispatch({ type: 'SET_CURRENT_USER', payload: profileWithLookingFor });
-      dispatch({ type: 'SET_LOGGED_IN', payload: true });
-      dispatch({ type: 'SET_USER_GENDER', payload: profileWithLookingFor.gender });
-      dispatch({ type: 'SET_CURRENT_VIEW', payload: 'browse' });
-      triggerNotification('success', t('app.notify.welcome-back').replace('{name}', found.name));
+      auth.dispatch({ type: 'SET_CURRENT_USER', payload: profileWithLookingFor });
+      auth.dispatch({ type: 'SET_LOGGED_IN', payload: true });
+      auth.dispatch({ type: 'SET_USER_GENDER', payload: profileWithLookingFor.gender });
+      ui.dispatch({ type: 'SET_CURRENT_VIEW', payload: 'browse' });
+      triggerNotification('success', ui.t('app.notify.welcome-back').replace('{name}', found.name));
 
       const result = await api.login(found.name, phone);
       api.setAuthToken(result.token);
@@ -286,11 +290,11 @@ function AppContent() {
 
   const handleSimulateTestLogin = async (profile: Profile) => {
     const updatedProfile = { ...profile, lookingFor: profile.lookingFor || (profile.gender === 'Male' ? 'Female' : 'Male') };
-    dispatch({ type: 'SET_CURRENT_USER', payload: updatedProfile });
-    dispatch({ type: 'SET_LOGGED_IN', payload: true });
-    dispatch({ type: 'SET_USER_GENDER', payload: updatedProfile.gender });
-    dispatch({ type: 'SET_CURRENT_VIEW', payload: 'browse' });
-    triggerNotification('success', t('app.notify.welcome-back').replace('{name}', profile.name));
+    auth.dispatch({ type: 'SET_CURRENT_USER', payload: updatedProfile });
+    auth.dispatch({ type: 'SET_LOGGED_IN', payload: true });
+    auth.dispatch({ type: 'SET_USER_GENDER', payload: updatedProfile.gender });
+    ui.dispatch({ type: 'SET_CURRENT_VIEW', payload: 'browse' });
+    triggerNotification('success', ui.t('app.notify.welcome-back').replace('{name}', profile.name));
     try {
       const result = await api.login(profile.name);
       api.setAuthToken(result.token);
@@ -300,59 +304,64 @@ function AppContent() {
   };
 
   const handleUpdateBio = (newBio: string) => {
-    if (!state.currentUser) return;
-    const updatedUser = { ...state.currentUser, bio: newBio };
-    dispatch({ type: 'UPDATE_PROFILE', payload: updatedUser });
-    triggerNotification('success', t('app.notify.bio-updated'));
+    if (!auth.state.currentUser) return;
+    const updatedUser = { ...auth.state.currentUser, bio: newBio };
+    data.dispatch({ type: 'UPDATE_PROFILE', payload: updatedUser });
+    auth.dispatch({ type: 'SET_CURRENT_USER', payload: updatedUser });
+    triggerNotification('success', ui.t('app.notify.bio-updated'));
   };
 
   const handleUpdateStatus = (newStatus: 'Online' | 'Offline' | 'Recently Active') => {
-    if (!state.currentUser) return;
-    const updatedUser = { ...state.currentUser, status: newStatus };
-    dispatch({ type: 'UPDATE_PROFILE', payload: updatedUser });
-    triggerNotification('success', t('app.notify.status-set').replace('{status}', newStatus));
+    if (!auth.state.currentUser) return;
+    const updatedUser = { ...auth.state.currentUser, status: newStatus };
+    data.dispatch({ type: 'UPDATE_PROFILE', payload: updatedUser });
+    auth.dispatch({ type: 'SET_CURRENT_USER', payload: updatedUser });
+    triggerNotification('success', ui.t('app.notify.status-set').replace('{status}', newStatus));
   };
 
   const handleSaveProfile = (updated: Profile) => {
-    dispatch({ type: 'UPDATE_PROFILE', payload: updated });
-    triggerNotification('success', t('app.notify.profile-updated'));
+    data.dispatch({ type: 'UPDATE_PROFILE', payload: updated });
+    if (auth.state.currentUser?.id === updated.id) {
+      auth.dispatch({ type: 'SET_CURRENT_USER', payload: updated });
+    }
+    triggerNotification('success', ui.t('app.notify.profile-updated'));
     api.updateProfile(updated.id, updated).catch((err) => console.error('Update profile API error:', err));
   };
 
   const handleViewProfile = (profile: Profile) => {
-    dispatch({ type: 'SET_VIEWING_PROFILE', payload: profile });
-    dispatch({ type: 'SET_CURRENT_VIEW', payload: 'profile' });
+    data.dispatch({ type: 'SET_VIEWING_PROFILE', payload: profile });
+    ui.dispatch({ type: 'SET_CURRENT_VIEW', payload: 'profile' });
   };
 
   const handleUnlockTrigger = (profile: Profile) => {
-    if (!state.isLoggedIn) {
-      dispatch({ type: 'SET_CURRENT_VIEW', payload: 'home' });
+    if (!auth.state.isLoggedIn) {
+      ui.dispatch({ type: 'SET_CURRENT_VIEW', payload: 'home' });
       return;
     }
-    dispatch({ type: 'SET_UNLOCK_TARGET', payload: profile });
-    dispatch({ type: 'SET_PAYMENT_MODAL', payload: true });
+    data.dispatch({ type: 'SET_UNLOCK_TARGET', payload: profile });
+    data.dispatch({ type: 'SET_PAYMENT_MODAL', payload: true });
   };
 
   const activePendingPayments = useMemo(() => {
-    return state.allPayments.filter(p => p.status === 'Pending');
-  }, [state.allPayments]);
+    return data.state.allPayments.filter(p => p.status === 'Pending');
+  }, [data.state.allPayments]);
 
   const unlockedProfilesList = useMemo(() => {
-    return state.profiles.filter(p => state.unlockedIds.includes(p.id));
-  }, [state.profiles, state.unlockedIds]);
+    return data.state.profiles.filter(p => data.state.unlockedIds.includes(p.id));
+  }, [data.state.profiles, data.state.unlockedIds]);
 
   const userLookingFor = useMemo<'Male' | 'Female'>(() => {
-    if (state.currentUser?.lookingFor) return state.currentUser.lookingFor;
-    return state.userGender === 'Male' ? 'Female' : 'Male';
-  }, [state.currentUser, state.userGender]);
+    if (auth.state.currentUser?.lookingFor) return auth.state.currentUser.lookingFor;
+    return auth.state.userGender === 'Male' ? 'Female' : 'Male';
+  }, [auth.state.currentUser, auth.state.userGender]);
 
   const userHasPaid = useMemo(() => {
-    if (!state.currentUser) return false;
-    const name = state.currentUser.name.toLowerCase();
-    return state.allPayments.some(p => p.status === 'Approved' && p.senderName.toLowerCase() === name);
-  }, [state.allPayments, state.currentUser]);
+    if (!auth.state.currentUser) return false;
+    const name = auth.state.currentUser.name.toLowerCase();
+    return data.state.allPayments.some(p => p.status === 'Approved' && p.senderName.toLowerCase() === name);
+  }, [data.state.allPayments, auth.state.currentUser]);
 
-  if (state.loading) {
+  if (ui.state.loading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-[#FFFCF8] dark:bg-[#120A0E]">
         <div className="w-10 h-10 border-2 border-[#EB317A] border-t-transparent rounded-full animate-spin" />
@@ -361,30 +370,30 @@ function AppContent() {
   }
 
   // ── Admin Panel (no header/footer) ──
-  if (state.currentView === 'admin') {
+  if (ui.state.currentView === 'admin') {
     return (
       <div className="font-sans">
         <AdminPanel
-          allPayments={state.allPayments}
-          setAllPayments={(p: any) => dispatch({ type: 'SET_PAYMENTS', payload: typeof p === 'function' ? p(state.allPayments) : p })}
-          profiles={state.profiles}
-          setProfiles={(p: any) => dispatch({ type: 'SET_PROFILES', payload: typeof p === 'function' ? p(state.profiles) : p })}
-          stories={state.stories}
-          setStories={(s: any) => dispatch({ type: 'SET_STORIES', payload: typeof s === 'function' ? s(state.stories) : s })}
+          allPayments={data.state.allPayments}
+          setAllPayments={(p: any) => data.dispatch({ type: 'SET_PAYMENTS', payload: typeof p === 'function' ? p(data.state.allPayments) : p })}
+          profiles={data.state.profiles}
+          setProfiles={(p: any) => data.dispatch({ type: 'SET_PROFILES', payload: typeof p === 'function' ? p(data.state.profiles) : p })}
+          stories={data.state.stories}
+          setStories={(s: any) => data.dispatch({ type: 'SET_STORIES', payload: typeof s === 'function' ? s(data.state.stories) : s })}
           onApprove={handleApprovePayment}
           onReject={handleRejectPayment}
-          setUserRole={(r) => dispatch({ type: 'SET_USER_ROLE', payload: r })}
-          setCurrentView={(v) => dispatch({ type: 'SET_CURRENT_VIEW', payload: v })}
-          isLoggedIn={state.isLoggedIn}
-          darkMode={state.darkMode}
-          setDarkMode={(d) => dispatch({ type: 'SET_DARK_MODE', payload: d })}
+          setUserRole={(r) => auth.dispatch({ type: 'SET_USER_ROLE', payload: r })}
+          setCurrentView={(v) => ui.dispatch({ type: 'SET_CURRENT_VIEW', payload: v })}
+          isLoggedIn={auth.state.isLoggedIn}
+          darkMode={ui.state.darkMode}
+          setDarkMode={(d) => ui.dispatch({ type: 'SET_DARK_MODE', payload: d })}
         />
       </div>
     );
   }
 
   // ── Onboarding (no header/footer) — shown when not logged in ──
-  if (!state.isLoggedIn && state.currentView === 'home') {
+  if (!auth.state.isLoggedIn && ui.state.currentView === 'home') {
     return (
       <OnboardingFlow
         onComplete={handleRegisterUser}
@@ -399,47 +408,47 @@ function AppContent() {
 
       {/* 1. Header */}
       <Header
-        currentView={state.currentView}
-        setCurrentView={(v) => dispatch({ type: 'SET_CURRENT_VIEW', payload: v })}
-        userRole={state.userRole}
-        setUserRole={(r) => dispatch({ type: 'SET_USER_ROLE', payload: r })}
-        isLoggedIn={state.isLoggedIn}
+        currentView={ui.state.currentView}
+        setCurrentView={(v) => ui.dispatch({ type: 'SET_CURRENT_VIEW', payload: v })}
+        userRole={auth.state.userRole}
+        setUserRole={(r) => auth.dispatch({ type: 'SET_USER_ROLE', payload: r })}
+        isLoggedIn={auth.state.isLoggedIn}
         setIsLoggedIn={(v) => {
-          dispatch({ type: 'SET_LOGGED_IN', payload: v });
+          auth.dispatch({ type: 'SET_LOGGED_IN', payload: v });
           if (!v) {
             api.setAuthToken(null);
-            dispatch({ type: 'SET_CURRENT_VIEW', payload: 'home' });
+            ui.dispatch({ type: 'SET_CURRENT_VIEW', payload: 'home' });
           }
         }}
-        userGender={state.userGender}
-        setUserGender={(g) => dispatch({ type: 'SET_USER_GENDER', payload: g })}
+        userGender={auth.state.userGender}
+        setUserGender={(g) => auth.dispatch({ type: 'SET_USER_GENDER', payload: g })}
         pendingCount={activePendingPayments.length}
-        darkMode={state.darkMode}
-        setDarkMode={(d) => dispatch({ type: 'SET_DARK_MODE', payload: d })}
-        lang={state.lang}
-        setLang={(l) => dispatch({ type: 'SET_LANG', payload: l })}
-        onOpenAuth={(tab) => { dispatch({ type: 'SET_CURRENT_VIEW', payload: 'home' }); setAuthIntent(tab || 'register'); }}
-        currentUser={state.currentUser}
+        darkMode={ui.state.darkMode}
+        setDarkMode={(d) => ui.dispatch({ type: 'SET_DARK_MODE', payload: d })}
+        lang={ui.state.lang}
+        setLang={(l) => ui.dispatch({ type: 'SET_LANG', payload: l })}
+        onOpenAuth={(tab) => { ui.dispatch({ type: 'SET_CURRENT_VIEW', payload: 'home' }); setAuthIntent(tab || 'register'); }}
+        currentUser={auth.state.currentUser}
       />
 
       {/* 2. Toast notifications */}
-      {state.notification && (
+      {ui.state.notification && (
         <div
           className={`fixed top-20 right-5 z-55 max-w-sm p-4 rounded-2xl shadow-xl flex items-start gap-3 border animate-slide-up ${
-            state.notification.type === 'success'
+            ui.state.notification.type === 'success'
               ? 'bg-[#F8F4ED] border-[#C9A84C]/40 text-[#1A1118]'
               : 'bg-[#F8F4ED] border-[#EB317A]/20 text-[#1A1118]'
           }`}
           id="toast-notification"
         >
-          {state.notification.type === 'success' ? (
+          {ui.state.notification.type === 'success' ? (
             <CheckCircle className="h-5 w-5 text-[#C9A84C] shrink-0 mt-0.5" />
           ) : (
             <ShieldAlert className="h-5 w-5 text-[#EB317A] shrink-0 mt-0.5" />
           )}
           <div>
-            <p className="font-bold text-xs text-[#EB317A]">{t('app.name')}</p>
-            <p className="text-[11px] font-medium leading-relaxed mt-0.5 text-gray-700">{state.notification.text}</p>
+            <p className="font-bold text-xs text-[#EB317A]">{ui.t('app.name')}</p>
+            <p className="text-[11px] font-medium leading-relaxed mt-0.5 text-gray-700">{ui.state.notification.text}</p>
           </div>
         </div>
       )}
@@ -449,29 +458,25 @@ function AppContent() {
         <Suspense fallback={<div className="flex items-center justify-center py-20"><div className="w-8 h-8 border-2 border-[#EB317A] border-t-transparent rounded-full animate-spin" /></div>}>
 
           {/* Browse — main post-registration listing */}
-          {(state.currentView === 'home' || state.currentView === 'browse') && state.isLoggedIn && state.currentUser && (
+          {(ui.state.currentView === 'home' || ui.state.currentView === 'browse') && auth.state.isLoggedIn && auth.state.currentUser && (
             <ProfileListing
-              profiles={state.profiles}
-              currentUser={state.currentUser}
+              profiles={data.state.profiles}
+              currentUser={auth.state.currentUser}
               hasPaid={userHasPaid}
               onMakePayment={handleUnlockTrigger}
             />
           )}
 
           {/* Profile page */}
-          {state.currentView === 'profile' && (state.viewingProfile || state.currentUser) && (
+          {ui.state.currentView === 'profile' && (data.state.viewingProfile || auth.state.currentUser) && (
             <ProfilePage
-              profile={state.viewingProfile || state.currentUser!}
-              isUnlocked={state.viewingProfile ? state.unlockedIds.includes(state.viewingProfile.id) : true}
-              pendingPayment={state.viewingProfile ? state.allPayments.find(p => p.profileId === state.viewingProfile!.id && p.status === 'Pending') : undefined}
-              userGender={state.userGender}
-              isOwnProfile={!state.viewingProfile || state.currentUser?.id === state.viewingProfile.id}
+              profile={data.state.viewingProfile || auth.state.currentUser!}
+              isUnlocked={data.state.viewingProfile ? data.state.unlockedIds.includes(data.state.viewingProfile.id) : true}
+              pendingPayment={data.state.viewingProfile ? data.state.allPayments.find(p => p.profileId === data.state.viewingProfile!.id && p.status === 'Pending') : undefined}
+              userGender={auth.state.userGender}
+              isOwnProfile={!data.state.viewingProfile || auth.state.currentUser?.id === data.state.viewingProfile.id}
               onBack={() => {
-                if (!state.viewingProfile || state.currentUser?.id === state.viewingProfile.id) {
-                  dispatch({ type: 'SET_CURRENT_VIEW', payload: 'browse' });
-                } else {
-                  dispatch({ type: 'SET_CURRENT_VIEW', payload: 'browse' });
-                }
+                ui.dispatch({ type: 'SET_CURRENT_VIEW', payload: 'browse' });
               }}
               onUnlockClick={handleUnlockTrigger}
               onSaveProfile={handleSaveProfile}
@@ -479,66 +484,66 @@ function AppContent() {
           )}
 
           {/* Discover dashboard (optional advanced browse) */}
-          {state.currentView === 'dashboard' && (
+          {ui.state.currentView === 'dashboard' && (
             <Dashboard
-              profiles={state.profiles}
+              profiles={data.state.profiles}
               hasPaid={userHasPaid}
-              userGender={state.userGender}
+              userGender={auth.state.userGender}
               userLookingFor={userLookingFor}
-              isLoggedIn={state.isLoggedIn}
+              isLoggedIn={auth.state.isLoggedIn}
               onMakePayment={handleUnlockTrigger}
             />
           )}
 
           {/* History */}
-          {state.currentView === 'history' && (
+          {ui.state.currentView === 'history' && (
             <UnlockHistory
               unlockedProfiles={unlockedProfilesList}
-              onBackToFinder={() => dispatch({ type: 'SET_CURRENT_VIEW', payload: 'browse' })}
+              onBackToFinder={() => ui.dispatch({ type: 'SET_CURRENT_VIEW', payload: 'browse' })}
               onViewProfile={handleViewProfile}
             />
           )}
 
           {/* FAQ */}
-          {state.currentView === 'faq' && <FAQSection />}
+          {ui.state.currentView === 'faq' && <FAQSection />}
 
           {/* Success Stories */}
-          {state.currentView === 'stories' && (
+          {ui.state.currentView === 'stories' && (
             <SuccessStories
-              stories={state.stories}
+              stories={data.state.stories}
               onAddStory={handleAddStory}
             />
           )}
 
           {/* Blog */}
-          {state.currentView === 'blog' && <BlogPage articles={state.articles} />}
+          {ui.state.currentView === 'blog' && <BlogPage articles={data.state.articles} />}
 
           {/* Support */}
-          {state.currentView === 'support' && <SupportPanel />}
+          {ui.state.currentView === 'support' && <SupportPanel />}
 
         </Suspense>
       </main>
 
       {/* 4. Payment modal */}
-      {state.activeUnlockTarget && (
+      {data.state.activeUnlockTarget && (
         <PaymentModal
-          profile={state.activeUnlockTarget}
-          isOpen={state.isPaymentModalOpen}
+          profile={data.state.activeUnlockTarget}
+          isOpen={data.state.isPaymentModalOpen}
           onClose={() => {
-            dispatch({ type: 'SET_PAYMENT_MODAL', payload: false });
-            dispatch({ type: 'SET_UNLOCK_TARGET', payload: null });
+            data.dispatch({ type: 'SET_PAYMENT_MODAL', payload: false });
+            data.dispatch({ type: 'SET_UNLOCK_TARGET', payload: null });
           }}
           onSubmitPayment={handleSubmitPayment}
           onPaymentSuccess={handlePaymentSuccess}
-          userGender={state.userGender}
-          currentUser={state.currentUser}
+          userGender={auth.state.userGender}
+          currentUser={auth.state.currentUser}
         />
       )}
 
       {/* 5. Footer */}
       <Footer
-        setCurrentView={(v) => dispatch({ type: 'SET_CURRENT_VIEW', payload: v })}
-        isLoggedIn={state.isLoggedIn}
+        setCurrentView={(v) => ui.dispatch({ type: 'SET_CURRENT_VIEW', payload: v })}
+        isLoggedIn={auth.state.isLoggedIn}
       />
 
       {isRegistering && (
@@ -592,10 +597,14 @@ function AppContent() {
 
 export default function App() {
   return (
-    <AppProvider>
-      <ErrorBoundary>
-        <AppContent />
-      </ErrorBoundary>
-    </AppProvider>
+    <AuthProvider>
+      <UIProvider>
+        <DataProvider>
+          <ErrorBoundary>
+            <AppContent />
+          </ErrorBoundary>
+        </DataProvider>
+      </UIProvider>
+    </AuthProvider>
   );
 }

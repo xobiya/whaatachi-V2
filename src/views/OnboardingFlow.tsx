@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Heart, Users, ArrowRight, ArrowLeft, User, Phone, Instagram, MapPin, Camera, Check, LogIn, UserPlus, X } from 'lucide-react';
 import TelegramIcon from '../components/TelegramIcon';
 import { Profile } from '../types';
-import { useAppContext } from '../context/AppContext';
+import { useUIContext } from '../context/UIContext';
 import SelectDropdown from '../components/SelectDropdown';
 
 const CITIES = ['Addis Ababa', 'Adama', 'Hawassa', 'Bahir Dar', 'Dire Dawa', 'Gondar', 'Mekelle', 'Jimma', 'Dessie', 'Harar'];
@@ -120,7 +120,7 @@ export default function OnboardingFlow({ onComplete, onSignIn, authIntent }: Onb
   });
   const [regErrors, setRegErrors] = useState<Partial<RegFormData>>({});
   const [toastError, setToastError] = useState<string | null>(null);
-  const { t } = useAppContext();
+  const { t } = useUIContext();
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 

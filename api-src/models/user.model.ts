@@ -20,6 +20,13 @@ const userSchema = new Schema({
   email: String,
 }, { timestamps: true, _id: false });
 
+userSchema.index({ gender: 1, lookingFor: 1 });
+userSchema.index({ gender: 1, city: 1 });
+userSchema.index({ name: 1 });
+userSchema.index({ status: 1 });
+userSchema.index({ verified: 1 });
+userSchema.index({ createdAt: -1 });
+
 const User = mongoose.model('User', userSchema) as any;
 
 export async function findUserById(id: string): Promise<any> {
@@ -27,7 +34,7 @@ export async function findUserById(id: string): Promise<any> {
 }
 
 export async function findUserByName(name: string): Promise<any[]> {
-  return User.find({ name: new RegExp(`^${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i') }).lean();
+  return User.find({ name }).collation({ locale: 'en', strength: 2 }).lean();
 }
 
 function buildFilterObject(filters: Record<string, any>): Record<string, any> {
@@ -93,7 +100,7 @@ export async function createUser(data: Record<string, any>): Promise<any> {
   });
 }
 
-export async function updateUser(id: string, data: Record<string, any>): Promise<void> {
+export async function updateUser(id: string, data: Record<string, any>): Promise<any> {
   const allowed = ['name', 'age', 'city', 'address', 'bio', 'lookingFor', 'image',
     'status', 'relationshipIntent', 'interests', 'phone', 'telegram', 'instagram', 'email'];
   const update: Record<string, any> = {};
@@ -103,8 +110,9 @@ export async function updateUser(id: string, data: Record<string, any>): Promise
     }
   }
   if (Object.keys(update).length > 0) {
-    await User.findByIdAndUpdate(id, { $set: update });
+    return User.findByIdAndUpdate(id, { $set: update }, { new: true }).lean();
   }
+  return User.findById(id).lean();
 }
 
 export async function verifyUser(userId: string): Promise<void> {

@@ -8,6 +8,8 @@ const storySchema = new Schema({
   image: String,
 }, { timestamps: true, _id: false });
 
+storySchema.index({ createdAt: -1 });
+
 const Story = mongoose.model('Story', storySchema) as any;
 
 export async function findAllStories(): Promise<any[]> {

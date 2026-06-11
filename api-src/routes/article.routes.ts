@@ -33,9 +33,9 @@ router.post('/', authenticate, adminOnly, async (req: AuthRequest, res: Response
   try {
     const { title, excerpt, category, readTime, date, image, content } = req.body;
     const id = uuid();
-    await articleModel.createArticle({ id, title, excerpt, category, readTime, date, image, content });
-    const article = await articleModel.findArticleById(id);
-    res.status(201).json({ article });
+    const created = await articleModel.createArticle({ id, title, excerpt, category, readTime, date, image, content });
+    const plain = typeof created.toObject === 'function' ? created.toObject() : created;
+    res.status(201).json({ article: plain });
   } catch (err: any) {
     console.error('Create article error:', err);
     res.status(500).json({ error: 'Failed to create article' });

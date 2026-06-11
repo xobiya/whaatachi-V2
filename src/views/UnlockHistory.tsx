@@ -2,7 +2,7 @@ import React from 'react';
 import { Eye, Sparkles, Phone, ArrowLeft, ShieldCheck, Mail, Instagram } from 'lucide-react';
 import TelegramIcon from '../components/TelegramIcon';
 import { Profile } from '../types';
-import { useAppContext } from '../context/AppContext';
+import { useUIContext } from '../context/UIContext';
 
 interface UnlockHistoryProps {
   unlockedProfiles: Profile[];
@@ -11,7 +11,7 @@ interface UnlockHistoryProps {
 }
 
 export default function UnlockHistory({ unlockedProfiles, onBackToFinder, onViewProfile }: UnlockHistoryProps) {
-  const { t } = useAppContext();
+  const { t } = useUIContext();
   return (
     <div className="bg-[#FFFCF8] dark:bg-[#120A0E] py-12 min-h-screen transition-colors duration-200">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">

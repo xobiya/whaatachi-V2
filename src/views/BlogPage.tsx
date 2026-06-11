@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { BookOpen, Calendar, Clock, Send, CheckCircle, Search, Sparkles } from 'lucide-react';
-import { useAppContext } from '../context/AppContext';
+import { useUIContext } from '../context/UIContext';
 import { Article } from '../types';
 
 interface BlogPageProps {
@@ -12,7 +12,7 @@ export default function BlogPage({ articles }: BlogPageProps) {
   const [subscriptionEmail, setSubscriptionEmail] = useState('');
   const [subscribed, setSubscribed] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const { t } = useAppContext();
+  const { t } = useUIContext();
 
   const handleSubscribe = (e: React.FormEvent) => {
     e.preventDefault();

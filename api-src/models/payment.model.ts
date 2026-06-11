@@ -15,6 +15,10 @@ const paymentSchema = new Schema({
   status: { type: String, enum: ['Pending', 'Approved', 'Rejected'], default: 'Pending' },
 }, { timestamps: true, _id: false });
 
+paymentSchema.index({ userId: 1, createdAt: -1 });
+paymentSchema.index({ status: 1, createdAt: -1 });
+paymentSchema.index({ userId: 1, status: 1 });
+
 const Payment = mongoose.model('Payment', paymentSchema) as any;
 
 export async function createPayment(data: Record<string, any>): Promise<any> {
@@ -46,8 +50,8 @@ export async function findAllPayments(): Promise<any[]> {
   return Payment.find().sort({ createdAt: -1 }).lean();
 }
 
-export async function updatePaymentStatus(id: string, status: 'Approved' | 'Rejected'): Promise<void> {
-  await Payment.findByIdAndUpdate(id, { $set: { status } });
+export async function updatePaymentStatus(id: string, status: 'Approved' | 'Rejected'): Promise<any> {
+  return Payment.findByIdAndUpdate(id, { $set: { status } }, { new: true }).lean();
 }
 
 export async function hasApprovedPayment(userId: string): Promise<boolean> {

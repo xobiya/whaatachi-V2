@@ -8,6 +8,8 @@ const faqSchema = new Schema({
   sortOrder: { type: Number, default: 0 },
 }, { timestamps: true, _id: false });
 
+faqSchema.index({ sortOrder: 1, createdAt: 1 });
+
 const Faq = mongoose.model('Faq', faqSchema) as any;
 
 export async function findFaqById(id: string): Promise<any> {
@@ -28,15 +30,16 @@ export async function createFaq(data: Record<string, any>): Promise<any> {
   });
 }
 
-export async function updateFaq(id: string, data: Record<string, any>): Promise<void> {
+export async function updateFaq(id: string, data: Record<string, any>): Promise<any> {
   const update: Record<string, any> = {};
   if (data.category !== undefined) update.category = data.category;
   if (data.question !== undefined) update.question = data.question;
   if (data.answer !== undefined) update.answer = data.answer;
   if (data.sortOrder !== undefined) update.sortOrder = data.sortOrder;
   if (Object.keys(update).length > 0) {
-    await Faq.findByIdAndUpdate(id, { $set: update });
+    return Faq.findByIdAndUpdate(id, { $set: update }, { new: true }).lean();
   }
+  return Faq.findById(id).lean();
 }
 
 export async function deleteFaq(id: string): Promise<void> {

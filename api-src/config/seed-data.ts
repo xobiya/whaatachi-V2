@@ -150,101 +150,40 @@ export async function seedData(clearFirst: boolean = false): Promise<void> {
   ]);
 
   if (userCount === 0) {
-    for (let i = 0; i < femaleNames.length; i++) {
-    const name = femaleNames[i];
-    const parts = name.split(' ');
-    await userModel.createUser({
-      id: uuid(),
-      name,
-      age: 21 + (i % 12),
-      city: pickAt(CITIES, i),
-      address: '',
-      bio: pickAt(femaleBios, i),
-      gender: 'Female',
-      lookingFor: 'Male',
-      image: pickAt(FEMALE_IMAGES, i),
-      status: pickAt(STATUSES, i),
-      relationshipIntent: pickAt(INTENTS, i),
-      interests: pickN(INTERESTS_POOL, i * 3, 3),
-      phone: `+251 91${String(1000000 + i * 123456).slice(0, 7)}`,
-      telegram: `@${parts[0].toLowerCase()}_${i}`,
-      instagram: `@${parts[0].toLowerCase()}_eth`,
-      email: `${slugify(name)}@whaatachi.com`,
-    });
-  }
+    async function buildUser(i: number, name: string, gender: 'Male' | 'Female', bioPool: string[], imgPool: string[], phoneBase: number, lookingFor: 'Male' | 'Female', intentOverride?: 'Only Sex' | 'True Relationship') {
+      const parts = name.split(' ');
+      return userModel.createUser({
+        id: uuid(), name,
+        age: gender === 'Female' ? 21 + (i % 12) : 22 + (i % 14),
+        city: pickAt(CITIES, i + (gender === 'Female' ? 0 : 5)),
+        address: '',
+        bio: pickAt(bioPool, i),
+        gender,
+        lookingFor,
+        image: pickAt(imgPool, i),
+        status: pickAt(STATUSES, i + (gender === 'Female' ? 0 : 2)),
+        relationshipIntent: intentOverride || pickAt(INTENTS, i),
+        interests: pickN(INTERESTS_POOL, i * 3 + (gender === 'Female' ? 0 : 1), 3),
+        phone: `+251 91${String(phoneBase + i * 123456).slice(0, 7)}`,
+        telegram: `@${parts[0].toLowerCase()}_${i}`,
+        instagram: `@${parts[0].toLowerCase()}_eth`,
+        email: `${slugify(name)}@whaatachi.com`,
+      });
+    }
 
-  for (let i = 0; i < maleNames.length; i++) {
-    const name = maleNames[i];
-    const parts = name.split(' ');
-    await userModel.createUser({
-      id: uuid(),
-      name,
-      age: 22 + (i % 14),
-      city: pickAt(CITIES, i + 5),
-      address: '',
-      bio: pickAt(maleBios, i),
-      gender: 'Male',
-      lookingFor: 'Female',
-      image: pickAt(MALE_IMAGES, i),
-      status: pickAt(STATUSES, i + 2),
-      relationshipIntent: pickAt(INTENTS, i),
-      interests: pickN(INTERESTS_POOL, i * 3 + 1, 3),
-      phone: `+251 91${String(2000000 + i * 123456).slice(0, 7)}`,
-      telegram: `@${parts[0].toLowerCase()}_${i}`,
-      instagram: `@${parts[0].toLowerCase()}_eth`,
-      email: `${slugify(name)}@whaatachi.com`,
-    });
-  }
+    const batchSize = 10;
+    const allUsers = [
+      ...femaleNames.map((name, i) => buildUser(i, name, 'Female', femaleBios, FEMALE_IMAGES, 1000000, 'Male')),
+      ...maleNames.map((name, i) => buildUser(i, name, 'Male', maleBios, MALE_IMAGES, 2000000, 'Female')),
+      ...additionalFemaleNames.map((name, i) => buildUser(i, name, 'Female', biDirectFemale, FEMALE_IMAGES, 3000000, 'Male', i < 5 ? 'Only Sex' : 'True Relationship')),
+      ...additionalMaleNames.map((name, i) => buildUser(i, name, 'Male', biDirectMale, MALE_IMAGES, 4000000, 'Female', i < 5 ? 'Only Sex' : 'True Relationship')),
+    ];
 
-  for (let i = 0; i < additionalFemaleNames.length; i++) {
-    const name = additionalFemaleNames[i];
-    const intent: 'Only Sex' | 'True Relationship' = i < 5 ? 'Only Sex' : 'True Relationship';
-    const parts = name.split(' ');
-    await userModel.createUser({
-      id: uuid(),
-      name,
-      age: 20 + (i % 10),
-      city: pickAt(CITIES, i + 3),
-      address: '',
-      bio: biDirectFemale[i],
-      gender: 'Female',
-      lookingFor: 'Male',
-      image: pickAt(FEMALE_IMAGES, i),
-      status: pickAt(STATUSES, i + 1),
-      relationshipIntent: intent,
-      interests: pickN(INTERESTS_POOL, i * 2 + 10, 3),
-      phone: `+251 91${String(3000000 + i * 123456).slice(0, 7)}`,
-      telegram: `@${parts[0].toLowerCase()}_${i}`,
-      instagram: `@${parts[0].toLowerCase()}_eth`,
-      email: `${slugify(name)}@whaatachi.com`,
-    });
-  }
+    for (let i = 0; i < allUsers.length; i += batchSize) {
+      await Promise.all(allUsers.slice(i, i + batchSize));
+    }
 
-  for (let i = 0; i < additionalMaleNames.length; i++) {
-    const name = additionalMaleNames[i];
-    const intent: 'Only Sex' | 'True Relationship' = i < 5 ? 'Only Sex' : 'True Relationship';
-    const parts = name.split(' ');
-    await userModel.createUser({
-      id: uuid(),
-      name,
-      age: 22 + (i % 12),
-      city: pickAt(CITIES, i + 7),
-      address: '',
-      bio: biDirectMale[i],
-      gender: 'Male',
-      lookingFor: 'Female',
-      image: pickAt(MALE_IMAGES, i + 3),
-      status: pickAt(STATUSES, i),
-      relationshipIntent: intent,
-      interests: pickN(INTERESTS_POOL, i * 2 + 20, 3),
-      phone: `+251 91${String(4000000 + i * 123456).slice(0, 7)}`,
-      telegram: `@${parts[0].toLowerCase()}_${i}`,
-      instagram: `@${parts[0].toLowerCase()}_eth`,
-      email: `${slugify(name)}@whaatachi.com`,
-    });
-  }
-
-  console.log('Seeded 60 users (20 female, 20 male, 10 additional female, 10 additional male).');
+    console.log('Seeded 60 users (20 female, 20 male, 10 additional female, 10 additional male).');
   }
 
   if (storyCount === 0) {
