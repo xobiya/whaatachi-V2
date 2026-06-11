@@ -198,8 +198,7 @@ export default function AdminPanel({
     e.preventDefault();
     setError(null);
     try {
-      const res = await api.adminLogin(passcode.trim());
-      if (res.token) api.setAuthToken(res.token);
+      await api.adminLogin(passcode.trim());
       setIsAuthenticated(true);
       setUserRole('admin');
     } catch {
@@ -207,8 +206,8 @@ export default function AdminPanel({
     }
   };
 
-  const handleAdminLogout = () => {
-    api.setAuthToken(null);
+  const handleAdminLogout = async () => {
+    await api.logout().catch(() => {});
     setIsAuthenticated(false);
     setUserRole('user');
     setCurrentView(isLoggedIn ? 'dashboard' : 'home');

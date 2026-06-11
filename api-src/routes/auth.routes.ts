@@ -1,7 +1,7 @@
 import { Router, Response } from 'express';
 import { v4 as uuid } from 'uuid';
 import * as userModel from '../models/user.model';
-import { generateToken, authenticate, AuthRequest } from '../middleware/auth';
+import { authenticate, AuthRequest } from '../middleware/auth';
 import { validateRegister, validateLogin } from '../middleware/validate';
 import { userRowToProfile } from '../utils/transform';
 
@@ -24,9 +24,9 @@ router.post('/register', validateRegister, async (req: AuthRequest, res: Respons
       return;
     }
 
-    const token = generateToken({ id }, '2d');
+    req.session.userId = id;
     const plain = typeof created.toObject === 'function' ? created.toObject() : created;
-    res.status(201).json({ token, user: userRowToProfile(plain) });
+    res.status(201).json({ user: userRowToProfile(plain) });
   } catch (err: any) {
     console.error('Register error:', err);
     if (err?.code === 11000) {
@@ -66,12 +66,24 @@ router.post('/login', validateLogin, async (req: AuthRequest, res: Response) => 
       return;
     }
 
-    const token = generateToken({ id: found._id }, '2d');
-    res.json({ token, user: userRowToProfile(found as any) });
+    req.session.userId = found._id;
+    req.session.isAdmin = false;
+    res.json({ user: userRowToProfile(found as any) });
   } catch (err: any) {
     console.error('Login error:', err);
     res.status(500).json({ error: 'Login failed' });
   }
+});
+
+router.post('/logout', (req: AuthRequest, res: Response) => {
+  req.session.destroy((err) => {
+    if (err) {
+      res.status(500).json({ error: 'Logout failed' });
+      return;
+    }
+    res.clearCookie('connect.sid');
+    res.json({ success: true });
+  });
 });
 
 router.get('/me', authenticate, async (req: AuthRequest, res: Response) => {

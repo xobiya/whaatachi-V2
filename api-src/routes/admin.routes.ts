@@ -4,7 +4,7 @@ import * as adminModel from '../models/admin.model';
 import * as userModel from '../models/user.model';
 import * as paymentModel from '../models/payment.model';
 import * as storyModel from '../models/story.model';
-import { authenticate, adminOnly, generateToken, AuthRequest } from '../middleware/auth';
+import { authenticate, adminOnly, AuthRequest } from '../middleware/auth';
 import { validateAdminLogin, validatePasscodeUpdate } from '../middleware/validate';
 import { AdminStats } from '../types';
 
@@ -24,8 +24,10 @@ router.post('/login', validateAdminLogin, async (req: AuthRequest, res: Response
       return;
     }
 
-    const token = generateToken({ id: String(admin.id), isAdmin: true }, '1h');
-    res.json({ token });
+    req.session.userId = String(admin.id);
+    req.session.isAdmin = true;
+    req.session.cookie.maxAge = 60 * 60 * 1000;
+    res.json({ success: true });
   } catch (err: any) {
     console.error('Admin login error:', err);
     res.status(500).json({ error: 'Admin login failed' });

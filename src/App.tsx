@@ -31,19 +31,14 @@ function AppContent() {
   const paymentTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
-    const token = api.getAuthToken();
-    if (token) {
-      api.getMe().then(res => {
-        if (res.user) {
-          const p = res.user;
-          auth.dispatch({ type: 'SET_CURRENT_USER', payload: p });
-          auth.dispatch({ type: 'SET_LOGGED_IN', payload: true });
-          auth.dispatch({ type: 'SET_USER_GENDER', payload: p.gender });
-        }
-      }).catch(() => {
-        api.setAuthToken(null);
-      });
-    }
+    api.getMe().then(res => {
+      if (res.user) {
+        const p = res.user;
+        auth.dispatch({ type: 'SET_CURRENT_USER', payload: p });
+        auth.dispatch({ type: 'SET_LOGGED_IN', payload: true });
+        auth.dispatch({ type: 'SET_USER_GENDER', payload: p.gender });
+      }
+    }).catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -129,13 +124,11 @@ function AppContent() {
       }
     }
     if (view === 'admin') {
-      if (api.getAuthToken()) {
-        api.fetchPayments().then(res => {
-          if (res && Array.isArray(res.payments)) {
-            data.dispatch({ type: 'MERGE_PAYMENTS', payload: res.payments });
-          }
-        }).catch((err) => console.error('Failed to fetch payments:', err));
-      }
+      api.fetchPayments().then(res => {
+        if (res && Array.isArray(res.payments)) {
+          data.dispatch({ type: 'MERGE_PAYMENTS', payload: res.payments });
+        }
+      }).catch((err) => console.error('Failed to fetch payments:', err));
     }
   }, [ui.state.currentView]);
 
@@ -257,7 +250,6 @@ function AppContent() {
         instagram: newProfile.contactInfo.instagram,
         email: newProfile.contactInfo.email,
       });
-      api.setAuthToken(result.token);
     } catch (err) {
       console.error('Registration API error:', err);
     }
@@ -296,8 +288,7 @@ function AppContent() {
       ui.dispatch({ type: 'SET_CURRENT_VIEW', payload: 'browse' });
       triggerNotification('success', ui.t('app.notify.welcome-back').replace('{name}', found.name));
 
-      const result = await api.login(found.name, phone, telegram, instagram);
-      api.setAuthToken(result.token);
+      await api.login(found.name, phone, telegram, instagram);
       return true;
     } else {
       return false;
@@ -312,8 +303,7 @@ function AppContent() {
     ui.dispatch({ type: 'SET_CURRENT_VIEW', payload: 'browse' });
     triggerNotification('success', ui.t('app.notify.welcome-back').replace('{name}', profile.name));
     try {
-      const result = await api.login(profile.name, undefined, profile.contactInfo.telegram, profile.contactInfo.instagram);
-      api.setAuthToken(result.token);
+      await api.login(profile.name, undefined, profile.contactInfo.telegram, profile.contactInfo.instagram);
     } catch (err) {
       console.error('Test login API error:', err);
     }
@@ -429,10 +419,10 @@ function AppContent() {
         userRole={auth.state.userRole}
         setUserRole={(r) => auth.dispatch({ type: 'SET_USER_ROLE', payload: r })}
         isLoggedIn={auth.state.isLoggedIn}
-        setIsLoggedIn={(v) => {
+        setIsLoggedIn={async (v) => {
           auth.dispatch({ type: 'SET_LOGGED_IN', payload: v });
           if (!v) {
-            api.setAuthToken(null);
+            await api.logout().catch(() => {});
             ui.dispatch({ type: 'SET_CURRENT_VIEW', payload: 'home' });
           }
         }}

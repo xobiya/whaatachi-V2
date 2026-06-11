@@ -2,42 +2,10 @@ import { Profile, PaymentRequest, SuccessStory, Article } from '../types';
 
 const API_BASE = import.meta.env.VITE_API_URL || '/api';
 const REQUEST_TIMEOUT = 30000;
-
-const TOKEN_COOKIE = 'whaatachi_token';
-
-function getTokenFromCookie(): string | null {
-  const match = document.cookie.match(new RegExp(`(?:^|;\\s*)${TOKEN_COOKIE}=([^;]*)`));
-  return match ? decodeURIComponent(match[1]) : null;
-}
-
-function setTokenCookie(token: string | null) {
-  if (token) {
-    const maxAge = 2 * 24 * 60 * 60;
-    document.cookie = `${TOKEN_COOKIE}=${encodeURIComponent(token)}; path=/; max-age=${maxAge}; SameSite=Lax`;
-  } else {
-    document.cookie = `${TOKEN_COOKIE}=; path=/; max-age=0; SameSite=Lax`;
-  }
-}
-
-let authToken: string | null = getTokenFromCookie();
 const inflightMap = new Map<string, Promise<any>>();
 
-export function setAuthToken(token: string | null) {
-  authToken = token;
-  setTokenCookie(token);
-}
-
-export function getAuthToken(): string | null {
-  if (!authToken) {
-    authToken = getTokenFromCookie();
-  }
-  return authToken;
-}
-
 function getHeaders(): Record<string, string> {
-  const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-  if (authToken) headers['Authorization'] = `Bearer ${authToken}`;
-  return headers;
+  return { 'Content-Type': 'application/json' };
 }
 
 function dedupKey(path: string, options: RequestInit = {}): string | null {
@@ -59,6 +27,7 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
         ...options,
         signal: controller.signal,
         headers: { ...getHeaders(), ...(options.headers || {}) },
+        credentials: 'include',
       });
     } catch (err: any) {
       if (err?.name === 'AbortError') throw new Error('Request timeout');
@@ -98,12 +67,16 @@ export async function register(data: {
   address?: string; bio?: string; image?: string; status?: string;
   relationshipIntent?: string; lookingFor?: string;
   phone?: string; telegram?: string; instagram?: string; email?: string;
-}): Promise<{ token: string; user: Profile }> {
+}): Promise<{ user: Profile }> {
   return request('/auth/register', { method: 'POST', body: JSON.stringify(data) });
 }
 
-export async function login(name?: string, phone?: string, telegram?: string, instagram?: string): Promise<{ token: string; user: Profile }> {
+export async function login(name?: string, phone?: string, telegram?: string, instagram?: string): Promise<{ user: Profile }> {
   return request('/auth/login', { method: 'POST', body: JSON.stringify({ name, phone, telegram, instagram }) });
+}
+
+export async function logout(): Promise<{ success: boolean }> {
+  return request('/auth/logout', { method: 'POST' });
 }
 
 export async function getMe(): Promise<{ user: Profile }> {
@@ -187,7 +160,7 @@ export async function toggleProfileVerification(id: string): Promise<{ verified:
 }
 
 // ── Admin ──
-export async function adminLogin(passcode: string): Promise<{ token: string }> {
+export async function adminLogin(passcode: string): Promise<{ success: boolean }> {
   return request('/admin/login', { method: 'POST', body: JSON.stringify({ passcode }) });
 }
 

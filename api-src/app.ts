@@ -3,6 +3,8 @@ import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import rateLimit from 'express-rate-limit';
+import session from 'express-session';
+import MongoStore from 'connect-mongo';
 
 import mongoose from 'mongoose';
 import { errorHandler, notFoundHandler } from './middleware/errorHandler';
@@ -16,12 +18,27 @@ import faqRoutes from './routes/faq.routes';
 
 const app = express();
 
+app.set('trust proxy', 1);
 app.use(helmet());
 app.use(cors({
-  origin: process.env.CORS_ORIGIN || '*',
+  origin: process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(',') : true,
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true,
 }));
+app.use(session({
+  secret: process.env.SESSION_SECRET || process.env.JWT_SECRET || 'whaatachi-session-secret',
+  resave: false,
+  saveUninitialized: false,
+  store: MongoStore.create({ mongoUrl: process.env.MONGODB_URI, ttl: 2 * 24 * 60 * 60 }),
+  cookie: {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    maxAge: 2 * 24 * 60 * 60 * 1000,
+  },
+}));
+
 app.use(morgan('short'));
 app.use(express.json({ limit: '10mb' }));
 
