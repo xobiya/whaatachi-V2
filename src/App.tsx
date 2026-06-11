@@ -12,6 +12,7 @@ const BlogPage = lazy(() => import('./views/BlogPage'));
 const AdminPanel = lazy(() => import('./views/AdminPanel'));
 const SupportPanel = lazy(() => import('./views/SupportPanel'));
 const ProfilePage = lazy(() => import('./views/ProfilePage'));
+import { Heart } from 'lucide-react';
 import { Profile, PaymentRequest, SuccessStory } from './types';
 import * as api from './services/api';
 import { CheckCircle, ShieldAlert } from 'lucide-react';
