@@ -5,7 +5,7 @@ import mainApp, { seedData, countUsers } from './dist/bundle.js';
 const app = express();
 let seedingDone = false;
 let seedingPromise: Promise<void> | null = null;
-let connectPromise: Promise<void> | null = null;
+let connectLock: Promise<void> | null = null;
 
 function ensureSeeded(): void {
   if (seedingDone || seedingPromise) return;
@@ -15,15 +15,28 @@ function ensureSeeded(): void {
     .catch(err => { console.error('[SEED]', err?.message || err); seedingPromise = null; });
 }
 
+async function connectToDatabase(): Promise<void> {
+  const uri = process.env.MONGODB_URI;
+  if (!uri) throw new Error('MONGODB_URI not set');
+  await mongoose.connect(uri, {
+    bufferCommands: false,
+    serverSelectionTimeoutMS: 15000,
+    connectTimeoutMS: 15000,
+  });
+}
+
 function ensureConnection(): Promise<void> {
   if (mongoose.connection.readyState === 1) return Promise.resolve();
-  if (connectPromise) return connectPromise;
-  const uri = process.env.MONGODB_URI;
-  if (!uri) return Promise.reject(new Error('MONGODB_URI not set'));
-  connectPromise = mongoose.connect(uri, { bufferCommands: false, serverSelectionTimeoutMS: 10000, connectTimeoutMS: 10000 })
+  if (connectLock) return connectLock;
+  connectLock = connectToDatabase()
     .then(() => { ensureSeeded(); })
-    .catch(err => { connectPromise = null; throw err; });
-  return connectPromise;
+    .catch(err => { connectLock = null; return Promise.reject(err); });
+  return connectLock;
+}
+
+// Warm up connection immediately on cold start (before first request)
+if (process.env.MONGODB_URI) {
+  connectToDatabase().then(() => ensureSeeded()).catch(() => {});
 }
 
 app.use((req, res, next) => {

@@ -30,12 +30,17 @@ app.use(session({
   secret: process.env.SESSION_SECRET || process.env.JWT_SECRET || 'whaatachi-session-secret',
   resave: false,
   saveUninitialized: false,
-  store: MongoStore.create({ mongoUrl: process.env.MONGODB_URI, ttl: 2 * 24 * 60 * 60 }),
+  store: MongoStore.create({
+    mongoUrl: process.env.MONGODB_URI,
+    ttl: 90 * 60,
+    autoRemove: 'native',
+    autoRemoveInterval: 10,
+  }),
   cookie: {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'lax',
-    maxAge: 2 * 24 * 60 * 60 * 1000,
+    maxAge: 90 * 60 * 1000,
   },
 }));
 

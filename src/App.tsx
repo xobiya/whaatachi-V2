@@ -31,14 +31,27 @@ function AppContent() {
   const paymentTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
-    api.getMe().then(res => {
-      if (res.user) {
-        const p = res.user;
-        auth.dispatch({ type: 'SET_CURRENT_USER', payload: p });
-        auth.dispatch({ type: 'SET_LOGGED_IN', payload: true });
-        auth.dispatch({ type: 'SET_USER_GENDER', payload: p.gender });
-      }
-    }).catch(() => {});
+    let retries = 0;
+    const maxRetries = 5;
+    function checkSession() {
+      api.getMe().then(res => {
+        if (res?.user) {
+          const p = res.user;
+          auth.dispatch({ type: 'SET_CURRENT_USER', payload: p });
+          auth.dispatch({ type: 'SET_LOGGED_IN', payload: true });
+          auth.dispatch({ type: 'SET_USER_GENDER', payload: p.gender });
+        } else if (retries < maxRetries) {
+          retries++;
+          setTimeout(checkSession, retries * 1000);
+        }
+      }).catch(() => {
+        if (retries < maxRetries) {
+          retries++;
+          setTimeout(checkSession, retries * 1000);
+        }
+      });
+    }
+    checkSession();
   }, []);
 
   useEffect(() => {
@@ -272,27 +285,21 @@ function AppContent() {
   };
 
   const handleSignInUser = async (phone: string, telegram: string, instagram: string): Promise<boolean> => {
-    const normalize = (s: string) => s.replace(/[@\s]/g, '').toLowerCase();
-    const found = data.state.profiles.find((p) => {
-      if (phone && (p.contactInfo.phone === phone || p.contactInfo.phone.replace(/\s/g, '') === phone.replace(/\s/g, ''))) return true;
-      if (telegram && (normalize(p.contactInfo.telegram) === normalize(telegram) || p.contactInfo.telegram.toLowerCase() === telegram.toLowerCase())) return true;
-      if (instagram && (normalize(p.contactInfo.instagram) === normalize(instagram) || p.contactInfo.instagram.toLowerCase() === instagram.toLowerCase())) return true;
-      return false;
-    });
-
-    if (found) {
-      const profileWithLookingFor = { ...found, lookingFor: found.lookingFor || (found.gender === 'Male' ? 'Female' : 'Male') };
-      auth.dispatch({ type: 'SET_CURRENT_USER', payload: profileWithLookingFor });
-      auth.dispatch({ type: 'SET_LOGGED_IN', payload: true });
-      auth.dispatch({ type: 'SET_USER_GENDER', payload: profileWithLookingFor.gender });
-      ui.dispatch({ type: 'SET_CURRENT_VIEW', payload: 'browse' });
-      triggerNotification('success', ui.t('app.notify.welcome-back').replace('{name}', found.name));
-
-      await api.login(found.name, phone, telegram, instagram);
-      return true;
-    } else {
-      return false;
+    try {
+      const res = await api.login(undefined, phone || undefined, telegram || undefined, instagram || undefined);
+      if (res?.user) {
+        const profileWithLookingFor = { ...res.user, lookingFor: res.user.lookingFor || (res.user.gender === 'Male' ? 'Female' : 'Male') };
+        auth.dispatch({ type: 'SET_CURRENT_USER', payload: profileWithLookingFor });
+        auth.dispatch({ type: 'SET_LOGGED_IN', payload: true });
+        auth.dispatch({ type: 'SET_USER_GENDER', payload: profileWithLookingFor.gender });
+        ui.dispatch({ type: 'SET_CURRENT_VIEW', payload: 'browse' });
+        triggerNotification('success', ui.t('app.notify.welcome-back').replace('{name}', res.user.name));
+        return true;
+      }
+    } catch (err: any) {
+      console.error('Sign in error:', err);
     }
+    return false;
   };
 
   const handleSimulateTestLogin = async (profile: Profile) => {
