@@ -15,28 +15,35 @@ function ensureSeeded(): void {
     .catch(err => { console.error('[SEED]', err?.message || err); seedingPromise = null; });
 }
 
-async function connectToDatabase(): Promise<void> {
+async function connectWithRetry(attempts = 2): Promise<void> {
   const uri = process.env.MONGODB_URI;
   if (!uri) throw new Error('MONGODB_URI not set');
-  await mongoose.connect(uri, {
-    bufferCommands: false,
-    serverSelectionTimeoutMS: 15000,
-    connectTimeoutMS: 15000,
-  });
+  for (let i = 0; i < attempts; i++) {
+    try {
+      await mongoose.connect(uri, {
+        bufferCommands: false,
+        serverSelectionTimeoutMS: 20000,
+        connectTimeoutMS: 20000,
+      });
+      return;
+    } catch (err) {
+      if (i < attempts - 1) {
+        await mongoose.disconnect().catch(() => {});
+        await new Promise(r => setTimeout(r, 2000));
+      } else {
+        throw err;
+      }
+    }
+  }
 }
 
 function ensureConnection(): Promise<void> {
   if (mongoose.connection.readyState === 1) return Promise.resolve();
   if (connectLock) return connectLock;
-  connectLock = connectToDatabase()
+  connectLock = connectWithRetry()
     .then(() => { ensureSeeded(); })
     .catch(err => { connectLock = null; return Promise.reject(err); });
   return connectLock;
-}
-
-// Warm up connection immediately on cold start (before first request)
-if (process.env.MONGODB_URI) {
-  connectToDatabase().then(() => ensureSeeded()).catch(() => {});
 }
 
 app.use((req, res, next) => {
