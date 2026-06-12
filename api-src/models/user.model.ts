@@ -26,6 +26,10 @@ userSchema.index({ name: 1 });
 userSchema.index({ status: 1 });
 userSchema.index({ verified: 1 });
 userSchema.index({ createdAt: -1 });
+userSchema.index({ email: 1 }, { unique: true, sparse: true });
+userSchema.index({ phone: 1 }, { unique: true, sparse: true });
+userSchema.index({ telegram: 1 }, { unique: true, sparse: true });
+userSchema.index({ instagram: 1 }, { unique: true, sparse: true });
 
 const User = mongoose.model('User', userSchema) as any;
 
@@ -49,6 +53,41 @@ export async function findUserByContact(telegram: string | null, instagram: stri
   }
   if (orClauses.length === 0) return null;
   return User.findOne({ $or: orClauses }).lean();
+}
+
+export async function findUserByPhone(phone: string): Promise<any> {
+  const escaped = phone.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const flexible = escaped.replace(/\s+/g, '\\s?');
+  return User.findOne({ phone: { $regex: new RegExp(`^${flexible}$`, 'i') } }).lean();
+}
+
+export async function findUserByLogin(login: string): Promise<any> {
+  const sanitized = login.replace(/^@/, '');
+  const escaped = sanitized.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const regex = new RegExp(`^@?${escaped}$`, 'i');
+  return User.findOne({
+    $or: [
+      { phone: { $regex: regex } },
+      { telegram: { $regex: regex } },
+      { instagram: { $regex: regex } },
+    ]
+  }).lean();
+}
+
+export async function checkDuplicate(field: string, value: string, excludeId?: string): Promise<boolean> {
+  if (!value) return false;
+  const query: Record<string, any> = {};
+  if (field === 'phone') {
+    query.phone = { $regex: new RegExp(`^${value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i') };
+  } else if (field === 'telegram' || field === 'instagram') {
+    const val = value.replace(/^@/, '');
+    query[field] = { $regex: new RegExp(`^@?${val.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i') };
+  } else {
+    query[field] = value;
+  }
+  if (excludeId) query._id = { $ne: excludeId };
+  const count = await User.countDocuments(query);
+  return count > 0;
 }
 
 function buildFilterObject(filters: Record<string, any>): Record<string, any> {

@@ -11,6 +11,16 @@ router.post('/register', validateRegister, async (req: AuthRequest, res: Respons
   try {
     const { name, age, city, address, bio, gender, lookingFor, image, status, relationshipIntent, interests, phone, telegram, instagram, email } = req.body;
 
+    const conflicts: string[] = [];
+    if (email && await userModel.checkDuplicate('email', email)) conflicts.push('email');
+    if (phone && await userModel.checkDuplicate('phone', phone)) conflicts.push('phone');
+    if (telegram && await userModel.checkDuplicate('telegram', telegram)) conflicts.push('telegram');
+    if (instagram && await userModel.checkDuplicate('instagram', instagram)) conflicts.push('instagram');
+    if (conflicts.length > 0) {
+      res.status(409).json({ error: `A user with this ${conflicts.join(', ')} already exists` });
+      return;
+    }
+
     const id = uuid();
     const created = await userModel.createUser({
       id, name, age, city, address, bio, gender, lookingFor, image,
@@ -43,7 +53,11 @@ router.post('/login', validateLogin, async (req: AuthRequest, res: Response) => 
 
     let found: any = null;
 
-    if (telegram || instagram) {
+    if (phone) {
+      found = await userModel.findUserByPhone(phone);
+    }
+
+    if (!found && (telegram || instagram)) {
       found = await userModel.findUserByContact(telegram || null, instagram || null);
     }
 
@@ -62,7 +76,7 @@ router.post('/login', validateLogin, async (req: AuthRequest, res: Response) => 
     }
 
     if (!found) {
-      res.status(404).json({ error: 'No account found with that name and phone' });
+      res.status(404).json({ error: 'No account found with the provided information' });
       return;
     }
 
