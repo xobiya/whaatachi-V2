@@ -36,6 +36,24 @@ export function authenticate(req: AuthRequest, res: Response, next: NextFunction
   }
 }
 
+export function optionalAuthenticate(req: AuthRequest, res: Response, next: NextFunction): void {
+  const header = req.headers.authorization;
+  if (!header || !header.startsWith('Bearer ')) {
+    next();
+    return;
+  }
+
+  const token = header.slice(7);
+  try {
+    const decoded = jwt.verify(token, getSecret()) as unknown as AuthPayload;
+    req.userId = decoded.id;
+    req.isAdmin = decoded.isAdmin;
+  } catch {
+    // Ignore invalid or expired token for optional check
+  }
+  next();
+}
+
 export function adminOnly(req: AuthRequest, res: Response, next: NextFunction): void {
   if (!req.isAdmin) {
     res.status(403).json({ error: 'Admin access required' });

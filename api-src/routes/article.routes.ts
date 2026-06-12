@@ -8,7 +8,17 @@ const router = Router();
 router.get('/', async (_req: AuthRequest, res: Response) => {
   try {
     const rows = await articleModel.findAllArticles();
-    res.json({ articles: rows });
+    const articles = rows.map((r: any) => ({
+      id: r.id || r._id,
+      title: r.title,
+      excerpt: r.excerpt,
+      category: r.category,
+      readTime: r.readTime,
+      date: r.date,
+      image: r.image,
+      content: r.content,
+    }));
+    res.json({ articles });
   } catch (err: any) {
     console.error('Get articles error:', err);
     res.status(500).json({ error: 'Failed to fetch articles' });
@@ -22,7 +32,16 @@ router.get('/:id', async (req: AuthRequest, res: Response) => {
       res.status(404).json({ error: 'Article not found' });
       return;
     }
-    res.json({ article });
+    res.json({ article: {
+      id: article.id || article._id,
+      title: article.title,
+      excerpt: article.excerpt,
+      category: article.category,
+      readTime: article.readTime,
+      date: article.date,
+      image: article.image,
+      content: article.content,
+    } });
   } catch (err: any) {
     console.error('Get article error:', err);
     res.status(500).json({ error: 'Failed to fetch article' });

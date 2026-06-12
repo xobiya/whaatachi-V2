@@ -31,7 +31,14 @@ router.get('/', async (_req: AuthRequest, res: Response) => {
 router.get('/all', authenticate, adminOnly, async (_req: AuthRequest, res: Response) => {
   try {
     const rows = await faqModel.findAllFaqs();
-    res.json({ faqs: rows });
+    const faqs = rows.map((r: any) => ({
+      id: r.id || r._id,
+      category: r.category,
+      question: r.question,
+      answer: r.answer,
+      sortOrder: r.sortOrder,
+    }));
+    res.json({ faqs });
   } catch (err: any) {
     console.error('Get all faqs error:', err);
     res.status(500).json({ error: 'Failed to fetch FAQs' });

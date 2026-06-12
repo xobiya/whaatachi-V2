@@ -2,7 +2,7 @@ import { Profile, PaymentRequest, SuccessStory, UserRow, PaymentRow, StoryRow } 
 
 export function userRowToProfile(row: UserRow): Profile {
   return {
-    id: row.id,
+    id: row.id || (row as any)._id,
     name: row.name,
     age: row.age ?? 0,
     city: row.city ?? '',
@@ -26,7 +26,7 @@ export function userRowToProfile(row: UserRow): Profile {
 
 export function paymentRowToPayment(row: PaymentRow): PaymentRequest {
   return {
-    id: row.id,
+    id: row.id || (row as any)._id,
     profileId: row.profileId,
     profileName: row.profileName,
     profileImage: row.profileImage ?? '',
@@ -43,7 +43,7 @@ export function paymentRowToPayment(row: PaymentRow): PaymentRequest {
 
 export function storyRowToStory(row: StoryRow): SuccessStory {
   return {
-    id: row.id,
+    id: row.id || (row as any)._id,
     coupleNames: row.coupleNames,
     story: row.story,
     year: row.year ?? '',

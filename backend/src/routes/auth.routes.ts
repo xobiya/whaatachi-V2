@@ -1,7 +1,7 @@
 import { Router, Response } from 'express';
 import { v4 as uuid } from 'uuid';
 import * as userModel from '../models/user.model';
-import { generateToken, authenticate, AuthRequest } from '../middleware/auth';
+import { generateToken, authenticate, optionalAuthenticate, AuthRequest } from '../middleware/auth';
 import { validateRegister, validateLogin } from '../middleware/validate';
 import { userRowToProfile } from '../utils/transform';
 
@@ -64,11 +64,15 @@ router.post('/login', validateLogin, async (req: AuthRequest, res: Response) => 
   }
 });
 
-router.get('/me', authenticate, async (req: AuthRequest, res: Response) => {
+router.get('/me', optionalAuthenticate, async (req: AuthRequest, res: Response) => {
   try {
-    const user = await userModel.findUserById(req.userId!);
+    if (!req.userId) {
+      res.json({ user: null });
+      return;
+    }
+    const user = await userModel.findUserById(req.userId);
     if (!user) {
-      res.status(404).json({ error: 'User not found' });
+      res.json({ user: null });
       return;
     }
     res.json({ user: userRowToProfile(user as any) });

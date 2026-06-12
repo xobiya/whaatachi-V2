@@ -55,7 +55,7 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
 
   if (key) {
     inflightMap.set(key, promise);
-    promise.finally(() => { if (inflightMap.get(key) === promise) inflightMap.delete(key); });
+    promise.finally(() => { if (inflightMap.get(key) === promise) inflightMap.delete(key); }).catch(() => {});
   }
 
   return promise;
@@ -79,7 +79,7 @@ export async function logout(): Promise<{ success: boolean }> {
   return request('/auth/logout', { method: 'POST' });
 }
 
-export async function getMe(): Promise<{ user: Profile }> {
+export async function getMe(): Promise<{ user: Profile | null }> {
   return request('/auth/me');
 }
 

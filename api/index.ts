@@ -34,6 +34,17 @@ app.use((req, res, next) => {
     });
 });
 
+app.post('/api/seed', express.json(), async (req, res) => {
+  try {
+    await ensureConnection();
+    await seedData(true);
+    seedingDone = true;
+    res.json({ message: 'Database seeded successfully with 60 users, 3 stories, 3 articles, and 7 FAQs.' });
+  } catch (err: any) {
+    res.status(500).json({ error: 'Seed failed', detail: err?.message || String(err) });
+  }
+});
+
 app.use(mainApp);
 
 export default app;
