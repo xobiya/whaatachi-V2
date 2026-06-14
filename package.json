@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite --port=3000 --host=0.0.0.0",
     "build": "npm run bundle:api && vite build",
-    "bundle:api": "esbuild api-src/app.ts --bundle --platform=node --format=esm --outfile=api/dist/bundle.js --external:express --external:mongoose --external:cors --external:helmet --external:morgan --external:express-rate-limit --external:bcryptjs --external:jsonwebtoken --external:uuid --external:express-session --external:connect-mongo",
+    "bundle:api": "esbuild api-src/app.ts --bundle --platform=node --format=esm --outfile=api/dist/bundle.js --external:express --external:mongoose --external:cors --external:helmet --external:morgan --external:express-rate-limit --external:bcryptjs --external:jsonwebtoken --external:uuid",
     "preview": "vite preview",
     "clean": "rm -rf dist server.js",
     "lint": "tsc --noEmit",

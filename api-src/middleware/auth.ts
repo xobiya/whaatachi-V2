@@ -1,11 +1,14 @@
 import { Response, NextFunction } from 'express';
+import jwt from 'jsonwebtoken';
 import { Request } from 'express';
 
-declare module 'express-session' {
-  interface SessionData {
-    userId?: string;
-    isAdmin?: boolean;
-  }
+function getSecret(): string {
+  return process.env.JWT_SECRET || 'whaatachi-default-secret';
+}
+
+export interface AuthPayload {
+  id: string;
+  isAdmin?: boolean;
 }
 
 export interface AuthRequest extends Request {
@@ -14,12 +17,38 @@ export interface AuthRequest extends Request {
 }
 
 export function authenticate(req: AuthRequest, res: Response, next: NextFunction): void {
-  if (!req.session.userId) {
+  const header = req.headers.authorization;
+  if (!header || !header.startsWith('Bearer ')) {
     res.status(401).json({ error: 'Authentication required' });
     return;
   }
-  req.userId = req.session.userId;
-  req.isAdmin = req.session.isAdmin;
+
+  const token = header.slice(7);
+  try {
+    const decoded = jwt.verify(token, getSecret()) as unknown as AuthPayload;
+    req.userId = decoded.id;
+    req.isAdmin = decoded.isAdmin;
+    next();
+  } catch {
+    res.status(401).json({ error: 'Invalid or expired token' });
+  }
+}
+
+export function optionalAuthenticate(req: AuthRequest, res: Response, next: NextFunction): void {
+  const header = req.headers.authorization;
+  if (!header || !header.startsWith('Bearer ')) {
+    next();
+    return;
+  }
+
+  const token = header.slice(7);
+  try {
+    const decoded = jwt.verify(token, getSecret()) as unknown as AuthPayload;
+    req.userId = decoded.id;
+    req.isAdmin = decoded.isAdmin;
+  } catch {
+    // Ignore invalid token for optional check
+  }
   next();
 }
 
@@ -29,4 +58,8 @@ export function adminOnly(req: AuthRequest, res: Response, next: NextFunction): 
     return;
   }
   next();
+}
+
+export function generateToken(payload: AuthPayload): string {
+  return jwt.sign(payload, getSecret(), { expiresIn: '7d' });
 }

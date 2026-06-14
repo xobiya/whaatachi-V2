@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, startTransition } from 'react';
 import { Profile } from '../types';
 import { MapPin, Phone, Instagram, Heart, Search, Filter, X } from 'lucide-react';
 import TelegramIcon from '../components/TelegramIcon';
@@ -156,7 +156,7 @@ export default function ProfileListing({
         {/* Intent chips */}
         <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar mb-5 justify-start sm:justify-center max-w-2xl mx-auto">
           <button
-            onClick={() => { setUsePreference(!usePreference); setFilterIntent(null); setFilterCity(null); setAgeMin(18); setAgeMax(60); }}
+            onClick={() => { startTransition(() => { setUsePreference(!usePreference); setFilterIntent(null); setFilterCity(null); setAgeMin(18); setAgeMax(60); }); }}
             className={`px-3.5 py-1.5 rounded-xl text-[11px] font-bold shrink-0 transition-all cursor-pointer border ${
               usePreference
                 ? 'bg-[#C9A84C] border-[#C9A84C] text-[#1A1118]'
@@ -168,7 +168,7 @@ export default function ProfileListing({
           {intents.map((intent) => (
             <button
               key={intent}
-              onClick={() => { setFilterIntent(intent === 'All' ? null : intent); setUsePreference(false); }}
+              onClick={() => { startTransition(() => { setFilterIntent(intent === 'All' ? null : intent); setUsePreference(false); }); }}
               className={`px-3.5 py-1.5 rounded-xl text-[11px] font-bold shrink-0 transition-all cursor-pointer border ${
                 (intent === 'All' && filterIntent === null && !usePreference) || filterIntent === intent
                   ? 'bg-[#1A1118] dark:bg-[#EB317A] border-[#1A1118] dark:border-[#EB317A] text-white'

@@ -3,9 +3,23 @@ import { Profile, PaymentRequest, SuccessStory, Article } from '../types';
 const API_BASE = import.meta.env.VITE_API_URL || '/api';
 const REQUEST_TIMEOUT = 30000;
 const inflightMap = new Map<string, Promise<any>>();
+const TOKEN_KEY = 'whaatachi_auth_token';
+
+export function getToken(): string | null {
+  try { return localStorage.getItem(TOKEN_KEY); } catch { return null; }
+}
+export function setToken(token: string): void {
+  try { localStorage.setItem(TOKEN_KEY, token); } catch { /* noop */ }
+}
+export function clearToken(): void {
+  try { localStorage.removeItem(TOKEN_KEY); } catch { /* noop */ }
+}
 
 function getHeaders(): Record<string, string> {
-  return { 'Content-Type': 'application/json' };
+  const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+  const token = getToken();
+  if (token) headers['Authorization'] = `Bearer ${token}`;
+  return headers;
 }
 
 function dedupKey(path: string, options: RequestInit = {}): string | null {
@@ -67,11 +81,11 @@ export async function register(data: {
   address?: string; bio?: string; image?: string; status?: string;
   relationshipIntent?: string; lookingFor?: string;
   phone?: string; telegram?: string; instagram?: string; email?: string;
-}): Promise<{ user: Profile }> {
+}): Promise<{ token: string; user: Profile }> {
   return request('/auth/register', { method: 'POST', body: JSON.stringify(data) });
 }
 
-export async function login(name?: string, phone?: string, telegram?: string, instagram?: string): Promise<{ user: Profile }> {
+export async function login(name?: string, phone?: string, telegram?: string, instagram?: string): Promise<{ token: string; user: Profile }> {
   return request('/auth/login', { method: 'POST', body: JSON.stringify({ name, phone, telegram, instagram }) });
 }
 
@@ -160,7 +174,7 @@ export async function toggleProfileVerification(id: string): Promise<{ verified:
 }
 
 // ── Admin ──
-export async function adminLogin(passcode: string): Promise<{ success: boolean }> {
+export async function adminLogin(passcode: string): Promise<{ token: string }> {
   return request('/admin/login', { method: 'POST', body: JSON.stringify({ passcode }) });
 }
 

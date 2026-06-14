@@ -57,7 +57,12 @@ app.use((req, res, next) => {
 app.post('/api/seed', express.json(), async (req, res) => {
   try {
     await ensureConnection();
-    await seedData(true);
+    const count = await countUsers();
+    if (count > 0) {
+      res.json({ message: 'Database already has data. No changes made.' });
+      return;
+    }
+    await seedData(false);
     seedingDone = true;
     res.json({ message: 'Database seeded successfully with 60 users, 3 stories, 3 articles, and 7 FAQs.' });
   } catch (err: any) {

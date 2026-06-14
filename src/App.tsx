@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, Suspense, lazy, useState, useRef } from 'react';
+import React, { useEffect, useMemo, Suspense, lazy, useState, useRef, startTransition } from 'react';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import PaymentModal from './components/PaymentModal';
@@ -110,13 +110,14 @@ function AppContent() {
   useEffect(() => {
     const view = ui.state.currentView;
     if (view === 'browse' || view === 'dashboard' || view === 'profile' || view === 'admin') {
-      if (data.state.profiles.length === 0) {
-        api.fetchProfiles({ limit: 100 }).then(res => {
-          if (res && Array.isArray(res.profiles)) {
-            data.dispatch({ type: 'SET_PROFILES', payload: res.profiles });
-          }
-        }).catch((err) => console.error('Failed to fetch profiles:', err));
-      }
+      api.fetchProfiles({ limit: 100 }).then(res => {
+        if (res && Array.isArray(res.profiles)) {
+          // MERGE instead of SET — preserves the existing list while updating/adding profiles
+          startTransition(() => {
+            data.dispatch({ type: 'MERGE_PROFILES', payload: res.profiles });
+          });
+        }
+      }).catch((err) => console.error('Failed to fetch profiles:', err));
     }
     if (view === 'stories') {
       if (data.state.stories.length === 0) {
@@ -263,6 +264,7 @@ function AppContent() {
         instagram: newProfile.contactInfo.instagram,
         email: newProfile.contactInfo.email,
       });
+      if (result?.token) api.setToken(result.token);
     } catch (err) {
       console.error('Registration API error:', err);
     }
@@ -287,6 +289,7 @@ function AppContent() {
   const handleSignInUser = async (phone: string, telegram: string, instagram: string): Promise<boolean> => {
     try {
       const res = await api.login(undefined, phone || undefined, telegram || undefined, instagram || undefined);
+      if (res?.token) api.setToken(res.token);
       if (res?.user) {
         const profileWithLookingFor = { ...res.user, lookingFor: res.user.lookingFor || (res.user.gender === 'Male' ? 'Female' : 'Male') };
         auth.dispatch({ type: 'SET_CURRENT_USER', payload: profileWithLookingFor });
@@ -310,7 +313,8 @@ function AppContent() {
     ui.dispatch({ type: 'SET_CURRENT_VIEW', payload: 'browse' });
     triggerNotification('success', ui.t('app.notify.welcome-back').replace('{name}', profile.name));
     try {
-      await api.login(profile.name, undefined, profile.contactInfo.telegram, profile.contactInfo.instagram);
+      const testRes = await api.login(profile.name, undefined, profile.contactInfo.telegram, profile.contactInfo.instagram);
+      if (testRes?.token) api.setToken(testRes.token);
     } catch (err) {
       console.error('Test login API error:', err);
     }
@@ -429,6 +433,8 @@ function AppContent() {
         setIsLoggedIn={async (v) => {
           auth.dispatch({ type: 'SET_LOGGED_IN', payload: v });
           if (!v) {
+            api.clearToken();
+            api.clearToken();
             await api.logout().catch(() => {});
             ui.dispatch({ type: 'SET_CURRENT_VIEW', payload: 'home' });
           }

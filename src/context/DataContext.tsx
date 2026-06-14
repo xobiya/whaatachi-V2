@@ -14,6 +14,7 @@ interface DataState {
 
 type DataAction =
   | { type: 'SET_PROFILES'; payload: Profile[] }
+  | { type: 'MERGE_PROFILES'; payload: Profile[] }
   | { type: 'SET_UNLOCKED_IDS'; payload: string[] }
   | { type: 'SET_PAYMENTS'; payload: PaymentRequest[] }
   | { type: 'MERGE_PAYMENTS'; payload: PaymentRequest[] }
@@ -31,6 +32,11 @@ type DataAction =
 function dataReducer(state: DataState, action: DataAction): DataState {
   switch (action.type) {
     case 'SET_PROFILES': return { ...state, profiles: action.payload };
+    case 'MERGE_PROFILES': {
+      const existingMap = new Map(state.profiles.map(p => [p.id, p]));
+      for (const p of action.payload) existingMap.set(p.id, p);
+      return { ...state, profiles: Array.from(existingMap.values()) };
+    }
     case 'SET_UNLOCKED_IDS': return { ...state, unlockedIds: action.payload };
     case 'SET_PAYMENTS': return { ...state, allPayments: action.payload };
     case 'MERGE_PAYMENTS':

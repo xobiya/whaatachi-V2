@@ -1,7 +1,7 @@
 import { Router, Response } from 'express';
 import { v4 as uuid } from 'uuid';
 import * as userModel from '../models/user.model';
-import { authenticate, AuthRequest } from '../middleware/auth';
+import { generateToken, authenticate, optionalAuthenticate, AuthRequest } from '../middleware/auth';
 import { validateRegister, validateLogin } from '../middleware/validate';
 import { userRowToProfile } from '../utils/transform';
 
@@ -34,9 +34,9 @@ router.post('/register', validateRegister, async (req: AuthRequest, res: Respons
       return;
     }
 
-    req.session.userId = id;
+    const token = generateToken({ id });
     const plain = typeof created.toObject === 'function' ? created.toObject() : created;
-    res.status(201).json({ user: userRowToProfile(plain) });
+    res.status(201).json({ token, user: userRowToProfile(plain) });
   } catch (err: any) {
     console.error('Register error:', err);
     if (err?.code === 11000) {
@@ -80,33 +80,25 @@ router.post('/login', validateLogin, async (req: AuthRequest, res: Response) => 
       return;
     }
 
-    req.session.userId = found._id;
-    req.session.isAdmin = false;
-    res.json({ user: userRowToProfile(found as any) });
+    const token = generateToken({ id: found._id });
+    res.json({ token, user: userRowToProfile(found as any) });
   } catch (err: any) {
     console.error('Login error:', err);
     res.status(500).json({ error: 'Login failed' });
   }
 });
 
-router.post('/logout', (req: AuthRequest, res: Response) => {
-  req.session.destroy((err) => {
-    if (err) {
-      res.status(500).json({ error: 'Logout failed' });
-      return;
-    }
-    res.clearCookie('connect.sid');
-    res.json({ success: true });
-  });
+router.post('/logout', (_req: AuthRequest, res: Response) => {
+  res.json({ success: true });
 });
 
-router.get('/me', async (req: AuthRequest, res: Response) => {
+router.get('/me', optionalAuthenticate, async (req: AuthRequest, res: Response) => {
   try {
-    if (!req.session?.userId) {
+    if (!req.userId) {
       res.json({ user: null });
       return;
     }
-    const user = await userModel.findUserById(req.session.userId);
+    const user = await userModel.findUserById(req.userId);
     if (!user) {
       res.json({ user: null });
       return;

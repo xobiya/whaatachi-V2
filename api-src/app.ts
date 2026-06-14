@@ -3,8 +3,6 @@ import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import rateLimit from 'express-rate-limit';
-import session from 'express-session';
-import MongoStore from 'connect-mongo';
 
 import mongoose from 'mongoose';
 import { errorHandler, notFoundHandler } from './middleware/errorHandler';
@@ -25,23 +23,6 @@ app.use(cors({
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true,
-}));
-app.use(session({
-  secret: process.env.SESSION_SECRET || process.env.JWT_SECRET || 'whaatachi-session-secret',
-  resave: false,
-  saveUninitialized: false,
-  store: MongoStore.create({
-    mongoUrl: process.env.MONGODB_URI,
-    ttl: 90 * 60,
-    autoRemove: 'native',
-    autoRemoveInterval: 10,
-  }),
-  cookie: {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
-    maxAge: 90 * 60 * 1000,
-  },
 }));
 
 app.use(morgan('short'));

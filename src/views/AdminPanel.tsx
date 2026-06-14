@@ -114,11 +114,23 @@ export default function AdminPanel({
   // Dashboard stats from API
   const [apiStats, setApiStats] = useState<any>(null);
 
-  // Fetch articles and FAQs on mount
+  // Check for existing admin session + fetch data on mount
   useEffect(() => {
+    api.fetchAdminStats()
+      .then((res) => {
+        setIsAuthenticated(true);
+        setUserRole('admin');
+        setApiStats(res.stats);
+        return api.fetchPayments();
+      })
+      .then((res) => {
+        if (res && Array.isArray(res.payments)) {
+          setAllPayments(res.payments);
+        }
+      })
+      .catch(() => {});
     api.fetchArticles().then((res) => setArticles(res.articles)).catch(() => showToast('error', 'Failed to load articles'));
     api.fetchAllFaqs().then((res) => setAllFaqs(res.faqs)).catch(() => showToast('error', 'Failed to load FAQs'));
-    api.fetchAdminStats().then((res) => setApiStats(res.stats)).catch(() => showToast('error', 'Failed to load stats'));
   }, []);
 
   // Support / Help Desk simulating replies
@@ -198,15 +210,22 @@ export default function AdminPanel({
     e.preventDefault();
     setError(null);
     try {
-      await api.adminLogin(passcode.trim());
+      const res = await api.adminLogin(passcode.trim());
+      if (res?.token) api.setToken(res.token);
       setIsAuthenticated(true);
       setUserRole('admin');
+      api.fetchPayments().then(res => {
+        if (res && Array.isArray(res.payments)) {
+          setAllPayments(res.payments);
+        }
+      }).catch(err => console.error('Failed to fetch payments after login:', err));
     } catch {
       setError('Invalid administrative passcode.');
     }
   };
 
   const handleAdminLogout = async () => {
+    api.clearToken();
     await api.logout().catch(() => {});
     setIsAuthenticated(false);
     setUserRole('user');

@@ -80,10 +80,13 @@ export default function PaymentModal({
         setError('Please upload a payment receipt/screenshot before submitting.');
         return;
       }
+      if (!transactionId.trim()) {
+        setError('Please enter the transaction reference ID from your payment receipt.');
+        return;
+      }
       setSubmitting(true);
-      const autoTxId = 'TXN_' + Math.random().toString(36).substring(2, 9).toUpperCase();
       setTimeout(() => {
-        onSubmitPayment(profile.id, profile.name, profile.image, currentUser?.name || 'Male Member', currentUser?.contactInfo?.phone || 'Auto', autoTxId, method, 0, uploadedFileData || undefined);
+        onSubmitPayment(profile.id, profile.name, profile.image, currentUser?.name || 'Male Member', currentUser?.contactInfo?.phone || 'Auto', transactionId.trim(), method, 200, uploadedFileData || undefined);
         setSubmitting(false);
         onPaymentSuccess();
       }, 800);
@@ -241,6 +244,11 @@ export default function PaymentModal({
                       {t('payment.choose')}
                     </button>
                     <input type="file" ref={fileInputRef} accept="image/*" className="hidden" onChange={handleFileChange} />
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="block text-xs font-bold text-[#1A1118]/70 dark:text-[#FFFCF8]/60 uppercase tracking-wider">Transaction Reference ID</label>
+                    <input type="text" required placeholder="e.g. FT2401120015" value={transactionId} onChange={(e) => setTransactionId(e.target.value)} className="w-full rounded-xl border border-[#EDE6D9] dark:border-[#C9A84C]/15 p-3 text-sm text-gray-900 dark:text-[#FFFCF8] focus:outline-hidden focus:border-[#EB317A] dark:focus:border-[#C9A84C] focus:ring-1 focus:ring-[#EB317A]/20 dark:focus:ring-[#C9A84C]/20 bg-white dark:bg-[#1A1118]" />
                   </div>
                 </div>
               </div>
