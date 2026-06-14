@@ -22,6 +22,7 @@ export interface Profile {
 
 export interface PaymentRequest {
   id: string;
+  userId: string;
   profileId: string; // The ID of the profile being unlocked
   profileName: string; // The name of the profile being unlocked
   profileImage: string;

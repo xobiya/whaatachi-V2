@@ -2,10 +2,26 @@ import React, { createContext, useContext, useReducer, useEffect } from 'react';
 import { Profile, PaymentRequest, SuccessStory, Article } from '../types';
 
 const PROFILES_CACHE_KEY = 'whaatachi_profiles_cache';
+const UNLOCKED_IDS_KEY = 'whaatachi_unlocked_ids';
+const PAYMENTS_CACHE_KEY = 'whaatachi_payments_cache';
 
 function loadCachedProfiles(): Profile[] {
   try {
     const cached = localStorage.getItem(PROFILES_CACHE_KEY);
+    return cached ? JSON.parse(cached) : [];
+  } catch { return []; }
+}
+
+function loadCachedUnlockedIds(): string[] {
+  try {
+    const cached = localStorage.getItem(UNLOCKED_IDS_KEY);
+    return cached ? JSON.parse(cached) : [];
+  } catch { return []; }
+}
+
+function loadCachedPayments(): PaymentRequest[] {
+  try {
+    const cached = localStorage.getItem(PAYMENTS_CACHE_KEY);
     return cached ? JSON.parse(cached) : [];
   } catch { return []; }
 }
@@ -86,8 +102,8 @@ function dataReducer(state: DataState, action: DataAction): DataState {
 
 const initialDataState: DataState = {
   profiles: loadCachedProfiles(),
-  unlockedIds: [],
-  allPayments: [],
+  unlockedIds: loadCachedUnlockedIds(),
+  allPayments: loadCachedPayments(),
   stories: [],
   articles: [],
   viewingProfile: null,
@@ -103,8 +119,10 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     try {
       localStorage.setItem(PROFILES_CACHE_KEY, JSON.stringify(state.profiles));
+      localStorage.setItem(UNLOCKED_IDS_KEY, JSON.stringify(state.unlockedIds));
+      localStorage.setItem(PAYMENTS_CACHE_KEY, JSON.stringify(state.allPayments));
     } catch { /* noop */ }
-  }, [state.profiles]);
+  }, [state.profiles, state.unlockedIds, state.allPayments]);
 
   return <DataContext.Provider value={{ state, dispatch }}>{children}</DataContext.Provider>;
 }

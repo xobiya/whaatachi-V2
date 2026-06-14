@@ -27,6 +27,7 @@ export function userRowToProfile(row: UserRow): Profile {
 export function paymentRowToPayment(row: PaymentRow): PaymentRequest {
   return {
     id: row.id || (row as any)._id,
+    userId: row.userId,
     profileId: row.profileId,
     profileName: row.profileName,
     profileImage: row.profileImage ?? '',

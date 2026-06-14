@@ -1094,6 +1094,7 @@ export default function AdminPanel({
                     const method = methods[Math.floor(Math.random() * methods.length)];
                     const customReq: PaymentRequest = {
                       id: `t-pay-${Date.now()}`,
+                      userId: 'seed-user',
                       profileId: 'p5',
                       profileName: 'Helen Gebru',
                       profileImage: '/assets/three.avif',

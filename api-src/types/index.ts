@@ -22,6 +22,7 @@ export interface Profile {
 
 export interface PaymentRequest {
   id: string;
+  userId: string;
   profileId: string;
   profileName: string;
   profileImage: string;

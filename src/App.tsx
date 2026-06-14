@@ -40,6 +40,15 @@ function AppContent() {
           auth.dispatch({ type: 'SET_CURRENT_USER', payload: p });
           auth.dispatch({ type: 'SET_LOGGED_IN', payload: true });
           auth.dispatch({ type: 'SET_USER_GENDER', payload: p.gender });
+          api.fetchPayments().then(payRes => {
+            if (payRes?.payments) {
+              const approvedIds = payRes.payments
+                .filter(pay => pay.status === 'Approved')
+                .map(pay => pay.profileId);
+              data.dispatch({ type: 'SET_UNLOCKED_IDS', payload: approvedIds });
+              data.dispatch({ type: 'SET_PAYMENTS', payload: payRes.payments });
+            }
+          }).catch(() => {});
         } else if (retries < maxRetries) {
           retries++;
           setTimeout(checkSession, retries * 1000);
@@ -170,6 +179,7 @@ function AppContent() {
   ) => {
     const newRequest: PaymentRequest = {
       id: `p-${Date.now()}`,
+      userId: auth.state.currentUser!.id,
       profileId,
       profileName,
       profileImage,
@@ -374,8 +384,7 @@ function AppContent() {
 
   const userHasPaid = useMemo(() => {
     if (!auth.state.currentUser) return false;
-    const name = auth.state.currentUser.name.toLowerCase();
-    return data.state.allPayments.some(p => p.status === 'Approved' && p.senderName.toLowerCase() === name);
+    return data.state.allPayments.some(p => p.status === 'Approved' && p.userId === auth.state.currentUser.id);
   }, [data.state.allPayments, auth.state.currentUser]);
 
   if (ui.state.loading) {
