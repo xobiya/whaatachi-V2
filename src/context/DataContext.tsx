@@ -1,5 +1,14 @@
-import React, { createContext, useContext, useReducer } from 'react';
+import React, { createContext, useContext, useReducer, useEffect } from 'react';
 import { Profile, PaymentRequest, SuccessStory, Article } from '../types';
+
+const PROFILES_CACHE_KEY = 'whaatachi_profiles_cache';
+
+function loadCachedProfiles(): Profile[] {
+  try {
+    const cached = localStorage.getItem(PROFILES_CACHE_KEY);
+    return cached ? JSON.parse(cached) : [];
+  } catch { return []; }
+}
 
 interface DataState {
   profiles: Profile[];
@@ -76,7 +85,7 @@ function dataReducer(state: DataState, action: DataAction): DataState {
 }
 
 const initialDataState: DataState = {
-  profiles: [],
+  profiles: loadCachedProfiles(),
   unlockedIds: [],
   allPayments: [],
   stories: [],
@@ -90,6 +99,13 @@ const DataContext = createContext<{ state: DataState; dispatch: React.Dispatch<D
 
 export function DataProvider({ children }: { children: React.ReactNode }) {
   const [state, dispatch] = useReducer(dataReducer, initialDataState);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(PROFILES_CACHE_KEY, JSON.stringify(state.profiles));
+    } catch { /* noop */ }
+  }, [state.profiles]);
+
   return <DataContext.Provider value={{ state, dispatch }}>{children}</DataContext.Provider>;
 }
 
