@@ -30,7 +30,9 @@ async function start() {
 
   console.log(`MongoDB connected: ${mongoose.connection.host}`);
 
-  await seedData();
+  if (process.env.RUN_SEED === 'true') {
+    await seedData();
+  }
 
   mainApp.listen(PORT, () => {
     console.log(`API server running on http://localhost:${PORT}`);

@@ -76,7 +76,7 @@ router.post('/login', validateLogin, async (req: AuthRequest, res: Response) => 
     }
 
     if (!found) {
-      res.status(404).json({ error: 'No account found with the provided information' });
+      res.status(401).json({ error: 'Invalid login credentials' });
       return;
     }
 
