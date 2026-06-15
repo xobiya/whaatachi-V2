@@ -15,7 +15,9 @@ const ProfilePage = lazy(() => import('./views/ProfilePage'));
 import { Heart } from 'lucide-react';
 import { Profile, PaymentRequest, SuccessStory } from './types';
 import * as api from './services/api';
-import { CheckCircle, ShieldAlert, Clock } from 'lucide-react';
+import { CheckCircle, ShieldAlert, Clock, X, Phone, Instagram, Sparkles } from 'lucide-react';
+import SafeImage from './components/SafeImage';
+import TelegramIcon from './components/TelegramIcon';
 import { AuthProvider, useAuthContext } from './context/AuthContext';
 import { UIProvider, useUIContext } from './context/UIContext';
 import { DataProvider, useDataContext } from './context/DataContext';
@@ -29,6 +31,10 @@ function AppContent() {
   const [isRegistering, setIsRegistering] = useState(false);
   const [paymentCountdown, setPaymentCountdown] = useState(0);
   const paymentTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const [showApprovalCelebration, setShowApprovalCelebration] = useState(false);
+  const [celebratedProfile, setCelebratedProfile] = useState<{ profileId: string; profileName: string; profileImage: string } | null>(null);
+  const pendingApprovalRef = useRef<{ profileId: string; profileName: string; profileImage: string } | null>(null);
+  const paymentPollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
     let retries = 0;
@@ -281,10 +287,19 @@ function AppContent() {
   };
 
   const handlePaymentSuccess = () => {
+    const target = data.state.activeUnlockTarget;
+    if (target) {
+      pendingApprovalRef.current = {
+        profileId: target.id,
+        profileName: target.name,
+        profileImage: target.image,
+      };
+    }
     setPaymentCountdown(300);
     data.dispatch({ type: 'SET_PAYMENT_MODAL', payload: false });
     data.dispatch({ type: 'SET_UNLOCK_TARGET', payload: null });
     if (paymentTimerRef.current) clearInterval(paymentTimerRef.current);
+    if (paymentPollRef.current) clearInterval(paymentPollRef.current);
     paymentTimerRef.current = setInterval(() => {
       setPaymentCountdown(prev => {
         if (prev <= 1) {
@@ -294,6 +309,41 @@ function AppContent() {
         return prev - 1;
       });
     }, 1000);
+    paymentPollRef.current = setInterval(async () => {
+      const pid = pendingApprovalRef.current?.profileId;
+      if (!pid) return;
+      try {
+        const res = await api.fetchPayments();
+        if (res?.payments) {
+          const approved = res.payments.find(
+            p => p.profileId === pid && p.status === 'Approved'
+          );
+          if (approved) {
+            if (paymentTimerRef.current) clearInterval(paymentTimerRef.current);
+            if (paymentPollRef.current) clearInterval(paymentPollRef.current);
+            data.dispatch({ type: 'UPDATE_PAYMENT', payload: { id: approved.id, status: 'Approved' } });
+            data.dispatch({ type: 'ADD_UNLOCK', payload: approved.profileId });
+            const updatedProfiles = data.state.profiles.map((profile) => {
+              if (profile.id === approved.profileId) {
+                return { ...profile, verified: true };
+              }
+              return profile;
+            });
+            data.dispatch({ type: 'SET_PROFILES', payload: updatedProfiles });
+            setPaymentCountdown(0);
+            pendingApprovalRef.current = null;
+            setCelebratedProfile({
+              profileId: approved.profileId,
+              profileName: approved.profileName,
+              profileImage: approved.profileImage,
+            });
+            setShowApprovalCelebration(true);
+          }
+        }
+      } catch (err) {
+        console.error('Payment poll error:', err);
+      }
+    }, 15000);
   };
 
   const handleSignInUser = async (phone: string, telegram: string, instagram: string): Promise<boolean> => {
@@ -613,12 +663,86 @@ function AppContent() {
           </p>
           <button onClick={() => {
             setPaymentCountdown(0);
+            pendingApprovalRef.current = null;
             if (paymentTimerRef.current) clearInterval(paymentTimerRef.current);
+            if (paymentPollRef.current) clearInterval(paymentPollRef.current);
           }} className="mt-6 px-6 py-2.5 bg-[#FFFCF8]/10 hover:bg-[#FFFCF8]/20 text-[#FFFCF8] rounded-xl text-sm font-bold transition-all cursor-pointer border border-[#FFFCF8]/20">
             Back to browsing
           </button>
         </div>
       )}
+
+      {showApprovalCelebration && celebratedProfile && (() => {
+        const profile = data.state.profiles.find(p => p.id === celebratedProfile.profileId);
+        return (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center bg-[#1A1118]/95 backdrop-blur-sm transition-opacity duration-500 p-4">
+            <div className="bg-[#1A1118] border border-[#C9A84C]/20 rounded-3xl max-w-md w-full shadow-2xl overflow-hidden animate-scale-in">
+              <div className="relative bg-gradient-to-br from-[#EB317A]/20 via-[#1A1118] to-[#C9A84C]/10 p-6 text-center border-b border-[#C9A84C]/10">
+                <button onClick={() => { setShowApprovalCelebration(false); setCelebratedProfile(null); }} className="absolute top-3 right-3 p-1.5 rounded-lg bg-[#FFFCF8]/5 hover:bg-[#FFFCF8]/10 text-[#FFFCF8]/50 hover:text-[#FFFCF8] transition-all cursor-pointer">
+                  <X className="h-4 w-4" />
+                </button>
+                <div className="w-16 h-16 rounded-full bg-green-500/20 flex items-center justify-center mx-auto mb-3">
+                  <Sparkles className="h-8 w-8 text-green-400" />
+                </div>
+                <h2 className="text-2xl font-black text-[#FFFCF8] tracking-tight">Congratulations!</h2>
+                <p className="text-sm text-[#EDE6D9]/60 mt-1">
+                  Your payment for <span className="font-bold text-[#C9A84C]">{celebratedProfile.profileName}</span> has been approved
+                </p>
+              </div>
+              <div className="p-6 space-y-4">
+                <p className="text-xs font-bold text-[#C9A84C] uppercase tracking-widest text-center">Contact Details</p>
+                {profile ? (
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-3 p-3 bg-[#FFFCF8]/5 border border-[#FFFCF8]/10 rounded-xl">
+                      <div className="w-10 h-10 rounded-full overflow-hidden shrink-0 bg-[#FFFCF8]/5">
+                        <SafeImage src={profile.image} alt={profile.name} className="w-full h-full object-cover" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-bold text-[#FFFCF8]">{profile.name}, {profile.age}</p>
+                        <p className="text-[10px] text-[#EDE6D9]/50">{profile.city}</p>
+                      </div>
+                    </div>
+                    <a href={`tel:${profile.contactInfo.phone}`} className="flex items-center gap-3 p-3 bg-[#FFFCF8]/5 hover:bg-[#FFFCF8]/10 border border-[#FFFCF8]/10 rounded-xl transition-all cursor-pointer group">
+                      <div className="p-2 rounded-lg bg-[#EB317A]/20 text-[#EB317A] group-hover:bg-[#EB317A]/30 transition-colors">
+                        <Phone className="h-4 w-4" />
+                      </div>
+                      <div>
+                        <p className="text-[10px] text-[#EDE6D9]/40 font-bold uppercase tracking-widest">Phone</p>
+                        <p className="text-sm font-bold text-[#FFFCF8]">{profile.contactInfo.phone}</p>
+                      </div>
+                    </a>
+                    <a href={`https://t.me/${profile.contactInfo.telegram.replace('@', '')}`} target="_blank" rel="noreferrer" className="flex items-center gap-3 p-3 bg-[#FFFCF8]/5 hover:bg-[#FFFCF8]/10 border border-[#FFFCF8]/10 rounded-xl transition-all cursor-pointer group">
+                      <div className="p-2 rounded-lg bg-[#EB317A]/20 text-[#EB317A] group-hover:bg-[#EB317A]/30 transition-colors">
+                        <TelegramIcon className="h-4 w-4" />
+                      </div>
+                      <div>
+                        <p className="text-[10px] text-[#EDE6D9]/40 font-bold uppercase tracking-widest">Telegram</p>
+                        <p className="text-sm font-bold text-[#EB317A]">{profile.contactInfo.telegram}</p>
+                      </div>
+                    </a>
+                    {profile.contactInfo.instagram && (
+                      <a href={`https://instagram.com/${profile.contactInfo.instagram.replace('@', '')}`} target="_blank" rel="noreferrer" className="flex items-center gap-3 p-3 bg-[#FFFCF8]/5 hover:bg-[#FFFCF8]/10 border border-[#FFFCF8]/10 rounded-xl transition-all cursor-pointer group">
+                        <div className="p-2 rounded-lg bg-[#EB317A]/20 text-[#EB317A] group-hover:bg-[#EB317A]/30 transition-colors">
+                          <Instagram className="h-4 w-4" />
+                        </div>
+                        <div>
+                          <p className="text-[10px] text-[#EDE6D9]/40 font-bold uppercase tracking-widest">Instagram</p>
+                          <p className="text-sm font-bold text-[#EB317A]">{profile.contactInfo.instagram}</p>
+                        </div>
+                      </a>
+                    )}
+                  </div>
+                ) : (
+                  <p className="text-sm text-[#EDE6D9]/60 text-center">Contact details available in your unlock history.</p>
+                )}
+                <button onClick={() => { setShowApprovalCelebration(false); setCelebratedProfile(null); ui.dispatch({ type: 'SET_CURRENT_VIEW', payload: 'browse' }); }} className="w-full py-3 bg-[#EB317A] hover:bg-[#F04B8E] text-white font-bold rounded-xl transition-all cursor-pointer shadow-lg shadow-[#EB317A]/20">
+                  Start Connecting
+                </button>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
     </div>
   );
 }
