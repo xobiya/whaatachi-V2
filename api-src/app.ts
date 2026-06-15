@@ -3,6 +3,8 @@ import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import rateLimit from 'express-rate-limit';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 import mongoose from 'mongoose';
 import { errorHandler, notFoundHandler } from './middleware/errorHandler';
@@ -13,6 +15,9 @@ import storyRoutes from './routes/story.routes';
 import adminRoutes from './routes/admin.routes';
 import articleRoutes from './routes/article.routes';
 import faqRoutes from './routes/faq.routes';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 
@@ -67,6 +72,15 @@ app.get('/api/health', (_req, res) => {
     timestamp: new Date().toISOString(),
   });
 });
+
+// In production, serve the built frontend (Vite output in dist/)
+if (process.env.NODE_ENV === 'production') {
+  const distPath = path.resolve(__dirname, '..', 'dist');
+  app.use(express.static(distPath));
+  app.get('*', (_req, res) => {
+    res.sendFile(path.join(distPath, 'index.html'));
+  });
+}
 
 app.use(notFoundHandler);
 app.use(errorHandler);
