@@ -315,6 +315,16 @@ function AppContent() {
     api.rejectPayment(paymentId).catch((err) => console.error('Reject payment API error:', err));
   };
 
+  const handleRevokePayment = (paymentId: string) => {
+    const payment = data.state.allPayments.find(p => p.id === paymentId);
+    if (!payment) return;
+
+    data.dispatch({ type: 'REMOVE_UNLOCK', payload: payment.profileId });
+    data.dispatch({ type: 'UPDATE_PAYMENT', payload: { id: paymentId, status: 'Rejected' } });
+    triggerNotification('info', 'Contact access revoked');
+    api.rejectPayment(paymentId).catch((err) => console.error('Revoke payment API error:', err));
+  };
+
   const handleAddStory = (coupleNames: string, story: string, year: string, image: string) => {
     const newStory: SuccessStory = {
       id: `story-${Date.now()}`,
@@ -509,6 +519,7 @@ function AppContent() {
           setStories={(s: any) => data.dispatch({ type: 'SET_STORIES', payload: typeof s === 'function' ? s(data.state.stories) : s })}
           onApprove={handleApprovePayment}
           onReject={handleRejectPayment}
+          onRevoke={handleRevokePayment}
           setUserRole={(r) => auth.dispatch({ type: 'SET_USER_ROLE', payload: r })}
           setCurrentView={(v) => ui.dispatch({ type: 'SET_CURRENT_VIEW', payload: v })}
           isLoggedIn={auth.state.isLoggedIn}

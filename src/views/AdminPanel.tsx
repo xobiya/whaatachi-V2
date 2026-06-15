@@ -20,6 +20,7 @@ interface AdminPanelProps {
   setStories: React.Dispatch<React.SetStateAction<SuccessStory[]>>;
   onApprove: (paymentId: string) => void;
   onReject: (paymentId: string) => void;
+  onRevoke: (paymentId: string) => void;
   setUserRole: (role: 'user' | 'admin') => void;
   setCurrentView: (view: string) => void;
   isLoggedIn: boolean;
@@ -36,6 +37,7 @@ export default function AdminPanel({
   setStories,
   onApprove,
   onReject,
+  onRevoke,
   setUserRole,
   setCurrentView,
   isLoggedIn,
@@ -1507,15 +1509,29 @@ export default function AdminPanel({
                       )}
 
                       {selectedRequest.status !== 'Pending' && (
-                        <div className={`p-4 rounded-xl text-xs font-bold flex items-center gap-2 ${
-                          selectedRequest.status === 'Approved'
-                            ? 'bg-emerald-50 border border-emerald-200 text-emerald-700'
-                            : 'bg-red-50 border border-red-200 text-red-600'
-                        }`}>
-                          {selectedRequest.status === 'Approved' ? (
-                            <><CheckCircle className="h-5 w-5" /> This payment has been verified and approved</>
-                          ) : (
-                            <><XCircle className="h-5 w-5" /> This payment has been rejected and flagged</>
+                        <div className="space-y-3">
+                          <div className={`p-4 rounded-xl text-xs font-bold flex items-center gap-2 ${
+                            selectedRequest.status === 'Approved'
+                              ? 'bg-emerald-50 border border-emerald-200 text-emerald-700'
+                              : 'bg-red-50 border border-red-200 text-red-600'
+                          }`}>
+                            {selectedRequest.status === 'Approved' ? (
+                              <><CheckCircle className="h-5 w-5" /> This payment has been verified and approved</>
+                            ) : (
+                              <><XCircle className="h-5 w-5" /> This payment has been rejected and flagged</>
+                            )}
+                          </div>
+                          {selectedRequest.status === 'Approved' && (
+                            <button
+                              onClick={() => {
+                                onRevoke(selectedRequest.id);
+                                setSelectedRequest(null);
+                              }}
+                              className="w-full py-3 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-black uppercase tracking-wider cursor-pointer transition-all shadow-md shadow-red-600/20 flex items-center justify-center gap-2"
+                            >
+                              <XCircle className="h-4 w-4" />
+                              Revoke Contact Access
+                            </button>
                           )}
                         </div>
                       )}

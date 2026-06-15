@@ -50,6 +50,7 @@ type DataAction =
   | { type: 'SET_PAYMENT_MODAL'; payload: boolean }
   | { type: 'UPDATE_PROFILE'; payload: Profile }
   | { type: 'ADD_UNLOCK'; payload: string }
+  | { type: 'REMOVE_UNLOCK'; payload: string }
   | { type: 'ADD_PAYMENT'; payload: PaymentRequest }
   | { type: 'UPDATE_PAYMENT'; payload: { id: string; status: 'Approved' | 'Rejected' } }
   | { type: 'ADD_STORY'; payload: SuccessStory };
@@ -81,6 +82,8 @@ function dataReducer(state: DataState, action: DataAction): DataState {
       };
     case 'ADD_UNLOCK':
       return { ...state, unlockedIds: state.unlockedIds.includes(action.payload) ? state.unlockedIds : [...state.unlockedIds, action.payload] };
+    case 'REMOVE_UNLOCK':
+      return { ...state, unlockedIds: state.unlockedIds.filter(id => id !== action.payload) };
     case 'ADD_PAYMENT':
       return { ...state, allPayments: [action.payload, ...state.allPayments] };
     case 'UPDATE_PAYMENT':

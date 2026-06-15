@@ -2,6 +2,7 @@ import React, { useMemo, useState, startTransition } from 'react';
 import { Profile } from '../types';
 import { MapPin, Phone, Instagram, Heart, Search, Filter, X } from 'lucide-react';
 import TelegramIcon from '../components/TelegramIcon';
+import SafeImage from '../components/SafeImage';
 import { useUIContext } from '../context/UIContext';
 import { maskPhone, maskHandle } from '../utils/mask';
 const INTENT_BADGE: Record<string, { label: string; cls: string }> = {
@@ -234,12 +235,13 @@ const ProfileListCard = React.memo(function ProfileListCard({
     <div className="bg-white dark:bg-[#1A1118] rounded-2xl border border-[#EDE6D9] dark:border-[#C9A84C]/10 overflow-hidden shadow-sm hover:shadow-xl hover:border-[#C9A84C]/30 dark:hover:border-[#C9A84C]/20 transition-all duration-400 flex flex-col group">
       {/* Photo */}
       <div className="relative pt-[125%] w-full bg-gray-100 dark:bg-[#120A0E] overflow-hidden">
-        <img
+        <SafeImage
           src={profile.image}
           alt={profile.name}
-          loading="lazy"
-          className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+          className="group-hover:scale-105 transition-transform duration-700"
+          wrapperClassName="absolute inset-0"
           referrerPolicy="no-referrer"
+          loading="lazy"
         />
         <div className="absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-black/70 to-transparent" />
         <div className="absolute top-2 left-2 flex gap-1">

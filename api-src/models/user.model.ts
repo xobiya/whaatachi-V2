@@ -179,7 +179,7 @@ export async function findUsersWithFilters(filters: {
 }
 
 export async function createUser(data: Record<string, any>): Promise<any> {
-  return User.create({
+  const userDoc: Record<string, any> = {
     _id: data.id,
     name: data.name,
     age: data.age,
@@ -193,24 +193,44 @@ export async function createUser(data: Record<string, any>): Promise<any> {
     relationshipIntent: data.relationshipIntent,
     interests: data.interests || [],
     verified: false,
-    phone: data.phone,
-    telegram: data.telegram,
-    instagram: data.instagram,
-    email: data.email,
-  });
+  };
+
+  const optionalFields = ['phone', 'telegram', 'instagram', 'email'];
+  for (const f of optionalFields) {
+    if (data[f] !== undefined && data[f] !== null && data[f] !== '') {
+      userDoc[f] = data[f];
+    }
+  }
+
+  return User.create(userDoc);
 }
 
 export async function updateUser(id: string, data: Record<string, any>): Promise<any> {
   const allowed = ['name', 'age', 'city', 'address', 'bio', 'lookingFor', 'image',
     'status', 'relationshipIntent', 'interests', 'phone', 'telegram', 'instagram', 'email'];
   const update: Record<string, any> = {};
+  const unset: Record<string, any> = {};
+
   for (const key of allowed) {
     if (data[key] !== undefined) {
-      update[key] = key === 'interests' && Array.isArray(data[key]) ? data[key] : data[key];
+      if (['phone', 'telegram', 'instagram', 'email'].includes(key) && (data[key] === '' || data[key] === null)) {
+        unset[key] = 1;
+      } else {
+        update[key] = key === 'interests' && Array.isArray(data[key]) ? data[key] : data[key];
+      }
     }
   }
+
+  const updateOp: Record<string, any> = {};
   if (Object.keys(update).length > 0) {
-    return User.findByIdAndUpdate(id, { $set: update }, { new: true }).lean();
+    updateOp.$set = update;
+  }
+  if (Object.keys(unset).length > 0) {
+    updateOp.$unset = unset;
+  }
+
+  if (Object.keys(updateOp).length > 0) {
+    return User.findByIdAndUpdate(id, updateOp, { new: true }).lean();
   }
   return User.findById(id).lean();
 }
