@@ -24,10 +24,12 @@ const app = express();
 app.set('trust proxy', 1);
 app.use(helmet());
 app.use(cors({
-  origin: process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(',') : true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  origin: process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(',') : ['https://whaatachi.vercel.app', 'https://whaatachi.lovable.app', /\.vercel\.app$/],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true,
+  preflightContinue: false,
+  optionsSuccessStatus: 204,
 }));
 
 app.use(morgan('short'));

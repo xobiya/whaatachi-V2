@@ -1,6 +1,7 @@
 import { Profile, PaymentRequest, SuccessStory, Article } from '../types';
 
-const API_BASE = import.meta.env.VITE_API_URL || '/api';
+const rawBase = import.meta.env.VITE_API_URL || '';
+const API_BASE = rawBase ? (rawBase.endsWith('/api') ? rawBase : `${rawBase.replace(/\/+$/, '')}/api`) : '/api';
 const REQUEST_TIMEOUT = 30000;
 const inflightMap = new Map<string, Promise<any>>();
 const TOKEN_KEY = 'whaatachi_auth_token';
