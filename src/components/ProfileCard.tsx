@@ -22,7 +22,7 @@ export default function ProfileCard({
   return (
     <div className="bg-white dark:bg-[#1A1118] rounded-2xl border border-[#EDE6D9] dark:border-[#C9A84C]/10 overflow-hidden shadow-sm hover:shadow-xl hover:border-[#C9A84C]/40 dark:hover:border-[#C9A84C]/30 transition-all duration-500 flex flex-col h-full group">
 
-      <div className="relative pt-[120%] w-full bg-gray-100 dark:bg-[#120A0E] overflow-hidden">
+      <div className="relative aspect-[4/5] w-full bg-gray-100 dark:bg-[#120A0E] overflow-hidden shrink-0">
         <SafeImage src={profile.image} alt={profile.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" wrapperClassName="absolute inset-0" referrerPolicy="no-referrer" loading="lazy" />
         <div className="absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-black/70 to-transparent"></div>
 
