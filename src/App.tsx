@@ -358,15 +358,6 @@ function AppContent() {
 
   const handleRegisterUser = async (newProfile: Profile) => {
     setIsRegistering(true);
-    setTimeout(() => setIsRegistering(false), 2000);
-    const profileWithLookingFor = { ...newProfile, lookingFor: newProfile.lookingFor || (newProfile.gender === 'Male' ? 'Female' : 'Male') };
-    auth.dispatch({ type: 'SET_CURRENT_USER', payload: profileWithLookingFor });
-    auth.dispatch({ type: 'SET_LOGGED_IN', payload: true });
-    auth.dispatch({ type: 'SET_USER_GENDER', payload: profileWithLookingFor.gender });
-    ui.dispatch({ type: 'SET_CURRENT_VIEW', payload: 'browse' });
-    data.dispatch({ type: 'SET_PROFILES', payload: [profileWithLookingFor, ...data.state.profiles] });
-    triggerNotification('success', ui.t('app.notify.welcome').replace('{name}', profileWithLookingFor.name));
-
     try {
       const result = await api.register({
         id: newProfile.id,
@@ -385,18 +376,21 @@ function AppContent() {
         instagram: newProfile.contactInfo.instagram,
         email: newProfile.contactInfo.email,
       });
+
+      const serverUser = result.user;
+      const serverProfile = { ...serverUser, lookingFor: serverUser.lookingFor || (serverUser.gender === 'Male' ? 'Female' : 'Male') };
+      auth.dispatch({ type: 'SET_CURRENT_USER', payload: serverProfile });
+      auth.dispatch({ type: 'SET_LOGGED_IN', payload: true });
+      auth.dispatch({ type: 'SET_USER_GENDER', payload: serverProfile.gender });
+      ui.dispatch({ type: 'SET_CURRENT_VIEW', payload: 'browse' });
+      data.dispatch({ type: 'SET_PROFILES', payload: [serverProfile, ...data.state.profiles] });
       if (result?.token) api.setToken(result.token);
-      if (result?.user) {
-        const serverUser = result.user;
-        const serverProfile = { ...serverUser, lookingFor: serverUser.lookingFor || (serverUser.gender === 'Male' ? 'Female' : 'Male') };
-        const updated = profilesRef.current.map(p =>
-          p.id === newProfile.id ? serverProfile : p
-        );
-        data.dispatch({ type: 'SET_PROFILES', payload: updated });
-        auth.dispatch({ type: 'SET_CURRENT_USER', payload: serverProfile });
-      }
-    } catch (err) {
+      triggerNotification('success', ui.t('app.notify.welcome').replace('{name}', serverProfile.name));
+    } catch (err: any) {
       console.error('Registration API error:', err);
+      triggerNotification('info', err?.message || 'Registration failed. Please try again.');
+    } finally {
+      setIsRegistering(false);
     }
   };
 
