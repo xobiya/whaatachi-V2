@@ -1,5 +1,4 @@
 import express from 'express';
-import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import rateLimit from 'express-rate-limit';
@@ -22,26 +21,22 @@ const __dirname = path.dirname(__filename);
 const app = express();
 
 app.set('trust proxy', 1);
-app.use(cors({
-  origin: (origin, callback) => {
-    if (!origin) return callback(null, true);
-    const allowed = [
-      'https://whaatachi.vercel.app',
-      'https://whaatachi.lovable.app',
-      ...(process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(',') : []),
-    ];
-    if (allowed.includes(origin) || /\.vercel\.app$/.test(origin)) {
-      callback(null, origin);
-    } else {
-      callback(null, false);
-    }
-  },
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true,
-  preflightContinue: false,
-  optionsSuccessStatus: 204,
-}));
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  const allowed = [
+    'https://whaatachi.vercel.app',
+    'https://whaatachi.lovable.app',
+    ...(process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(',') : []),
+  ];
+  if (origin && (allowed.includes(origin) || /\.vercel\.app$/.test(origin))) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+  }
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
+  if (req.method === 'OPTIONS') return res.status(204).end();
+  next();
+});
 app.use(helmet());
 
 app.use(morgan('short'));
