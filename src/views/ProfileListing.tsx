@@ -184,7 +184,7 @@ export default function ProfileListing({
 
         {/* Grid */}
         {filteredProfiles.length > 0 ? (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4 lg:gap-5">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4 lg:gap-5 auto-rows-auto">
             {filteredProfiles.map((profile) => {
               const showContact = hasPaid || currentUser.gender === 'Female' || profile.id === currentUser.id;
               const badge = INTENT_BADGE[profile.relationshipIntent] || INTENT_BADGE['Friendship'];
@@ -232,9 +232,9 @@ const ProfileListCard = React.memo(function ProfileListCard({
   const { t } = useUIContext();
 
   return (
-    <div className="bg-white dark:bg-[#1A1118] rounded-2xl border border-[#EDE6D9] dark:border-[#C9A84C]/10 overflow-hidden shadow-sm hover:shadow-xl hover:border-[#C9A84C]/30 dark:hover:border-[#C9A84C]/20 transition-all duration-400 flex flex-col h-full group">
+    <div className="bg-white dark:bg-[#1A1118] rounded-2xl border border-[#EDE6D9] dark:border-[#C9A84C]/10 overflow-hidden shadow-sm hover:shadow-xl hover:border-[#C9A84C]/30 dark:hover:border-[#C9A84C]/20 transition-all duration-400 flex flex-col group">
       {/* Photo */}
-      <div className="relative pt-[100%] w-full bg-gray-100 dark:bg-[#120A0E] overflow-hidden">
+      <div className="relative aspect-[4/5] w-full bg-gray-100 dark:bg-[#120A0E] overflow-hidden shrink-0">
         <SafeImage
           src={profile.image}
           alt={profile.name}
@@ -257,7 +257,7 @@ const ProfileListCard = React.memo(function ProfileListCard({
         </div>
       </div>
 
-      <div className="p-3 flex flex-col grow">
+      <div className="p-3 flex flex-col">
         <span className={`inline-block text-[9px] font-bold px-2 py-0.5 rounded-full border mb-2 ${badge.cls}`}>
           {badge.label}
         </span>
