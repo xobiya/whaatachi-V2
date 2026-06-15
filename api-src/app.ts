@@ -22,15 +22,27 @@ const __dirname = path.dirname(__filename);
 const app = express();
 
 app.set('trust proxy', 1);
-app.use(helmet());
 app.use(cors({
-  origin: process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(',') : ['https://whaatachi.vercel.app', 'https://whaatachi.lovable.app', /\.vercel\.app$/],
+  origin: (origin, callback) => {
+    if (!origin) return callback(null, true);
+    const allowed = [
+      'https://whaatachi.vercel.app',
+      'https://whaatachi.lovable.app',
+      ...(process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(',') : []),
+    ];
+    if (allowed.includes(origin) || /\.vercel\.app$/.test(origin)) {
+      callback(null, origin);
+    } else {
+      callback(null, false);
+    }
+  },
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true,
   preflightContinue: false,
   optionsSuccessStatus: 204,
 }));
+app.use(helmet());
 
 app.use(morgan('short'));
 app.use(express.json({ limit: '10mb' }));
