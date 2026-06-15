@@ -36,6 +36,8 @@ function AppContent() {
   const [celebratedProfile, setCelebratedProfile] = useState<{ profileId: string; profileName: string; profileImage: string } | null>(null);
   const pendingApprovalRef = useRef<{ profileId: string; profileName: string; profileImage: string } | null>(null);
   const paymentPollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const profilesRef = useRef(data.state.profiles);
+  profilesRef.current = data.state.profiles;
 
   useEffect(() => {
     let retries = 0;
@@ -334,6 +336,15 @@ function AppContent() {
         email: newProfile.contactInfo.email,
       });
       if (result?.token) api.setToken(result.token);
+      if (result?.user) {
+        const serverUser = result.user;
+        const serverProfile = { ...serverUser, lookingFor: serverUser.lookingFor || (serverUser.gender === 'Male' ? 'Female' : 'Male') };
+        const updated = profilesRef.current.map(p =>
+          p.id === newProfile.id ? serverProfile : p
+        );
+        data.dispatch({ type: 'SET_PROFILES', payload: updated });
+        auth.dispatch({ type: 'SET_CURRENT_USER', payload: serverProfile });
+      }
     } catch (err) {
       console.error('Registration API error:', err);
     }
