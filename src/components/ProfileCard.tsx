@@ -23,7 +23,7 @@ export default function ProfileCard({
     <div className="bg-white dark:bg-[#1A1118] rounded-2xl border border-[#EDE6D9] dark:border-[#C9A84C]/10 overflow-hidden shadow-sm hover:shadow-xl hover:border-[#C9A84C]/40 dark:hover:border-[#C9A84C]/30 transition-all duration-500 flex flex-col h-full group">
 
       <div className="relative pt-[120%] w-full bg-gray-100 dark:bg-[#120A0E] overflow-hidden">
-        <SafeImage src={profile.image} alt={profile.name} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" referrerPolicy="no-referrer" loading="lazy" />
+        <SafeImage src={profile.image} alt={profile.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" wrapperClassName="absolute inset-0" referrerPolicy="no-referrer" loading="lazy" />
         <div className="absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-black/70 to-transparent"></div>
 
         <div className="absolute top-3 left-3 flex gap-1.5">
@@ -50,15 +50,27 @@ export default function ProfileCard({
             ))}
           </div>
 
-          <span className={`inline-block text-[10px] font-bold px-2 py-0.5 rounded-full border ${
-            profile.relationshipIntent === 'True Relationship'
-              ? 'bg-[#EB317A]/5 dark:bg-[#EB317A]/15 text-[#EB317A] dark:text-[#C9A84C] border-[#EB317A]/20 dark:border-[#C9A84C]/30'
+          {(() => {
+            const badgeCls = profile.relationshipIntent === 'True Relationship'
+              ? 'bg-rose-500/10 text-rose-400 border-rose-500/30'
               : profile.relationshipIntent === 'Friendship'
-                ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 border-blue-200 dark:border-blue-800'
-                : 'bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700'
-          }`}>
-            {profile.relationshipIntent}
-          </span>
+                ? 'bg-blue-500/10 text-blue-400 border-blue-500/30'
+                : profile.relationshipIntent === 'Friends with Benefits'
+                  ? 'bg-purple-500/10 text-purple-400 border-purple-500/30'
+                  : 'bg-orange-500/10 text-orange-400 border-orange-500/30';
+            const badgeLabel = profile.relationshipIntent === 'True Relationship'
+              ? '❤️ True Relationship'
+              : profile.relationshipIntent === 'Friendship'
+                ? '🤝 Friendship'
+                : profile.relationshipIntent === 'Friends with Benefits'
+                  ? '💕 FWB'
+                  : '🔥 Only Sex';
+            return (
+              <span className={`inline-block text-[9px] font-bold px-2 py-0.5 rounded-full border ${badgeCls}`}>
+                {badgeLabel}
+              </span>
+            );
+          })()}
 
           {profile.bio && (
             <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed line-clamp-2">

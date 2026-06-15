@@ -30,6 +30,7 @@ function AppContent() {
   const data = useDataContext();
   const [authIntent, setAuthIntent] = useState<'register' | 'signin'>('register');
   const [isRegistering, setIsRegistering] = useState(false);
+  const [isCheckingSession, setIsCheckingSession] = useState(true);
   const [paymentCountdown, setPaymentCountdown] = useState(0);
   const paymentTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const initialRender = useRef(true);
@@ -58,15 +59,21 @@ function AppContent() {
               data.dispatch({ type: 'SET_UNLOCKED_IDS', payload: approvedIds });
               data.dispatch({ type: 'SET_PAYMENTS', payload: payRes.payments });
             }
-          }).catch(() => {});
+          }).catch(() => {}).finally(() => {
+            setIsCheckingSession(false);
+          });
         } else if (retries < maxRetries) {
           retries++;
           setTimeout(checkSession, retries * 1000);
+        } else {
+          setIsCheckingSession(false);
         }
       }).catch(() => {
         if (retries < maxRetries) {
           retries++;
           setTimeout(checkSession, retries * 1000);
+        } else {
+          setIsCheckingSession(false);
         }
       });
     }
@@ -533,6 +540,23 @@ function AppContent() {
 
   // ── Onboarding (no header/footer) — shown when not logged in ──
   if (!auth.state.isLoggedIn && ui.state.currentView === 'home') {
+    if (isCheckingSession) {
+      return (
+        <div className="flex items-center justify-center min-h-screen bg-[#FFFCF8] dark:bg-[#120A0E]">
+          <div className="text-center space-y-6">
+            <div className="relative mx-auto w-16 h-16">
+              <div className="absolute inset-0 rounded-full border-4 border-[#C9A84C]/10" />
+              <div className="absolute inset-0 rounded-full border-4 border-t-[#EB317A] border-r-[#C9A84C] border-b-transparent border-l-transparent animate-spin" />
+              <div className="absolute inset-2 rounded-full bg-gradient-to-br from-[#EB317A]/20 to-[#C9A84C]/20 animate-pulse" />
+            </div>
+            <div className="space-y-2">
+              <p className="text-sm font-bold text-[#1A1118] dark:text-[#FFFCF8]">Verifying secure session...</p>
+              <p className="text-xs text-gray-400">Hang tight, we're loading your experience</p>
+            </div>
+          </div>
+        </div>
+      );
+    }
     return (
       <OnboardingFlow
         onComplete={handleRegisterUser}
@@ -611,8 +635,24 @@ function AppContent() {
           </div>
         }>
 
-          {/* Browse — main post-registration listing */}
-          {(ui.state.currentView === 'home' || ui.state.currentView === 'browse') && auth.state.isLoggedIn && auth.state.currentUser && (
+          {isCheckingSession ? (
+            <div className="flex items-center justify-center min-h-[60vh] py-20">
+              <div className="text-center space-y-6">
+                <div className="relative mx-auto w-16 h-16">
+                  <div className="absolute inset-0 rounded-full border-4 border-[#C9A84C]/10" />
+                  <div className="absolute inset-0 rounded-full border-4 border-t-[#EB317A] border-r-[#C9A84C] border-b-transparent border-l-transparent animate-spin" />
+                  <div className="absolute inset-2 rounded-full bg-gradient-to-br from-[#EB317A]/20 to-[#C9A84C]/20 animate-pulse" />
+                </div>
+                <div className="space-y-2">
+                  <p className="text-sm font-bold text-[#1A1118] dark:text-[#FFFCF8]">Verifying secure session...</p>
+                  <p className="text-xs text-gray-400">Hang tight, we're loading your experience</p>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <>
+              {/* Browse — main post-registration listing */}
+              {(ui.state.currentView === 'home' || ui.state.currentView === 'browse') && auth.state.isLoggedIn && auth.state.currentUser && (
             <ProfileListing
               profiles={data.state.profiles}
               currentUser={auth.state.currentUser}
@@ -675,6 +715,8 @@ function AppContent() {
 
           {/* Support */}
           {ui.state.currentView === 'support' && <SupportPanel />}
+            </>
+          )}
 
         </Suspense>
       </main>
