@@ -1,17 +1,18 @@
-import React, { useEffect, useMemo, Suspense, lazy, useState, useRef, startTransition } from 'react';
+import React, { useEffect, useMemo, Suspense, useState, useRef, startTransition } from 'react';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import PaymentModal from './components/PaymentModal';
 import OnboardingFlow from './views/OnboardingFlow';
 import ProfileListing from './views/ProfileListing';
-const Dashboard = lazy(() => import('./views/Dashboard'));
-const UnlockHistory = lazy(() => import('./views/UnlockHistory'));
-const FAQSection = lazy(() => import('./views/FAQSection'));
-const SuccessStories = lazy(() => import('./views/SuccessStories'));
-const BlogPage = lazy(() => import('./views/BlogPage'));
-const AdminPanel = lazy(() => import('./views/AdminPanel'));
-const SupportPanel = lazy(() => import('./views/SupportPanel'));
-const ProfilePage = lazy(() => import('./views/ProfilePage'));
+import { lazyWithRetry } from './utils/lazyWithRetry';
+const Dashboard = lazyWithRetry(() => import('./views/Dashboard'));
+const UnlockHistory = lazyWithRetry(() => import('./views/UnlockHistory'));
+const FAQSection = lazyWithRetry(() => import('./views/FAQSection'));
+const SuccessStories = lazyWithRetry(() => import('./views/SuccessStories'));
+const BlogPage = lazyWithRetry(() => import('./views/BlogPage'));
+const AdminPanel = lazyWithRetry(() => import('./views/AdminPanel'));
+const SupportPanel = lazyWithRetry(() => import('./views/SupportPanel'));
+const ProfilePage = lazyWithRetry(() => import('./views/ProfilePage'));
 import { Heart } from 'lucide-react';
 import { Profile, PaymentRequest, SuccessStory } from './types';
 import * as api from './services/api';
@@ -594,7 +595,21 @@ function AppContent() {
 
       {/* 3. Core views */}
       <main className="grow" id="primary-view-stage">
-        <Suspense fallback={<div className="flex items-center justify-center py-20"><div className="w-8 h-8 border-2 border-[#EB317A] border-t-transparent rounded-full animate-spin" /></div>}>
+        <Suspense fallback={
+          <div className="flex items-center justify-center min-h-[60vh] py-20">
+            <div className="text-center space-y-6">
+              <div className="relative mx-auto w-16 h-16">
+                <div className="absolute inset-0 rounded-full border-4 border-[#C9A84C]/10" />
+                <div className="absolute inset-0 rounded-full border-4 border-t-[#EB317A] border-r-[#C9A84C] border-b-transparent border-l-transparent animate-spin" />
+                <div className="absolute inset-2 rounded-full bg-gradient-to-br from-[#EB317A]/20 to-[#C9A84C]/20 animate-pulse" />
+              </div>
+              <div className="space-y-2">
+                <p className="text-sm font-bold text-[#1A1118] dark:text-[#FFFCF8]">Waking up Whaatachi...</p>
+                <p className="text-xs text-gray-400">Hang tight, we're getting things ready</p>
+              </div>
+            </div>
+          </div>
+        }>
 
           {/* Browse — main post-registration listing */}
           {(ui.state.currentView === 'home' || ui.state.currentView === 'browse') && auth.state.isLoggedIn && auth.state.currentUser && (
