@@ -6,16 +6,13 @@ interface AuthState {
   currentUser: Profile | null;
   userGender: 'Male' | 'Female';
   userRole: 'user' | 'admin';
-  isAuthModalOpen: boolean;
-  authModalInitialTab: 'register' | 'signin';
 }
 
 type AuthAction =
   | { type: 'SET_LOGGED_IN'; payload: boolean }
   | { type: 'SET_CURRENT_USER'; payload: Profile | null }
   | { type: 'SET_USER_GENDER'; payload: 'Male' | 'Female' }
-  | { type: 'SET_USER_ROLE'; payload: 'user' | 'admin' }
-  | { type: 'SET_AUTH_MODAL'; payload: { open: boolean; tab: 'register' | 'signin' } };
+  | { type: 'SET_USER_ROLE'; payload: 'user' | 'admin' };
 
 function authReducer(state: AuthState, action: AuthAction): AuthState {
   switch (action.type) {
@@ -23,7 +20,6 @@ function authReducer(state: AuthState, action: AuthAction): AuthState {
     case 'SET_CURRENT_USER': return { ...state, currentUser: action.payload };
     case 'SET_USER_GENDER': return { ...state, userGender: action.payload };
     case 'SET_USER_ROLE': return { ...state, userRole: action.payload };
-    case 'SET_AUTH_MODAL': return { ...state, isAuthModalOpen: action.payload.open, authModalInitialTab: action.payload.tab };
     default: return state;
   }
 }
@@ -33,8 +29,6 @@ const initialAuthState: AuthState = {
   currentUser: null,
   userGender: 'Male',
   userRole: 'user',
-  isAuthModalOpen: false,
-  authModalInitialTab: 'register',
 };
 
 const AuthContext = createContext<{ state: AuthState; dispatch: React.Dispatch<AuthAction> } | null>(null);
