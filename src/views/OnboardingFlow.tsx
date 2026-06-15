@@ -485,30 +485,30 @@ export default function OnboardingFlow({ onComplete, onSignIn, authIntent }: Onb
                     <span className="text-[8px] text-[#FFFCF8]/30 ml-auto">{t('onboarding.back')} to change</span>
                   </div>
 
-                   {/* Profile Photo */}
-                  <div>
-                    <label className="block text-[10px] font-bold text-[#FFFCF8]/50 uppercase tracking-wider mb-1.5">{t('onboarding.photo-label')}</label>
-                    <div className="flex items-center gap-3">
-                      <div className="w-14 h-14 rounded-full overflow-hidden border-2 border-[#C9A84C]/30 bg-[#FFFCF8]/5 shrink-0">
-                        {form.image
-                          ? <img src={form.image} alt="" className="w-full h-full object-cover" />
-                          : <div className="w-full h-full flex items-center justify-center text-[#FFFCF8]/20"><Camera className="h-5 w-5" /></div>
-                        }
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-[10px] text-[#FFFCF8]/40 mb-1 truncate">{t('onboarding.photo-desc')}</p>
-                        <button
-                          type="button"
-                          onClick={() => fileInputRef.current?.click()}
-                          className="px-3 py-1.5 bg-[#FFFCF8]/5 border border-[#FFFCF8]/10 rounded-xl text-[10px] font-bold text-[#FFFCF8] hover:border-[#C9A84C]/60 hover:text-[#C9A84C] transition-all cursor-pointer flex items-center gap-1"
-                        >
-                          <Camera className="h-3.5 w-3.5" />
-                          {t('auth.upload-photo')}
-                        </button>
-                        <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
-                      </div>
-                    </div>
-                  </div>
+                    {/* Profile Photo */}
+                   <div>
+                     <label className="block text-[10px] font-bold text-[#FFFCF8]/50 uppercase tracking-wider mb-1.5">{t('onboarding.photo-label')}</label>
+                     <div className="flex items-center gap-3">
+                       <div className="w-14 h-14 rounded-full overflow-hidden border-2 border-[#C9A84C]/30 bg-[#FFFCF8]/5 shrink-0">
+                         {form.image
+                           ? <img src={form.image} alt="" className="w-full h-full object-cover" />
+                           : <div className="w-full h-full flex items-center justify-center text-[#FFFCF8]/20"><Camera className="h-5 w-5" /></div>
+                         }
+                       </div>
+                       <div className="flex-1 min-w-0">
+                         <p className="text-[10px] text-[#FFFCF8]/40 mb-1 truncate">{t('onboarding.photo-desc')}</p>
+                         <button
+                           type="button"
+                           onClick={() => fileInputRef.current?.click()}
+                           className="px-3 py-1.5 bg-[#FFFCF8]/5 border border-[#FFFCF8]/10 rounded-xl text-[10px] font-bold text-[#FFFCF8] hover:border-[#C9A84C]/60 hover:text-[#C9A84C] transition-all cursor-pointer flex items-center gap-1"
+                         >
+                           <Camera className="h-3.5 w-3.5" />
+                           {t('auth.upload-photo')}
+                         </button>
+                         <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
+                       </div>
+                     </div>
+                   </div>
 
                   {/* Name */}
                   <div>
