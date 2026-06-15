@@ -550,23 +550,6 @@ function AppContent() {
 
   // ── Onboarding (no header/footer) — shown when not logged in ──
   if (!auth.state.isLoggedIn && ui.state.currentView === 'home') {
-    if (isCheckingSession) {
-      return (
-        <div className="flex items-center justify-center min-h-screen bg-[#FFFCF8] dark:bg-[#120A0E]">
-          <div className="text-center space-y-6">
-            <div className="relative mx-auto w-16 h-16">
-              <div className="absolute inset-0 rounded-full border-4 border-[#C9A84C]/10" />
-              <div className="absolute inset-0 rounded-full border-4 border-t-[#EB317A] border-r-[#C9A84C] border-b-transparent border-l-transparent animate-spin" />
-              <div className="absolute inset-2 rounded-full bg-gradient-to-br from-[#EB317A]/20 to-[#C9A84C]/20 animate-pulse" />
-            </div>
-            <div className="space-y-2">
-              <p className="text-sm font-bold text-[#1A1118] dark:text-[#FFFCF8]">Verifying secure session...</p>
-              <p className="text-xs text-gray-400">Hang tight, we're loading your experience</p>
-            </div>
-          </div>
-        </div>
-      );
-    }
     return (
       <OnboardingFlow
         onComplete={handleRegisterUser}
@@ -631,32 +614,20 @@ function AppContent() {
       <main className="grow" id="primary-view-stage">
         <Suspense fallback={
           <div className="flex items-center justify-center min-h-[60vh] py-20">
-            <div className="text-center space-y-6">
-              <div className="relative mx-auto w-16 h-16">
-                <div className="absolute inset-0 rounded-full border-4 border-[#C9A84C]/10" />
-                <div className="absolute inset-0 rounded-full border-4 border-t-[#EB317A] border-r-[#C9A84C] border-b-transparent border-l-transparent animate-spin" />
-                <div className="absolute inset-2 rounded-full bg-gradient-to-br from-[#EB317A]/20 to-[#C9A84C]/20 animate-pulse" />
-              </div>
-              <div className="space-y-2">
-                <p className="text-sm font-bold text-[#1A1118] dark:text-[#FFFCF8]">Waking up Whaatachi...</p>
-                <p className="text-xs text-gray-400">Hang tight, we're getting things ready</p>
-              </div>
+            <div className="relative mx-auto w-16 h-16">
+              <div className="absolute inset-0 rounded-full border-4 border-[#C9A84C]/10" />
+              <div className="absolute inset-0 rounded-full border-4 border-t-[#EB317A] border-r-[#C9A84C] border-b-transparent border-l-transparent animate-spin" />
+              <div className="absolute inset-2 rounded-full bg-gradient-to-br from-[#EB317A]/20 to-[#C9A84C]/20 animate-pulse" />
             </div>
           </div>
         }>
 
           {isCheckingSession ? (
             <div className="flex items-center justify-center min-h-[60vh] py-20">
-              <div className="text-center space-y-6">
-                <div className="relative mx-auto w-16 h-16">
-                  <div className="absolute inset-0 rounded-full border-4 border-[#C9A84C]/10" />
-                  <div className="absolute inset-0 rounded-full border-4 border-t-[#EB317A] border-r-[#C9A84C] border-b-transparent border-l-transparent animate-spin" />
-                  <div className="absolute inset-2 rounded-full bg-gradient-to-br from-[#EB317A]/20 to-[#C9A84C]/20 animate-pulse" />
-                </div>
-                <div className="space-y-2">
-                  <p className="text-sm font-bold text-[#1A1118] dark:text-[#FFFCF8]">Verifying secure session...</p>
-                  <p className="text-xs text-gray-400">Hang tight, we're loading your experience</p>
-                </div>
+              <div className="relative mx-auto w-16 h-16">
+                <div className="absolute inset-0 rounded-full border-4 border-[#C9A84C]/10" />
+                <div className="absolute inset-0 rounded-full border-4 border-t-[#EB317A] border-r-[#C9A84C] border-b-transparent border-l-transparent animate-spin" />
+                <div className="absolute inset-2 rounded-full bg-gradient-to-br from-[#EB317A]/20 to-[#C9A84C]/20 animate-pulse" />
               </div>
             </div>
           ) : (
