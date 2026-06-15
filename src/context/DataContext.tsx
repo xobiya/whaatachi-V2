@@ -64,19 +64,11 @@ function dataReducer(state: DataState, action: DataAction): DataState {
     }
     case 'SET_UNLOCKED_IDS': return { ...state, unlockedIds: action.payload };
     case 'SET_PAYMENTS': return { ...state, allPayments: action.payload };
-    case 'MERGE_PAYMENTS':
-      const existingIds = new Set(state.allPayments.map(p => p.id));
-      const merged = [...state.allPayments];
-      for (const p of action.payload) {
-        if (!existingIds.has(p.id)) {
-          merged.push(p);
-          existingIds.add(p.id);
-        } else {
-          const idx = merged.findIndex(m => m.id === p.id);
-          if (idx >= 0) merged[idx] = p;
-        }
-      }
-      return { ...state, allPayments: merged };
+    case 'MERGE_PAYMENTS': {
+      const existingMap = new Map(state.allPayments.map(p => [p.id, p]));
+      for (const p of action.payload) existingMap.set(p.id, p);
+      return { ...state, allPayments: Array.from(existingMap.values()) };
+    }
     case 'SET_STORIES': return { ...state, stories: action.payload };
     case 'SET_ARTICLES': return { ...state, articles: action.payload };
     case 'SET_VIEWING_PROFILE': return { ...state, viewingProfile: action.payload };
@@ -117,11 +109,21 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   const [state, dispatch] = useReducer(dataReducer, initialDataState);
 
   useEffect(() => {
-    try {
-      localStorage.setItem(PROFILES_CACHE_KEY, JSON.stringify(state.profiles));
-      localStorage.setItem(UNLOCKED_IDS_KEY, JSON.stringify(state.unlockedIds));
-      localStorage.setItem(PAYMENTS_CACHE_KEY, JSON.stringify(state.allPayments));
-    } catch { /* noop */ }
+    const idleCallback = typeof window !== 'undefined' && window.requestIdleCallback
+      ? window.requestIdleCallback
+      : (cb: any) => window.setTimeout(cb, 1);
+    const idleCancel = typeof window !== 'undefined' && window.cancelIdleCallback
+      ? window.cancelIdleCallback
+      : (id: any) => window.clearTimeout(id);
+
+    const id = idleCallback(() => {
+      try {
+        localStorage.setItem(PROFILES_CACHE_KEY, JSON.stringify(state.profiles));
+        localStorage.setItem(UNLOCKED_IDS_KEY, JSON.stringify(state.unlockedIds));
+        localStorage.setItem(PAYMENTS_CACHE_KEY, JSON.stringify(state.allPayments));
+      } catch { /* noop */ }
+    });
+    return () => idleCancel(id as any);
   }, [state.profiles, state.unlockedIds, state.allPayments]);
 
   return <DataContext.Provider value={{ state, dispatch }}>{children}</DataContext.Provider>;

@@ -42,27 +42,74 @@ export async function findUserByName(name: string): Promise<any[]> {
 }
 
 export async function findUserByContact(telegram: string | null, instagram: string | null): Promise<any> {
-  const orClauses: any[] = [];
+  const exactOrClauses: any[] = [];
+  const regexOrClauses: any[] = [];
+
   if (telegram) {
     const tg = telegram.replace(/^@/, '');
-    orClauses.push({ telegram: { $regex: new RegExp(`^@?${tg.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i') } });
+    const escaped = tg.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    exactOrClauses.push({ telegram: tg });
+    exactOrClauses.push({ telegram: `@${tg}` });
+    regexOrClauses.push({ telegram: { $regex: new RegExp(`^@?${escaped}$`, 'i') } });
   }
+
   if (instagram) {
     const ig = instagram.replace(/^@/, '');
-    orClauses.push({ instagram: { $regex: new RegExp(`^@?${ig.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i') } });
+    const escaped = ig.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    exactOrClauses.push({ instagram: ig });
+    exactOrClauses.push({ instagram: `@${ig}` });
+    regexOrClauses.push({ instagram: { $regex: new RegExp(`^@?${escaped}$`, 'i') } });
   }
-  if (orClauses.length === 0) return null;
-  return User.findOne({ $or: orClauses }).lean();
+
+  if (exactOrClauses.length > 0) {
+    const exactMatch = await User.findOne({ $or: exactOrClauses }).lean();
+    if (exactMatch) return exactMatch;
+  }
+
+  if (regexOrClauses.length > 0) {
+    return User.findOne({ $or: regexOrClauses }).lean();
+  }
+
+  return null;
 }
 
 export async function findUserByPhone(phone: string): Promise<any> {
+  // 1. Try exact match
+  const exact = await User.findOne({ phone }).lean();
+  if (exact) return exact;
+
+  // 2. Try normalized exact match (remove spaces)
+  const normalized = phone.replace(/\s+/g, '');
+  if (normalized !== phone) {
+    const exactNormalized = await User.findOne({ phone: normalized }).lean();
+    if (exactNormalized) return exactNormalized;
+  }
+
+  // 3. Fallback to flexible case-insensitive regex match
   const escaped = phone.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   const flexible = escaped.replace(/\s+/g, '\\s?');
   return User.findOne({ phone: { $regex: new RegExp(`^${flexible}$`, 'i') } }).lean();
 }
 
 export async function findUserByLogin(login: string): Promise<any> {
+  // 1. Try exact matches first on phone/telegram/instagram
   const sanitized = login.replace(/^@/, '');
+  const exactMatch = await User.findOne({
+    $or: [
+      { phone: login },
+      { phone: sanitized },
+      { telegram: login },
+      { telegram: sanitized },
+      { telegram: `@${sanitized}` },
+      { instagram: login },
+      { instagram: sanitized },
+      { instagram: `@${sanitized}` }
+    ]
+  }).lean();
+
+  if (exactMatch) return exactMatch;
+
+  // 2. Fallback to regex query
   const escaped = sanitized.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   const regex = new RegExp(`^@?${escaped}$`, 'i');
   return User.findOne({

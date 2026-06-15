@@ -4,19 +4,7 @@ import TelegramIcon from './TelegramIcon';
 import SafeImage from './SafeImage';
 import { Profile } from '../types';
 import { useUIContext } from '../context/UIContext';
-
-function maskPhone(val: string) {
-  const digits = val.replace(/\D/g, '');
-  if (digits.length >= 9) return digits.slice(0, 2) + 'XX XXX' + digits.slice(-3);
-  return val.slice(0, 3) + '***';
-}
-function maskHandle(val: string) {
-  if (!val || val === '---') return '---';
-  const at = val.startsWith('@') ? '@' : '';
-  const body = val.replace(/^@/, '');
-  if (body.length <= 2) return at + body + '***';
-  return at + body.slice(0, 2) + '...';
-}
+import { maskPhone, maskHandle } from '../utils/mask';
 
 interface ProfileCardProps {
   key?: string | number;

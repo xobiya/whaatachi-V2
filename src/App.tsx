@@ -35,7 +35,7 @@ function AppContent() {
   const [showApprovalCelebration, setShowApprovalCelebration] = useState(false);
   const [celebratedProfile, setCelebratedProfile] = useState<{ profileId: string; profileName: string; profileImage: string } | null>(null);
   const pendingApprovalRef = useRef<{ profileId: string; profileName: string; profileImage: string } | null>(null);
-  const paymentPollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const lastFetchRef = useRef(0);
   const profilesRef = useRef(data.state.profiles);
   profilesRef.current = data.state.profiles;
 
@@ -132,6 +132,8 @@ function AppContent() {
   useEffect(() => {
     const view = ui.state.currentView;
     if (view === 'browse' || view === 'dashboard' || view === 'profile' || view === 'admin') {
+      if (Date.now() - lastFetchRef.current < 30000) return;
+      lastFetchRef.current = Date.now();
       api.fetchProfiles({ limit: 100 }).then(res => {
         if (res && Array.isArray(res.profiles)) {
           // MERGE instead of SET — preserves the existing list while updating/adding profiles
@@ -195,14 +197,13 @@ function AppContent() {
             data.dispatch({ type: 'ADD_UNLOCK', payload: payment.profileId });
             data.dispatch({ type: 'UPDATE_PAYMENT', payload: { id: payment.id, status: 'Approved' } });
 
-            const updatedProfiles = data.state.profiles.map(profile =>
-              profile.id === payment.profileId ? { ...profile, verified: true } : profile
-            );
-            data.dispatch({ type: 'SET_PROFILES', payload: updatedProfiles });
+            const profile = profilesRef.current.find(p => p.id === payment.profileId);
+            if (profile) {
+              data.dispatch({ type: 'UPDATE_PROFILE', payload: { ...profile, verified: true } });
+            }
 
             if (pendingApprovalRef.current?.profileId === payment.profileId) {
               if (paymentTimerRef.current) clearInterval(paymentTimerRef.current);
-              if (paymentPollRef.current) clearInterval(paymentPollRef.current);
               setPaymentCountdown(0);
               pendingApprovalRef.current = null;
               setCelebratedProfile({
@@ -275,13 +276,10 @@ function AppContent() {
     data.dispatch({ type: 'UPDATE_PAYMENT', payload: { id: paymentId, status: 'Approved' } });
     data.dispatch({ type: 'ADD_UNLOCK', payload: payment.profileId });
 
-    const updatedProfiles = data.state.profiles.map((profile) => {
-      if (profile.id === payment.profileId) {
-        return { ...profile, verified: true };
-      }
-      return profile;
-    });
-    data.dispatch({ type: 'SET_PROFILES', payload: updatedProfiles });
+    const profile = data.state.profiles.find(p => p.id === payment.profileId);
+    if (profile) {
+      data.dispatch({ type: 'UPDATE_PROFILE', payload: { ...profile, verified: true } });
+    }
     triggerNotification('success', ui.t('app.notify.approved').replace('{name}', payment.profileName));
 
     api.approvePayment(paymentId).catch((err) => console.error('Approve payment API error:', err));
@@ -363,7 +361,6 @@ function AppContent() {
     data.dispatch({ type: 'SET_PAYMENT_MODAL', payload: false });
     data.dispatch({ type: 'SET_UNLOCK_TARGET', payload: null });
     if (paymentTimerRef.current) clearInterval(paymentTimerRef.current);
-    if (paymentPollRef.current) clearInterval(paymentPollRef.current);
     paymentTimerRef.current = setInterval(() => {
       setPaymentCountdown(prev => {
         if (prev <= 1) {
@@ -373,41 +370,6 @@ function AppContent() {
         return prev - 1;
       });
     }, 1000);
-    paymentPollRef.current = setInterval(async () => {
-      const pid = pendingApprovalRef.current?.profileId;
-      if (!pid) return;
-      try {
-        const res = await api.fetchPayments();
-        if (res?.payments) {
-          const approved = res.payments.find(
-            p => p.profileId === pid && p.status === 'Approved'
-          );
-          if (approved) {
-            if (paymentTimerRef.current) clearInterval(paymentTimerRef.current);
-            if (paymentPollRef.current) clearInterval(paymentPollRef.current);
-            data.dispatch({ type: 'UPDATE_PAYMENT', payload: { id: approved.id, status: 'Approved' } });
-            data.dispatch({ type: 'ADD_UNLOCK', payload: approved.profileId });
-            const updatedProfiles = data.state.profiles.map((profile) => {
-              if (profile.id === approved.profileId) {
-                return { ...profile, verified: true };
-              }
-              return profile;
-            });
-            data.dispatch({ type: 'SET_PROFILES', payload: updatedProfiles });
-            setPaymentCountdown(0);
-            pendingApprovalRef.current = null;
-            setCelebratedProfile({
-              profileId: approved.profileId,
-              profileName: approved.profileName,
-              profileImage: approved.profileImage,
-            });
-            setShowApprovalCelebration(true);
-          }
-        }
-      } catch (err) {
-        console.error('Payment poll error:', err);
-      }
-    }, 15000);
   };
 
   const handleSignInUser = async (phone: string, telegram: string, instagram: string): Promise<boolean> => {
@@ -488,7 +450,8 @@ function AppContent() {
   }, [data.state.allPayments]);
 
   const unlockedProfilesList = useMemo(() => {
-    return data.state.profiles.filter(p => data.state.unlockedIds.includes(p.id));
+    const idSet = new Set(data.state.unlockedIds);
+    return data.state.profiles.filter(p => idSet.has(p.id));
   }, [data.state.profiles, data.state.unlockedIds]);
 
   const userLookingFor = useMemo<'Male' | 'Female'>(() => {
@@ -556,7 +519,6 @@ function AppContent() {
         setIsLoggedIn={async (v) => {
           auth.dispatch({ type: 'SET_LOGGED_IN', payload: v });
           if (!v) {
-            api.clearToken();
             api.clearToken();
             await api.logout().catch(() => {});
             ui.dispatch({ type: 'SET_CURRENT_VIEW', payload: 'home' });
@@ -729,7 +691,6 @@ function AppContent() {
             setPaymentCountdown(0);
             pendingApprovalRef.current = null;
             if (paymentTimerRef.current) clearInterval(paymentTimerRef.current);
-            if (paymentPollRef.current) clearInterval(paymentPollRef.current);
           }} className="mt-6 px-6 py-2.5 bg-[#FFFCF8]/10 hover:bg-[#FFFCF8]/20 text-[#FFFCF8] rounded-xl text-sm font-bold transition-all cursor-pointer border border-[#FFFCF8]/20">
             Back to browsing
           </button>

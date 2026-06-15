@@ -3,6 +3,7 @@ import { Profile } from '../types';
 import { MapPin, Phone, Instagram, Heart, Search, Filter, X } from 'lucide-react';
 import TelegramIcon from '../components/TelegramIcon';
 import { useUIContext } from '../context/UIContext';
+import { maskPhone, maskHandle } from '../utils/mask';
 const INTENT_BADGE: Record<string, { label: string; cls: string }> = {
   'True Relationship': { label: '❤️ True Relationship', cls: 'bg-rose-500/10 text-rose-400 border-rose-500/30' },
   'Friendship': { label: '🤝 Friendship', cls: 'bg-blue-500/10 text-blue-400 border-blue-500/30' },
@@ -224,20 +225,7 @@ interface ProfileListCardProps {
   onMakePayment?: (profile: Profile) => void;
 }
 
-function maskPhone(val: string) {
-  const digits = val.replace(/\D/g, '');
-  if (digits.length >= 9) return digits.slice(0, 2) + 'XX XXX' + digits.slice(-3);
-  return val.slice(0, 3) + '***';
-}
-function maskHandle(val: string) {
-  if (!val || val === '---') return '---';
-  const at = val.startsWith('@') ? '@' : '';
-  const body = val.replace(/^@/, '');
-  if (body.length <= 2) return at + body + '***';
-  return at + body.slice(0, 2) + '...';
-}
-
-function ProfileListCard({
+const ProfileListCard = React.memo(function ProfileListCard({
   profile, showContact, badge, onMakePayment
 }: ProfileListCardProps) {
   const { t } = useUIContext();
@@ -316,4 +304,4 @@ function ProfileListCard({
       </div>
     </div>
   );
-}
+});

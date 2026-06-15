@@ -3,7 +3,15 @@ import jwt from 'jsonwebtoken';
 import { Request } from 'express';
 
 function getSecret(): string {
-  return process.env.JWT_SECRET || 'whaatachi-default-secret';
+  const secret = process.env.JWT_SECRET;
+  if (!secret) {
+    if (process.env.NODE_ENV === 'production') {
+      throw new Error('FATAL: JWT_SECRET environment variable must be set in production!');
+    }
+    console.warn('WARNING: JWT_SECRET environment variable is not set. Using a temporary fallback secret for development.');
+    return 'whaatachi-default-secret';
+  }
+  return secret;
 }
 
 export interface AuthPayload {
