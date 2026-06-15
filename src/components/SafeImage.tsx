@@ -19,11 +19,14 @@ export default function SafeImage({
   return (
     <div className={`relative overflow-hidden ${wrapperClassName}`}>
       {status === 'loading' && (
-        <div className="absolute inset-0 bg-[#1A1118] animate-shimmer" />
+        <div className="absolute inset-0 flex items-center justify-center bg-[#1A1118]">
+          <div className="w-6 h-6 border-2 border-[#C9A84C]/20 border-t-[#C9A84C] rounded-full animate-spin" />
+        </div>
       )}
       {status === 'error' && (
         <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#1A1118] gap-1">
-          <ImageOff className="h-5 w-5 text-gray-600" />
+          <div className="w-6 h-6 border-2 border-gray-600/20 border-t-gray-600 rounded-full animate-spin mb-1" />
+          <ImageOff className="h-4 w-4 text-gray-600" />
           <span className="text-[8px] text-gray-600 font-medium">No Photo</span>
         </div>
       )}
