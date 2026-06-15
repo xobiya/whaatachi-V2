@@ -243,7 +243,7 @@ function AppContent() {
       } catch (err) {
         console.error('Background payment poll error:', err);
       }
-    }, 4000);
+    }, 30000);
 
     return () => clearInterval(interval);
   }, [auth.state.isLoggedIn, auth.state.userRole, data.state.unlockedIds]);
@@ -260,7 +260,7 @@ function AppContent() {
           });
         }
       }).catch((err) => console.error('Background profiles poll error:', err));
-    }, 8000);
+    }, 60000);
 
     return () => clearInterval(interval);
   }, [auth.state.isLoggedIn]);

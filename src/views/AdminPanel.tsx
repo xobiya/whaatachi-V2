@@ -141,7 +141,7 @@ export default function AdminPanel({
     api.fetchAllFaqs().then((res) => setAllFaqs(res.faqs)).catch(() => showToast('error', 'Failed to load FAQs'));
   }, []);
 
-  // Real-time polling for payments & stats (every 4 seconds when authenticated)
+  // Real-time polling for payments & stats (every 30 seconds when authenticated)
   useEffect(() => {
     if (!isAuthenticated) return;
 
@@ -175,7 +175,7 @@ export default function AdminPanel({
       } catch (err) {
         console.error('Admin polling error:', err);
       }
-    }, 4000);
+    }, 30000);
 
     return () => clearInterval(interval);
   }, [isAuthenticated]);
