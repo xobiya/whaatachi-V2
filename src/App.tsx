@@ -485,7 +485,7 @@ function AppContent() {
 
   const userHasPaid = useMemo(() => {
     if (!auth.state.currentUser) return false;
-    return data.state.allPayments.some(p => p.status === 'Approved' && p.userId === auth.state.currentUser.id);
+    return auth.state.currentUser.verified || data.state.allPayments.some(p => p.status === 'Approved' && p.userId === auth.state.currentUser.id);
   }, [data.state.allPayments, auth.state.currentUser]);
 
   if (ui.state.loading) {
@@ -599,7 +599,7 @@ function AppContent() {
           {ui.state.currentView === 'profile' && (data.state.viewingProfile || auth.state.currentUser) && (
             <ProfilePage
               profile={data.state.viewingProfile || auth.state.currentUser!}
-              isUnlocked={data.state.viewingProfile ? data.state.unlockedIds.includes(data.state.viewingProfile.id) : true}
+              isUnlocked={data.state.viewingProfile ? (userHasPaid || data.state.unlockedIds.includes(data.state.viewingProfile.id)) : true}
               pendingPayment={data.state.viewingProfile ? data.state.allPayments.find(p => p.profileId === data.state.viewingProfile!.id && p.status === 'Pending') : undefined}
               userGender={auth.state.userGender}
               isOwnProfile={!data.state.viewingProfile || auth.state.currentUser?.id === data.state.viewingProfile.id}
