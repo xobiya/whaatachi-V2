@@ -312,19 +312,18 @@ export default function AdminPanel({
   };
 
   // Profiles Manager CRUD
-  const handleDeleteProfile = (profileId: string) => {
-    if (window.confirm('Are you absolutely sure you want to delete this profile? All unlock links will be destroyed.')) {
+  const handleDeleteProfile = async (profileId: string) => {
+    if (!window.confirm('Are you absolutely sure you want to delete this profile? All unlock links will be destroyed.')) return;
+    try {
+      await api.adminDeleteProfile(profileId);
       setProfiles(prev => prev.filter(p => p.id !== profileId));
+      showToast('success', 'Profile deleted permanently.');
+    } catch {
+      showToast('error', 'Failed to delete profile on server.');
     }
   };
 
   const handleToggleProfileVerification = async (profileId: string) => {
-    setProfiles(prev => prev.map(p => {
-      if (p.id === profileId) {
-        return { ...p, verified: !p.verified };
-      }
-      return p;
-    }));
     try {
       const res = await api.toggleProfileVerification(profileId);
       setProfiles(prev => prev.map(p => {
@@ -334,93 +333,100 @@ export default function AdminPanel({
         return p;
       }));
     } catch {
-      setProfiles(prev => prev.map(p => {
-        if (p.id === profileId) {
-          return { ...p, verified: !p.verified };
-        }
-        return p;
-      }));
       showToast('error', 'Failed to update verification status on server');
     }
   };
 
-  const handleSaveEditedProfile = (e: React.FormEvent) => {
+  const handleSaveEditedProfile = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingProfile) return;
-    
-    setProfiles(prev => prev.map(p => {
-      if (p.id === editingProfile.id) {
-        return editingProfile;
-      }
-      return p;
-    }));
-    setEditingProfile(null);
+
+    try {
+      await api.updateProfile(editingProfile.id, editingProfile);
+      setProfiles(prev => prev.map(p => {
+        if (p.id === editingProfile.id) {
+          return editingProfile;
+        }
+        return p;
+      }));
+      setEditingProfile(null);
+      showToast('success', 'Profile updated.');
+    } catch {
+      showToast('error', 'Failed to update profile on server.');
+    }
   };
 
-  const handleCreateNewProfile = (e: React.FormEvent) => {
+  const handleCreateNewProfile = async (e: React.FormEvent) => {
     e.preventDefault();
-      if (!newProfileName.trim() || !newProfileTelegram.trim()) {
-      showToast('error', 'Please fill out Name and Telegram fields.');
+    if (!newProfileName.trim()) {
+      showToast('error', 'Name is required.');
       return;
     }
 
     const interestsArr = newProfileInterests.split(',').map(item => item.trim()).filter(Boolean);
 
-    const created: Profile = {
-      id: `p-${Date.now()}`,
-      name: newProfileName.trim(),
-      age: Number(newProfileAge),
-      city: newProfileCity,
-      bio: newProfileBio.trim() || 'No bio submitted yet.',
-      gender: newProfileGender,
-      image: newProfileImage.trim(),
-      status: 'Online',
-      relationshipIntent: newProfileIntent,
-      interests: interestsArr.length > 0 ? interestsArr : ['Macchiato', 'Music'],
-      verified: true, // Auto verified since admin created it
-      contactInfo: {
-        phone: newProfilePhone.trim() || '+251 900 000 000',
-        telegram: newProfileTelegram.trim().startsWith('@') ? newProfileTelegram.trim() : `@${newProfileTelegram.trim()}`,
-        instagram: newProfileInstagram.trim().startsWith('@') ? newProfileInstagram.trim() : `@${newProfileInstagram.trim()}`,
-        email: `${newProfileName.trim().toLowerCase().replace(/\s+/g, '')}@whaatachi.com`
-      }
-    };
+    try {
+      const res = await api.adminCreateProfile({
+        name: newProfileName.trim(),
+        age: Number(newProfileAge),
+        city: newProfileCity,
+        bio: newProfileBio.trim() || 'No bio submitted yet.',
+        gender: newProfileGender,
+        image: newProfileImage.trim(),
+        status: 'Online',
+        relationshipIntent: newProfileIntent,
+        lookingFor: newProfileGender === 'Male' ? 'Female' : 'Male',
+        interests: interestsArr.length > 0 ? interestsArr : ['Macchiato', 'Music'],
+        phone: newProfilePhone.trim() || undefined,
+        telegram: newProfileTelegram.trim() || undefined,
+        instagram: newProfileInstagram.trim() || undefined,
+        verified: true,
+      });
 
-    setProfiles(prev => [created, ...prev]);
-    setIsCreatingProfile(false);
-    
-    // Clear fields
-    setNewProfileName('');
-    setNewProfileBio('');
-    setNewProfileTelegram('');
-    setNewProfilePhone('');
-    showToast('success', 'Match candidate created and verified!');
-  };
-
-  // Success Stories CRUD
-  const handleDeleteStory = (storyId: string) => {
-    if (window.confirm('Delete this success story from the landing page?')) {
-      setStories(prev => prev.filter(s => s.id !== storyId));
+      setProfiles(prev => [res.user, ...prev]);
+      setIsCreatingProfile(false);
+      setNewProfileName('');
+      setNewProfileBio('');
+      setNewProfileTelegram('');
+      setNewProfilePhone('');
+      showToast('success', 'Match candidate created and verified!');
+    } catch {
+      showToast('error', 'Failed to create profile on server.');
     }
   };
 
-  const handleCreateSuccessStory = (e: React.FormEvent) => {
+  // Success Stories CRUD
+  const handleDeleteStory = async (storyId: string) => {
+    if (!window.confirm('Delete this success story from the landing page?')) return;
+    try {
+      await api.deleteStory(storyId);
+      setStories(prev => prev.filter(s => s.id !== storyId));
+      showToast('success', 'Story deleted.');
+    } catch {
+      showToast('error', 'Failed to delete story on server.');
+    }
+  };
+
+  const handleCreateSuccessStory = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newStoryNames.trim() || !newStoryText.trim()) {
       showToast('error', 'Fill in couple names and their story text.');
       return;
     }
-    const created: SuccessStory = {
-      id: `story-${Date.now()}`,
-      coupleNames: newStoryNames.trim(),
-      story: newStoryText.trim(),
-      year: newStoryYear,
-      image: newStoryImage.trim()
-    };
-    setStories(prev => [created, ...prev]);
-    setNewStoryNames('');
-    setNewStoryText('');
-    showToast('success', 'Success story published!');
+    try {
+      const res = await api.createStory({
+        coupleNames: newStoryNames.trim(),
+        story: newStoryText.trim(),
+        year: newStoryYear,
+        image: newStoryImage.trim(),
+      });
+      setStories(prev => [res.story, ...prev]);
+      setNewStoryNames('');
+      setNewStoryText('');
+      showToast('success', 'Success story published!');
+    } catch {
+      showToast('error', 'Failed to create story on server.');
+    }
   };
 
   // Support Inbox simulator

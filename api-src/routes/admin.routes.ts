@@ -1,11 +1,13 @@
 import { Router, Response } from 'express';
 import bcrypt from 'bcryptjs';
+import { v4 as uuid } from 'uuid';
 import * as adminModel from '../models/admin.model';
 import * as userModel from '../models/user.model';
 import * as paymentModel from '../models/payment.model';
 import * as storyModel from '../models/story.model';
 import { authenticate, adminOnly, generateToken, AuthRequest } from '../middleware/auth';
 import { validateAdminLogin, validatePasscodeUpdate } from '../middleware/validate';
+import { userRowToProfile } from '../utils/transform';
 import { AdminStats } from '../types';
 
 const router = Router();
@@ -75,6 +77,56 @@ router.put('/profiles/:id/verify', authenticate, adminOnly, async (req: AuthRequ
   } catch (err: any) {
     console.error('Toggle verification error:', err);
     res.status(500).json({ error: 'Failed to toggle verification' });
+  }
+});
+
+router.post('/profiles', authenticate, adminOnly, async (req: AuthRequest, res: Response) => {
+  try {
+    const { name, age, city, address, bio, gender, lookingFor, image, status, relationshipIntent, interests, phone, telegram, instagram, email, verified } = req.body;
+
+    if (!name || !gender) {
+      res.status(400).json({ error: 'Name and gender are required' });
+      return;
+    }
+
+    const id = uuid();
+    const created = await userModel.createUser({
+      id, name, age, city, address, bio, gender, lookingFor, image,
+      status: status || 'Online',
+      relationshipIntent: relationshipIntent || 'Friendship',
+      interests: interests || [],
+      phone, telegram, instagram, email,
+    });
+
+    if (!created) {
+      res.status(500).json({ error: 'Failed to create user' });
+      return;
+    }
+
+    if (verified) {
+      await userModel.verifyUser(id);
+    }
+
+    const user = await userModel.findUserById(id);
+    res.status(201).json({ user: userRowToProfile(user) });
+  } catch (err: any) {
+    console.error('Admin create user error:', err);
+    res.status(500).json({ error: 'Failed to create user' });
+  }
+});
+
+router.delete('/profiles/:id', authenticate, adminOnly, async (req: AuthRequest, res: Response) => {
+  try {
+    const id = String(req.params.id);
+    const deleted = await userModel.deleteUser(id);
+    if (!deleted) {
+      res.status(404).json({ error: 'User not found' });
+      return;
+    }
+    res.json({ success: true });
+  } catch (err: any) {
+    console.error('Admin delete user error:', err);
+    res.status(500).json({ error: 'Failed to delete user' });
   }
 });
 

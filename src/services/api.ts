@@ -263,6 +263,21 @@ export async function fetchAdminPayments(): Promise<{ payments: PaymentRequest[]
   return adminRequest('/payments');
 }
 
+// Admin: Create profile
+export async function adminCreateProfile(data: {
+  name: string; age?: number; city?: string; address?: string; bio?: string;
+  gender: 'Male' | 'Female'; lookingFor?: string; image?: string; status?: string;
+  relationshipIntent?: string; interests?: string[]; phone?: string; telegram?: string;
+  instagram?: string; email?: string; verified?: boolean;
+}): Promise<{ user: Profile }> {
+  return adminRequest('/admin/profiles', { method: 'POST', body: JSON.stringify(data) });
+}
+
+// Admin: Delete profile
+export async function adminDeleteProfile(id: string): Promise<{ success: boolean }> {
+  return adminRequest(`/admin/profiles/${id}`, { method: 'DELETE' });
+}
+
 // ── Admin: Articles ──
 export async function createArticle(data: {
   title: string; excerpt?: string; category?: string;

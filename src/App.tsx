@@ -281,79 +281,75 @@ function AppContent() {
     amount: number,
     receiptImage?: string
   ) => {
-    const newRequest: PaymentRequest = {
-      id: `p-${Date.now()}`,
-      userId: auth.state.currentUser!.id,
-      profileId,
-      profileName,
-      profileImage,
-      senderName,
-      senderPhone,
-      transactionId: transactionId.toUpperCase(),
-      method,
-      amount,
-      timestamp: new Date().toLocaleString([], { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' }),
-      status: 'Pending',
-      receiptImage
-    };
-
-    data.dispatch({ type: 'ADD_PAYMENT', payload: newRequest });
-    triggerNotification('info', ui.t('app.notify.submitted').replace('{txId}', transactionId));
-
     try {
-      await api.submitPayment({
+      const res = await api.submitPayment({
         profileId, profileName, profileImage,
         senderName, senderPhone, transactionId,
         method, amount, receiptImage,
       });
-    } catch (err) {
-      console.error('Payment submission to server failed (saved locally):', err);
+
+      if (res?.payment) {
+        data.dispatch({ type: 'ADD_PAYMENT', payload: res.payment });
+      }
+      triggerNotification('info', ui.t('app.notify.submitted').replace('{txId}', transactionId));
+    } catch (err: any) {
+      triggerNotification('info', err?.message || 'Payment submission failed.');
     }
   };
 
-  const handleApprovePayment = (paymentId: string) => {
-    const payment = data.state.allPayments.find(p => p.id === paymentId);
-    if (!payment) return;
+  const handleApprovePayment = async (paymentId: string) => {
+    try {
+      await api.approvePayment(paymentId);
+      const payment = data.state.allPayments.find(p => p.id === paymentId);
+      if (!payment) return;
 
-    data.dispatch({ type: 'UPDATE_PAYMENT', payload: { id: paymentId, status: 'Approved' } });
-    data.dispatch({ type: 'ADD_UNLOCK', payload: payment.profileId });
+      data.dispatch({ type: 'UPDATE_PAYMENT', payload: { id: paymentId, status: 'Approved' } });
+      data.dispatch({ type: 'ADD_UNLOCK', payload: payment.profileId });
 
-    const profile = data.state.profiles.find(p => p.id === payment.profileId);
-    if (profile) {
-      data.dispatch({ type: 'UPDATE_PROFILE', payload: { ...profile, verified: true } });
+      const profile = data.state.profiles.find(p => p.id === payment.profileId);
+      if (profile) {
+        data.dispatch({ type: 'UPDATE_PROFILE', payload: { ...profile, verified: true } });
+      }
+      triggerNotification('success', ui.t('app.notify.approved').replace('{name}', payment.profileName));
+    } catch {
+      triggerNotification('info', 'Failed to approve payment on server.');
     }
-    triggerNotification('success', ui.t('app.notify.approved').replace('{name}', payment.profileName));
-
-    api.approvePayment(paymentId).catch((err) => console.error('Approve payment API error:', err));
   };
 
-  const handleRejectPayment = (paymentId: string) => {
-    data.dispatch({ type: 'UPDATE_PAYMENT', payload: { id: paymentId, status: 'Rejected' } });
-    triggerNotification('info', ui.t('app.notify.rejected'));
-    api.rejectPayment(paymentId).catch((err) => console.error('Reject payment API error:', err));
+  const handleRejectPayment = async (paymentId: string) => {
+    try {
+      await api.rejectPayment(paymentId);
+      data.dispatch({ type: 'UPDATE_PAYMENT', payload: { id: paymentId, status: 'Rejected' } });
+      triggerNotification('info', ui.t('app.notify.rejected'));
+    } catch {
+      triggerNotification('info', 'Failed to reject payment on server.');
+    }
   };
 
-  const handleRevokePayment = (paymentId: string) => {
-    const payment = data.state.allPayments.find(p => p.id === paymentId);
-    if (!payment) return;
+  const handleRevokePayment = async (paymentId: string) => {
+    try {
+      await api.rejectPayment(paymentId);
+      const payment = data.state.allPayments.find(p => p.id === paymentId);
+      if (!payment) return;
 
-    data.dispatch({ type: 'REMOVE_UNLOCK', payload: payment.profileId });
-    data.dispatch({ type: 'UPDATE_PAYMENT', payload: { id: paymentId, status: 'Rejected' } });
-    triggerNotification('info', 'Contact access revoked');
-    api.rejectPayment(paymentId).catch((err) => console.error('Revoke payment API error:', err));
+      data.dispatch({ type: 'REMOVE_UNLOCK', payload: payment.profileId });
+      data.dispatch({ type: 'UPDATE_PAYMENT', payload: { id: paymentId, status: 'Rejected' } });
+      triggerNotification('info', 'Contact access revoked');
+    } catch {
+      triggerNotification('info', 'Failed to revoke payment on server.');
+    }
   };
 
-  const handleAddStory = (coupleNames: string, story: string, year: string, image: string) => {
-    const newStory: SuccessStory = {
-      id: `story-${Date.now()}`,
-      coupleNames,
-      story,
-      year,
-      image
-    };
-    data.dispatch({ type: 'ADD_STORY', payload: newStory });
-    triggerNotification('success', ui.t('app.notify.story-saved'));
-    api.createStory({ coupleNames, story, year, image }).catch((err) => console.error('Create story API error:', err));
+  const handleAddStory = async (coupleNames: string, story: string, year: string, image: string) => {
+    try {
+      const res = await api.createStory({ coupleNames, story, year, image });
+      if (res?.story) {
+        data.dispatch({ type: 'ADD_STORY', payload: res.story });
+      }
+      triggerNotification('success', ui.t('app.notify.story-saved'));
+    } catch {
+      triggerNotification('info', 'Failed to create story on server.');
+    }
   };
 
   const handleRegisterUser = async (newProfile: Profile) => {
@@ -452,29 +448,47 @@ function AppContent() {
     }
   };
 
-  const handleUpdateBio = (newBio: string) => {
+  const handleUpdateBio = async (newBio: string) => {
     if (!auth.state.currentUser) return;
-    const updatedUser = { ...auth.state.currentUser, bio: newBio };
-    data.dispatch({ type: 'UPDATE_PROFILE', payload: updatedUser });
-    auth.dispatch({ type: 'SET_CURRENT_USER', payload: updatedUser });
-    triggerNotification('success', ui.t('app.notify.bio-updated'));
-  };
-
-  const handleUpdateStatus = (newStatus: 'Online' | 'Offline' | 'Recently Active') => {
-    if (!auth.state.currentUser) return;
-    const updatedUser = { ...auth.state.currentUser, status: newStatus };
-    data.dispatch({ type: 'UPDATE_PROFILE', payload: updatedUser });
-    auth.dispatch({ type: 'SET_CURRENT_USER', payload: updatedUser });
-    triggerNotification('success', ui.t('app.notify.status-set').replace('{status}', newStatus));
-  };
-
-  const handleSaveProfile = (updated: Profile) => {
-    data.dispatch({ type: 'UPDATE_PROFILE', payload: updated });
-    if (auth.state.currentUser?.id === updated.id) {
-      auth.dispatch({ type: 'SET_CURRENT_USER', payload: updated });
+    try {
+      const res = await api.updateProfile(auth.state.currentUser.id, { bio: newBio });
+      if (res?.user) {
+        data.dispatch({ type: 'UPDATE_PROFILE', payload: res.user });
+        auth.dispatch({ type: 'SET_CURRENT_USER', payload: res.user });
+      }
+      triggerNotification('success', ui.t('app.notify.bio-updated'));
+    } catch {
+      triggerNotification('info', 'Failed to update bio on server.');
     }
-    triggerNotification('success', ui.t('app.notify.profile-updated'));
-    api.updateProfile(updated.id, updated).catch((err) => console.error('Update profile API error:', err));
+  };
+
+  const handleUpdateStatus = async (newStatus: 'Online' | 'Offline' | 'Recently Active') => {
+    if (!auth.state.currentUser) return;
+    try {
+      const res = await api.updateProfile(auth.state.currentUser.id, { status: newStatus });
+      if (res?.user) {
+        data.dispatch({ type: 'UPDATE_PROFILE', payload: res.user });
+        auth.dispatch({ type: 'SET_CURRENT_USER', payload: res.user });
+      }
+      triggerNotification('success', ui.t('app.notify.status-set').replace('{status}', newStatus));
+    } catch {
+      triggerNotification('info', 'Failed to update status on server.');
+    }
+  };
+
+  const handleSaveProfile = async (updated: Profile) => {
+    try {
+      const res = await api.updateProfile(updated.id, updated);
+      if (res?.user) {
+        data.dispatch({ type: 'UPDATE_PROFILE', payload: res.user });
+        if (auth.state.currentUser?.id === updated.id) {
+          auth.dispatch({ type: 'SET_CURRENT_USER', payload: res.user });
+        }
+      }
+      triggerNotification('success', ui.t('app.notify.profile-updated'));
+    } catch {
+      triggerNotification('info', 'Failed to update profile on server.');
+    }
   };
 
   const handleViewProfile = (profile: Profile) => {

@@ -251,6 +251,10 @@ export async function countUsers(): Promise<number> {
   return User.countDocuments();
 }
 
+export async function deleteUser(id: string): Promise<any> {
+  return User.findByIdAndDelete(id);
+}
+
 export async function countUsersByGender(gender: string): Promise<number> {
   return User.countDocuments({ gender });
 }
