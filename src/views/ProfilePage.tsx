@@ -473,7 +473,7 @@ export default function ProfilePage({ profile, isUnlocked, pendingPayment, userG
                   </div>
                 </div>
             </div>
-          ) : isUnlocked ? (
+          ) : (isUnlocked || isOwnProfile) ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="flex items-center gap-3 p-3 bg-[#F8F4ED] dark:bg-[#120A0E] border border-[#EDE6D9] dark:border-[#C9A84C]/10 rounded-xl">
                 <div className="bg-[#EB317A]/10 dark:bg-[#EB317A]/30 text-[#EB317A] dark:text-[#C9A84C] p-2 rounded-lg shrink-0">

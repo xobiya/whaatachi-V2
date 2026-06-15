@@ -134,7 +134,7 @@ function AppContent() {
     if (view === 'browse' || view === 'dashboard' || view === 'profile' || view === 'admin') {
       if (Date.now() - lastFetchRef.current < 30000) return;
       lastFetchRef.current = Date.now();
-      api.fetchProfiles({ limit: 100 }).then(res => {
+      api.fetchProfiles({ limit: 1000 }).then(res => {
         if (res && Array.isArray(res.profiles)) {
           // MERGE instead of SET — preserves the existing list while updating/adding profiles
           startTransition(() => {
@@ -180,28 +180,28 @@ function AppContent() {
   useEffect(() => {
     if (!auth.state.isLoggedIn) return;
 
-    const processedIds = new Set(
-      data.state.allPayments
-        .filter(p => p.status === 'Approved')
-        .map(p => p.id)
-    );
-
     const interval = setInterval(async () => {
       try {
         const res = await api.fetchPayments();
         if (!res?.payments) return;
 
+        // Merge payments list in local state for real-time visibility
+        data.dispatch({ type: 'MERGE_PAYMENTS', payload: res.payments });
+
+        // For admin, the merge takes care of updating the list of requests
+        if (auth.state.userRole === 'admin') return;
+
+        // Check if any of the user's payments changed state to Approved/Rejected
         for (const payment of res.payments) {
-          if (payment.status === 'Approved' && !processedIds.has(payment.id)) {
-            processedIds.add(payment.id);
+          if (payment.status === 'Approved') {
             data.dispatch({ type: 'ADD_UNLOCK', payload: payment.profileId });
-            data.dispatch({ type: 'UPDATE_PAYMENT', payload: { id: payment.id, status: 'Approved' } });
 
             const profile = profilesRef.current.find(p => p.id === payment.profileId);
             if (profile) {
               data.dispatch({ type: 'UPDATE_PROFILE', payload: { ...profile, verified: true } });
             }
 
+            // Trigger celebration if it matches our pending approval target
             if (pendingApprovalRef.current?.profileId === payment.profileId) {
               if (paymentTimerRef.current) clearInterval(paymentTimerRef.current);
               setPaymentCountdown(0);
@@ -213,12 +213,36 @@ function AppContent() {
               });
               setShowApprovalCelebration(true);
             }
+          } else if (payment.status === 'Rejected') {
+            if (pendingApprovalRef.current?.profileId === payment.profileId) {
+              if (paymentTimerRef.current) clearInterval(paymentTimerRef.current);
+              setPaymentCountdown(0);
+              pendingApprovalRef.current = null;
+              triggerNotification('info', ui.t('app.notify.rejected'));
+            }
           }
         }
       } catch (err) {
         console.error('Background payment poll error:', err);
       }
-    }, 15000);
+    }, 4000);
+
+    return () => clearInterval(interval);
+  }, [auth.state.isLoggedIn, auth.state.userRole, data.state.unlockedIds]);
+
+  // Background profiles polling — matches showing up in real-time on both sides
+  useEffect(() => {
+    if (!auth.state.isLoggedIn) return;
+
+    const interval = setInterval(() => {
+      api.fetchProfiles({ limit: 1000 }).then(res => {
+        if (res && Array.isArray(res.profiles)) {
+          startTransition(() => {
+            data.dispatch({ type: 'MERGE_PROFILES', payload: res.profiles });
+          });
+        }
+      }).catch((err) => console.error('Background profiles poll error:', err));
+    }, 8000);
 
     return () => clearInterval(interval);
   }, [auth.state.isLoggedIn]);
@@ -596,6 +620,7 @@ function AppContent() {
               userLookingFor={userLookingFor}
               isLoggedIn={auth.state.isLoggedIn}
               onMakePayment={handleUnlockTrigger}
+              currentUserId={auth.state.currentUser?.id}
             />
           )}
 

@@ -61,10 +61,11 @@ interface DashboardProps {
   userLookingFor: 'Male' | 'Female';
   isLoggedIn: boolean;
   onMakePayment?: (profile: Profile) => void;
+  currentUserId?: string;
 }
 
 export default function Dashboard({
-  profiles, hasPaid, userGender, userLookingFor, isLoggedIn, onMakePayment
+  profiles, hasPaid, userGender, userLookingFor, isLoggedIn, onMakePayment, currentUserId
 }: DashboardProps) {
   const { t } = useUIContext();
   const [searchQuery, setSearchQuery] = useState('');
@@ -306,7 +307,7 @@ export default function Dashboard({
             {filteredProfiles.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
                 {filteredProfiles.map((profile) => {
-                  const showContact = hasPaid || userGender === 'Female';
+                  const showContact = hasPaid || userGender === 'Female' || profile.id === currentUserId;
                   return (
                     <ProfileCard
                       key={profile.id}
