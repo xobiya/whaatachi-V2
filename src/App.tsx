@@ -137,19 +137,29 @@ function AppContent() {
     }
   }, [ui.state.currentView]);
 
+  const prevLoggedInRef = useRef(auth.state.isLoggedIn);
   useEffect(() => {
     const view = ui.state.currentView;
-    if (view === 'browse' || view === 'dashboard' || view === 'profile' || view === 'admin') {
-      if (Date.now() - lastFetchRef.current < 30000) return;
-      lastFetchRef.current = Date.now();
-      api.fetchProfiles({ limit: 1000 }).then(res => {
-        if (res && Array.isArray(res.profiles)) {
-          // MERGE instead of SET — preserves the existing list while updating/adding profiles
-          startTransition(() => {
-            data.dispatch({ type: 'MERGE_PROFILES', payload: res.profiles });
-          });
-        }
-      }).catch((err) => console.error('Failed to fetch profiles:', err));
+    const justLoggedIn = auth.state.isLoggedIn && !prevLoggedInRef.current;
+    prevLoggedInRef.current = auth.state.isLoggedIn;
+
+    if (view === 'home' || view === 'browse' || view === 'dashboard' || view === 'profile' || view === 'admin') {
+      if (!auth.state.isLoggedIn && view === 'home') {
+        // Don't fetch profiles on home before login — the onboarding screen is shown
+      } else {
+        // Reset debounce after login so the first authenticated fetch always goes through
+        if (justLoggedIn) lastFetchRef.current = 0;
+        if (Date.now() - lastFetchRef.current < 30000) return;
+        lastFetchRef.current = Date.now();
+        api.fetchProfiles({ limit: 1000 }).then(res => {
+          if (res && Array.isArray(res.profiles)) {
+            // MERGE instead of SET — preserves the existing list while updating/adding profiles
+            startTransition(() => {
+              data.dispatch({ type: 'MERGE_PROFILES', payload: res.profiles });
+            });
+          }
+        }).catch((err) => console.error('Failed to fetch profiles:', err));
+      }
     }
     if (view === 'stories') {
       if (data.state.stories.length === 0) {
@@ -176,7 +186,7 @@ function AppContent() {
         }
       }).catch((err) => console.error('Failed to fetch payments:', err));
     }
-  }, [ui.state.currentView]);
+  }, [ui.state.currentView, auth.state.isLoggedIn]);
 
   useEffect(() => {
     if (!auth.state.isLoggedIn) {

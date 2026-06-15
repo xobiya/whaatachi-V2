@@ -232,9 +232,9 @@ const ProfileListCard = React.memo(function ProfileListCard({
   const { t } = useUIContext();
 
   return (
-    <div className="bg-white dark:bg-[#1A1118] rounded-2xl border border-[#EDE6D9] dark:border-[#C9A84C]/10 overflow-hidden shadow-sm hover:shadow-xl hover:border-[#C9A84C]/30 dark:hover:border-[#C9A84C]/20 transition-all duration-400 flex flex-col group">
+    <div className="bg-white dark:bg-[#1A1118] rounded-2xl border border-[#EDE6D9] dark:border-[#C9A84C]/10 overflow-hidden shadow-sm hover:shadow-xl hover:border-[#C9A84C]/30 dark:hover:border-[#C9A84C]/20 transition-all duration-400 flex flex-col h-full group">
       {/* Photo */}
-      <div className="relative pt-[125%] w-full bg-gray-100 dark:bg-[#120A0E] overflow-hidden">
+      <div className="relative pt-[100%] w-full bg-gray-100 dark:bg-[#120A0E] overflow-hidden">
         <SafeImage
           src={profile.image}
           alt={profile.name}

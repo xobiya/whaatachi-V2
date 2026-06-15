@@ -111,6 +111,7 @@ const DataContext = createContext<{ state: DataState; dispatch: React.Dispatch<D
 export function DataProvider({ children }: { children: React.ReactNode }) {
   const [state, dispatch] = useReducer(dataReducer, initialDataState);
 
+  // Lazy write to localStorage via requestIdleCallback
   useEffect(() => {
     const idleCallback = typeof window !== 'undefined' && window.requestIdleCallback
       ? window.requestIdleCallback
@@ -127,6 +128,19 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       } catch { /* noop */ }
     });
     return () => idleCancel(id as any);
+  }, [state.profiles, state.unlockedIds, state.allPayments]);
+
+  // Synchronous flush on page unload to guarantee cache survives refresh
+  useEffect(() => {
+    const flush = () => {
+      try {
+        localStorage.setItem(PROFILES_CACHE_KEY, JSON.stringify(state.profiles));
+        localStorage.setItem(UNLOCKED_IDS_KEY, JSON.stringify(state.unlockedIds));
+        localStorage.setItem(PAYMENTS_CACHE_KEY, JSON.stringify(state.allPayments));
+      } catch { /* noop */ }
+    };
+    window.addEventListener('beforeunload', flush);
+    return () => window.removeEventListener('beforeunload', flush);
   }, [state.profiles, state.unlockedIds, state.allPayments]);
 
   return <DataContext.Provider value={{ state, dispatch }}>{children}</DataContext.Provider>;
