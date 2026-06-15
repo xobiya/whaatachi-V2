@@ -60,7 +60,7 @@ export default function AdminPanel({
       }
     }
   }, [activeTab]);
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => api.hasAdminSession());
 
   const [passcode, setPasscode] = useState('');
   const [showPasscode, setShowPasscode] = useState(false);
@@ -117,22 +117,66 @@ export default function AdminPanel({
 
   // Check for existing admin session + fetch data on mount
   useEffect(() => {
+    if (!api.hasAdminSession()) return;
     api.fetchAdminStats()
       .then((res) => {
         setIsAuthenticated(true);
         setUserRole('admin');
         setApiStats(res.stats);
-        return api.fetchPayments();
+        return api.fetchAdminPayments();
       })
       .then((res) => {
         if (res && Array.isArray(res.payments)) {
           setAllPayments(res.payments);
         }
       })
-      .catch(() => {});
+      .catch(() => {
+        // Admin token is invalid/expired — clear stale session
+        api.clearAdminToken();
+        setIsAuthenticated(false);
+      });
     api.fetchArticles().then((res) => setArticles(res.articles)).catch(() => showToast('error', 'Failed to load articles'));
     api.fetchAllFaqs().then((res) => setAllFaqs(res.faqs)).catch(() => showToast('error', 'Failed to load FAQs'));
   }, []);
+
+  // Real-time polling for payments & stats (every 4 seconds when authenticated)
+  useEffect(() => {
+    if (!isAuthenticated) return;
+
+    const interval = setInterval(async () => {
+      try {
+        const [payRes, statsRes] = await Promise.allSettled([
+          api.fetchAdminPayments(),
+          api.fetchAdminStats(),
+        ]);
+
+        if (payRes.status === 'fulfilled' && payRes.value?.payments) {
+          setAllPayments(prev => {
+            const existingMap = new Map(prev.map(p => [p.id, p]));
+            let changed = false;
+            for (const p of payRes.value.payments) {
+              const existing = existingMap.get(p.id);
+              if (!existing || existing.status !== p.status) {
+                changed = true;
+              }
+              existingMap.set(p.id, p);
+            }
+            // Also detect new payments not in existing
+            if (payRes.value.payments.length !== prev.length) changed = true;
+            return changed ? Array.from(existingMap.values()) : prev;
+          });
+        }
+
+        if (statsRes.status === 'fulfilled' && statsRes.value?.stats) {
+          setApiStats(statsRes.value.stats);
+        }
+      } catch (err) {
+        console.error('Admin polling error:', err);
+      }
+    }, 4000);
+
+    return () => clearInterval(interval);
+  }, [isAuthenticated]);
 
   // Support / Help Desk simulating replies
   const [selectedTicketId, setSelectedTicketId] = useState<string | null>('t-1');
@@ -212,21 +256,28 @@ export default function AdminPanel({
     setError(null);
     try {
       const res = await api.adminLogin(passcode.trim());
-      if (res?.token) api.setToken(res.token);
+      if (res?.token) {
+        api.setAdminToken(res.token);
+      }
       setIsAuthenticated(true);
       setUserRole('admin');
-      api.fetchPayments().then(res => {
+      // Fetch payments using admin-specific endpoint
+      api.fetchAdminPayments().then(res => {
         if (res && Array.isArray(res.payments)) {
           setAllPayments(res.payments);
         }
       }).catch(err => console.error('Failed to fetch payments after login:', err));
+      // Fetch stats
+      api.fetchAdminStats().then(res => {
+        if (res?.stats) setApiStats(res.stats);
+      }).catch(() => {});
     } catch {
       setError('Invalid administrative passcode.');
     }
   };
 
   const handleAdminLogout = async () => {
-    api.clearToken();
+    api.clearAdminToken();
     await api.logout().catch(() => {});
     setIsAuthenticated(false);
     setUserRole('user');

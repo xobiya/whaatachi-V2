@@ -5,6 +5,8 @@ const API_BASE = rawBase ? (rawBase.endsWith('/api') ? rawBase : `${rawBase.repl
 const REQUEST_TIMEOUT = 30000;
 const inflightMap = new Map<string, Promise<any>>();
 const TOKEN_KEY = 'whaatachi_auth_token';
+const ADMIN_TOKEN_KEY = 'whaatachi_admin_token';
+const ADMIN_SESSION_KEY = 'whaatachi_admin_session';
 
 export function getToken(): string | null {
   try { return localStorage.getItem(TOKEN_KEY); } catch { return null; }
@@ -16,9 +18,29 @@ export function clearToken(): void {
   try { localStorage.removeItem(TOKEN_KEY); } catch { /* noop */ }
 }
 
-function getHeaders(): Record<string, string> {
+// ── Admin-specific token management ──
+export function getAdminToken(): string | null {
+  try { return localStorage.getItem(ADMIN_TOKEN_KEY); } catch { return null; }
+}
+export function setAdminToken(token: string): void {
+  try {
+    localStorage.setItem(ADMIN_TOKEN_KEY, token);
+    localStorage.setItem(ADMIN_SESSION_KEY, 'true');
+  } catch { /* noop */ }
+}
+export function clearAdminToken(): void {
+  try {
+    localStorage.removeItem(ADMIN_TOKEN_KEY);
+    localStorage.removeItem(ADMIN_SESSION_KEY);
+  } catch { /* noop */ }
+}
+export function hasAdminSession(): boolean {
+  try { return localStorage.getItem(ADMIN_SESSION_KEY) === 'true'; } catch { return false; }
+}
+
+function getHeaders(useAdminAuth = false): Record<string, string> {
   const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-  const token = getToken();
+  const token = useAdminAuth ? (getAdminToken() || getToken()) : getToken();
   if (token) headers['Authorization'] = `Bearer ${token}`;
   return headers;
 }
@@ -42,6 +64,55 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
         ...options,
         signal: controller.signal,
         headers: { ...getHeaders(), ...(options.headers || {}) },
+        credentials: 'include',
+      });
+    } catch (err: any) {
+      if (err?.name === 'AbortError') throw new Error('Request timeout');
+      throw new Error('Network error');
+    } finally {
+      clearTimeout(timer);
+    }
+
+    let data: any;
+    const contentType = res.headers.get('content-type') || '';
+    if (contentType.includes('application/json')) {
+      data = await res.json();
+    } else {
+      const text = await res.text();
+      try { data = JSON.parse(text); } catch { data = { error: text || 'Unknown error' }; }
+    }
+
+    if (!res.ok) {
+      const err = new Error(data.error || `Request failed (${res.status})`);
+      (err as any).status = res.status;
+      throw err;
+    }
+    return data as T;
+  })();
+
+  if (key) {
+    inflightMap.set(key, promise);
+    promise.finally(() => { if (inflightMap.get(key) === promise) inflightMap.delete(key); }).catch(() => {});
+  }
+
+  return promise;
+}
+
+// Admin-specific request that uses admin token
+async function adminRequest<T>(path: string, options: RequestInit = {}): Promise<T> {
+  const key = dedupKey(path, options);
+  if (key && inflightMap.has(key)) return inflightMap.get(key) as Promise<T>;
+
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT);
+
+  const promise = (async () => {
+    let res: Response;
+    try {
+      res = await fetch(`${API_BASE}${path}`, {
+        ...options,
+        signal: controller.signal,
+        headers: { ...getHeaders(true), ...(options.headers || {}) },
         credentials: 'include',
       });
     } catch (err: any) {
@@ -133,11 +204,11 @@ export async function fetchPayments(): Promise<{ payments: PaymentRequest[] }> {
 }
 
 export async function approvePayment(id: string): Promise<{ payment: PaymentRequest }> {
-  return request(`/payments/${id}/approve`, { method: 'PUT' });
+  return adminRequest(`/payments/${id}/approve`, { method: 'PUT' });
 }
 
 export async function rejectPayment(id: string): Promise<{ payment: PaymentRequest }> {
-  return request(`/payments/${id}/reject`, { method: 'PUT' });
+  return adminRequest(`/payments/${id}/reject`, { method: 'PUT' });
 }
 
 export async function checkPayment(): Promise<{ hasPaid: boolean }> {
@@ -171,7 +242,7 @@ export async function fetchFaqs(): Promise<{ faqs: Record<string, { question: st
 
 // ── Admin: Verification ──
 export async function toggleProfileVerification(id: string): Promise<{ verified: boolean }> {
-  return request(`/admin/profiles/${id}/verify`, { method: 'PUT' });
+  return adminRequest(`/admin/profiles/${id}/verify`, { method: 'PUT' });
 }
 
 // ── Admin ──
@@ -180,11 +251,16 @@ export async function adminLogin(passcode: string): Promise<{ token: string }> {
 }
 
 export async function fetchAdminStats(): Promise<{ stats: any }> {
-  return request('/admin/stats');
+  return adminRequest('/admin/stats');
 }
 
 export async function updateAdminPasscode(newPasscode: string): Promise<{ success: boolean }> {
-  return request('/admin/passcode', { method: 'PUT', body: JSON.stringify({ newPasscode }) });
+  return adminRequest('/admin/passcode', { method: 'PUT', body: JSON.stringify({ newPasscode }) });
+}
+
+// Admin-specific payment fetch (uses admin token)
+export async function fetchAdminPayments(): Promise<{ payments: PaymentRequest[] }> {
+  return adminRequest('/payments');
 }
 
 // ── Admin: Articles ──
@@ -192,30 +268,30 @@ export async function createArticle(data: {
   title: string; excerpt?: string; category?: string;
   readTime?: string; date?: string; image?: string; content?: string;
 }): Promise<{ article: any }> {
-  return request('/articles', { method: 'POST', body: JSON.stringify(data) });
+  return adminRequest('/articles', { method: 'POST', body: JSON.stringify(data) });
 }
 
 export async function deleteArticle(id: string): Promise<{ success: boolean }> {
-  return request(`/articles/${id}`, { method: 'DELETE' });
+  return adminRequest(`/articles/${id}`, { method: 'DELETE' });
 }
 
 // ── Admin: FAQs ──
 export async function fetchAllFaqs(): Promise<{ faqs: any[] }> {
-  return request('/faqs/all');
+  return adminRequest('/faqs/all');
 }
 
 export async function createFaq(data: {
   category: string; question: string; answer: string; sortOrder?: number;
 }): Promise<{ faq: any }> {
-  return request('/faqs', { method: 'POST', body: JSON.stringify(data) });
+  return adminRequest('/faqs', { method: 'POST', body: JSON.stringify(data) });
 }
 
 export async function updateFaq(id: string, data: {
   category?: string; question?: string; answer?: string; sortOrder?: number;
 }): Promise<{ faq: any }> {
-  return request(`/faqs/${id}`, { method: 'PUT', body: JSON.stringify(data) });
+  return adminRequest(`/faqs/${id}`, { method: 'PUT', body: JSON.stringify(data) });
 }
 
 export async function deleteFaq(id: string): Promise<{ success: boolean }> {
-  return request(`/faqs/${id}`, { method: 'DELETE' });
+  return adminRequest(`/faqs/${id}`, { method: 'DELETE' });
 }
