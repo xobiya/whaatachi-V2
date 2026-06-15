@@ -8,6 +8,7 @@ import {
   Menu, X, ChevronRight, RefreshCw, Smartphone, Heart
 } from 'lucide-react';
 import { Profile, PaymentRequest, SuccessStory, Article } from '../types';
+import SafeImage from '../components/SafeImage';
 import * as api from '../services/api';
 
 interface AdminPanelProps {
@@ -1583,7 +1584,7 @@ export default function AdminPanel({
                   <div key={profile.id} className="bg-white border border-gray-200 rounded-3xl p-5 space-y-4 flex flex-col justify-between shadow-sm hover:border-gray-300 transition-all">
                     
                     <div className="flex gap-4 items-start">
-                      <img src={profile.image} alt={profile.name} className="w-14 h-14 rounded-full object-cover shrink-0 border border-gray-200" />
+                      <SafeImage src={profile.image} alt={profile.name} wrapperClassName="w-14 h-14 rounded-full shrink-0 border border-gray-200" className="w-full h-full object-cover" />
                       <div>
                         <div className="flex items-center gap-1.5">
                           <span className="font-extrabold text-sm text-gray-900">{profile.name}</span>
@@ -1663,7 +1664,7 @@ export default function AdminPanel({
                         <tr key={profile.id} className="hover:bg-gray-50 transition-colors">
                           <td className="p-3">
                             <div className="flex items-center gap-2.5">
-                              <img src={profile.image} alt={profile.name} className="w-8 h-8 rounded-full object-cover shrink-0 border border-gray-200" />
+                              <SafeImage src={profile.image} alt={profile.name} wrapperClassName="w-8 h-8 rounded-full shrink-0 border border-gray-200" className="w-full h-full object-cover" />
                               <span className="font-bold text-gray-900">{profile.name}</span>
                             </div>
                           </td>

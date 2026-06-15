@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Heart, Sparkles, ThumbsUp, CheckSquare, Star } from 'lucide-react';
 import { useUIContext } from '../context/UIContext';
+import SafeImage from '../components/SafeImage';
 import { SuccessStory } from '../types';
 
 interface SuccessStoriesProps {
@@ -62,7 +63,7 @@ export default function SuccessStories({ stories, onAddStory }: SuccessStoriesPr
           {stories.map((storyItem) => (
             <div key={storyItem.id} className="bg-white dark:bg-[#1A1118] border border-[#EDE6D9] dark:border-[#C9A84C]/10 rounded-3xl overflow-hidden shadow-sm hover:shadow-md transition-all flex flex-col sm:flex-row">
               <div className="relative w-full sm:w-2/5 h-48 sm:h-auto shrink-0 bg-[#EDE6D9] dark:bg-[#1A1118]">
-                <img src={storyItem.image} alt={storyItem.coupleNames} loading="lazy" className="absolute inset-0 w-full h-full object-cover" referrerPolicy="no-referrer" />
+                <SafeImage src={storyItem.image} alt={storyItem.coupleNames} loading="lazy" className="absolute inset-0 w-full h-full object-cover" referrerPolicy="no-referrer" />
                 <span className="absolute top-3 left-3 bg-[#EB317A] text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
                   {t('stories.joined').replace('{year}', storyItem.year)}
                 </span>

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Eye, Sparkles, Phone, ArrowLeft, ShieldCheck, Mail, Instagram } from 'lucide-react';
 import TelegramIcon from '../components/TelegramIcon';
+import SafeImage from '../components/SafeImage';
 import { Profile } from '../types';
 import { useUIContext } from '../context/UIContext';
 
@@ -42,7 +43,7 @@ export default function UnlockHistory({ unlockedProfiles, onBackToFinder, onView
                     onClick={() => onViewProfile?.(profile)}
                     className="flex items-center gap-3.5 pb-4 border-b border-[#EDE6D9] dark:border-[#C9A84C]/10 cursor-pointer group"
                   >
-                    <img src={profile.image} alt={profile.name} loading="lazy" className="w-14 h-14 rounded-full object-cover ring-2 ring-emerald-500/25 group-hover:ring-emerald-500 transition-all" referrerPolicy="no-referrer" />
+                    <SafeImage src={profile.image} alt={profile.name} loading="lazy" wrapperClassName="w-14 h-14 rounded-full ring-2 ring-emerald-500/25 group-hover:ring-emerald-500 transition-all" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                     <div>
                       <h3 className="font-bold text-[#1A1118] dark:text-[#FFFCF8] text-base flex items-center gap-1 group-hover:text-[#EB317A] dark:group-hover:text-[#C9A84C] hover:underline transition-colors">
                         {profile.name}

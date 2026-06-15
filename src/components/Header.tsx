@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Heart, Menu, X, User, LogOut, Crown, ChevronDown, Moon, Sun, Compass, UserCircle } from 'lucide-react';
 import TelegramIcon from './TelegramIcon';
+import SafeImage from './SafeImage';
 import { Profile } from '../types';
 import type { Lang } from '../i18n';
 import { useUIContext } from '../context/UIContext';
@@ -58,8 +59,7 @@ export default function Header({
 
             {/* Logo */}
             <button onClick={() => handleNav('home')} className="flex items-center gap-2 cursor-pointer">
-              <img src="/assets/logos.png" alt="Whaatachi" className="h-14 sm:h-16 w-auto" />
-              
+              <SafeImage src="/assets/logos.png" alt="Whaatachi" className="h-14 sm:h-16 w-auto" />
             </button>
 
             {/* Desktop Nav */}
@@ -89,7 +89,7 @@ export default function Header({
                     className="flex items-center gap-2 bg-[#FFFCF8]/5 border border-[#C9A84C]/20 rounded-full px-3 py-1.5 hover:bg-[#FFFCF8]/10 transition-colors cursor-pointer text-left focus:outline-hidden"
                   >
                     {currentUser?.image ? (
-                      <img src={currentUser.image} alt="" className="w-7 h-7 rounded-full object-cover border border-[#C9A84C]/30" referrerPolicy="no-referrer" />
+                      <SafeImage src={currentUser.image} alt="" wrapperClassName="w-7 h-7 rounded-full border border-[#C9A84C]/30" className="w-full h-full object-cover" />
                     ) : (
                       <div className="w-7 h-7 rounded-full bg-[#EB317A] text-[#C9A84C] flex items-center justify-center font-bold text-xs">
                         {userInitial}
@@ -155,7 +155,7 @@ export default function Header({
             }`}
           >
             {isLoggedIn && currentUser?.image ? (
-              <img src={currentUser.image} alt="" className="h-5 w-5 rounded-full object-cover border border-[#C9A84C]/40" referrerPolicy="no-referrer" />
+              <SafeImage src={currentUser.image} alt="" wrapperClassName="h-5 w-5 rounded-full border border-[#C9A84C]/40" className="w-full h-full object-cover" />
             ) : (
               <UserCircle className={`h-5 w-5 ${currentView === 'profile' ? 'drop-shadow-[0_0_6px_rgba(201,168,76,0.4)]' : ''}`} />
             )}
@@ -178,7 +178,7 @@ export default function Header({
                 className="w-full flex items-center gap-3 mb-6 p-3 bg-[#1A1118] rounded-2xl border border-[#C9A84C]/10 cursor-pointer text-left"
               >
                 {currentUser.image ? (
-                  <img src={currentUser.image} alt="" className="w-12 h-12 rounded-full object-cover border-2 border-[#C9A84C]/30" referrerPolicy="no-referrer" />
+                  <SafeImage src={currentUser.image} alt="" wrapperClassName="w-12 h-12 rounded-full border-2 border-[#C9A84C]/30" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                 ) : (
                   <div className="w-12 h-12 rounded-full bg-[#EB317A] text-[#C9A84C] flex items-center justify-center font-bold text-lg">
                     {userInitial}

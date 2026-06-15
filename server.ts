@@ -3,7 +3,7 @@ import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import mongoose from 'mongoose';
-import mainApp from './api-src/app';
+import mainApp, { seedData } from './api-src/app';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -29,6 +29,8 @@ async function start() {
   });
 
   console.log(`MongoDB connected: ${mongoose.connection.host}`);
+
+  await seedData();
 
   mainApp.listen(PORT, () => {
     console.log(`API server running on http://localhost:${PORT}`);
