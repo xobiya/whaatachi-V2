@@ -31,6 +31,7 @@ function AppContent() {
   const [isRegistering, setIsRegistering] = useState(false);
   const [paymentCountdown, setPaymentCountdown] = useState(0);
   const paymentTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const initialRender = useRef(true);
   const [showApprovalCelebration, setShowApprovalCelebration] = useState(false);
   const [celebratedProfile, setCelebratedProfile] = useState<{ profileId: string; profileName: string; profileImage: string } | null>(null);
   const pendingApprovalRef = useRef<{ profileId: string; profileName: string; profileImage: string } | null>(null);
@@ -111,6 +112,10 @@ function AppContent() {
   }, [auth.dispatch, ui.dispatch, data.dispatch, auth.state.currentUser]);
 
   useEffect(() => {
+    if (initialRender.current) {
+      initialRender.current = false;
+      return;
+    }
     const currentPath = window.location.pathname;
     let targetPath = '/';
     if (ui.state.currentView === 'home') targetPath = '/';
@@ -166,6 +171,54 @@ function AppContent() {
       auth.dispatch({ type: 'SET_CURRENT_USER', payload: null });
     }
   }, [auth.state.isLoggedIn, auth.dispatch]);
+
+  // Background payment polling — detects newly approved payments in real-time
+  useEffect(() => {
+    if (!auth.state.isLoggedIn) return;
+
+    const processedIds = new Set(
+      data.state.allPayments
+        .filter(p => p.status === 'Approved')
+        .map(p => p.id)
+    );
+
+    const interval = setInterval(async () => {
+      try {
+        const res = await api.fetchPayments();
+        if (!res?.payments) return;
+
+        for (const payment of res.payments) {
+          if (payment.status === 'Approved' && !processedIds.has(payment.id)) {
+            processedIds.add(payment.id);
+            data.dispatch({ type: 'ADD_UNLOCK', payload: payment.profileId });
+            data.dispatch({ type: 'UPDATE_PAYMENT', payload: { id: payment.id, status: 'Approved' } });
+
+            const updatedProfiles = data.state.profiles.map(profile =>
+              profile.id === payment.profileId ? { ...profile, verified: true } : profile
+            );
+            data.dispatch({ type: 'SET_PROFILES', payload: updatedProfiles });
+
+            if (pendingApprovalRef.current?.profileId === payment.profileId) {
+              if (paymentTimerRef.current) clearInterval(paymentTimerRef.current);
+              if (paymentPollRef.current) clearInterval(paymentPollRef.current);
+              setPaymentCountdown(0);
+              pendingApprovalRef.current = null;
+              setCelebratedProfile({
+                profileId: payment.profileId,
+                profileName: payment.profileName,
+                profileImage: payment.profileImage,
+              });
+              setShowApprovalCelebration(true);
+            }
+          }
+        }
+      } catch (err) {
+        console.error('Background payment poll error:', err);
+      }
+    }, 15000);
+
+    return () => clearInterval(interval);
+  }, [auth.state.isLoggedIn]);
 
   const triggerNotification = (type: 'success' | 'info', text: string) => {
     ui.dispatch({ type: 'SET_NOTIFICATION', payload: { type, text } });
