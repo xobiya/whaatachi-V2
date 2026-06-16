@@ -4,6 +4,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import mongoose from 'mongoose';
 import mainApp, { seedData } from './api-src/app';
+import { startProfileCache } from './api-src/models/user.model';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -42,6 +43,8 @@ async function start() {
 
   server.timeout = 25000;
   server.headersTimeout = 26000;
+
+  startProfileCache(60000);
 }
 
 start().catch(err => {

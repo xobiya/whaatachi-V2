@@ -155,84 +155,68 @@ function buildFilterObject(filters: Record<string, any>): Record<string, any> {
   return filter;
 }
 
-export async function getAllProfiles(): Promise<{ profiles: any[]; total: number }> {
-  const result = await findUsersWithFilters({});
-  return { profiles: result.rows, total: result.total };
+let cachedAllProfiles: { rows: any[]; total: number } | null = null;
+let cacheTimer: ReturnType<typeof setInterval> | null = null;
+
+function toProfileDoc(doc: any): any {
+  return {
+    id: doc._id,
+    _id: doc._id,
+    name: doc.name,
+    age: doc.age ?? null,
+    city: doc.city ?? null,
+    address: doc.address ?? null,
+    bio: doc.bio ?? null,
+    gender: doc.gender,
+    lookingFor: doc.lookingFor ?? null,
+    image: doc.image ?? null,
+    status: doc.status ?? 'Offline',
+    relationshipIntent: doc.relationshipIntent ?? null,
+    interests: doc.interests ?? [],
+    verified: doc.verified === true,
+    phone: doc.phone ?? null,
+    telegram: doc.telegram ?? null,
+    instagram: doc.instagram ?? null,
+    email: doc.email ?? null,
+    createdAt: doc.createdAt,
+    updatedAt: doc.updatedAt,
+  } as any;
 }
 
-async function queryWithTimeout<T>(label: string, fn: () => Promise<T>, ms: number): Promise<T> {
-  return Promise.race([
-    fn(),
-    new Promise<T>((_, reject) =>
-      setTimeout(() => reject(new Error(`query "${label}" timed out after ${ms}ms`)), ms)
-    ),
-  ]);
-}
-
-export async function findUsersWithFilters(filters: {
-  gender?: string;
-  lookingFor?: string;
-  city?: string;
-  intent?: string;
-  search?: string;
-  minAge?: number;
-  maxAge?: number;
-  page?: number;
-  limit?: number;
-}): Promise<{ rows: any[]; total: number }> {
-  const filter = buildFilterObject(filters);
-  const page = filters.page || 1;
-  const limit = filters.limit || 20;
-  const skip = (page - 1) * limit;
-
-  const QUERY_TIMEOUT_MS = 6000;
-
-  const db = mongoose.connection.db;
-  if (!db) {
-    console.error('[findUsersWithFilters] no db connection');
-    return { rows: [], total: 0 };
-  }
-
-  const collection = db.collection('users');
-
-  async function findRows(): Promise<any[]> {
-    return queryWithTimeout('find', async () => {
-      const docs = await collection.aggregate([
-        { $match: filter },
-        { $sort: { _id: -1 } },
-        { $limit: limit },
-        {
-          $project: {
-            _id: 1, name: 1, age: 1, city: 1, address: 1, bio: 1,
-            gender: 1, lookingFor: 1, image: 1, status: 1,
-            relationshipIntent: 1, interests: 1, verified: 1,
-            phone: 1, telegram: 1, instagram: 1, email: 1,
-          },
-        },
-      ], { maxTimeMS: QUERY_TIMEOUT_MS }).toArray();
-      console.log('[findUsersWithFilters] find returned %d docs', docs.length);
-      return docs.map((d: any) => ({ ...d, id: d._id }));
-    }, QUERY_TIMEOUT_MS + 2000);
-  }
-
-  async function countRows(): Promise<number> {
-    try {
-      const c = await collection.estimatedDocumentCount();
-      console.log('[findUsersWithFilters] count = %d', c);
-      return c;
-    } catch (err: any) {
-      console.error('[findUsersWithFilters] count error:', err?.message || err);
-      return 0;
-    }
-  }
-
+export async function refreshProfileCache(): Promise<void> {
   try {
-    const [rows, total] = await Promise.all([findRows(), countRows()]);
-    return { rows, total };
+    const rows = await User.find({})
+      .sort({ createdAt: -1 })
+      .limit(1000)
+      .lean()
+      .maxTimeMS(15000);
+    const total = rows.length;
+    cachedAllProfiles = { rows: rows.map(toProfileDoc), total };
+    console.log('[profile-cache] refreshed: %d profiles', total);
   } catch (err: any) {
-    console.error('[findUsersWithFilters] error:', err?.message || err);
-    return { rows: [], total: 0 };
+    console.error('[profile-cache] refresh error:', err?.message || err);
   }
+}
+
+export function startProfileCache(intervalMs = 60000): void {
+  if (cacheTimer) clearInterval(cacheTimer);
+  refreshProfileCache();
+  cacheTimer = setInterval(refreshProfileCache, intervalMs);
+}
+
+export function stopProfileCache(): void {
+  if (cacheTimer) {
+    clearInterval(cacheTimer);
+    cacheTimer = null;
+  }
+}
+
+export async function getAllProfiles(): Promise<{ profiles: any[]; total: number }> {
+  if (cachedAllProfiles) {
+    return { profiles: cachedAllProfiles.rows, total: cachedAllProfiles.total };
+  }
+  await refreshProfileCache();
+  return { profiles: cachedAllProfiles?.rows ?? [], total: cachedAllProfiles?.total ?? 0 };
 }
 
 export async function createUser(data: Record<string, any>): Promise<any> {
