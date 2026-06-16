@@ -26,6 +26,8 @@ async function start() {
     bufferCommands: false,
     serverSelectionTimeoutMS: 10000,
     connectTimeoutMS: 10000,
+    socketTimeoutMS: 15000,
+    waitQueueTimeoutMS: 5000,
   });
 
   console.log(`MongoDB connected: ${mongoose.connection.host}`);
