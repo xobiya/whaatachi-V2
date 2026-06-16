@@ -197,18 +197,19 @@ export async function findUsersWithFilters(filters: {
 
   async function findRows(): Promise<any[]> {
     return queryWithTimeout('find', async () => {
-      const docs = await collection
-        .find(filter)
-        .project({
-          _id: 1, name: 1, age: 1, city: 1, address: 1, bio: 1,
-          gender: 1, lookingFor: 1, image: 1, status: 1,
-          relationshipIntent: 1, interests: 1, verified: 1,
-          phone: 1, telegram: 1, instagram: 1, email: 1,
-        })
-        .sort({ _id: -1 })
-        .limit(limit)
-        .maxTimeMS(QUERY_TIMEOUT_MS)
-        .toArray();
+      const docs = await collection.aggregate([
+        { $match: filter },
+        { $sort: { _id: -1 } },
+        { $limit: limit },
+        {
+          $project: {
+            _id: 1, name: 1, age: 1, city: 1, address: 1, bio: 1,
+            gender: 1, lookingFor: 1, image: 1, status: 1,
+            relationshipIntent: 1, interests: 1, verified: 1,
+            phone: 1, telegram: 1, instagram: 1, email: 1,
+          },
+        },
+      ], { maxTimeMS: QUERY_TIMEOUT_MS }).toArray();
       console.log('[findUsersWithFilters] find returned %d docs', docs.length);
       return docs.map((d: any) => ({ ...d, id: d._id }));
     }, QUERY_TIMEOUT_MS + 2000);
