@@ -59,7 +59,24 @@ export default function PaymentModal({
       setUploadedFileName(file.name);
       setError('');
       const reader = new FileReader();
-      reader.onload = ev => setUploadedFileData(ev.target?.result as string);
+      reader.onload = ev => {
+        const img = new Image();
+        img.onload = () => {
+          let w = img.naturalWidth;
+          let h = img.naturalHeight;
+          const MAX = 1200;
+          if (w > MAX || h > MAX) {
+            if (w > h) { h = Math.round(h * MAX / w); w = MAX; }
+            else { w = Math.round(w * MAX / h); h = MAX; }
+          }
+          const canvas = document.createElement('canvas');
+          canvas.width = w; canvas.height = h;
+          const ctx = canvas.getContext('2d')!;
+          ctx.drawImage(img, 0, 0, w, h);
+          setUploadedFileData(canvas.toDataURL('image/jpeg', 0.75));
+        };
+        img.src = ev.target?.result as string;
+      };
       reader.readAsDataURL(file);
     }
   };

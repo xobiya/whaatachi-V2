@@ -160,12 +160,34 @@ export default function OnboardingFlow({ onComplete, onSignIn, authIntent }: Onb
     const file = e.target.files?.[0];
     if (!file) return;
     const reader = new FileReader();
-    reader.onload = ev => setField('image', ev.target?.result as string);
+    reader.onload = ev => {
+      const img = new Image();
+      img.onload = () => {
+        let w = img.naturalWidth;
+        let h = img.naturalHeight;
+        const MAX = 800;
+        if (w > MAX || h > MAX) {
+          if (w > h) { h = Math.round(h * MAX / w); w = MAX; }
+          else { w = Math.round(w * MAX / h); h = MAX; }
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = w; canvas.height = h;
+        const ctx = canvas.getContext('2d')!;
+        ctx.drawImage(img, 0, 0, w, h);
+        const compressed = canvas.toDataURL('image/jpeg', 0.7);
+        setField('image', compressed);
+      };
+      img.src = ev.target?.result as string;
+    };
     reader.readAsDataURL(file);
   };
 
   const handleRegSubmit = () => {
     if (!validateReg()) return;
+    if (!selectedIntent || !selectedLookingFor) {
+      setToastError('Please complete all previous steps first.');
+      return;
+    }
     const finalImage = form.image;
     const tg = form.telegram.startsWith('@') ? form.telegram : `@${form.telegram}`;
     const ig = form.instagram ? (form.instagram.startsWith('@') ? form.instagram : `@${form.instagram}`) : '';
@@ -181,7 +203,7 @@ export default function OnboardingFlow({ onComplete, onSignIn, authIntent }: Onb
       lookingFor: selectedLookingFor || (form.gender === 'Male' ? 'Female' : 'Male'),
       image: finalImage,
       status: 'Online',
-      relationshipIntent: selectedIntent!,
+      relationshipIntent: selectedIntent,
       interests: [],
       verified: false,
       contactInfo: { phone: form.phone, telegram: tg, instagram: ig, email: '' },

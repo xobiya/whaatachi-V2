@@ -378,10 +378,21 @@ function AppContent() {
       auth.dispatch({ type: 'SET_CURRENT_USER', payload: serverProfile });
       auth.dispatch({ type: 'SET_LOGGED_IN', payload: true });
       auth.dispatch({ type: 'SET_USER_GENDER', payload: serverProfile.gender });
-      ui.dispatch({ type: 'SET_CURRENT_VIEW', payload: 'browse' });
-      data.dispatch({ type: 'SET_PROFILES', payload: [serverProfile, ...data.state.profiles] });
       if (result?.token) api.setToken(result.token);
       triggerNotification('success', ui.t('app.notify.welcome').replace('{name}', serverProfile.name));
+
+      // Fetch all profiles immediately so the browse view has data
+        try {
+          const profilesRes = await api.fetchProfiles({ limit: 1000 });
+          if (profilesRes && Array.isArray(profilesRes.profiles)) {
+            data.dispatch({ type: 'SET_PROFILES', payload: profilesRes.profiles });
+          }
+          lastFetchRef.current = Date.now();
+        } catch {
+          data.dispatch({ type: 'SET_PROFILES', payload: [serverProfile] });
+        }
+
+        ui.dispatch({ type: 'SET_CURRENT_VIEW', payload: 'browse' });
     } catch (err: any) {
       console.error('Registration API error:', err);
       triggerNotification('info', err?.message || 'Registration failed. Please try again.');
@@ -423,8 +434,18 @@ function AppContent() {
         auth.dispatch({ type: 'SET_CURRENT_USER', payload: profileWithLookingFor });
         auth.dispatch({ type: 'SET_LOGGED_IN', payload: true });
         auth.dispatch({ type: 'SET_USER_GENDER', payload: profileWithLookingFor.gender });
-        ui.dispatch({ type: 'SET_CURRENT_VIEW', payload: 'browse' });
         triggerNotification('success', ui.t('app.notify.welcome-back').replace('{name}', res.user.name));
+
+        // Fetch all profiles immediately so the browse view has data
+        try {
+          const profilesRes = await api.fetchProfiles({ limit: 1000 });
+          if (profilesRes && Array.isArray(profilesRes.profiles)) {
+            data.dispatch({ type: 'SET_PROFILES', payload: profilesRes.profiles });
+          }
+          lastFetchRef.current = Date.now();
+        } catch {}
+
+        ui.dispatch({ type: 'SET_CURRENT_VIEW', payload: 'browse' });
         return true;
       }
     } catch (err: any) {
@@ -438,7 +459,6 @@ function AppContent() {
     auth.dispatch({ type: 'SET_CURRENT_USER', payload: updatedProfile });
     auth.dispatch({ type: 'SET_LOGGED_IN', payload: true });
     auth.dispatch({ type: 'SET_USER_GENDER', payload: updatedProfile.gender });
-    ui.dispatch({ type: 'SET_CURRENT_VIEW', payload: 'browse' });
     triggerNotification('success', ui.t('app.notify.welcome-back').replace('{name}', profile.name));
     try {
       const testRes = await api.login(profile.name, undefined, profile.contactInfo.telegram, profile.contactInfo.instagram);
@@ -446,6 +466,14 @@ function AppContent() {
     } catch (err) {
       console.error('Test login API error:', err);
     }
+    try {
+      const profilesRes = await api.fetchProfiles({ limit: 1000 });
+      if (profilesRes && Array.isArray(profilesRes.profiles)) {
+        data.dispatch({ type: 'SET_PROFILES', payload: profilesRes.profiles });
+      }
+      lastFetchRef.current = Date.now();
+    } catch {}
+    ui.dispatch({ type: 'SET_CURRENT_VIEW', payload: 'browse' });
   };
 
   const handleUpdateBio = async (newBio: string) => {
