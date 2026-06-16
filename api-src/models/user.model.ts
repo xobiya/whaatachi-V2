@@ -159,6 +159,10 @@ let cachedAllProfiles: { rows: any[]; total: number } | null = null;
 let cacheTimer: ReturnType<typeof setInterval> | null = null;
 
 function toProfileDoc(doc: any): any {
+  const rawImage = doc.image ?? null;
+  const image = rawImage && typeof rawImage === 'string' && rawImage.startsWith('data:image/')
+    ? null
+    : rawImage;
   return {
     id: doc._id,
     _id: doc._id,
@@ -169,7 +173,7 @@ function toProfileDoc(doc: any): any {
     bio: doc.bio ?? null,
     gender: doc.gender,
     lookingFor: doc.lookingFor ?? null,
-    image: doc.image ?? null,
+    image,
     status: doc.status ?? 'Offline',
     relationshipIntent: doc.relationshipIntent ?? null,
     interests: doc.interests ?? [],
@@ -189,7 +193,7 @@ export async function refreshProfileCache(): Promise<void> {
       .sort({ _id: -1 })
       .limit(1000)
       .lean()
-      .maxTimeMS(15000);
+      .maxTimeMS(25000);
     const total = rows.length;
     cachedAllProfiles = { rows: rows.map(toProfileDoc), total };
     console.log('[profile-cache] refreshed: %d profiles', total);

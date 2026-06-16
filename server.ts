@@ -27,7 +27,7 @@ async function start() {
     bufferCommands: false,
     serverSelectionTimeoutMS: 10000,
     connectTimeoutMS: 10000,
-    socketTimeoutMS: 15000,
+    socketTimeoutMS: 30000,
     waitQueueTimeoutMS: 5000,
   });
 
@@ -41,10 +41,10 @@ async function start() {
     console.log(`API server running on http://localhost:${PORT}`);
   });
 
-  server.timeout = 25000;
-  server.headersTimeout = 26000;
+  server.timeout = 35000;
+  server.headersTimeout = 36000;
 
-  startProfileCache(60000);
+  startProfileCache(300000);
 }
 
 start().catch(err => {
