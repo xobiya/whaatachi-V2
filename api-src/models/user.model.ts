@@ -186,7 +186,7 @@ function toProfileDoc(doc: any): any {
 export async function refreshProfileCache(): Promise<void> {
   try {
     const rows = await User.find({})
-      .sort({ createdAt: -1 })
+      .sort({ _id: -1 })
       .limit(1000)
       .lean()
       .maxTimeMS(15000);
