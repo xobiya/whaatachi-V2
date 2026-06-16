@@ -6,26 +6,10 @@ import { userRowToProfile } from '../utils/transform';
 const router = Router();
 
 router.get('/', async (req: AuthRequest, res: Response) => {
-  const start = Date.now();
   try {
-    const { gender, lookingFor, city, intent, search, minAge, maxAge, page, limit } = req.query;
-    const result = await userModel.findUsersWithFilters({
-      gender: gender as string | undefined,
-      lookingFor: lookingFor as string | undefined,
-      city: city as string | undefined,
-      intent: intent as string | undefined,
-      search: search as string | undefined,
-      minAge: minAge ? Number(minAge) : undefined,
-      maxAge: maxAge ? Number(maxAge) : undefined,
-      page: page ? Number(page) : undefined,
-      limit: limit ? Number(limit) : undefined,
-    });
-
-    const profiles = result.rows.map((row: any) => userRowToProfile(row));
-    console.log('[profiles] success in %d ms, rows=%d total=%d', Date.now() - start, profiles.length, result.total);
-    res.json({ profiles, total: result.total });
+    res.json(await userModel.getAllProfiles());
   } catch (err: any) {
-    console.error('[profiles] error after %d ms:', Date.now() - start, err?.message || err);
+    console.error('[profiles] error:', err?.message || err);
     if (!res.headersSent) {
       res.status(500).json({ error: 'Failed to fetch profiles' });
     }

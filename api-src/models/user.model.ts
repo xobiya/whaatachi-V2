@@ -155,6 +155,11 @@ function buildFilterObject(filters: Record<string, any>): Record<string, any> {
   return filter;
 }
 
+export async function getAllProfiles(): Promise<{ profiles: any[]; total: number }> {
+  const result = await findUsersWithFilters({});
+  return { profiles: result.rows, total: result.total };
+}
+
 export async function findUsersWithFilters(filters: {
   gender?: string;
   lookingFor?: string;
