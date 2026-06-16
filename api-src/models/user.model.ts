@@ -168,12 +168,27 @@ export async function findUsersWithFilters(filters: {
 }): Promise<{ rows: any[]; total: number }> {
   const filter = buildFilterObject(filters);
   const page = filters.page || 1;
-  const limit = filters.limit || 50;
+  const limit = filters.limit || 20;
   const skip = (page - 1) * limit;
 
+  const QUERY_TIMEOUT = 8000;
+
   const [rows, total] = await Promise.all([
-    User.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit).lean(),
-    User.countDocuments(filter),
+    User.find(filter)
+      .sort({ createdAt: -1 })
+      .skip(skip).limit(limit)
+      .maxTimeMS(QUERY_TIMEOUT)
+      .lean()
+      .catch((err: any) => {
+        console.error('[findUsersWithFilters] find error:', err?.message || err);
+        return [];
+      }),
+    User.countDocuments(filter)
+      .maxTimeMS(QUERY_TIMEOUT)
+      .catch((err: any) => {
+        console.error('[findUsersWithFilters] count error:', err?.message || err);
+        return 0;
+      }),
   ]);
   return { rows, total };
 }
