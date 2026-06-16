@@ -204,20 +204,19 @@ export async function findUsersWithFilters(filters: {
           gender: 1, lookingFor: 1, image: 1, status: 1,
           relationshipIntent: 1, interests: 1, verified: 1,
           phone: 1, telegram: 1, instagram: 1, email: 1,
-          createdAt: 1, updatedAt: 1,
         })
         .sort({ _id: -1 })
         .limit(limit)
         .maxTimeMS(QUERY_TIMEOUT_MS)
         .toArray();
       console.log('[findUsersWithFilters] find returned %d docs', docs.length);
-      return docs;
+      return docs.map((d: any) => ({ ...d, id: d._id }));
     }, QUERY_TIMEOUT_MS + 2000);
   }
 
   async function countRows(): Promise<number> {
     try {
-      const c = await collection.countDocuments(filter, { maxTimeMS: QUERY_TIMEOUT_MS });
+      const c = await collection.estimatedDocumentCount();
       console.log('[findUsersWithFilters] count = %d', c);
       return c;
     } catch (err: any) {
