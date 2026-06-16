@@ -160,6 +160,15 @@ export async function getAllProfiles(): Promise<{ profiles: any[]; total: number
   return { profiles: result.rows, total: result.total };
 }
 
+async function queryWithTimeout<T>(label: string, fn: () => Promise<T>, ms: number): Promise<T> {
+  return Promise.race([
+    fn(),
+    new Promise<T>((_, reject) =>
+      setTimeout(() => reject(new Error(`query "${label}" timed out after ${ms}ms`)), ms)
+    ),
+  ]);
+}
+
 export async function findUsersWithFilters(filters: {
   gender?: string;
   lookingFor?: string;
@@ -176,7 +185,7 @@ export async function findUsersWithFilters(filters: {
   const limit = filters.limit || 20;
   const skip = (page - 1) * limit;
 
-  const QUERY_TIMEOUT_MS = 7000;
+  const QUERY_TIMEOUT_MS = 6000;
 
   const db = mongoose.connection.db;
   if (!db) {
@@ -187,8 +196,8 @@ export async function findUsersWithFilters(filters: {
   const collection = db.collection('users');
 
   async function findRows(): Promise<any[]> {
-    try {
-      return await collection
+    return queryWithTimeout('find', async () => {
+      return collection
         .find(filter)
         .project({
           _id: 1, name: 1, age: 1, city: 1, address: 1, bio: 1,
@@ -201,10 +210,7 @@ export async function findUsersWithFilters(filters: {
         .skip(skip).limit(limit)
         .maxTimeMS(QUERY_TIMEOUT_MS)
         .toArray();
-    } catch (err: any) {
-      console.error('[findUsersWithFilters] find error:', err?.message || err);
-      return [];
-    }
+    }, QUERY_TIMEOUT_MS + 2000);
   }
 
   async function countRows(): Promise<number> {
@@ -216,8 +222,13 @@ export async function findUsersWithFilters(filters: {
     }
   }
 
-  const [rows, total] = await Promise.all([findRows(), countRows()]);
-  return { rows, total };
+  try {
+    const [rows, total] = await Promise.all([findRows(), countRows()]);
+    return { rows, total };
+  } catch (err: any) {
+    console.error('[findUsersWithFilters] error:', err?.message || err);
+    return { rows: [], total: 0 };
+  }
 }
 
 export async function createUser(data: Record<string, any>): Promise<any> {
