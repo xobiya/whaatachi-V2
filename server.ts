@@ -34,9 +34,12 @@ async function start() {
     await seedData();
   }
 
-  mainApp.listen(PORT, () => {
+  const server = mainApp.listen(PORT, () => {
     console.log(`API server running on http://localhost:${PORT}`);
   });
+
+  server.timeout = 25000;
+  server.headersTimeout = 26000;
 }
 
 start().catch(err => {

@@ -171,25 +171,47 @@ export async function findUsersWithFilters(filters: {
   const limit = filters.limit || 20;
   const skip = (page - 1) * limit;
 
-  const QUERY_TIMEOUT = 8000;
+  const QUERY_TIMEOUT_MS = 7000;
 
-  const [rows, total] = await Promise.all([
-    User.find(filter)
-      .sort({ createdAt: -1 })
-      .skip(skip).limit(limit)
-      .maxTimeMS(QUERY_TIMEOUT)
-      .lean()
-      .catch((err: any) => {
-        console.error('[findUsersWithFilters] find error:', err?.message || err);
-        return [];
-      }),
-    User.countDocuments(filter)
-      .maxTimeMS(QUERY_TIMEOUT)
-      .catch((err: any) => {
-        console.error('[findUsersWithFilters] count error:', err?.message || err);
-        return 0;
-      }),
-  ]);
+  const db = mongoose.connection.db;
+  if (!db) {
+    console.error('[findUsersWithFilters] no db connection');
+    return { rows: [], total: 0 };
+  }
+
+  const collection = db.collection('users');
+
+  async function findRows(): Promise<any[]> {
+    try {
+      return await collection
+        .find(filter)
+        .project({
+          _id: 1, name: 1, age: 1, city: 1, address: 1, bio: 1,
+          gender: 1, lookingFor: 1, image: 1, status: 1,
+          relationshipIntent: 1, interests: 1, verified: 1,
+          phone: 1, telegram: 1, instagram: 1, email: 1,
+          createdAt: 1, updatedAt: 1,
+        })
+        .sort({ createdAt: -1 })
+        .skip(skip).limit(limit)
+        .maxTimeMS(QUERY_TIMEOUT_MS)
+        .toArray();
+    } catch (err: any) {
+      console.error('[findUsersWithFilters] find error:', err?.message || err);
+      return [];
+    }
+  }
+
+  async function countRows(): Promise<number> {
+    try {
+      return await collection.countDocuments(filter, { maxTimeMS: QUERY_TIMEOUT_MS });
+    } catch (err: any) {
+      console.error('[findUsersWithFilters] count error:', err?.message || err);
+      return 0;
+    }
+  }
+
+  const [rows, total] = await Promise.all([findRows(), countRows()]);
   return { rows, total };
 }
 
