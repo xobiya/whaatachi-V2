@@ -26,8 +26,14 @@ router.get('/', async (req: AuthRequest, res: Response) => {
     res.json({ profiles, total: result.total });
   } catch (err: any) {
     console.error('[profiles] error after %d ms:', Date.now() - start, err?.message || err);
-    res.status(500).json({ error: 'Failed to fetch profiles' });
+    if (!res.headersSent) {
+      res.status(500).json({ error: 'Failed to fetch profiles' });
+    }
   }
+});
+
+router.get('/test', (_req, res) => {
+  res.json({ ok: true, time: Date.now() });
 });
 
 router.get('/:id', async (req: AuthRequest, res: Response) => {
