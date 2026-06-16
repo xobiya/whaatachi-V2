@@ -197,7 +197,7 @@ export async function findUsersWithFilters(filters: {
 
   async function findRows(): Promise<any[]> {
     return queryWithTimeout('find', async () => {
-      return collection
+      const docs = await collection
         .find(filter)
         .project({
           _id: 1, name: 1, age: 1, city: 1, address: 1, bio: 1,
@@ -206,16 +206,20 @@ export async function findUsersWithFilters(filters: {
           phone: 1, telegram: 1, instagram: 1, email: 1,
           createdAt: 1, updatedAt: 1,
         })
-        .sort({ createdAt: -1 })
-        .skip(skip).limit(limit)
+        .sort({ _id: -1 })
+        .limit(limit)
         .maxTimeMS(QUERY_TIMEOUT_MS)
         .toArray();
+      console.log('[findUsersWithFilters] find returned %d docs', docs.length);
+      return docs;
     }, QUERY_TIMEOUT_MS + 2000);
   }
 
   async function countRows(): Promise<number> {
     try {
-      return await collection.countDocuments(filter, { maxTimeMS: QUERY_TIMEOUT_MS });
+      const c = await collection.countDocuments(filter, { maxTimeMS: QUERY_TIMEOUT_MS });
+      console.log('[findUsersWithFilters] count = %d', c);
+      return c;
     } catch (err: any) {
       console.error('[findUsersWithFilters] count error:', err?.message || err);
       return 0;
