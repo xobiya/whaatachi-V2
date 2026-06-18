@@ -1,8 +1,6 @@
 import { v4 as uuid } from 'uuid';
 import prisma from '../lib/prisma';
 
-const asset = (file: string) => `/assets/${file}`;
-
 const FEMALE_IMAGES = [
   '/assets/One.avif', '/assets/two.avif', '/assets/three.avif', '/assets/four.avif',
   '/assets/One.avif', '/assets/two.avif', '/assets/three.avif', '/assets/four.avif',
