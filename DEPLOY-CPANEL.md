@@ -55,7 +55,7 @@ This guide covers deploying the Whaatachi backend (Express API) and MySQL databa
      JWT_SECRET=<your-strong-jwt-secret>
      ADMIN_PASSCODE=<your-admin-passcode>
      CORS_ORIGIN=https://whaatachi.vercel.app,https://your-frontend-domain.com
-     PORT=0
+      # PORT is automatically assigned by cPanel — do not set it here
      RUN_SEED=true
      ```
 

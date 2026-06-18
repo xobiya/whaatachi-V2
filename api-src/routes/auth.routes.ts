@@ -38,7 +38,7 @@ router.post('/register', validateRegister, async (req: AuthRequest, res: Respons
     res.status(201).json({ token, user: userRowToProfile(created) });
   } catch (err: any) {
     console.error('Register error:', err);
-    if (err?.code === 11000) {
+    if (err?.code === 'P2002') {
       res.status(409).json({ error: 'A user with this information already exists' });
       return;
     }
@@ -79,7 +79,7 @@ router.post('/login', validateLogin, async (req: AuthRequest, res: Response) => 
       return;
     }
 
-    const token = generateToken({ id: found._id });
+    const token = generateToken({ id: found.id });
     res.json({ token, user: userRowToProfile(found as any) });
   } catch (err: any) {
     console.error('Login error:', err);
