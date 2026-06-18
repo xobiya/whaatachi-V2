@@ -4,6 +4,8 @@ import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
+process.chdir(__dirname);
+
 const prismaGenSrc = path.join(__dirname, 'prisma', 'generated-client');
 const prismaGenDest = path.join(__dirname, 'node_modules', '.prisma', 'client');
 
