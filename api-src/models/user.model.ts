@@ -1,171 +1,134 @@
-import mongoose, { Schema } from 'mongoose';
+import prisma from '../lib/prisma';
 
-const userSchema = new Schema({
-  _id: { type: String },
-  name: { type: String, required: true },
-  age: Number,
-  city: String,
-  address: String,
-  bio: String,
-  gender: { type: String, enum: ['Male', 'Female'], required: true },
-  lookingFor: { type: String, enum: ['Male', 'Female'] },
-  image: String,
-  status: { type: String, enum: ['Online', 'Offline', 'Recently Active'], default: 'Online' },
-  relationshipIntent: { type: String, enum: ['True Relationship', 'Friendship', 'Friends with Benefits', 'Only Sex'] },
-  interests: { type: [String], default: [] },
-  verified: { type: Boolean, default: false },
-  phone: String,
-  telegram: String,
-  instagram: String,
-  email: String,
-}, { timestamps: true, _id: false });
-
-userSchema.index({ gender: 1, lookingFor: 1 });
-userSchema.index({ gender: 1, city: 1 });
-userSchema.index({ name: 1 });
-userSchema.index({ status: 1 });
-userSchema.index({ verified: 1 });
-userSchema.index({ createdAt: -1 });
-userSchema.index({ email: 1 }, { unique: true, sparse: true });
-userSchema.index({ phone: 1 }, { unique: true, sparse: true });
-userSchema.index({ telegram: 1 }, { unique: true, sparse: true });
-userSchema.index({ instagram: 1 }, { unique: true, sparse: true });
-
-const User = mongoose.model('User', userSchema) as any;
-
-export async function findUserById(id: string): Promise<any> {
-  return User.findById(id).lean();
+export async function findUserById(id: string) {
+  return prisma.user.findUnique({
+    where: { id },
+    include: { interests: { select: { interest: true } } },
+  });
 }
 
-export async function findUserByName(name: string): Promise<any[]> {
-  return User.find({ name }).collation({ locale: 'en', strength: 2 }).lean();
+export async function findUserByName(name: string) {
+  const users = await prisma.user.findMany({
+    where: { name: { equals: name, mode: 'insensitive' } },
+    include: { interests: { select: { interest: true } } },
+  });
+  return users;
 }
 
-export async function findUserByContact(telegram: string | null, instagram: string | null): Promise<any> {
-  const exactOrClauses: any[] = [];
-  const regexOrClauses: any[] = [];
+export async function findUserByContact(telegram: string | null, instagram: string | null) {
+  if (!telegram && !instagram) return null;
 
+  const or: any[] = [];
   if (telegram) {
     const tg = telegram.replace(/^@/, '');
-    const escaped = tg.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    exactOrClauses.push({ telegram: tg });
-    exactOrClauses.push({ telegram: `@${tg}` });
-    regexOrClauses.push({ telegram: { $regex: new RegExp(`^@?${escaped}$`, 'i') } });
+    or.push({ telegram: { equals: tg, mode: 'insensitive' } });
+    or.push({ telegram: { equals: `@${tg}`, mode: 'insensitive' } });
   }
-
   if (instagram) {
     const ig = instagram.replace(/^@/, '');
-    const escaped = ig.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    exactOrClauses.push({ instagram: ig });
-    exactOrClauses.push({ instagram: `@${ig}` });
-    regexOrClauses.push({ instagram: { $regex: new RegExp(`^@?${escaped}$`, 'i') } });
+    or.push({ instagram: { equals: ig, mode: 'insensitive' } });
+    or.push({ instagram: { equals: `@${ig}`, mode: 'insensitive' } });
   }
 
-  if (exactOrClauses.length > 0) {
-    const exactMatch = await User.findOne({ $or: exactOrClauses }).lean();
-    if (exactMatch) return exactMatch;
-  }
-
-  if (regexOrClauses.length > 0) {
-    return User.findOne({ $or: regexOrClauses }).lean();
-  }
-
-  return null;
+  const user = await prisma.user.findFirst({
+    where: { OR: or },
+    include: { interests: { select: { interest: true } } },
+  });
+  return user;
 }
 
-export async function findUserByPhone(phone: string): Promise<any> {
-  // 1. Try exact match
-  const exact = await User.findOne({ phone }).lean();
-  if (exact) return exact;
-
-  // 2. Try normalized exact match (remove spaces)
+export async function findUserByPhone(phone: string) {
   const normalized = phone.replace(/\s+/g, '');
-  if (normalized !== phone) {
-    const exactNormalized = await User.findOne({ phone: normalized }).lean();
-    if (exactNormalized) return exactNormalized;
-  }
 
-  // 3. Fallback to flexible case-insensitive regex match
-  const escaped = phone.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  const flexible = escaped.replace(/\s+/g, '\\s?');
-  return User.findOne({ phone: { $regex: new RegExp(`^${flexible}$`, 'i') } }).lean();
+  const user = await prisma.user.findFirst({
+    where: {
+      OR: [
+        { phone: { equals: phone, mode: 'insensitive' } },
+        { phone: { equals: normalized, mode: 'insensitive' } },
+      ],
+    },
+    include: { interests: { select: { interest: true } } },
+  });
+  return user;
 }
 
-export async function findUserByLogin(login: string): Promise<any> {
-  // 1. Try exact matches first on phone/telegram/instagram
+export async function findUserByLogin(login: string) {
   const sanitized = login.replace(/^@/, '');
-  const exactMatch = await User.findOne({
-    $or: [
-      { phone: login },
-      { phone: sanitized },
-      { telegram: login },
-      { telegram: sanitized },
-      { telegram: `@${sanitized}` },
-      { instagram: login },
-      { instagram: sanitized },
-      { instagram: `@${sanitized}` }
-    ]
-  }).lean();
 
-  if (exactMatch) return exactMatch;
-
-  // 2. Fallback to regex query
-  const escaped = sanitized.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  const regex = new RegExp(`^@?${escaped}$`, 'i');
-  return User.findOne({
-    $or: [
-      { phone: { $regex: regex } },
-      { telegram: { $regex: regex } },
-      { instagram: { $regex: regex } },
-    ]
-  }).lean();
+  const user = await prisma.user.findFirst({
+    where: {
+      OR: [
+        { phone: { equals: login, mode: 'insensitive' } },
+        { phone: { equals: sanitized, mode: 'insensitive' } },
+        { telegram: { equals: login, mode: 'insensitive' } },
+        { telegram: { equals: sanitized, mode: 'insensitive' } },
+        { telegram: { equals: `@${sanitized}`, mode: 'insensitive' } },
+        { instagram: { equals: login, mode: 'insensitive' } },
+        { instagram: { equals: sanitized, mode: 'insensitive' } },
+        { instagram: { equals: `@${sanitized}`, mode: 'insensitive' } },
+      ],
+    },
+    include: { interests: { select: { interest: true } } },
+  });
+  return user;
 }
 
-export async function checkDuplicate(field: string, value: string, excludeId?: string): Promise<boolean> {
+export async function checkDuplicate(field: string, value: string, excludeId?: string) {
   if (!value) return false;
-  const query: Record<string, any> = {};
+
+  let where: any;
   if (field === 'phone') {
-    query.phone = { $regex: new RegExp(`^${value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i') };
+    where = { phone: { equals: value, mode: 'insensitive' } };
   } else if (field === 'telegram' || field === 'instagram') {
     const val = value.replace(/^@/, '');
-    query[field] = { $regex: new RegExp(`^@?${val.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i') };
+    where = {
+      OR: [
+        { [field]: { equals: val, mode: 'insensitive' } },
+        { [field]: { equals: `@${val}`, mode: 'insensitive' } },
+      ],
+    };
   } else {
-    query[field] = value;
+    where = { [field]: value };
   }
-  if (excludeId) query._id = { $ne: excludeId };
-  const count = await User.countDocuments(query);
+
+  if (excludeId) {
+    where = { ...where, id: { not: excludeId } };
+  }
+
+  const count = await prisma.user.count({ where });
   return count > 0;
 }
 
-function buildFilterObject(filters: Record<string, any>): Record<string, any> {
-  const filter: Record<string, any> = {};
-  if (filters.gender) filter.gender = filters.gender;
-  if (filters.lookingFor) filter.lookingFor = filters.lookingFor;
-  if (filters.city) filter.city = new RegExp(`^${filters.city.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i');
-  if (filters.intent) filter.relationshipIntent = filters.intent;
+function buildFilterObject(filters: Record<string, any>) {
+  const and: any[] = [];
+
+  if (filters.gender) and.push({ gender: filters.gender });
+  if (filters.lookingFor) and.push({ lookingFor: filters.lookingFor });
+  if (filters.city) and.push({ city: { equals: filters.city, mode: 'insensitive' } });
+  if (filters.intent) and.push({ relationshipIntent: filters.intent });
   if (filters.search) {
-    const searchRegex = new RegExp(filters.search.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
-    filter.$or = [{ name: searchRegex }, { city: searchRegex }];
+    and.push({
+      OR: [
+        { name: { contains: filters.search, mode: 'insensitive' } },
+        { city: { contains: filters.search, mode: 'insensitive' } },
+      ],
+    });
   }
   if (filters.minAge || filters.maxAge) {
-    filter.age = {};
-    if (filters.minAge) filter.age.$gte = filters.minAge;
-    if (filters.maxAge) filter.age.$lte = filters.maxAge;
+    const ageFilter: any = {};
+    if (filters.minAge) ageFilter.gte = filters.minAge;
+    if (filters.maxAge) ageFilter.lte = filters.maxAge;
+    and.push({ age: ageFilter });
   }
-  return filter;
+
+  return and.length > 0 ? { AND: and } : {};
 }
 
-let cachedAllProfiles: { rows: any[]; total: number } | null = null;
-let cacheTimer: ReturnType<typeof setInterval> | null = null;
-
-function toProfileDoc(doc: any): any {
-  const rawImage = doc.image ?? null;
-  const image = rawImage && typeof rawImage === 'string' && rawImage.startsWith('data:image/')
-    ? null
-    : rawImage;
+function toProfileDoc(doc: any) {
+  const interests = doc.interests?.map((i: any) => i.interest) ?? [];
   return {
-    id: doc._id,
-    _id: doc._id,
+    id: doc.id,
+    _id: doc.id,
     name: doc.name,
     age: doc.age ?? null,
     city: doc.city ?? null,
@@ -173,10 +136,10 @@ function toProfileDoc(doc: any): any {
     bio: doc.bio ?? null,
     gender: doc.gender,
     lookingFor: doc.lookingFor ?? null,
-    image,
+    image: doc.image ?? null,
     status: doc.status ?? 'Offline',
     relationshipIntent: doc.relationshipIntent ?? null,
-    interests: doc.interests ?? [],
+    interests,
     verified: doc.verified === true,
     phone: doc.phone ?? null,
     telegram: doc.telegram ?? null,
@@ -184,16 +147,19 @@ function toProfileDoc(doc: any): any {
     email: doc.email ?? null,
     createdAt: doc.createdAt,
     updatedAt: doc.updatedAt,
-  } as any;
+  };
 }
 
-export async function refreshProfileCache(): Promise<void> {
+let cachedAllProfiles: { rows: any[]; total: number } | null = null;
+let cacheTimer: ReturnType<typeof setInterval> | null = null;
+
+export async function refreshProfileCache() {
   try {
-    const rows = await User.find({})
-      .sort({ _id: -1 })
-      .limit(1000)
-      .lean()
-      .maxTimeMS(25000);
+    const rows = await prisma.user.findMany({
+      orderBy: { id: 'desc' },
+      take: 1000,
+      include: { interests: { select: { interest: true } } },
+    });
     const total = rows.length;
     cachedAllProfiles = { rows: rows.map(toProfileDoc), total };
     console.log('[profile-cache] refreshed: %d profiles', total);
@@ -202,20 +168,20 @@ export async function refreshProfileCache(): Promise<void> {
   }
 }
 
-export function startProfileCache(intervalMs = 60000): void {
+export function startProfileCache(intervalMs = 60000) {
   if (cacheTimer) clearInterval(cacheTimer);
   refreshProfileCache();
   cacheTimer = setInterval(refreshProfileCache, intervalMs);
 }
 
-export function stopProfileCache(): void {
+export function stopProfileCache() {
   if (cacheTimer) {
     clearInterval(cacheTimer);
     cacheTimer = null;
   }
 }
 
-export async function getAllProfiles(): Promise<{ profiles: any[]; total: number }> {
+export async function getAllProfiles() {
   if (cachedAllProfiles) {
     return { profiles: cachedAllProfiles.rows, total: cachedAllProfiles.total };
   }
@@ -223,89 +189,95 @@ export async function getAllProfiles(): Promise<{ profiles: any[]; total: number
   return { profiles: cachedAllProfiles?.rows ?? [], total: cachedAllProfiles?.total ?? 0 };
 }
 
-export async function createUser(data: Record<string, any>): Promise<any> {
-  const userDoc: Record<string, any> = {
-    _id: data.id,
-    name: data.name,
-    age: data.age,
-    city: data.city,
-    address: data.address,
-    bio: data.bio,
-    gender: data.gender,
-    lookingFor: data.lookingFor,
-    image: data.image,
-    status: data.status || 'Online',
-    relationshipIntent: data.relationshipIntent,
-    interests: data.interests || [],
-    verified: false,
-  };
+export async function createUser(data: Record<string, any>) {
+  const { id, name, age, city, address, bio, gender, lookingFor, image,
+    status, relationshipIntent, interests, phone, telegram, instagram, email } = data;
 
-  const optionalFields = ['phone', 'telegram', 'instagram', 'email'];
-  for (const f of optionalFields) {
-    if (data[f] !== undefined && data[f] !== null && data[f] !== '') {
-      userDoc[f] = data[f];
-    }
-  }
-
-  return User.create(userDoc);
+  const user = await prisma.user.create({
+    data: {
+      id, name, age, city, address, bio, gender,
+      lookingFor: lookingFor ?? undefined,
+      image: image ?? undefined,
+      status: status || 'Online',
+      relationshipIntent: relationshipIntent ?? undefined,
+      phone: phone || undefined,
+      telegram: telegram || undefined,
+      instagram: instagram || undefined,
+      email: email || undefined,
+      interests: interests?.length ? {
+        create: interests.map((interest: string) => ({ interest })),
+      } : undefined,
+    },
+    include: { interests: { select: { interest: true } } },
+  });
+  return user;
 }
 
-export async function updateUser(id: string, data: Record<string, any>): Promise<any> {
+export async function updateUser(id: string, data: Record<string, any>) {
+  const existing = await prisma.user.findUnique({
+    where: { id },
+    include: { interests: { select: { interest: true } } },
+  });
+  if (!existing) return null;
+
+  const updateData: any = {};
   const allowed = ['name', 'age', 'city', 'address', 'bio', 'lookingFor', 'image',
-    'status', 'relationshipIntent', 'interests', 'phone', 'telegram', 'instagram', 'email'];
-  const update: Record<string, any> = {};
-  const unset: Record<string, any> = {};
+    'status', 'relationshipIntent', 'phone', 'telegram', 'instagram', 'email'];
 
   for (const key of allowed) {
     if (data[key] !== undefined) {
       if (['phone', 'telegram', 'instagram', 'email'].includes(key) && (data[key] === '' || data[key] === null)) {
-        unset[key] = 1;
+        updateData[key] = null;
       } else {
-        update[key] = key === 'interests' && Array.isArray(data[key]) ? data[key] : data[key];
+        updateData[key] = data[key];
       }
     }
   }
 
-  const updateOp: Record<string, any> = {};
-  if (Object.keys(update).length > 0) {
-    updateOp.$set = update;
-  }
-  if (Object.keys(unset).length > 0) {
-    updateOp.$unset = unset;
+  if (data.interests !== undefined) {
+    await prisma.userInterest.deleteMany({ where: { userId: id } });
+    if (Array.isArray(data.interests) && data.interests.length > 0) {
+      await prisma.userInterest.createMany({
+        data: data.interests.map((interest: string) => ({ userId: id, interest })),
+      });
+    }
   }
 
-  if (Object.keys(updateOp).length > 0) {
-    return User.findByIdAndUpdate(id, updateOp, { new: true }).lean();
-  }
-  return User.findById(id).lean();
+  const user = await prisma.user.update({
+    where: { id },
+    data: updateData,
+    include: { interests: { select: { interest: true } } },
+  });
+  return user;
 }
 
-export async function verifyUser(userId: string): Promise<void> {
-  await User.findByIdAndUpdate(userId, { $set: { verified: true } });
+export async function verifyUser(userId: string) {
+  await prisma.user.update({ where: { id: userId }, data: { verified: true } });
 }
 
-export async function toggleUserVerification(userId: string): Promise<{ verified: boolean } | null> {
-  const user = await User.findById(userId);
+export async function toggleUserVerification(userId: string) {
+  const user = await prisma.user.findUnique({ where: { id: userId }, select: { verified: true } });
   if (!user) return null;
   const newVal = !user.verified;
-  await User.findByIdAndUpdate(userId, { $set: { verified: newVal } });
+  await prisma.user.update({ where: { id: userId }, data: { verified: newVal } });
   return { verified: newVal };
 }
 
-export async function countUsers(): Promise<number> {
-  return User.countDocuments();
+export async function countUsers() {
+  return prisma.user.count();
 }
 
-export async function deleteUser(id: string): Promise<any> {
-  return User.findByIdAndDelete(id);
+export async function deleteUser(id: string) {
+  const existing = await prisma.user.findUnique({ where: { id }, select: { id: true } });
+  if (!existing) return null;
+  await prisma.userInterest.deleteMany({ where: { userId: id } });
+  return prisma.user.delete({ where: { id } });
 }
 
-export async function countUsersByGender(gender: string): Promise<number> {
-  return User.countDocuments({ gender });
+export async function countUsersByGender(gender: string) {
+  return prisma.user.count({ where: { gender } });
 }
 
-export async function countVerifiedUsers(): Promise<number> {
-  return User.countDocuments({ verified: true });
+export async function countVerifiedUsers() {
+  return prisma.user.count({ where: { verified: true } });
 }
-
-export default User;

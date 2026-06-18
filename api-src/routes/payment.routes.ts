@@ -31,8 +31,7 @@ router.post('/', authenticate, validatePayment, async (req: AuthRequest, res: Re
       res.status(500).json({ error: 'Failed to create payment' });
       return;
     }
-    const plain = typeof created.toObject === 'function' ? created.toObject() : created;
-    res.status(201).json({ payment: paymentRowToPayment(plain) });
+    res.status(201).json({ payment: paymentRowToPayment(created) });
   } catch (err: any) {
     console.error('Submit payment error:', err);
     res.status(500).json({ error: 'Failed to submit payment' });

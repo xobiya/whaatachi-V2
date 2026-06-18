@@ -28,17 +28,9 @@ export default function Footer({ setCurrentView, isLoggedIn }: FooterProps) {
           </div>
 
           <div>
-            <h4 className="text-xs font-bold text-[#FFFCF8] uppercase tracking-wider mb-4">{t('footer.discover')}</h4>
-            <ul className="space-y-2 text-xs">
-              <li><button onClick={() => setCurrentView('faq')} className="hover:text-[#C9A84C] transition-colors cursor-pointer">{t('footer.how-it-works')}</button></li>
-            </ul>
-          </div>
-
-          <div>
             <h4 className="text-xs font-bold text-[#FFFCF8] uppercase tracking-wider mb-4">{t('footer.support')}</h4>
             <ul className="space-y-2 text-xs">
               <li><button onClick={() => setCurrentView('support')} className="hover:text-[#C9A84C] transition-colors cursor-pointer">{t('footer.help-center')}</button></li>
-              <li><button onClick={() => setCurrentView('faq')} className="hover:text-[#C9A84C] transition-colors cursor-pointer">{t('footer.faq')}</button></li>
               <li><span className="cursor-default">support@whaatachi.com</span></li>
             </ul>
           </div>

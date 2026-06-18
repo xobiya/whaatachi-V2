@@ -36,14 +36,6 @@ export interface PaymentRequest {
   receiptImage?: string;
 }
 
-export interface SuccessStory {
-  id: string;
-  coupleNames: string;
-  story: string;
-  year: string;
-  image: string;
-}
-
 export interface AdminStats {
   totalUsers: number;
   maleUsers: number;
@@ -52,7 +44,6 @@ export interface AdminStats {
   pendingPayments: number;
   approvedPayments: number;
   revenue: number;
-  totalStories: number;
 }
 
 export interface UserRow {
@@ -94,15 +85,6 @@ export interface PaymentRow {
   updatedAt: string;
 }
 
-export interface StoryRow {
-  id: string;
-  coupleNames: string;
-  story: string;
-  year: string | null;
-  image: string | null;
-  createdAt: string;
-}
-
 export interface AdminRow {
   id: number;
   username: string;
@@ -110,23 +92,4 @@ export interface AdminRow {
   createdAt: string;
 }
 
-export interface ArticleRow {
-  id: string;
-  title: string;
-  excerpt: string | null;
-  category: string | null;
-  readTime: string | null;
-  date: string | null;
-  image: string | null;
-  content: string | null;
-  createdAt: string;
-}
 
-export interface FaqRow {
-  id: string;
-  category: string;
-  question: string;
-  answer: string;
-  sortOrder: number;
-  createdAt: string;
-}

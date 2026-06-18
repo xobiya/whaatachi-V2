@@ -1,74 +1,63 @@
-import mongoose, { Schema } from 'mongoose';
+import prisma from '../lib/prisma';
 
-const paymentSchema = new Schema({
-  _id: { type: String },
-  userId: { type: String, ref: 'User', required: true },
-  profileId: { type: String, required: true },
-  profileName: { type: String, required: true },
-  profileImage: String,
-  senderName: { type: String, required: true },
-  senderPhone: { type: String, required: true },
-  transactionId: { type: String, required: true },
-  method: { type: String, enum: ['Telebirr', 'CBE Birr'], required: true },
-  amount: { type: Number, required: true },
-  receiptImage: String,
-  status: { type: String, enum: ['Pending', 'Approved', 'Rejected'], default: 'Pending' },
-}, { timestamps: true, _id: false });
-
-paymentSchema.index({ userId: 1, createdAt: -1 });
-paymentSchema.index({ status: 1, createdAt: -1 });
-paymentSchema.index({ userId: 1, status: 1 });
-
-const Payment = mongoose.model('Payment', paymentSchema) as any;
-
-export async function createPayment(data: Record<string, any>): Promise<any> {
-  return Payment.create({
-    _id: data.id,
-    userId: data.userId,
-    profileId: data.profileId,
-    profileName: data.profileName,
-    profileImage: data.profileImage,
-    senderName: data.senderName,
-    senderPhone: data.senderPhone,
-    transactionId: data.transactionId.toUpperCase(),
-    method: data.method,
-    amount: data.amount,
-    receiptImage: data.receiptImage,
-    status: 'Pending',
+export async function createPayment(data: Record<string, any>) {
+  return prisma.payment.create({
+    data: {
+      id: data.id,
+      userId: data.userId,
+      profileId: data.profileId,
+      profileName: data.profileName,
+      profileImage: data.profileImage ?? null,
+      senderName: data.senderName,
+      senderPhone: data.senderPhone,
+      transactionId: data.transactionId.toUpperCase(),
+      method: data.method,
+      amount: data.amount,
+      receiptImage: data.receiptImage ?? null,
+      status: 'Pending',
+    },
   });
 }
 
-export async function findPaymentById(id: string): Promise<any> {
-  return Payment.findById(id).lean();
+export async function findPaymentById(id: string) {
+  return prisma.payment.findUnique({ where: { id } });
 }
 
-export async function findPaymentsByUser(userId: string): Promise<any[]> {
-  return Payment.find({ userId }).sort({ createdAt: -1 }).lean();
+export async function findPaymentsByUser(userId: string) {
+  return prisma.payment.findMany({
+    where: { userId },
+    orderBy: { createdAt: 'desc' },
+  });
 }
 
-export async function findAllPayments(): Promise<any[]> {
-  return Payment.find().sort({ createdAt: -1 }).lean();
+export async function findAllPayments() {
+  return prisma.payment.findMany({
+    orderBy: { createdAt: 'desc' },
+  });
 }
 
-export async function updatePaymentStatus(id: string, status: 'Approved' | 'Rejected'): Promise<any> {
-  return Payment.findByIdAndUpdate(id, { $set: { status } }, { new: true }).lean();
+export async function updatePaymentStatus(id: string, status: 'Approved' | 'Rejected') {
+  return prisma.payment.update({
+    where: { id },
+    data: { status },
+  });
 }
 
-export async function hasApprovedPayment(userId: string): Promise<boolean> {
-  const count = await Payment.countDocuments({ userId, status: 'Approved' });
+export async function hasApprovedPayment(userId: string) {
+  const count = await prisma.payment.count({
+    where: { userId, status: 'Approved' },
+  });
   return count > 0;
 }
 
-export async function countPaymentsByStatus(status: string): Promise<number> {
-  return Payment.countDocuments({ status });
+export async function countPaymentsByStatus(status: string) {
+  return prisma.payment.count({ where: { status } });
 }
 
-export async function sumApprovedRevenue(): Promise<number> {
-  const result = await Payment.aggregate([
-    { $match: { status: 'Approved' } },
-    { $group: { _id: null, total: { $sum: '$amount' } } },
-  ]);
-  return result.length > 0 ? result[0].total : 0;
+export async function sumApprovedRevenue() {
+  const result = await prisma.payment.aggregate({
+    where: { status: 'Approved' },
+    _sum: { amount: true },
+  });
+  return result._sum.amount ?? 0;
 }
-
-export default Payment;

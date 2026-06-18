@@ -9,4 +9,14 @@ coverage/
 
 .vercel
 api/dist/
+
+# Prisma
+prisma/migrations/
+node_modules/.prisma/
+!.env.example
+prisma/migrations/
+prisma/*.db
+
+.vercel
+api/dist/
 .env*

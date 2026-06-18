@@ -36,25 +36,6 @@ export interface PaymentRequest {
   receiptImage?: string; // Screenshot/photo of the payment receipt
 }
 
-export interface SuccessStory {
-  id: string;
-  coupleNames: string;
-  story: string;
-  year: string;
-  image: string;
-}
-
-export interface Article {
-  id: string;
-  title: string;
-  excerpt: string;
-  category: string;
-  readTime: string;
-  date: string;
-  image: string;
-  content: string;
-}
-
 export interface SupportMessage {
   id: string;
   sender: 'user' | 'bot' | 'agent';

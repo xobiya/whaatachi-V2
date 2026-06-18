@@ -64,16 +64,3 @@ export function validatePasscodeUpdate(req: Request, res: Response, next: NextFu
   next();
 }
 
-export function validateStory(req: Request, res: Response, next: NextFunction): void {
-  const { coupleNames, story } = req.body;
-  const errors: string[] = [];
-
-  if (!isPresent(coupleNames)) errors.push('coupleNames is required');
-  if (!isPresent(story)) errors.push('story is required');
-
-  if (errors.length) {
-    res.status(400).json({ error: errors.join('; ') });
-    return;
-  }
-  next();
-}

@@ -7,7 +7,7 @@ import {
   MapPin, Check, CheckCircle, FileText, LayoutDashboard,
   Menu, X, ChevronRight, RefreshCw, Smartphone, Heart
 } from 'lucide-react';
-import { Profile, PaymentRequest, SuccessStory, Article } from '../types';
+import { Profile, PaymentRequest } from '../types';
 import SafeImage from '../components/SafeImage';
 import * as api from '../services/api';
 
@@ -16,8 +16,6 @@ interface AdminPanelProps {
   setAllPayments: React.Dispatch<React.SetStateAction<PaymentRequest[]>>;
   profiles: Profile[];
   setProfiles: React.Dispatch<React.SetStateAction<Profile[]>>;
-  stories: SuccessStory[];
-  setStories: React.Dispatch<React.SetStateAction<SuccessStory[]>>;
   onApprove: (paymentId: string) => void;
   onReject: (paymentId: string) => void;
   onRevoke: (paymentId: string) => void;
@@ -33,8 +31,6 @@ export default function AdminPanel({
   setAllPayments,
   profiles,
   setProfiles,
-  stories,
-  setStories,
   onApprove,
   onReject,
   onRevoke,
@@ -100,20 +96,6 @@ export default function AdminPanel({
     setToast(null);
   };
 
-  // Articles management
-  const [articles, setArticles] = useState<Article[]>([]);
-  const [newArticleTitle, setNewArticleTitle] = useState('');
-  const [newArticleExcerpt, setNewArticleExcerpt] = useState('');
-  const [newArticleCategory, setNewArticleCategory] = useState('Dating Tips');
-  const [newArticleContent, setNewArticleContent] = useState('');
-
-  // FAQs management
-  const [allFaqs, setAllFaqs] = useState<any[]>([]);
-  const [newFaqCategory, setNewFaqCategory] = useState('');
-  const [newFaqQuestion, setNewFaqQuestion] = useState('');
-  const [newFaqAnswer, setNewFaqAnswer] = useState('');
-  const [editingFaq, setEditingFaq] = useState<any | null>(null);
-
   // Dashboard stats from API
   const [apiStats, setApiStats] = useState<any>(null);
 
@@ -137,8 +119,6 @@ export default function AdminPanel({
         api.clearAdminToken();
         setIsAuthenticated(false);
       });
-    api.fetchArticles().then((res) => setArticles(res.articles)).catch(() => showToast('error', 'Failed to load articles'));
-    api.fetchAllFaqs().then((res) => setAllFaqs(res.faqs)).catch(() => showToast('error', 'Failed to load FAQs'));
   }, []);
 
   // Real-time polling for payments & stats (every 30 seconds when authenticated)
@@ -233,12 +213,6 @@ export default function AdminPanel({
   
   const [editingProfile, setEditingProfile] = useState<Profile | null>(null);
   const [isCreatingProfile, setIsCreatingProfile] = useState(false);
-
-  // Success story creation state
-  const [newStoryNames, setNewStoryNames] = useState('');
-  const [newStoryText, setNewStoryText] = useState('');
-  const [newStoryYear, setNewStoryYear] = useState('2026');
-  const [newStoryImage, setNewStoryImage] = useState('/assets/1.avif');
 
   // New Profile Form inputs
   const [newProfileName, setNewProfileName] = useState('');
@@ -392,40 +366,6 @@ export default function AdminPanel({
       showToast('success', 'Match candidate created and verified!');
     } catch {
       showToast('error', 'Failed to create profile on server.');
-    }
-  };
-
-  // Success Stories CRUD
-  const handleDeleteStory = async (storyId: string) => {
-    if (!window.confirm('Delete this success story from the landing page?')) return;
-    try {
-      await api.deleteStory(storyId);
-      setStories(prev => prev.filter(s => s.id !== storyId));
-      showToast('success', 'Story deleted.');
-    } catch {
-      showToast('error', 'Failed to delete story on server.');
-    }
-  };
-
-  const handleCreateSuccessStory = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newStoryNames.trim() || !newStoryText.trim()) {
-      showToast('error', 'Fill in couple names and their story text.');
-      return;
-    }
-    try {
-      const res = await api.createStory({
-        coupleNames: newStoryNames.trim(),
-        story: newStoryText.trim(),
-        year: newStoryYear,
-        image: newStoryImage.trim(),
-      });
-      setStories(prev => [res.story, ...prev]);
-      setNewStoryNames('');
-      setNewStoryText('');
-      showToast('success', 'Success story published!');
-    } catch {
-      showToast('error', 'Failed to create story on server.');
     }
   };
 

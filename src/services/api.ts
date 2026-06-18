@@ -1,4 +1,4 @@
-import { Profile, PaymentRequest, SuccessStory, Article } from '../types';
+import { Profile, PaymentRequest } from '../types';
 
 const rawBase = import.meta.env.VITE_API_URL || '';
 const API_BASE = rawBase ? (rawBase.endsWith('/api') ? rawBase : `${rawBase.replace(/\/+$/, '')}/api`) : '/api';
@@ -215,31 +215,6 @@ export async function checkPayment(): Promise<{ hasPaid: boolean }> {
   return request('/payments/check');
 }
 
-// ── Stories ──
-export async function fetchStories(): Promise<{ stories: SuccessStory[] }> {
-  return request('/stories');
-}
-
-export async function createStory(data: {
-  coupleNames: string; story: string; year?: string; image?: string;
-}): Promise<{ story: SuccessStory }> {
-  return request('/stories', { method: 'POST', body: JSON.stringify(data) });
-}
-
-export async function deleteStory(id: string): Promise<{ success: boolean }> {
-  return request(`/stories/${id}`, { method: 'DELETE' });
-}
-
-// ── Articles ──
-export async function fetchArticles(): Promise<{ articles: Article[] }> {
-  return request('/articles');
-}
-
-// ── FAQs ──
-export async function fetchFaqs(): Promise<{ faqs: Record<string, { question: string; answer: string }[]> }> {
-  return request('/faqs');
-}
-
 // ── Admin: Verification ──
 export async function toggleProfileVerification(id: string): Promise<{ verified: boolean }> {
   return adminRequest(`/admin/profiles/${id}/verify`, { method: 'PUT' });
@@ -278,35 +253,4 @@ export async function adminDeleteProfile(id: string): Promise<{ success: boolean
   return adminRequest(`/admin/profiles/${id}`, { method: 'DELETE' });
 }
 
-// ── Admin: Articles ──
-export async function createArticle(data: {
-  title: string; excerpt?: string; category?: string;
-  readTime?: string; date?: string; image?: string; content?: string;
-}): Promise<{ article: any }> {
-  return adminRequest('/articles', { method: 'POST', body: JSON.stringify(data) });
-}
 
-export async function deleteArticle(id: string): Promise<{ success: boolean }> {
-  return adminRequest(`/articles/${id}`, { method: 'DELETE' });
-}
-
-// ── Admin: FAQs ──
-export async function fetchAllFaqs(): Promise<{ faqs: any[] }> {
-  return adminRequest('/faqs/all');
-}
-
-export async function createFaq(data: {
-  category: string; question: string; answer: string; sortOrder?: number;
-}): Promise<{ faq: any }> {
-  return adminRequest('/faqs', { method: 'POST', body: JSON.stringify(data) });
-}
-
-export async function updateFaq(id: string, data: {
-  category?: string; question?: string; answer?: string; sortOrder?: number;
-}): Promise<{ faq: any }> {
-  return adminRequest(`/faqs/${id}`, { method: 'PUT', body: JSON.stringify(data) });
-}
-
-export async function deleteFaq(id: string): Promise<{ success: boolean }> {
-  return adminRequest(`/faqs/${id}`, { method: 'DELETE' });
-}

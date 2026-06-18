@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
-import { Profile, PaymentRequest, SuccessStory, Article } from '../types';
+import { Profile, PaymentRequest } from '../types';
 
 const PROFILES_CACHE_KEY = 'whaatachi_profiles_cache';
 const UNLOCKED_IDS_KEY = 'whaatachi_unlocked_ids';
@@ -30,8 +30,6 @@ interface DataState {
   profiles: Profile[];
   unlockedIds: string[];
   allPayments: PaymentRequest[];
-  stories: SuccessStory[];
-  articles: Article[];
   viewingProfile: Profile | null;
   activeUnlockTarget: Profile | null;
   isPaymentModalOpen: boolean;
@@ -43,8 +41,6 @@ type DataAction =
   | { type: 'SET_UNLOCKED_IDS'; payload: string[] }
   | { type: 'SET_PAYMENTS'; payload: PaymentRequest[] }
   | { type: 'MERGE_PAYMENTS'; payload: PaymentRequest[] }
-  | { type: 'SET_STORIES'; payload: SuccessStory[] }
-  | { type: 'SET_ARTICLES'; payload: Article[] }
   | { type: 'SET_VIEWING_PROFILE'; payload: Profile | null }
   | { type: 'SET_UNLOCK_TARGET'; payload: Profile | null }
   | { type: 'SET_PAYMENT_MODAL'; payload: boolean }
@@ -53,7 +49,7 @@ type DataAction =
   | { type: 'REMOVE_UNLOCK'; payload: string }
   | { type: 'ADD_PAYMENT'; payload: PaymentRequest }
   | { type: 'UPDATE_PAYMENT'; payload: { id: string; status: 'Approved' | 'Rejected' } }
-  | { type: 'ADD_STORY'; payload: SuccessStory };
+  ;
 
 function dataReducer(state: DataState, action: DataAction): DataState {
   switch (action.type) {
@@ -70,8 +66,6 @@ function dataReducer(state: DataState, action: DataAction): DataState {
       for (const p of action.payload) existingMap.set(p.id, p);
       return { ...state, allPayments: Array.from(existingMap.values()) };
     }
-    case 'SET_STORIES': return { ...state, stories: action.payload };
-    case 'SET_ARTICLES': return { ...state, articles: action.payload };
     case 'SET_VIEWING_PROFILE': return { ...state, viewingProfile: action.payload };
     case 'SET_UNLOCK_TARGET': return { ...state, activeUnlockTarget: action.payload };
     case 'SET_PAYMENT_MODAL': return { ...state, isPaymentModalOpen: action.payload };
@@ -88,8 +82,6 @@ function dataReducer(state: DataState, action: DataAction): DataState {
       return { ...state, allPayments: [action.payload, ...state.allPayments] };
     case 'UPDATE_PAYMENT':
       return { ...state, allPayments: state.allPayments.map(p => p.id === action.payload.id ? { ...p, status: action.payload.status } : p) };
-    case 'ADD_STORY':
-      return { ...state, stories: [action.payload, ...state.stories] };
     default:
       return state;
   }
@@ -99,8 +91,6 @@ const initialDataState: DataState = {
   profiles: loadCachedProfiles(),
   unlockedIds: loadCachedUnlockedIds(),
   allPayments: loadCachedPayments(),
-  stories: [],
-  articles: [],
   viewingProfile: null,
   activeUnlockTarget: null,
   isPaymentModalOpen: false,

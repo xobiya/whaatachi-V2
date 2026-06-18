@@ -1,55 +1,54 @@
-import mongoose, { Schema } from 'mongoose';
 import bcrypt from 'bcryptjs';
-
-const adminSchema = new Schema({
-  username: { type: String, required: true, unique: true },
-  password: { type: String, required: true },
-}, { timestamps: true });
-
-const Admin = mongoose.model('Admin', adminSchema) as any;
+import prisma from '../lib/prisma';
 
 const ADMIN_USERNAME = 'admin';
 
-export async function findOrCreateAdmin(passcode: string): Promise<{ id: string; username: string; password: string; createdAt: string }> {
-  let admin = await Admin.findOne({ username: ADMIN_USERNAME });
+export async function findOrCreateAdmin(passcode: string) {
+  let admin = await prisma.admin.findUnique({ where: { username: ADMIN_USERNAME } });
+
   if (!admin) {
     const hashed = await bcrypt.hash(passcode, 10);
-    admin = await Admin.create({ username: ADMIN_USERNAME, password: hashed });
+    admin = await prisma.admin.create({
+      data: { username: ADMIN_USERNAME, password: hashed },
+    });
   } else {
     const storedMatch = await bcrypt.compare(passcode, admin.password);
     if (!storedMatch) {
       const hashed = await bcrypt.hash(passcode, 10);
-      admin = await Admin.findOneAndUpdate(
-        { username: ADMIN_USERNAME },
-        { $set: { password: hashed } },
-        { new: true }
-      );
+      admin = await prisma.admin.update({
+        where: { id: admin.id },
+        data: { password: hashed },
+      });
     }
   }
+
   return {
-    id: String(admin._id),
+    id: String(admin.id),
     username: admin.username,
     password: admin.password,
     createdAt: admin.createdAt.toISOString(),
   };
 }
 
-export async function verifyAdminPasscode(passcode: string): Promise<{ id: string; username: string; password: string; createdAt: string } | null> {
-  const admin = await Admin.findOne({ username: ADMIN_USERNAME });
+export async function verifyAdminPasscode(passcode: string) {
+  const admin = await prisma.admin.findUnique({ where: { username: ADMIN_USERNAME } });
   if (!admin) return null;
+
   const match = await bcrypt.compare(passcode, admin.password);
   if (!match) return null;
+
   return {
-    id: String(admin._id),
+    id: String(admin.id),
     username: admin.username,
     password: admin.password,
     createdAt: admin.createdAt.toISOString(),
   };
 }
 
-export async function updateAdminPasscode(newPasscode: string): Promise<void> {
+export async function updateAdminPasscode(newPasscode: string) {
   const hashed = await bcrypt.hash(newPasscode, 10);
-  await Admin.findOneAndUpdate({ username: ADMIN_USERNAME }, { $set: { password: hashed } });
+  await prisma.admin.updateMany({
+    where: { username: ADMIN_USERNAME },
+    data: { password: hashed },
+  });
 }
-
-export default Admin;

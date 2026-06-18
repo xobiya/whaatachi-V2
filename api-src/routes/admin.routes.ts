@@ -4,7 +4,6 @@ import { v4 as uuid } from 'uuid';
 import * as adminModel from '../models/admin.model';
 import * as userModel from '../models/user.model';
 import * as paymentModel from '../models/payment.model';
-import * as storyModel from '../models/story.model';
 import { authenticate, adminOnly, generateToken, AuthRequest } from '../middleware/auth';
 import { validateAdminLogin, validatePasscodeUpdate } from '../middleware/validate';
 import { userRowToProfile } from '../utils/transform';
@@ -55,7 +54,6 @@ router.get('/stats', authenticate, adminOnly, async (_req: AuthRequest, res: Res
       pendingPayments: await paymentModel.countPaymentsByStatus('Pending'),
       approvedPayments: await paymentModel.countPaymentsByStatus('Approved'),
       revenue: await paymentModel.sumApprovedRevenue(),
-      totalStories: await storyModel.countStories(),
     };
 
     res.json({ stats });

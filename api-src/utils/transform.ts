@@ -1,4 +1,4 @@
-import { Profile, PaymentRequest, SuccessStory, UserRow, PaymentRow, StoryRow } from '../types';
+import { Profile, PaymentRequest, UserRow, PaymentRow } from '../types';
 
 export function userRowToProfile(row: UserRow): Profile {
   return {
@@ -42,12 +42,3 @@ export function paymentRowToPayment(row: PaymentRow): PaymentRequest {
   };
 }
 
-export function storyRowToStory(row: StoryRow): SuccessStory {
-  return {
-    id: row.id || (row as any)._id,
-    coupleNames: row.coupleNames,
-    story: row.story,
-    year: row.year ?? '',
-    image: row.image ?? '',
-  };
-}

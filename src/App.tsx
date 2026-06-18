@@ -7,14 +7,11 @@ import ProfileListing from './views/ProfileListing';
 import { lazyWithRetry } from './utils/lazyWithRetry';
 const Dashboard = lazyWithRetry(() => import('./views/Dashboard'));
 const UnlockHistory = lazyWithRetry(() => import('./views/UnlockHistory'));
-const FAQSection = lazyWithRetry(() => import('./views/FAQSection'));
-const SuccessStories = lazyWithRetry(() => import('./views/SuccessStories'));
-const BlogPage = lazyWithRetry(() => import('./views/BlogPage'));
 const AdminPanel = lazyWithRetry(() => import('./views/AdminPanel'));
 const SupportPanel = lazyWithRetry(() => import('./views/SupportPanel'));
 const ProfilePage = lazyWithRetry(() => import('./views/ProfilePage'));
 import { Heart } from 'lucide-react';
-import { Profile, PaymentRequest, SuccessStory } from './types';
+import { Profile, PaymentRequest } from './types';
 import * as api from './services/api';
 import { CheckCircle, ShieldAlert, Clock, X, Phone, Instagram, Sparkles } from 'lucide-react';
 import SafeImage from './components/SafeImage';
@@ -159,24 +156,6 @@ function AppContent() {
             });
           }
         }).catch((err) => console.error('Failed to fetch profiles:', err));
-      }
-    }
-    if (view === 'stories') {
-      if (data.state.stories.length === 0) {
-        api.fetchStories().then(res => {
-          if (res && Array.isArray(res.stories)) {
-            data.dispatch({ type: 'SET_STORIES', payload: res.stories });
-          }
-        }).catch((err) => console.error('Failed to fetch stories:', err));
-      }
-    }
-    if (view === 'blog') {
-      if (data.state.articles.length === 0) {
-        api.fetchArticles().then(res => {
-          if (res && Array.isArray(res.articles)) {
-            data.dispatch({ type: 'SET_ARTICLES', payload: res.articles });
-          }
-        }).catch((err) => console.error('Failed to fetch articles:', err));
       }
     }
     if (view === 'admin') {
@@ -337,18 +316,6 @@ function AppContent() {
       triggerNotification('info', 'Contact access revoked');
     } catch {
       triggerNotification('info', 'Failed to revoke payment on server.');
-    }
-  };
-
-  const handleAddStory = async (coupleNames: string, story: string, year: string, image: string) => {
-    try {
-      const res = await api.createStory({ coupleNames, story, year, image });
-      if (res?.story) {
-        data.dispatch({ type: 'ADD_STORY', payload: res.story });
-      }
-      triggerNotification('success', ui.t('app.notify.story-saved'));
-    } catch {
-      triggerNotification('info', 'Failed to create story on server.');
     }
   };
 
@@ -569,8 +536,6 @@ function AppContent() {
           setAllPayments={(p: any) => data.dispatch({ type: 'SET_PAYMENTS', payload: typeof p === 'function' ? p(data.state.allPayments) : p })}
           profiles={data.state.profiles}
           setProfiles={(p: any) => data.dispatch({ type: 'SET_PROFILES', payload: typeof p === 'function' ? p(data.state.profiles) : p })}
-          stories={data.state.stories}
-          setStories={(s: any) => data.dispatch({ type: 'SET_STORIES', payload: typeof s === 'function' ? s(data.state.stories) : s })}
           onApprove={handleApprovePayment}
           onReject={handleRejectPayment}
           onRevoke={handleRevokePayment}
@@ -715,20 +680,6 @@ function AppContent() {
               onViewProfile={handleViewProfile}
             />
           )}
-
-          {/* FAQ */}
-          {ui.state.currentView === 'faq' && <FAQSection />}
-
-          {/* Success Stories */}
-          {ui.state.currentView === 'stories' && (
-            <SuccessStories
-              stories={data.state.stories}
-              onAddStory={handleAddStory}
-            />
-          )}
-
-          {/* Blog */}
-          {ui.state.currentView === 'blog' && <BlogPage articles={data.state.articles} />}
 
           {/* Support */}
           {ui.state.currentView === 'support' && <SupportPanel />}

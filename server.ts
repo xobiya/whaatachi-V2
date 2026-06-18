@@ -2,36 +2,28 @@ import 'dotenv/config';
 import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import mongoose from 'mongoose';
-import mainApp, { seedData } from './api-src/app';
+import mainApp from './api-src/app';
+import { seedData } from './api-src/config/seed-data';
 import { startProfileCache } from './api-src/models/user.model';
+import prisma from './api-src/lib/prisma';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-// Load .env.local only in development — on Render, env vars come from the dashboard
 if (process.env.NODE_ENV !== 'production') {
   dotenv.config({ path: path.resolve(__dirname, '.env.local') });
 }
 
-// Render sets PORT automatically; fall back to API_PORT then 3001
 const PORT = parseInt(process.env.PORT || process.env.API_PORT || '3001', 10);
 
 async function start() {
-  const uri = process.env.MONGODB_URI;
-  if (!uri) {
-    console.error('MONGODB_URI environment variable is not set');
+  const databaseUrl = process.env.DATABASE_URL || process.env.MYSQL_URL;
+  if (!databaseUrl) {
+    console.error('DATABASE_URL environment variable is not set');
     process.exit(1);
   }
 
-  await mongoose.connect(uri, {
-    bufferCommands: false,
-    serverSelectionTimeoutMS: 10000,
-    connectTimeoutMS: 10000,
-    socketTimeoutMS: 30000,
-    waitQueueTimeoutMS: 5000,
-  });
-
-  console.log(`MongoDB connected: ${mongoose.connection.host}`);
+  await prisma.$connect();
+  console.log('MySQL connected via Prisma');
 
   if (process.env.RUN_SEED === 'true') {
     await seedData();

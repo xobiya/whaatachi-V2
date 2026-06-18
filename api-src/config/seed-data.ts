@@ -1,9 +1,5 @@
-import * as userModel from '../models/user.model';
-import * as storyModel from '../models/story.model';
-import * as articleModel from '../models/article.model';
-import * as faqModel from '../models/faq.model';
-import * as paymentModel from '../models/payment.model';
 import { v4 as uuid } from 'uuid';
+import prisma from '../lib/prisma';
 
 const asset = (file: string) => `/assets/${file}`;
 
@@ -21,7 +17,7 @@ const MALE_IMAGES = [
 ];
 
 const CITIES = ['Addis Ababa', 'Adama', 'Hawassa', 'Bahir Dar', 'Dire Dawa', 'Gondar', 'Mekelle', 'Jimma', 'Dessie', 'Harar'];
-const INTENTS: ('True Relationship' | 'Friendship' | 'Friends with Benefits' | 'Only Sex')[] = ['True Relationship', 'Friendship', 'Friends with Benefits', 'Only Sex'];
+const INTENTS: string[] = ['True Relationship', 'Friendship', 'Friends with Benefits', 'Only Sex'];
 const INTERESTS_POOL = [
   'Coffee Ceremony', 'Macchiato', 'Technology', 'Literature', 'Jazz', 'Hiking',
   'Photography', 'Art Galleries', 'Traditional Food', 'Fitness', 'Philosophy',
@@ -30,7 +26,7 @@ const INTERESTS_POOL = [
   'Lake Walks', 'Acoustic Music', 'Family Values', 'Travel',
   'Music', 'Dancing', 'Reading', 'Movies', 'Fashion', 'Sports',
 ];
-const STATUSES: ('Online' | 'Offline' | 'Recently Active')[] = ['Online', 'Offline', 'Recently Active'];
+const STATUSES = ['Online', 'Offline', 'Recently Active'];
 
 const femaleNames = [
   'Selamawit Tekle', 'Kidist Hailu', 'Helen Gebru', 'Bethel Elias',
@@ -126,48 +122,44 @@ function slugify(name: string): string {
   return name.toLowerCase().replace(/\s/g, '');
 }
 
-async function clearCollections(): Promise<void> {
-  await Promise.all([
-    paymentModel.default.deleteMany({}),
-    storyModel.default.deleteMany({}),
-    articleModel.default.deleteMany({}),
-    faqModel.default.deleteMany({}),
-    userModel.default.deleteMany({}),
-  ]);
-  console.log('Cleared existing data.');
-}
-
-export async function seedData(clearFirst: boolean = false): Promise<void> {
+export async function seedData(clearFirst: boolean = false) {
   if (clearFirst) {
-    await clearCollections();
+    await prisma.payment.deleteMany();
+    await prisma.userInterest.deleteMany();
+    await prisma.user.deleteMany();
+    console.log('Cleared existing data.');
   }
 
-  const [userCount, storyCount, articleCount, faqCount] = await Promise.all([
-    userModel.default.countDocuments(),
-    storyModel.default.countDocuments(),
-    articleModel.default.countDocuments(),
-    faqModel.default.countDocuments(),
-  ]);
+  const userCount = await prisma.user.count();
 
   if (userCount === 0) {
-    async function buildUser(i: number, name: string, gender: 'Male' | 'Female', bioPool: string[], imgPool: string[], phoneBase: number, lookingFor: 'Male' | 'Female', intentOverride?: 'Only Sex' | 'True Relationship') {
+    async function buildUser(i: number, name: string, gender: string, bioPool: string[], imgPool: string[], phoneBase: number, lookingFor: string, intentOverride?: string) {
       const parts = name.split(' ');
-      return userModel.createUser({
-        id: uuid(), name,
-        age: gender === 'Female' ? 21 + (i % 12) : 22 + (i % 14),
-        city: pickAt(CITIES, i + (gender === 'Female' ? 0 : 5)),
-        address: '',
-        bio: pickAt(bioPool, i),
-        gender,
-        lookingFor,
-        image: pickAt(imgPool, i),
-        status: pickAt(STATUSES, i + (gender === 'Female' ? 0 : 2)),
-        relationshipIntent: intentOverride || pickAt(INTENTS, i),
-        interests: pickN(INTERESTS_POOL, i * 3 + (gender === 'Female' ? 0 : 1), 3),
-        phone: `+251 91${String(phoneBase + i * 123456).slice(0, 7)}`,
-        telegram: `@${parts[0].toLowerCase()}_${i}`,
-        instagram: `@${parts[0].toLowerCase()}_eth`,
-        email: `${slugify(name)}@whaatachi.com`,
+      const id = uuid();
+      const interests = pickN(INTERESTS_POOL, i * 3 + (gender === 'Female' ? 0 : 1), 3);
+      const phoneNum = `+251 91${String(phoneBase + i * 123456).slice(0, 7)}`;
+
+      return prisma.user.create({
+        data: {
+          id,
+          name,
+          age: gender === 'Female' ? 21 + (i % 12) : 22 + (i % 14),
+          city: pickAt(CITIES, i + (gender === 'Female' ? 0 : 5)),
+          address: '',
+          bio: pickAt(bioPool, i),
+          gender,
+          lookingFor,
+          image: pickAt(imgPool, i),
+          status: pickAt(STATUSES, i + (gender === 'Female' ? 0 : 2)),
+          relationshipIntent: intentOverride || pickAt(INTENTS, i),
+          phone: phoneNum,
+          telegram: `@${parts[0].toLowerCase()}_${i}`,
+          instagram: `@${parts[0].toLowerCase()}_eth`,
+          email: `${slugify(name)}@whaatachi.com`,
+          interests: {
+            create: interests.map((interest: string) => ({ interest })),
+          },
+        },
       });
     }
 
@@ -186,69 +178,7 @@ export async function seedData(clearFirst: boolean = false): Promise<void> {
     console.log('Seeded 60 users (20 female, 20 male, 10 additional female, 10 additional male).');
   }
 
-  if (storyCount === 0) {
-    const stories = [
-    { coupleNames: 'Selam & Dawit', story: 'We met on Whaatachi in late 2024. After chatting for two weeks about architecture and Addis cafe culture, we met for coffee at Tomoca in Bole. Now we are engaged!', year: '2025', image: '/assets/1.avif' },
-    { coupleNames: 'Hana & Michael', story: 'I was skeptical about online dating in Ethiopia, but Whaatachi felt secure. Michael verified his profile through Telebirr payment and reached out. We connected over volunteer work and now we are planning our wedding!', year: '2024', image: '/assets/One.avif' },
-    { coupleNames: 'Meron & Abel', story: 'The verification process made me feel safe. We both had our profiles verified and it made all the difference. Now we are a happy couple living in Bole.', year: '2024', image: '/assets/2.avif' },
-  ];
-  for (const s of stories) {
-    await storyModel.createStory({ id: uuid(), ...s });
-  }
-  console.log('Seeded 3 success stories.');
-  }
 
-  if (articleCount === 0) {
-    const articles = [
-    {
-      title: 'The Modern Ethiopian Guide to Digital Courtship',
-      excerpt: 'Dating in Ethiopia is shifting towards digital spaces. Learn how to navigate text etiquette, secure verification, and the transition from app to initial coffee dates.',
-      category: 'Relationship Guide',
-      readTime: '6 min read',
-      date: 'June 5, 2026',
-      image: '/assets/three.avif',
-      content: 'Dating in Ethiopia has traditionally been built on community connections. However, in the modern era of fast-paced cities like Addis Ababa, young professionals are increasingly turning to dedicated platforms to find meaningful relationships.',
-    },
-    {
-      title: 'Staying Safe While Connecting Online',
-      excerpt: 'Essential digital safety tips tailored for dating platforms in Ethiopian cities.',
-      category: 'Safety First',
-      readTime: '4 min read',
-      date: 'May 28, 2026',
-      image: '/assets/four.avif',
-      content: 'Never share your bank account or Telebirr PIN with anyone. Authentic admins will never ask for your OTP or security keys. Always verify through the platform\'s official channels.',
-    },
-    {
-      title: 'The Perfect Initial Habesha Coffee Date Checklist',
-      excerpt: 'Simple, low-pressure steps to transition your digital chat into a comfortable real-life meeting.',
-      category: 'Dating Tips',
-      readTime: '5 min read',
-      date: 'April 12, 2026',
-      image: '/assets/One.avif',
-      content: 'Keep it casual! A low-pressure afternoon macchiato is far better than a formal dinner. Respect boundaries and focus on laughing together. Choose a public, well-known cafe in Bole or Piassa for your first meeting.',
-    },
-  ];
-  for (const a of articles) {
-    await articleModel.createArticle({ id: uuid(), ...a });
-  }
-  console.log('Seeded 3 articles.');
-  }
-
-  if (faqCount === 0) {
-    const faqData = [
-    { category: 'Payments & Subscriptions', question: 'Why is there a payment for men but not women?', answer: 'To ensure a high safety ratio, reduce spam, and filter for genuine gentlemen. The 200 Birr fee acts as a quality barrier, making our platform safe for everyone.', sortOrder: 1 },
-    { category: 'Payments & Subscriptions', question: 'What payment methods are accepted?', answer: 'We accept Telebirr and CBE Birr. Copy our merchant account details, send the payment, and paste your Transaction ID for verification.', sortOrder: 2 },
-    { category: 'Payments & Subscriptions', question: 'How long does verification take?', answer: 'Our team reviews submissions 24/7. Accounts are typically verified within 15-30 minutes.', sortOrder: 3 },
-    { category: 'Profile & Verification', question: 'What does the Verified badge mean?', answer: 'It means the user has been approved by our admin team as a real person physically located in Ethiopia.', sortOrder: 4 },
-    { category: 'Profile & Verification', question: 'Can I change my location and intent?', answer: 'Yes! Go to your profile dashboard to update your city, intent, age, and interests.', sortOrder: 5 },
-    { category: 'Messaging & Discovery', question: 'How does Contact Unlocking work?', answer: 'Click "Unlock Contact", submit payment proof, and the profile\'s phone, Telegram, and Instagram appear in your Unlock History permanently.', sortOrder: 6 },
-    { category: 'Messaging & Discovery', question: 'Is my data safe?', answer: 'Absolutely. Your phone and Telegram are encrypted. They are only revealed to verified members you choose to unlock.', sortOrder: 7 },
-  ];
-  for (const f of faqData) {
-    await faqModel.createFaq({ id: uuid(), ...f });
-  }
-  console.log('Seeded 7 FAQs.');
-  }
 
   console.log('Seed complete!');
 }

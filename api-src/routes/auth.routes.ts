@@ -35,8 +35,7 @@ router.post('/register', validateRegister, async (req: AuthRequest, res: Respons
     }
 
     const token = generateToken({ id });
-    const plain = typeof created.toObject === 'function' ? created.toObject() : created;
-    res.status(201).json({ token, user: userRowToProfile(plain) });
+    res.status(201).json({ token, user: userRowToProfile(created) });
   } catch (err: any) {
     console.error('Register error:', err);
     if (err?.code === 11000) {

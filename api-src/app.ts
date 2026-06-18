@@ -2,28 +2,19 @@ import express from 'express';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import rateLimit from 'express-rate-limit';
-import path from 'path';
-import { fileURLToPath } from 'url';
 
-import mongoose from 'mongoose';
 import { errorHandler, notFoundHandler } from './middleware/errorHandler';
 import authRoutes from './routes/auth.routes';
 import profileRoutes from './routes/profile.routes';
 import paymentRoutes from './routes/payment.routes';
-import storyRoutes from './routes/story.routes';
 import adminRoutes from './routes/admin.routes';
-import articleRoutes from './routes/article.routes';
-import faqRoutes from './routes/faq.routes';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+import prisma from './lib/prisma';
 
 const app = express();
 
 app.set('trust proxy', 1);
 app.use((req, res, next) => {
   const origin = req.headers.origin;
-  console.log('[CORS] method=%s origin=%s path=%s', req.method, origin, req.path);
   const allowed = [
     'https://whaatachi.vercel.app',
     'https://whaatachi.lovable.app',
@@ -52,7 +43,7 @@ const limiter = rateLimit({
 });
 app.use('/api/', limiter);
 
-const cacheableRoutes = ['/api/faqs', '/api/articles', '/api/stories'];
+const cacheableRoutes: string[] = [];
 app.use((req, res, next) => {
   if (req.method === 'GET' && cacheableRoutes.some(p => req.path.startsWith(p))) {
     res.set('Cache-Control', 'public, max-age=300, s-maxage=600');
@@ -63,38 +54,26 @@ app.use((req, res, next) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/profiles', profileRoutes);
 app.use('/api/payments', paymentRoutes);
-app.use('/api/stories', storyRoutes);
 app.use('/api/admin', adminRoutes);
-app.use('/api/articles', articleRoutes);
-app.use('/api/faqs', faqRoutes);
 
-app.get('/api/health', (_req, res) => {
-  const dbState = mongoose.connection.readyState;
-  const dbStatus: Record<number, string> = {
-    0: 'disconnected',
-    1: 'connected',
-    2: 'connecting',
-    3: 'disconnecting',
-  };
-  res.json({
-    status: dbState === 1 ? 'ok' : 'error',
-    database: dbStatus[dbState] || 'unknown',
-    timestamp: new Date().toISOString(),
-  });
+app.get('/api/health', async (_req, res) => {
+  try {
+    await prisma.$queryRaw`SELECT 1`;
+    res.json({
+      status: 'ok',
+      database: 'connected',
+      timestamp: new Date().toISOString(),
+    });
+  } catch {
+    res.status(503).json({
+      status: 'error',
+      database: 'disconnected',
+      timestamp: new Date().toISOString(),
+    });
+  }
 });
-
-// In production, serve the built frontend (Vite output in dist/)
-if (process.env.NODE_ENV === 'production') {
-  const distPath = path.resolve(__dirname, '..', 'dist');
-  app.use(express.static(distPath));
-  app.get('*', (_req, res) => {
-    res.sendFile(path.join(distPath, 'index.html'));
-  });
-}
 
 app.use(notFoundHandler);
 app.use(errorHandler);
 
 export default app;
-export { seedData } from './config/seed-data';
-export { countUsers } from './models/user.model';
