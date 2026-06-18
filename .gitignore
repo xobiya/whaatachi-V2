@@ -1,5 +1,4 @@
 node_modules/
-build/
 dist/
 coverage/
 .DS_Store
@@ -7,19 +6,16 @@ coverage/
 .env*
 !.env.example
 
+# Vercel
 .vercel
-api/dist/
 
 # Prisma
-prisma/migrations/
-node_modules/.prisma/
-!.env.example
-prisma/migrations/
-prisma/*.db
+**/prisma/migrations/
+**/prisma/*.db
 
 # Prisma generated client (tracked in repo for cPanel deployment)
-!prisma/generated-client/
+!**/prisma/generated-client/
 
-.vercel
-api/dist/
-.env*
+# Build output
+backend/dist/
+frontend/dist/

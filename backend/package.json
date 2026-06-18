@@ -1,0 +1,45 @@
+{
+  "name": "whaatachi-backend",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "build": "esbuild src/server.ts --bundle --platform=node --format=esm --outfile=dist/server.js --external:express --external:@prisma/client --external:cors --external:helmet --external:morgan --external:express-rate-limit --external:bcryptjs --external:jsonwebtoken --external:uuid --external:dotenv",
+    "build:all": "npm run db:generate && npm run build",
+    "start": "node dist/server.js",
+    "start:deploy": "node deploy.js",
+    "db:generate": "npx prisma generate --schema=prisma/schema.prisma",
+    "db:generate:deploy": "npm run db:generate && node -e \"const fs=require('fs'),s='../node_modules/.prisma/client',d='prisma/generated-client';if(!fs.existsSync(d))fs.mkdirSync(d,{recursive:true});try{fs.cpSync(s,d,{recursive:true})}catch(e){console.log('Copy warning (non-fatal):',e.message)}\"",
+    "db:push": "npx prisma db push --schema=prisma/schema.prisma",
+    "db:migrate": "npx prisma migrate deploy --schema=prisma/schema.prisma",
+    "seed": "npx tsx src/config/seed-data.ts",
+    "lint": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.6.0",
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "express": "^4.21.2",
+    "express-rate-limit": "^8.5.2",
+    "helmet": "^8.2.0",
+    "jsonwebtoken": "^9.0.2",
+    "morgan": "^1.11.0",
+    "mysql2": "^3.22.5",
+    "prisma": "^6.6.0",
+    "uuid": "^11.1.0"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
+    "@types/jsonwebtoken": "^9.0.7",
+    "@types/morgan": "^1.9.10",
+    "@types/node": "^22.14.0",
+    "@types/uuid": "^10.0.0",
+    "esbuild": "^0.25.0",
+    "tsx": "^4.21.0",
+    "typescript": "~5.8.2"
+  }
+}
