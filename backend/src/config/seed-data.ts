@@ -135,7 +135,7 @@ export async function seedData(clearFirst: boolean = false) {
       const parts = name.split(' ');
       const id = uuid();
       const interests = pickN(INTERESTS_POOL, i * 3 + (gender === 'Female' ? 0 : 1), 3);
-      const phoneNum = `+251 91${String(phoneBase + i * 123456).slice(0, 7)}`;
+      const phoneNum = `+25191${String(phoneBase + i * 123456).slice(0, 7)}`;
 
       return prisma.user.create({
         data: {
@@ -152,7 +152,7 @@ export async function seedData(clearFirst: boolean = false) {
           relationshipIntent: intentOverride || pickAt(INTENTS, i),
           phone: phoneNum,
           telegram: `@${parts[0].toLowerCase()}_${i}`,
-          instagram: `@${parts[0].toLowerCase()}_eth`,
+          instagram: `@${slugify(name)}`,
           email: `${slugify(name)}@whaatachi.com`,
           interests: {
             create: interests.map((interest: string) => ({ interest })),

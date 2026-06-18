@@ -9,7 +9,7 @@ export async function findUserById(id: string) {
 
 export async function findUserByName(name: string) {
   const users = await prisma.user.findMany({
-    where: { name: { equals: name, mode: 'insensitive' } },
+    where: { name: { equals: name } },
     include: { interests: { select: { interest: true } } },
   });
   return users;
@@ -21,13 +21,13 @@ export async function findUserByContact(telegram: string | null, instagram: stri
   const or: any[] = [];
   if (telegram) {
     const tg = telegram.replace(/^@/, '');
-    or.push({ telegram: { equals: tg, mode: 'insensitive' } });
-    or.push({ telegram: { equals: `@${tg}`, mode: 'insensitive' } });
+    or.push({ telegram: { equals: tg } });
+    or.push({ telegram: { equals: `@${tg}` } });
   }
   if (instagram) {
     const ig = instagram.replace(/^@/, '');
-    or.push({ instagram: { equals: ig, mode: 'insensitive' } });
-    or.push({ instagram: { equals: `@${ig}`, mode: 'insensitive' } });
+    or.push({ instagram: { equals: ig } });
+    or.push({ instagram: { equals: `@${ig}` } });
   }
 
   const user = await prisma.user.findFirst({
@@ -43,8 +43,10 @@ export async function findUserByPhone(phone: string) {
   const user = await prisma.user.findFirst({
     where: {
       OR: [
-        { phone: { equals: phone, mode: 'insensitive' } },
-        { phone: { equals: normalized, mode: 'insensitive' } },
+        { phone: { equals: phone } },
+        { phone: { equals: normalized } },
+        { phone: { equals: `+251 ${normalized.slice(3)}` } },
+        { phone: { equals: `+251${normalized.slice(3)}` } },
       ],
     },
     include: { interests: { select: { interest: true } } },
@@ -58,14 +60,14 @@ export async function findUserByLogin(login: string) {
   const user = await prisma.user.findFirst({
     where: {
       OR: [
-        { phone: { equals: login, mode: 'insensitive' } },
-        { phone: { equals: sanitized, mode: 'insensitive' } },
-        { telegram: { equals: login, mode: 'insensitive' } },
-        { telegram: { equals: sanitized, mode: 'insensitive' } },
-        { telegram: { equals: `@${sanitized}`, mode: 'insensitive' } },
-        { instagram: { equals: login, mode: 'insensitive' } },
-        { instagram: { equals: sanitized, mode: 'insensitive' } },
-        { instagram: { equals: `@${sanitized}`, mode: 'insensitive' } },
+        { phone: { equals: login } },
+        { phone: { equals: sanitized } },
+        { telegram: { equals: login } },
+        { telegram: { equals: sanitized } },
+        { telegram: { equals: `@${sanitized}` } },
+        { instagram: { equals: login } },
+        { instagram: { equals: sanitized } },
+        { instagram: { equals: `@${sanitized}` } },
       ],
     },
     include: { interests: { select: { interest: true } } },
@@ -78,13 +80,13 @@ export async function checkDuplicate(field: string, value: string, excludeId?: s
 
   let where: any;
   if (field === 'phone') {
-    where = { phone: { equals: value, mode: 'insensitive' } };
+    where = { phone: { equals: value } };
   } else if (field === 'telegram' || field === 'instagram') {
     const val = value.replace(/^@/, '');
     where = {
       OR: [
-        { [field]: { equals: val, mode: 'insensitive' } },
-        { [field]: { equals: `@${val}`, mode: 'insensitive' } },
+        { [field]: { equals: val } },
+        { [field]: { equals: `@${val}` } },
       ],
     };
   } else {
@@ -104,13 +106,13 @@ function buildFilterObject(filters: Record<string, any>) {
 
   if (filters.gender) and.push({ gender: filters.gender });
   if (filters.lookingFor) and.push({ lookingFor: filters.lookingFor });
-  if (filters.city) and.push({ city: { equals: filters.city, mode: 'insensitive' } });
+  if (filters.city) and.push({ city: { equals: filters.city } });
   if (filters.intent) and.push({ relationshipIntent: filters.intent });
   if (filters.search) {
     and.push({
       OR: [
-        { name: { contains: filters.search, mode: 'insensitive' } },
-        { city: { contains: filters.search, mode: 'insensitive' } },
+        { name: { contains: filters.search } },
+        { city: { contains: filters.search } },
       ],
     });
   }
@@ -141,10 +143,12 @@ function toProfileDoc(doc: any) {
     relationshipIntent: doc.relationshipIntent ?? null,
     interests,
     verified: doc.verified === true,
-    phone: doc.phone ?? null,
-    telegram: doc.telegram ?? null,
-    instagram: doc.instagram ?? null,
-    email: doc.email ?? null,
+    contactInfo: {
+      phone: doc.phone ?? null,
+      telegram: doc.telegram ?? null,
+      instagram: doc.instagram ?? null,
+      email: doc.email ?? null,
+    },
     createdAt: doc.createdAt,
     updatedAt: doc.updatedAt,
   };
@@ -189,6 +193,10 @@ export async function getAllProfiles() {
   return { profiles: cachedAllProfiles?.rows ?? [], total: cachedAllProfiles?.total ?? 0 };
 }
 
+function normalizePhone(phone?: string): string | undefined {
+  return phone ? phone.replace(/\s+/g, '') : undefined;
+}
+
 export async function createUser(data: Record<string, any>) {
   const { id, name, age, city, address, bio, gender, lookingFor, image,
     status, relationshipIntent, interests, phone, telegram, instagram, email } = data;
@@ -200,7 +208,7 @@ export async function createUser(data: Record<string, any>) {
       image: image ?? undefined,
       status: status || 'Online',
       relationshipIntent: relationshipIntent ?? undefined,
-      phone: phone || undefined,
+      phone: normalizePhone(phone) || undefined,
       telegram: telegram || undefined,
       instagram: instagram || undefined,
       email: email || undefined,
@@ -210,6 +218,9 @@ export async function createUser(data: Record<string, any>) {
     },
     include: { interests: { select: { interest: true } } },
   });
+
+  cachedAllProfiles = null;
+
   return user;
 }
 
@@ -229,7 +240,7 @@ export async function updateUser(id: string, data: Record<string, any>) {
       if (['phone', 'telegram', 'instagram', 'email'].includes(key) && (data[key] === '' || data[key] === null)) {
         updateData[key] = null;
       } else {
-        updateData[key] = data[key];
+        updateData[key] = key === 'phone' ? normalizePhone(data[key]) : data[key];
       }
     }
   }

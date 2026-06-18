@@ -41,7 +41,11 @@ router.put('/:id', authenticate, async (req: AuthRequest, res: Response) => {
       return;
     }
 
-    const { name, age, city, address, bio, lookingFor, image, status, relationshipIntent, interests, phone, telegram, instagram, email } = req.body;
+    const { name, age, city, address, bio, lookingFor, image, status, relationshipIntent, interests, contactInfo } = req.body;
+    const phone = req.body.phone ?? contactInfo?.phone;
+    const telegram = req.body.telegram ?? contactInfo?.telegram;
+    const instagram = req.body.instagram ?? contactInfo?.instagram;
+    const email = req.body.email ?? contactInfo?.email;
 
     const user = await userModel.updateUser(String(req.params.id), {
       name, age, city, address, bio, lookingFor, image, status, relationshipIntent, interests, phone, telegram, instagram, email,

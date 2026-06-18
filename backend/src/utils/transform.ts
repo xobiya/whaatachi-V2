@@ -13,7 +13,7 @@ export function userRowToProfile(row: UserRow): Profile {
     image: row.image ?? '',
     status: row.status ?? 'Offline',
     relationshipIntent: (row.relationshipIntent as Profile['relationshipIntent']) ?? 'Friendship',
-    interests: row.interests ?? [],
+    interests: Array.isArray(row.interests) ? row.interests.map((i: any) => i.interest ?? i) : [],
     verified: row.verified === true,
     contactInfo: {
       phone: row.phone ?? '',

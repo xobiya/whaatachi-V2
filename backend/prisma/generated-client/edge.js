@@ -236,14 +236,13 @@ const config = {
       }
     ],
     "previewFeatures": [],
-    "sourceFilePath": "C:\\Users\\dell\\Documents\\whaatachi\\prisma\\schema.prisma",
+    "sourceFilePath": "C:\\Users\\dell\\Documents\\whaatachi\\backend\\prisma\\schema.prisma",
     "isCustomOutput": true
   },
   "relativeEnvPaths": {
-    "rootEnvPath": null,
-    "schemaEnvPath": "../../../.env"
+    "rootEnvPath": null
   },
-  "relativePath": "../../../prisma",
+  "relativePath": "../../../backend/prisma",
   "clientVersion": "6.6.0",
   "engineVersion": "f676762280b54cd07c770017ed3711ddde35f37a",
   "datasourceNames": [
@@ -259,8 +258,8 @@ const config = {
       }
     }
   },
-  "inlineSchema": "generator client {\n  provider      = \"prisma-client-js\"\n  output        = \"../node_modules/.prisma/client\"\n  binaryTargets = [\"native\", \"debian-openssl-1.1.x\", \"rhel-openssl-1.1.x\", \"rhel-openssl-3.0.x\"]\n}\n\ndatasource db {\n  provider = \"mysql\"\n  url      = env(\"DATABASE_URL\")\n}\n\nmodel User {\n  id                 String   @id @default(uuid())\n  name               String\n  age                Int?\n  city               String?\n  address            String?\n  bio                String?\n  gender             String\n  lookingFor         String?\n  image              String?\n  status             String   @default(\"Online\")\n  relationshipIntent String?\n  verified           Boolean  @default(false)\n  phone              String?  @unique\n  telegram           String?  @unique\n  instagram          String?  @unique\n  email              String?  @unique\n  createdAt          DateTime @default(now())\n  updatedAt          DateTime @updatedAt\n\n  interests UserInterest[]\n  payments  Payment[]\n\n  @@index([gender, lookingFor])\n  @@index([gender, city])\n  @@index([name])\n  @@index([status])\n  @@index([verified])\n  @@index([createdAt])\n}\n\nmodel UserInterest {\n  id       Int    @id @default(autoincrement())\n  userId   String\n  interest String\n  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)\n\n  @@index([userId])\n}\n\nmodel Payment {\n  id            String   @id @default(uuid())\n  userId        String\n  profileId     String\n  profileName   String\n  profileImage  String?\n  senderName    String\n  senderPhone   String\n  transactionId String\n  method        String\n  amount        Float\n  receiptImage  String?\n  status        String   @default(\"Pending\")\n  createdAt     DateTime @default(now())\n  updatedAt     DateTime @updatedAt\n\n  user User @relation(fields: [userId], references: [id], onDelete: Cascade)\n\n  @@index([userId, createdAt])\n  @@index([status, createdAt])\n  @@index([userId, status])\n}\n\nmodel Admin {\n  id        Int      @id @default(autoincrement())\n  username  String   @unique\n  password  String\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n}\n",
-  "inlineSchemaHash": "728bf375db8bcd4e7c108dfb69cecadc4412418ac10c9437ad78580d338d45a2",
+  "inlineSchema": "generator client {\n  provider      = \"prisma-client-js\"\n  output        = \"../../node_modules/.prisma/client\"\n  binaryTargets = [\"native\", \"debian-openssl-1.1.x\", \"rhel-openssl-1.1.x\", \"rhel-openssl-3.0.x\"]\n}\n\ndatasource db {\n  provider = \"mysql\"\n  url      = env(\"DATABASE_URL\")\n}\n\nmodel User {\n  id                 String   @id @default(uuid())\n  name               String\n  age                Int?\n  city               String?\n  address            String?\n  bio                String?\n  gender             String\n  lookingFor         String?\n  image              String?\n  status             String   @default(\"Online\")\n  relationshipIntent String?\n  verified           Boolean  @default(false)\n  phone              String?  @unique\n  telegram           String?  @unique\n  instagram          String?  @unique\n  email              String?  @unique\n  createdAt          DateTime @default(now())\n  updatedAt          DateTime @updatedAt\n\n  interests UserInterest[]\n  payments  Payment[]\n\n  @@index([gender, lookingFor])\n  @@index([gender, city])\n  @@index([name])\n  @@index([status])\n  @@index([verified])\n  @@index([createdAt])\n}\n\nmodel UserInterest {\n  id       Int    @id @default(autoincrement())\n  userId   String\n  interest String\n  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)\n\n  @@index([userId])\n}\n\nmodel Payment {\n  id            String   @id @default(uuid())\n  userId        String\n  profileId     String\n  profileName   String\n  profileImage  String?\n  senderName    String\n  senderPhone   String\n  transactionId String\n  method        String\n  amount        Float\n  receiptImage  String?\n  status        String   @default(\"Pending\")\n  createdAt     DateTime @default(now())\n  updatedAt     DateTime @updatedAt\n\n  user User @relation(fields: [userId], references: [id], onDelete: Cascade)\n\n  @@index([userId, createdAt])\n  @@index([status, createdAt])\n  @@index([userId, status])\n}\n\nmodel Admin {\n  id        Int      @id @default(autoincrement())\n  username  String   @unique\n  password  String\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n}\n",
+  "inlineSchemaHash": "0508a277a3739505ff2c47937f4cdeebde7133955cf06915a232851f33721310",
   "copyEngine": true
 }
 config.dirname = '/'

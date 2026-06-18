@@ -392,13 +392,14 @@ export default function AdminPanel({
 
   // Filter profiles based on inputs
   const filteredProfiles = useMemo(() => {
+    const lowerQuery = searchQuery.toLowerCase();
     return profiles.filter(p => {
-      const matchesSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                            p.bio.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                            p.contactInfo.telegram.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesSearch = (p.name?.toLowerCase() ?? '').includes(lowerQuery) ||
+                            (p.bio?.toLowerCase() ?? '').includes(lowerQuery) ||
+                            (p.contactInfo?.telegram?.toLowerCase() ?? '').includes(lowerQuery);
       const matchesGender = genderFilter === 'All' || p.gender === genderFilter;
-      const matchesCity = cityFilter === 'All' || p.city === cityFilter;
-      const matchesVerification = verificationFilter === 'All' || 
+      const matchesCity = cityFilter === 'All' || (p.city ?? '') === cityFilter;
+      const matchesVerification = verificationFilter === 'All' ||
                                   (verificationFilter === 'Verified' && p.verified) ||
                                   (verificationFilter === 'Unverified' && !p.verified);
       return matchesSearch && matchesGender && matchesCity && matchesVerification;
