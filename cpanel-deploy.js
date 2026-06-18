@@ -1,14 +1,35 @@
-/**
- * cPanel Deployment Configuration for Whaatachi API
- *
- * This script is the entry point for the cPanel Node.js app.
- * cPanel's Node.js Selector should point to this file.
- *
- * Usage in cPanel Node.js Setup:
- *   - App root: /home/user/repositories/whaatachi
- *   - App startup file: cpanel-deploy.js
- *   - App URL: api.mydomain.com
- *   - Environment vars: Set via cPanel UI (see .env.example)
- */
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
-import './dist/server.js';
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+const prismaGenSrc = path.join(__dirname, 'prisma', 'generated-client');
+const prismaGenDest = path.join(__dirname, 'node_modules', '.prisma', 'client');
+
+if (fs.existsSync(prismaGenSrc)) {
+  if (!fs.existsSync(prismaGenDest)) {
+    fs.mkdirSync(prismaGenDest, { recursive: true });
+  }
+
+  function copyRecursive(src, dest) {
+    const entries = fs.readdirSync(src, { withFileTypes: true });
+    for (const entry of entries) {
+      const srcPath = path.join(src, entry.name);
+      const destPath = path.join(dest, entry.name);
+      if (entry.isDirectory()) {
+        fs.mkdirSync(destPath, { recursive: true });
+        copyRecursive(srcPath, destPath);
+      } else {
+        fs.copyFileSync(srcPath, destPath);
+      }
+    }
+  }
+
+  copyRecursive(prismaGenSrc, prismaGenDest);
+  console.log('Prisma Client copied to node_modules/.prisma/client/');
+} else {
+  console.warn('prisma/generated-client/ not found; Prisma Client must be available via node_modules/.prisma/client/');
+}
+
+import('./dist/server.js');

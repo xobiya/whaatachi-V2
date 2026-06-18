@@ -17,6 +17,9 @@ node_modules/.prisma/
 prisma/migrations/
 prisma/*.db
 
+# Prisma generated client (tracked in repo for cPanel deployment)
+!prisma/generated-client/
+
 .vercel
 api/dist/
 .env*
