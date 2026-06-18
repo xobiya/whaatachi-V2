@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { createRequire } from 'module';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 process.chdir(__dirname);
@@ -12,18 +13,17 @@ function log(msg) {
   try { fs.appendFileSync(logFile, line + '\n'); } catch {}
 }
 
+const require = createRequire(import.meta.url);
 const prismaGenSrc = path.join(__dirname, 'prisma', 'generated-client');
-const prismaGenDest = path.join(__dirname, 'node_modules', '.prisma', 'client');
 
-if (fs.existsSync(prismaGenSrc)) {
-  if (!fs.existsSync(prismaGenDest)) {
-    fs.mkdirSync(prismaGenDest, { recursive: true });
-    log('Created node_modules/.prisma/client/');
+function copyDir(src, dest) {
+  if (!fs.existsSync(dest)) {
+    fs.mkdirSync(dest, { recursive: true });
   }
-  const entries = fs.readdirSync(prismaGenSrc, { withFileTypes: true });
+  const entries = fs.readdirSync(src, { withFileTypes: true });
   for (const entry of entries) {
-    const srcPath = path.join(prismaGenSrc, entry.name);
-    const destPath = path.join(prismaGenDest, entry.name);
+    const srcPath = path.join(src, entry.name);
+    const destPath = path.join(dest, entry.name);
     if (entry.isDirectory()) {
       fs.mkdirSync(destPath, { recursive: true });
       const sub = fs.readdirSync(srcPath, { withFileTypes: true });
@@ -34,9 +34,26 @@ if (fs.existsSync(prismaGenSrc)) {
       fs.copyFileSync(srcPath, destPath);
     }
   }
-  log('Prisma Client copied');
+}
+
+if (fs.existsSync(prismaGenSrc)) {
+  const projectDest = path.join(__dirname, 'node_modules', '.prisma', 'client');
+  copyDir(prismaGenSrc, projectDest);
+  log('Copied to project node_modules/.prisma/client/');
+
+  try {
+    const prismaClientPkg = require.resolve('@prisma/client/package.json');
+    const prismaClientDir = path.dirname(prismaClientPkg);
+    const globalDest = path.resolve(prismaClientDir, '..', '.prisma', 'client');
+    if (globalDest !== projectDest) {
+      copyDir(prismaGenSrc, globalDest);
+      log('Copied to global path: ' + globalDest);
+    }
+  } catch (e) {
+    log('Could not resolve @prisma/client: ' + e.message);
+  }
 } else {
-  log('prisma/generated-client/ not found');
+  log('prisma/generated-client/ not found (pull latest code or run npm run db:generate)');
 }
 
 import('./dist/server.js').catch(err => {

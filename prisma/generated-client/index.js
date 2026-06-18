@@ -225,6 +225,10 @@ const config = {
       },
       {
         "fromEnvVar": null,
+        "value": "debian-openssl-1.1.x"
+      },
+      {
+        "fromEnvVar": null,
         "value": "rhel-openssl-1.1.x"
       },
       {
@@ -237,7 +241,7 @@ const config = {
     "isCustomOutput": true
   },
   "relativeEnvPaths": {
-    "rootEnvPath": "../../../.env",
+    "rootEnvPath": null,
     "schemaEnvPath": "../../../.env"
   },
   "relativePath": "../../../prisma",
@@ -256,8 +260,8 @@ const config = {
       }
     }
   },
-  "inlineSchema": "generator client {\n  provider      = \"prisma-client-js\"\n  output        = \"../node_modules/.prisma/client\"\n  binaryTargets = [\"native\", \"rhel-openssl-1.1.x\", \"rhel-openssl-3.0.x\"]\n}\n\ndatasource db {\n  provider = \"mysql\"\n  url      = env(\"DATABASE_URL\")\n}\n\nmodel User {\n  id                 String   @id @default(uuid())\n  name               String\n  age                Int?\n  city               String?\n  address            String?\n  bio                String?\n  gender             String\n  lookingFor         String?\n  image              String?\n  status             String   @default(\"Online\")\n  relationshipIntent String?\n  verified           Boolean  @default(false)\n  phone              String?  @unique\n  telegram           String?  @unique\n  instagram          String?  @unique\n  email              String?  @unique\n  createdAt          DateTime @default(now())\n  updatedAt          DateTime @updatedAt\n\n  interests UserInterest[]\n  payments  Payment[]\n\n  @@index([gender, lookingFor])\n  @@index([gender, city])\n  @@index([name])\n  @@index([status])\n  @@index([verified])\n  @@index([createdAt])\n}\n\nmodel UserInterest {\n  id       Int    @id @default(autoincrement())\n  userId   String\n  interest String\n  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)\n\n  @@index([userId])\n}\n\nmodel Payment {\n  id            String   @id @default(uuid())\n  userId        String\n  profileId     String\n  profileName   String\n  profileImage  String?\n  senderName    String\n  senderPhone   String\n  transactionId String\n  method        String\n  amount        Float\n  receiptImage  String?\n  status        String   @default(\"Pending\")\n  createdAt     DateTime @default(now())\n  updatedAt     DateTime @updatedAt\n\n  user User @relation(fields: [userId], references: [id], onDelete: Cascade)\n\n  @@index([userId, createdAt])\n  @@index([status, createdAt])\n  @@index([userId, status])\n}\n\nmodel Admin {\n  id        Int      @id @default(autoincrement())\n  username  String   @unique\n  password  String\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n}\n",
-  "inlineSchemaHash": "f826f1f74d24d47b20db2add87f9d8fc3067904681b2af46d688b876e72730e4",
+  "inlineSchema": "generator client {\n  provider      = \"prisma-client-js\"\n  output        = \"../node_modules/.prisma/client\"\n  binaryTargets = [\"native\", \"debian-openssl-1.1.x\", \"rhel-openssl-1.1.x\", \"rhel-openssl-3.0.x\"]\n}\n\ndatasource db {\n  provider = \"mysql\"\n  url      = env(\"DATABASE_URL\")\n}\n\nmodel User {\n  id                 String   @id @default(uuid())\n  name               String\n  age                Int?\n  city               String?\n  address            String?\n  bio                String?\n  gender             String\n  lookingFor         String?\n  image              String?\n  status             String   @default(\"Online\")\n  relationshipIntent String?\n  verified           Boolean  @default(false)\n  phone              String?  @unique\n  telegram           String?  @unique\n  instagram          String?  @unique\n  email              String?  @unique\n  createdAt          DateTime @default(now())\n  updatedAt          DateTime @updatedAt\n\n  interests UserInterest[]\n  payments  Payment[]\n\n  @@index([gender, lookingFor])\n  @@index([gender, city])\n  @@index([name])\n  @@index([status])\n  @@index([verified])\n  @@index([createdAt])\n}\n\nmodel UserInterest {\n  id       Int    @id @default(autoincrement())\n  userId   String\n  interest String\n  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)\n\n  @@index([userId])\n}\n\nmodel Payment {\n  id            String   @id @default(uuid())\n  userId        String\n  profileId     String\n  profileName   String\n  profileImage  String?\n  senderName    String\n  senderPhone   String\n  transactionId String\n  method        String\n  amount        Float\n  receiptImage  String?\n  status        String   @default(\"Pending\")\n  createdAt     DateTime @default(now())\n  updatedAt     DateTime @updatedAt\n\n  user User @relation(fields: [userId], references: [id], onDelete: Cascade)\n\n  @@index([userId, createdAt])\n  @@index([status, createdAt])\n  @@index([userId, status])\n}\n\nmodel Admin {\n  id        Int      @id @default(autoincrement())\n  username  String   @unique\n  password  String\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n}\n",
+  "inlineSchemaHash": "728bf375db8bcd4e7c108dfb69cecadc4412418ac10c9437ad78580d338d45a2",
   "copyEngine": true
 }
 
@@ -298,6 +302,10 @@ Object.assign(exports, Prisma)
 // file annotations for bundling tools to include these files
 path.join(__dirname, "query_engine-windows.dll.node");
 path.join(process.cwd(), "node_modules/.prisma/client/query_engine-windows.dll.node")
+
+// file annotations for bundling tools to include these files
+path.join(__dirname, "libquery_engine-debian-openssl-1.1.x.so.node");
+path.join(process.cwd(), "node_modules/.prisma/client/libquery_engine-debian-openssl-1.1.x.so.node")
 
 // file annotations for bundling tools to include these files
 path.join(__dirname, "libquery_engine-rhel-openssl-1.1.x.so.node");
