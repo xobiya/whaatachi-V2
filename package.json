@@ -17,7 +17,7 @@
     "db:generate": "npx prisma generate && node -e \"const fs=require('fs'),s='node_modules/.prisma/client',d='prisma/generated-client';if(!fs.existsSync(d))fs.mkdirSync(d,{recursive:true});fs.cpSync(s,d,{recursive:true})\"",
     "db:migrate": "npx prisma migrate deploy",
     "db:push": "npx prisma db push",
-    "postinstall": "node -e \"const fs=require('fs'),s='prisma/generated-client',d='node_modules/.prisma/client';if(!fs.existsSync(d))fs.mkdirSync(d,{recursive:true});fs.cpSync(s,d,{recursive:true});console.log('Prisma Client copied from '+s+' to '+d)\"",
+    "postinstall": "node -e \"const fs=require('fs'),s='prisma/generated-client',d='node_modules/.prisma/client';if(fs.existsSync(s)){if(!fs.existsSync(d))fs.mkdirSync(d,{recursive:true});fs.cpSync(s,d,{recursive:true});console.log('Prisma Client ready at '+d)}else console.warn('Skip prisma copy: source not found (pull latest code or run npm run db:generate)')\"",
     "test": "vitest run",
     "test:watch": "vitest"
   },
