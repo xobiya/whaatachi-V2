@@ -22,38 +22,56 @@ function copyDir(src, dest) {
   }
   const entries = fs.readdirSync(src, { withFileTypes: true });
   for (const entry of entries) {
-    const srcPath = path.join(src, entry.name);
-    const destPath = path.join(dest, entry.name);
+    const srcp = path.join(src, entry.name);
+    const dstp = path.join(dest, entry.name);
     if (entry.isDirectory()) {
-      fs.mkdirSync(destPath, { recursive: true });
-      const sub = fs.readdirSync(srcPath, { withFileTypes: true });
-      for (const s of sub) {
-        fs.copyFileSync(path.join(srcPath, s.name), path.join(destPath, s.name));
-      }
+      copyDir(srcp, dstp);
     } else {
-      fs.copyFileSync(srcPath, destPath);
+      fs.copyFileSync(srcp, dstp);
     }
   }
 }
 
-if (fs.existsSync(prismaGenSrc)) {
-  const projectDest = path.join(__dirname, 'node_modules', '.prisma', 'client');
-  copyDir(prismaGenSrc, projectDest);
-  log('Copied to project node_modules/.prisma/client/');
+if (!fs.existsSync(prismaGenSrc)) {
+  log('FATAL: prisma/generated-client/ not found. Run npm run db:generate first.');
+  process.exit(1);
+}
 
-  try {
-    const prismaClientPkg = require.resolve('@prisma/client/package.json');
-    const prismaClientDir = path.dirname(prismaClientPkg);
-    const globalDest = path.resolve(prismaClientDir, '..', '.prisma', 'client');
-    if (globalDest !== projectDest) {
-      copyDir(prismaGenSrc, globalDest);
-      log('Copied to global path: ' + globalDest);
-    }
-  } catch (e) {
-    log('Could not resolve @prisma/client: ' + e.message);
+// 1. Copy to project node_modules/.prisma/client (normal path)
+const projectDest = path.join(__dirname, 'node_modules', '.prisma', 'client');
+copyDir(prismaGenSrc, projectDest);
+log('Copied to project node_modules/.prisma/client/');
+
+// 2. Copy to global nodeenv .prisma/client (where @prisma/client actually resolves on cPanel)
+try {
+  const pkg = require.resolve('@prisma/client/package.json');
+  const globalDotPrisma = path.resolve(pkg, '../../.prisma/client');
+  if (globalDotPrisma !== projectDest) {
+    copyDir(prismaGenSrc, globalDotPrisma);
+    log('Copied to ' + globalDotPrisma);
   }
-} else {
-  log('prisma/generated-client/ not found (pull latest code or run npm run db:generate)');
+} catch (e) {
+  log('require.resolve failed: ' + e.message);
+  // Fallback: try common cPanel nodeenv path
+  const nodeMajor = process.version.match(/^v(\d+)/)?.[1];
+  const cpanelFallback = path.join(__dirname, '..', 'nodevenv', 'repositories', path.basename(__dirname), nodeMajor, 'lib', 'node_modules', '.prisma', 'client');
+  if (fs.existsSync(cpanelFallback)) {
+    copyDir(prismaGenSrc, cpanelFallback);
+    log('Copied to fallback ' + cpanelFallback);
+  }
+}
+
+// 3. Copy engine binary to /tmp/prisma-engines (absolute fallback)
+const tmpEngines = '/tmp/prisma-engines';
+for (const f of fs.readdirSync(prismaGenSrc)) {
+  if (f.endsWith('.so.node')) {
+    const dst = path.join(tmpEngines, f);
+    if (!fs.existsSync(dst)) {
+      fs.mkdirSync(tmpEngines, { recursive: true });
+      fs.copyFileSync(path.join(prismaGenSrc, f), dst);
+      log('Engine binary placed at ' + dst);
+    }
+  }
 }
 
 import('./dist/server.js').catch(err => {
