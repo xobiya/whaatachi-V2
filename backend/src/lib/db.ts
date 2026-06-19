@@ -5,9 +5,25 @@ let pool: mysql.Pool | null = null;
 export function getPool(): mysql.Pool {
   if (!pool) {
     const url = process.env.DATABASE_URL || process.env.MYSQL_URL || '';
-    if (!url) throw new Error('DATABASE_URL environment variable is not set');
 
-    pool = mysql.createPool(url);
+    if (url) {
+      // Full connection URL provided (e.g. mysql://user:pass@host/db)
+      pool = mysql.createPool(url);
+    } else {
+      // Fall back to individual DB_* environment variables
+      const host = process.env.DB_HOST;
+      const user = process.env.DB_USER;
+      const password = process.env.DB_PASS ?? '';
+      const database = process.env.DB_NAME;
+
+      if (!host || !user || !database) {
+        throw new Error(
+          'Database not configured. Set DATABASE_URL or DB_HOST + DB_USER + DB_NAME environment variables.'
+        );
+      }
+
+      pool = mysql.createPool({ host, user, password, database, waitForConnections: true, connectionLimit: 10 });
+    }
   }
   return pool;
 }

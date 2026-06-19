@@ -1,17 +1,15 @@
-import 'dotenv/config';
 import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
+
+// Load env vars FIRST before any other imports that may use them
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+dotenv.config({ path: path.resolve(__dirname, '../.env') });
+
 import mainApp from './app';
 import { seedData } from './config/seed-data';
 import { startProfileCache } from './models/user.model';
 import { getPool, initializeSchema } from './lib/db';
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-
-if (process.env.NODE_ENV !== 'production') {
-  dotenv.config({ path: path.resolve(__dirname, '../.env.local') });
-}
 
 const PORT = parseInt(process.env.PORT || process.env.API_PORT || '3005', 10);
 

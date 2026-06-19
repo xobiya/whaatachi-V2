@@ -615,21 +615,13 @@ function AppContent() {
       <main className="grow" id="primary-view-stage">
         <Suspense fallback={
           <div className="flex items-center justify-center min-h-[60vh] py-20">
-            <div className="relative mx-auto w-16 h-16">
-              <div className="absolute inset-0 rounded-full border-4 border-[#C9A84C]/10" />
-              <div className="absolute inset-0 rounded-full border-4 border-t-[#EB317A] border-r-[#C9A84C] border-b-transparent border-l-transparent animate-spin" />
-              <div className="absolute inset-2 rounded-full bg-gradient-to-br from-[#EB317A]/20 to-[#C9A84C]/20 animate-pulse" />
-            </div>
+            <div className="w-10 h-10 border-2 border-[#EB317A] border-t-transparent rounded-full animate-spin" />
           </div>
         }>
 
           {isCheckingSession ? (
             <div className="flex items-center justify-center min-h-[60vh] py-20">
-              <div className="relative mx-auto w-16 h-16">
-                <div className="absolute inset-0 rounded-full border-4 border-[#C9A84C]/10" />
-                <div className="absolute inset-0 rounded-full border-4 border-t-[#EB317A] border-r-[#C9A84C] border-b-transparent border-l-transparent animate-spin" />
-                <div className="absolute inset-2 rounded-full bg-gradient-to-br from-[#EB317A]/20 to-[#C9A84C]/20 animate-pulse" />
-              </div>
+              <div className="w-10 h-10 border-2 border-[#EB317A] border-t-transparent rounded-full animate-spin" />
             </div>
           ) : (
             <>
@@ -713,20 +705,7 @@ function AppContent() {
 
       {isRegistering && (
         <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-[#1A1118]/95 backdrop-blur-sm transition-opacity duration-500">
-          <div className="relative">
-            <Heart className="h-16 w-16 text-[#EB317A] animate-pulse" fill="#EB317A" />
-            <Heart className="absolute -top-4 -right-8 h-8 w-8 text-[#C9A84C] animate-bounce" fill="#C9A84C" />
-            <Heart className="absolute -bottom-4 -left-8 h-8 w-8 text-pink-400 animate-ping" fill="#F472B6" />
-          </div>
-          <div className="mt-8 text-center space-y-2">
-            <h2 className="text-xl font-black text-[#FFFCF8] tracking-tight">Finding your match...</h2>
-            <p className="text-sm text-[#EDE6D9]/60 font-light">Setting up your romantic journey</p>
-          </div>
-          <div className="mt-8 flex gap-3">
-            <div className="w-2 h-2 rounded-full bg-[#EB317A] animate-bounce" style={{ animationDelay: '0ms' }} />
-            <div className="w-2 h-2 rounded-full bg-[#C9A84C] animate-bounce" style={{ animationDelay: '150ms' }} />
-            <div className="w-2 h-2 rounded-full bg-pink-400 animate-bounce" style={{ animationDelay: '300ms' }} />
-          </div>
+          <div className="w-10 h-10 border-2 border-[#EB317A] border-t-transparent rounded-full animate-spin" />
         </div>
       )}
 
