@@ -2072,6 +2072,57 @@ export default function AdminPanel({
                       />
                     </div>
 
+                    {/* Image upload */}
+                    <div className="space-y-1">
+                      <label className="font-bold text-gray-500 block uppercase">Profile Photo</label>
+                      <div className="flex items-center gap-3">
+                        <div className="w-16 h-16 rounded-xl overflow-hidden border border-gray-200 bg-gray-50 shrink-0">
+                          {editingProfile.image ? (
+                            <img src={editingProfile.image} alt="Preview" className="w-full h-full object-cover" />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center text-gray-300">
+                              <Image className="h-6 w-6" />
+                            </div>
+                          )}
+                        </div>
+                        <label className="flex-1 flex items-center gap-2 bg-gray-50 border border-gray-200 p-2.5 rounded-xl cursor-pointer hover:border-pink-300 transition-colors">
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) {
+                                const reader = new FileReader();
+                                reader.onload = (ev) => {
+                                  if (ev.target?.result) setEditingProfile({ ...editingProfile, image: ev.target.result as string });
+                                };
+                                reader.readAsDataURL(file);
+                              }
+                            }}
+                            className="hidden"
+                          />
+                          <svg className="h-5 w-5 text-gray-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
+                          </svg>
+                          <span className="text-xs text-gray-500 font-medium truncate">
+                            {editingProfile.image?.startsWith('data:') ? 'Photo uploaded' : 'Change photo...'}
+                          </span>
+                        </label>
+                        {editingProfile.image && (
+                          <button
+                            type="button"
+                            onClick={() => setEditingProfile({ ...editingProfile, image: '' })}
+                            className="p-2 bg-red-50 border border-red-200 rounded-xl text-red-400 hover:text-red-600 transition-colors cursor-pointer"
+                            title="Remove photo"
+                          >
+                            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                          </button>
+                        )}
+                      </div>
+                    </div>
+
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       {/* Telegram */}
                       <div className="space-y-1">
