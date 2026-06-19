@@ -31,17 +31,24 @@ jobs:
         run: npm run build
         working-directory: backend
 
-      - name: Sync files to cPanel via rsync
-        uses: burnett01/rsync-deployments@7.0.1
-        with:
-          switches: -avz --delete --exclude='node_modules' --exclude='.env' --exclude='.env.*' --exclude='server.log' --exclude='cpanel-error.log'
-          path: backend/
-          remote_path: ${{ env.APP_ROOT }}
-          remote_host: ${{ secrets.CPANEL_SSH_HOST }}
-          remote_user: ${{ secrets.CPANEL_SSH_USER }}
-          remote_key: ${{ secrets.CPANEL_SSH_KEY }}
+      - name: Create deploy archive
+        run: |
+          mkdir -p deploy-pkg
+          cp -r dist package.json package-lock.json deploy.js deploy-pkg/
+          tar czf deploy.tar.gz -C deploy-pkg .
+          rm -rf deploy-pkg
 
-      - name: Install deps & restart app via SSH
+      - name: Upload archive to cPanel
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.CPANEL_SSH_HOST }}
+          username: ${{ secrets.CPANEL_SSH_USER }}
+          key: ${{ secrets.CPANEL_SSH_KEY }}
+          source: deploy.tar.gz
+          target: ${{ env.APP_ROOT }}
+          strip_components: 0
+
+      - name: Extract, install & restart via SSH
         uses: appleboy/ssh-action@v1.2.2
         with:
           host: ${{ secrets.CPANEL_SSH_HOST }}
@@ -49,6 +56,8 @@ jobs:
           key: ${{ secrets.CPANEL_SSH_KEY }}
           script: |
             cd ${{ env.APP_ROOT }}
+            tar xzf deploy.tar.gz
+            rm deploy.tar.gz
             npm install --production
             npm run build
             echo "Deployment complete at $(date)"
