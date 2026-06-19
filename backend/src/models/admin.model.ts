@@ -1,24 +1,21 @@
 import bcrypt from 'bcryptjs';
-import prisma from '../lib/prisma';
+import { getRow, query } from '../lib/db';
 
 const ADMIN_USERNAME = 'admin';
 
 export async function findOrCreateAdmin(passcode: string) {
-  let admin = await prisma.admin.findUnique({ where: { username: ADMIN_USERNAME } });
+  let admin = await getRow<any>('SELECT * FROM Admin WHERE username = ?', [ADMIN_USERNAME]);
 
   if (!admin) {
     const hashed = await bcrypt.hash(passcode, 10);
-    admin = await prisma.admin.create({
-      data: { username: ADMIN_USERNAME, password: hashed },
-    });
+    await query('INSERT INTO Admin (username, password) VALUES (?, ?)', [ADMIN_USERNAME, hashed]);
+    admin = await getRow<any>('SELECT * FROM Admin WHERE username = ?', [ADMIN_USERNAME]);
   } else {
     const storedMatch = await bcrypt.compare(passcode, admin.password);
     if (!storedMatch) {
       const hashed = await bcrypt.hash(passcode, 10);
-      admin = await prisma.admin.update({
-        where: { id: admin.id },
-        data: { password: hashed },
-      });
+      await query('UPDATE Admin SET password = ? WHERE id = ?', [hashed, admin.id]);
+      admin.password = hashed;
     }
   }
 
@@ -26,12 +23,12 @@ export async function findOrCreateAdmin(passcode: string) {
     id: String(admin.id),
     username: admin.username,
     password: admin.password,
-    createdAt: admin.createdAt.toISOString(),
+    createdAt: new Date(admin.createdAt).toISOString(),
   };
 }
 
 export async function verifyAdminPasscode(passcode: string) {
-  const admin = await prisma.admin.findUnique({ where: { username: ADMIN_USERNAME } });
+  const admin = await getRow<any>('SELECT * FROM Admin WHERE username = ?', [ADMIN_USERNAME]);
   if (!admin) return null;
 
   const match = await bcrypt.compare(passcode, admin.password);
@@ -41,14 +38,11 @@ export async function verifyAdminPasscode(passcode: string) {
     id: String(admin.id),
     username: admin.username,
     password: admin.password,
-    createdAt: admin.createdAt.toISOString(),
+    createdAt: new Date(admin.createdAt).toISOString(),
   };
 }
 
 export async function updateAdminPasscode(newPasscode: string) {
   const hashed = await bcrypt.hash(newPasscode, 10);
-  await prisma.admin.updateMany({
-    where: { username: ADMIN_USERNAME },
-    data: { password: hashed },
-  });
+  await query('UPDATE Admin SET password = ? WHERE username = ?', [hashed, ADMIN_USERNAME]);
 }

@@ -1,63 +1,52 @@
-import prisma from '../lib/prisma';
+import { query, getRow, scalar } from '../lib/db';
 
 export async function createPayment(data: Record<string, any>) {
-  return prisma.payment.create({
-    data: {
-      id: data.id,
-      userId: data.userId,
-      profileId: data.profileId,
-      profileName: data.profileName,
-      profileImage: data.profileImage ?? null,
-      senderName: data.senderName,
-      senderPhone: data.senderPhone,
-      transactionId: data.transactionId.toUpperCase(),
-      method: data.method,
-      amount: data.amount,
-      receiptImage: data.receiptImage ?? null,
-      status: 'Pending',
-    },
-  });
+  await query(
+    `INSERT INTO Payment (id, userId, profileId, profileName, profileImage, senderName, senderPhone, transactionId, method, amount, receiptImage, status)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Pending')`,
+    [
+      data.id, data.userId, data.profileId, data.profileName,
+      data.profileImage ?? null, data.senderName, data.senderPhone,
+      data.transactionId.toUpperCase(), data.method, data.amount,
+      data.receiptImage ?? null,
+    ]
+  );
+  return findPaymentById(data.id);
 }
 
 export async function findPaymentById(id: string) {
-  return prisma.payment.findUnique({ where: { id } });
+  return getRow<any>('SELECT * FROM Payment WHERE id = ?', [id]);
 }
 
 export async function findPaymentsByUser(userId: string) {
-  return prisma.payment.findMany({
-    where: { userId },
-    orderBy: { createdAt: 'desc' },
-  });
+  return query<any[]>('SELECT * FROM Payment WHERE userId = ? ORDER BY createdAt DESC', [userId]);
 }
 
 export async function findAllPayments() {
-  return prisma.payment.findMany({
-    orderBy: { createdAt: 'desc' },
-  });
+  return query<any[]>('SELECT * FROM Payment ORDER BY createdAt DESC');
 }
 
 export async function updatePaymentStatus(id: string, status: 'Approved' | 'Rejected') {
-  return prisma.payment.update({
-    where: { id },
-    data: { status },
-  });
+  await query('UPDATE Payment SET status = ? WHERE id = ?', [status, id]);
+  return findPaymentById(id);
 }
 
 export async function hasApprovedPayment(userId: string) {
-  const count = await prisma.payment.count({
-    where: { userId, status: 'Approved' },
-  });
+  const count = await scalar<number>(
+    'SELECT COUNT(*) as cnt FROM Payment WHERE userId = ? AND status = ?',
+    [userId, 'Approved']
+  );
   return count > 0;
 }
 
 export async function countPaymentsByStatus(status: string) {
-  return prisma.payment.count({ where: { status } });
+  return scalar<number>('SELECT COUNT(*) as cnt FROM Payment WHERE status = ?', [status]);
 }
 
 export async function sumApprovedRevenue() {
-  const result = await prisma.payment.aggregate({
-    where: { status: 'Approved' },
-    _sum: { amount: true },
-  });
-  return result._sum.amount ?? 0;
+  const result = await scalar<number | null>(
+    'SELECT SUM(amount) as total FROM Payment WHERE status = ?',
+    ['Approved']
+  );
+  return result ?? 0;
 }

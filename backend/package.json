@@ -5,19 +5,13 @@
   "type": "module",
   "scripts": {
     "dev": "tsx watch src/server.ts",
-    "build": "esbuild src/server.ts --bundle --platform=node --format=esm --outfile=dist/server.js --external:express --external:@prisma/client --external:cors --external:helmet --external:morgan --external:express-rate-limit --external:bcryptjs --external:jsonwebtoken --external:uuid --external:dotenv",
-    "build:all": "npm run db:generate && npm run build",
+    "build": "esbuild src/server.ts --bundle --platform=node --format=esm --outfile=dist/server.js --external:express --external:mysql2 --external:cors --external:helmet --external:morgan --external:express-rate-limit --external:bcryptjs --external:jsonwebtoken --external:uuid --external:dotenv",
     "start": "node dist/server.js",
     "start:deploy": "node deploy.js",
-    "db:generate": "npx prisma generate --schema=prisma/schema.prisma",
-    "db:generate:deploy": "npm run db:generate",
-    "db:push": "npx prisma db push --schema=prisma/schema.prisma",
-    "db:migrate": "npx prisma migrate deploy --schema=prisma/schema.prisma",
     "seed": "npx tsx src/config/seed-data.ts",
     "lint": "tsc --noEmit"
   },
   "dependencies": {
-    "@prisma/client": "^6.6.0",
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
@@ -27,7 +21,6 @@
     "jsonwebtoken": "^9.0.2",
     "morgan": "^1.11.0",
     "mysql2": "^3.22.5",
-    "prisma": "^6.6.0",
     "uuid": "^11.1.0"
   },
   "devDependencies": {

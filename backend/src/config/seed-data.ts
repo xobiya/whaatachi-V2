@@ -1,5 +1,5 @@
 import { v4 as uuid } from 'uuid';
-import prisma from '../lib/prisma';
+import { query, scalar } from '../lib/db';
 
 const FEMALE_IMAGES = [
   '/assets/One.avif', '/assets/two.avif', '/assets/three.avif', '/assets/four.avif',
@@ -122,13 +122,13 @@ function slugify(name: string): string {
 
 export async function seedData(clearFirst: boolean = false) {
   if (clearFirst) {
-    await prisma.payment.deleteMany();
-    await prisma.userInterest.deleteMany();
-    await prisma.user.deleteMany();
+    await query('DELETE FROM Payment');
+    await query('DELETE FROM UserInterest');
+    await query('DELETE FROM User');
     console.log('Cleared existing data.');
   }
 
-  const userCount = await prisma.user.count();
+  const userCount = await scalar<number>('SELECT COUNT(*) as cnt FROM User');
 
   if (userCount === 0) {
     async function buildUser(i: number, name: string, gender: string, bioPool: string[], imgPool: string[], phoneBase: number, lookingFor: string, intentOverride?: string) {
@@ -136,32 +136,32 @@ export async function seedData(clearFirst: boolean = false) {
       const id = uuid();
       const interests = pickN(INTERESTS_POOL, i * 3 + (gender === 'Female' ? 0 : 1), 3);
       const phoneNum = `+25191${String(phoneBase + i * 123456).slice(0, 7)}`;
+      const age = gender === 'Female' ? 21 + (i % 12) : 22 + (i % 14);
 
-      return prisma.user.create({
-        data: {
-          id,
-          name,
-          age: gender === 'Female' ? 21 + (i % 12) : 22 + (i % 14),
-          city: pickAt(CITIES, i + (gender === 'Female' ? 0 : 5)),
-          address: '',
-          bio: pickAt(bioPool, i),
-          gender,
-          lookingFor,
-          image: pickAt(imgPool, i),
-          status: pickAt(STATUSES, i + (gender === 'Female' ? 0 : 2)),
-          relationshipIntent: intentOverride || pickAt(INTENTS, i),
-          phone: phoneNum,
-          telegram: `@${parts[0].toLowerCase()}_${i}`,
-          instagram: `@${slugify(name)}`,
-          email: `${slugify(name)}@whaatachi.com`,
-          interests: {
-            create: interests.map((interest: string) => ({ interest })),
-          },
-        },
-      });
+      await query(
+        `INSERT INTO User (id, name, age, city, address, bio, gender, lookingFor, image, status, relationshipIntent, phone, telegram, instagram, email)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+          id, name, age, pickAt(CITIES, i + (gender === 'Female' ? 0 : 5)),
+          '', pickAt(bioPool, i), gender, lookingFor, pickAt(imgPool, i),
+          pickAt(STATUSES, i + (gender === 'Female' ? 0 : 2)),
+          intentOverride || pickAt(INTENTS, i), phoneNum,
+          `@${parts[0].toLowerCase()}_${i}`, `@${slugify(name)}`,
+          `${slugify(name)}@whaatachi.com`,
+        ]
+      );
+
+      const placeholders = interests.map(() => '(?, ?)').join(', ');
+      const flat: any[] = [];
+      for (const interest of interests) {
+        flat.push(id, interest);
+      }
+      await query(
+        `INSERT INTO UserInterest (userId, interest) VALUES ${placeholders}`,
+        flat
+      );
     }
 
-    const batchSize = 10;
     const allUsers = [
       ...femaleNames.map((name, i) => buildUser(i, name, 'Female', femaleBios, FEMALE_IMAGES, 1000000, 'Male')),
       ...maleNames.map((name, i) => buildUser(i, name, 'Male', maleBios, MALE_IMAGES, 2000000, 'Female')),
@@ -169,14 +169,13 @@ export async function seedData(clearFirst: boolean = false) {
       ...additionalMaleNames.map((name, i) => buildUser(i, name, 'Male', biDirectMale, MALE_IMAGES, 4000000, 'Female', i < 5 ? 'Only Sex' : 'True Relationship')),
     ];
 
+    const batchSize = 10;
     for (let i = 0; i < allUsers.length; i += batchSize) {
       await Promise.all(allUsers.slice(i, i + batchSize));
     }
 
     console.log('Seeded 60 users (20 female, 20 male, 10 additional female, 10 additional male).');
   }
-
-
 
   console.log('Seed complete!');
 }

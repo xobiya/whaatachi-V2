@@ -1,8 +1,9 @@
-import prisma from '../lib/prisma';
+import { getPool } from '../lib/db';
 
 export async function connectDB() {
-  await prisma.$connect();
-  return prisma;
+  const pool = getPool();
+  const connection = await pool.getConnection();
+  await connection.ping();
+  connection.release();
+  return pool;
 }
-
-export default prisma;

@@ -2,13 +2,13 @@ import express from 'express';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import rateLimit from 'express-rate-limit';
+import { getPool } from './lib/db';
 
 import { errorHandler, notFoundHandler } from './middleware/errorHandler';
 import authRoutes from './routes/auth.routes';
 import profileRoutes from './routes/profile.routes';
 import paymentRoutes from './routes/payment.routes';
 import adminRoutes from './routes/admin.routes';
-import prisma from './lib/prisma';
 
 const app = express();
 
@@ -43,14 +43,6 @@ const limiter = rateLimit({
 });
 app.use('/api/', limiter);
 
-const cacheableRoutes: string[] = [];
-app.use((req, res, next) => {
-  if (req.method === 'GET' && cacheableRoutes.some(p => req.path.startsWith(p))) {
-    res.set('Cache-Control', 'public, max-age=300, s-maxage=600');
-  }
-  next();
-});
-
 app.use('/api/auth', authRoutes);
 app.use('/api/profiles', profileRoutes);
 app.use('/api/payments', paymentRoutes);
@@ -58,7 +50,10 @@ app.use('/api/admin', adminRoutes);
 
 app.get('/api/health', async (_req, res) => {
   try {
-    await prisma.$queryRaw`SELECT 1`;
+    const pool = getPool();
+    const conn = await pool.getConnection();
+    await conn.ping();
+    conn.release();
     res.json({
       status: 'ok',
       database: 'connected',

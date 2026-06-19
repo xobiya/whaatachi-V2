@@ -9,13 +9,6 @@ coverage/
 # Vercel
 .vercel
 
-# Prisma
-**/prisma/migrations/
-**/prisma/*.db
-
-# Prisma generated client (tracked in repo for cPanel deployment)
-!**/prisma/generated-client/
-
 # Build output
 backend/dist/
 frontend/dist/
