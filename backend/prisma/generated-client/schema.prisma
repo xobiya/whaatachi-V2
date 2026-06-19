@@ -1,6 +1,6 @@
 generator client {
   provider      = "prisma-client-js"
-  output        = "../../node_modules/.prisma/client"
+  output        = "./generated-client"
   binaryTargets = ["native", "debian-openssl-1.1.x", "rhel-openssl-1.1.x", "rhel-openssl-3.0.x"]
 }
 
@@ -18,7 +18,7 @@ model User {
   bio                String?
   gender             String
   lookingFor         String?
-  image              String?
+  image              String?  @db.LongText
   status             String   @default("Online")
   relationshipIntent String?
   verified           Boolean  @default(false)
@@ -54,13 +54,13 @@ model Payment {
   userId        String
   profileId     String
   profileName   String
-  profileImage  String?
+  profileImage  String?  @db.LongText
   senderName    String
   senderPhone   String
   transactionId String
   method        String
   amount        Float
-  receiptImage  String?
+  receiptImage  String?  @db.LongText
   status        String   @default("Pending")
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt

@@ -10,7 +10,7 @@
     "start": "node dist/server.js",
     "start:deploy": "node deploy.js",
     "db:generate": "npx prisma generate --schema=prisma/schema.prisma",
-    "db:generate:deploy": "npm run db:generate && node -e \"const fs=require('fs'),s='../node_modules/.prisma/client',d='prisma/generated-client';if(!fs.existsSync(d))fs.mkdirSync(d,{recursive:true});try{fs.cpSync(s,d,{recursive:true})}catch(e){console.log('Copy warning (non-fatal):',e.message)}\"",
+    "db:generate:deploy": "npm run db:generate",
     "db:push": "npx prisma db push --schema=prisma/schema.prisma",
     "db:migrate": "npx prisma migrate deploy --schema=prisma/schema.prisma",
     "seed": "npx tsx src/config/seed-data.ts",
