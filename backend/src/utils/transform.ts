@@ -14,7 +14,7 @@ export function userRowToProfile(row: UserRow): Profile {
     status: row.status ?? 'Offline',
     relationshipIntent: (row.relationshipIntent as Profile['relationshipIntent']) ?? 'Friendship',
     interests: Array.isArray(row.interests) ? row.interests.map((i: any) => i.interest ?? i) : [],
-    verified: row.verified === true,
+    verified: row.verified == true,
     contactInfo: {
       phone: row.phone ?? '',
       telegram: row.telegram ?? '',
