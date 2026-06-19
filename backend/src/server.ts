@@ -2,9 +2,12 @@ import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-// Load env vars FIRST before any other imports that may use them
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-dotenv.config({ path: path.resolve(__dirname, '../.env') });
+
+// Only load .env in development — cPanel sets env vars via its own UI in production
+if (process.env.NODE_ENV !== 'production') {
+  dotenv.config({ path: path.resolve(__dirname, '../.env') });
+}
 
 import mainApp from './app';
 import { seedData } from './config/seed-data';
@@ -30,6 +33,9 @@ async function start() {
 
   const server = mainApp.listen(PORT, () => {
     console.log(`API server running on http://localhost:${PORT}`);
+  }).on('error', (err) => {
+    console.error('Failed to start server:', err.message);
+    process.exit(1);
   });
 
   server.timeout = 35000;

@@ -46,18 +46,17 @@ This guide covers deploying the Whaatachi backend (Express API) and MySQL databa
    - **Application mode**: `Production`
    - **Application root**: `/home/username/repositories/whaatachi` (or wherever you upload the app)
    - **Application URL**: `api.mydomain.com`
-   - **Application startup file**: `cpanel-deploy.js`
-   - **Application port**: Leave as **random port** (cPanel assigns one automatically)
-   - **App environment variables**: Add these:
-     ```
-     NODE_ENV=production
-     DATABASE_URL=mysql://whaatachi_user:<password>@localhost/whaatachi_db
-     JWT_SECRET=<your-strong-jwt-secret>
-     ADMIN_PASSCODE=<your-admin-passcode>
-     CORS_ORIGIN=https://whaatachi.vercel.app,https://your-frontend-domain.com
-      # PORT is automatically assigned by cPanel — do not set it here
-     RUN_SEED=true
-     ```
+    - **Application startup file**: `deploy.js`
+    - **Application port**: Leave as **random port** (cPanel assigns one automatically)
+    - **App environment variables**: Add these (do NOT add PORT — cPanel assigns it automatically):
+      ```
+      NODE_ENV=production
+      DATABASE_URL=mysql://whaatachi_user:<password>@localhost/whaatachi_db
+      JWT_SECRET=<your-strong-jwt-secret>
+      ADMIN_PASSCODE=<your-admin-passcode>
+      CORS_ORIGIN=https://whaatachi.vercel.app,https://your-frontend-domain.com
+      RUN_SEED=true
+      ```
 
 4. Click **Create**
 
@@ -151,7 +150,7 @@ Open `https://api.mydomain.com` in a browser — you should see the Whaatachi ap
 | Setting | Value |
 |---------|-------|
 | **App root** | `/home/username/repositories/whaatachi` |
-| **Startup file** | `cpanel-deploy.js` |
+| **Startup file** | `deploy.js` |
 | **Node version** | 22.x.x (LTS) |
 | **App URL** | `api.mydomain.com` |
 | **Process type** | `Production` |
@@ -195,6 +194,7 @@ For initial deployment, `npm run db:push` is simplest. For ongoing schema change
 ### "502 Bad Gateway" when accessing the subdomain
 - The Node.js app may not be running. Go to cPanel → **Setup Node.js App** → **Restart**
 - Check the app log: cPanel → **Setup Node.js App** → **Logs**
+- Ensure you set environment variables via the cPanel UI, **not** in a `.env` file — `deploy.js` ignores `.env` in production
 
 ### "Cannot find module '@prisma/client'"
 - Run `npm run db:generate` to regenerate the Prisma client
@@ -208,7 +208,7 @@ For initial deployment, `npm run db:push` is simplest. For ongoing schema change
 ### App not starting after Git push
 - SSH into the server and check: `node -e "require('./dist/server.js')"`
 - Look for syntax errors or missing modules
-- Verify the startup file path in cPanel matches `cpanel-deploy.js`
+- Verify the startup file path in cPanel matches `deploy.js`
 
 ### CORS errors from the frontend
 - Verify `CORS_ORIGIN` includes your frontend domain
@@ -248,7 +248,7 @@ For initial deployment, `npm run db:push` is simplest. For ongoing schema change
 |------|--------|
 | `prisma/schema.prisma` | **New** — MySQL schema definition |
 | `api-src/lib/prisma.ts` | **New** — Prisma client singleton |
-| `cpanel-deploy.js` | **New** — cPanel startup entry point |
+| `deploy.js` | **New** — cPanel startup entry point (production-safe) |
 | `api-src/models/*.ts` | **Rewritten** — Mongoose → Prisma |
 | `api-src/config/seed-data.ts` | **Rewritten** — Prisma-based seeding |
 | `api-src/config/database.ts` | **Updated** — Mongoose → Prisma |
