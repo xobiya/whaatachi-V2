@@ -32,10 +32,11 @@ jobs:
         working-directory: backend
 
       - name: Create deploy archive
+        working-directory: backend
         run: |
           mkdir -p deploy-pkg
           cp -r dist package.json package-lock.json deploy.js deploy-pkg/
-          tar czf deploy.tar.gz -C deploy-pkg .
+          tar czf ../deploy.tar.gz -C deploy-pkg .
           rm -rf deploy-pkg
 
       - name: Upload archive to cPanel
