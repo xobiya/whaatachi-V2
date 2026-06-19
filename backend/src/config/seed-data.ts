@@ -120,7 +120,7 @@ function slugify(name: string): string {
   return name.toLowerCase().replace(/\s/g, '');
 }
 
-export async function seedData(clearFirst: boolean = false) {
+export async function seedData(clearFirst: boolean = false, force: boolean = false) {
   if (clearFirst) {
     await query('DELETE FROM Payment');
     await query('DELETE FROM UserInterest');
@@ -130,7 +130,7 @@ export async function seedData(clearFirst: boolean = false) {
 
   const userCount = await scalar<number>('SELECT COUNT(*) as cnt FROM User');
 
-  if (userCount === 0) {
+  if (userCount === 0 || force) {
     async function buildUser(i: number, name: string, gender: string, bioPool: string[], imgPool: string[], phoneBase: number, lookingFor: string, intentOverride?: string) {
       const parts = name.split(' ');
       const id = uuid();
@@ -139,7 +139,7 @@ export async function seedData(clearFirst: boolean = false) {
       const age = gender === 'Female' ? 21 + (i % 12) : 22 + (i % 14);
 
       await query(
-        `INSERT INTO User (id, name, age, city, address, bio, gender, lookingFor, image, status, relationshipIntent, phone, telegram, instagram, email)
+        `INSERT IGNORE INTO User (id, name, age, city, address, bio, gender, lookingFor, image, status, relationshipIntent, phone, telegram, instagram, email)
          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
           id, name, age, pickAt(CITIES, i + (gender === 'Female' ? 0 : 5)),

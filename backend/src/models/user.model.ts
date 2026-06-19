@@ -55,16 +55,30 @@ export async function findUserByContact(telegram: string | null, instagram: stri
 }
 
 export async function findUserByPhone(phone: string) {
-  const normalized = phone.replace(/\s+/g, '');
+  const digits = phone.replace(/\D/g, '');
+  const candidates = [phone, digits];
+
+  if (digits.startsWith('09')) {
+    const rest = digits.slice(1);
+    candidates.push(`+251${rest}`, `+251 ${rest}`, `251${rest}`);
+  } else if (digits.startsWith('251')) {
+    const rest = digits.slice(3);
+    candidates.push(`0${rest}`, `+251${rest}`, `+251 ${rest}`);
+  } else if (digits.startsWith('+251')) {
+    const rest = digits.slice(4);
+    candidates.push(`0${rest}`, `251${rest}`);
+  }
+
+  const placeholders = candidates.map(() => '?').join(' OR u.phone = ');
 
   const rows = await query<any[]>(
     `SELECT u.*, GROUP_CONCAT(DISTINCT ui.interest) as interests_csv
      FROM User u
      LEFT JOIN UserInterest ui ON ui.userId = u.id
-     WHERE u.phone = ? OR u.phone = ? OR u.phone = ? OR u.phone = ?
+     WHERE u.phone = ${placeholders}
      GROUP BY u.id
      LIMIT 1`,
-    [phone, normalized, `+251 ${normalized.slice(3)}`, `+251${normalized.slice(3)}`]
+    candidates
   );
   return rows.length > 0 ? rowToUserWithInterests(rows[0]) : null;
 }

@@ -28,7 +28,7 @@ async function start() {
   }
 
   if (process.env.RUN_SEED === 'true') {
-    await seedData();
+    await seedData(false, true);
   }
 
   const server = mainApp.listen(PORT, () => {
