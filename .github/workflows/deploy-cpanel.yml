@@ -19,18 +19,17 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: 'npm'
-          cache-dependency-path: package-lock.json
 
-      # CRITICAL FIX: This installs esbuild onto the GitHub runner environment
       - name: Install Local Dependencies
         run: npm ci
+        working-directory: backend
 
-      # Now esbuild will be available, preventing the "command not found" error
       - name: Build Backend Codebase
         run: npm run build
+        working-directory: backend
 
       - name: Prepare Clean Production Package
+        working-directory: backend
         run: |
           mkdir -p deploy-pkg
           mkdir -p deploy-pkg/dist
@@ -51,6 +50,6 @@ jobs:
           password: ${{ secrets.CPANEL_FTP_PASSWORD }}
           port: 22
           protocol: sftp
-          local-dir: ./deploy-pkg/
+          local-dir: ./backend/deploy-pkg/
           server-dir: ./repositories/whaatachi/
           dangerous-clean-slate: true
