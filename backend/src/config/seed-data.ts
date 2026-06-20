@@ -120,62 +120,70 @@ function slugify(name: string): string {
   return name.toLowerCase().replace(/\s/g, '');
 }
 
-export async function seedData(clearFirst: boolean = false, force: boolean = false) {
+export async function seedData(clearFirst = false, force = false) {
   if (clearFirst) {
     await query('DELETE FROM Payment');
     await query('DELETE FROM UserInterest');
     await query('DELETE FROM User');
-    console.log('Cleared existing data.');
+    console.log('[seeder] Cleared existing data.');
   }
 
-  const userCount = await scalar<number>('SELECT COUNT(*) as cnt FROM User');
+  const userCount = await scalar('SELECT COUNT(*) as cnt FROM User');
 
   if (userCount === 0 || force) {
-    async function buildUser(i: number, name: string, gender: string, bioPool: string[], imgPool: string[], phoneBase: number, lookingFor: string, intentOverride?: string) {
+    console.log(`[seeder] Starting execution. Current user count: ${userCount}`);
+
+    async function buildUser(i, name, gender, bioPool, imgPool, phoneBase, lookingFor, intentOverride) {
       const parts = name.split(' ');
       const id = uuid();
       const interests = pickN(INTERESTS_POOL, i * 3 + (gender === 'Female' ? 0 : 1), 3);
       const phoneNum = `+25191${String(phoneBase + i * 123456).slice(0, 7)}`;
       const age = gender === 'Female' ? 21 + (i % 12) : 22 + (i % 14);
 
-      await query(
-        `INSERT IGNORE INTO User (id, name, age, city, address, bio, gender, lookingFor, image, status, relationshipIntent, phone, telegram, instagram, email)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [
-          id, name, age, pickAt(CITIES, i + (gender === 'Female' ? 0 : 5)),
-          '', pickAt(bioPool, i), gender, lookingFor, pickAt(imgPool, i),
-          pickAt(STATUSES, i + (gender === 'Female' ? 0 : 2)),
-          intentOverride || pickAt(INTENTS, i), phoneNum,
-          `@${parts[0].toLowerCase()}_${i}`, `@${slugify(name)}`,
-          `${slugify(name)}@whaatachi.com`,
-        ]
-      );
+      try {
+        await query(
+          `INSERT INTO User (id, name, age, city, address, bio, gender, lookingFor, image, status, relationshipIntent, phone, telegram, instagram, email)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+           ON DUPLICATE KEY UPDATE name=name`,
+          [
+            id, name, age, pickAt(CITIES, i + (gender === 'Female' ? 0 : 5)),
+            '', pickAt(bioPool, i), gender, lookingFor, pickAt(imgPool, i),
+            pickAt(STATUSES, i + (gender === 'Female' ? 0 : 2)),
+            intentOverride || pickAt(INTENTS, i), phoneNum,
+            `@${parts[0].toLowerCase()}_${i}`, `@${slugify(name)}`,
+            `${slugify(name)}@whaatachi.com`,
+          ]
+        );
 
-      const placeholders = interests.map(() => '(?, ?)').join(', ');
-      const flat: any[] = [];
-      for (const interest of interests) {
-        flat.push(id, interest);
+        const placeholders = interests.map(() => '(?, ?)').join(', ');
+        const flat = [];
+        for (const interest of interests) {
+          flat.push(id, interest);
+        }
+        await query(
+          `INSERT IGNORE INTO UserInterest (userId, interest) VALUES ${placeholders}`,
+          flat
+        );
+      } catch (err) {
+        console.error(`[seeder] Error inserting user ${name}:`, err.message);
       }
-      await query(
-        `INSERT INTO UserInterest (userId, interest) VALUES ${placeholders}`,
-        flat
-      );
     }
 
-    const allUsers = [
-      ...femaleNames.map((name, i) => buildUser(i, name, 'Female', femaleBios, FEMALE_IMAGES, 1000000, 'Male')),
-      ...maleNames.map((name, i) => buildUser(i, name, 'Male', maleBios, MALE_IMAGES, 2000000, 'Female')),
-      ...additionalFemaleNames.map((name, i) => buildUser(i, name, 'Female', biDirectFemale, FEMALE_IMAGES, 3000000, 'Male', i < 5 ? 'Only Sex' : 'True Relationship')),
-      ...additionalMaleNames.map((name, i) => buildUser(i, name, 'Male', biDirectMale, MALE_IMAGES, 4000000, 'Female', i < 5 ? 'Only Sex' : 'True Relationship')),
-    ];
+    // Wrap in closures so they do not execute instantly
+    const femaleSeeders = femaleNames.map((name, i) => () => buildUser(i, name, 'Female', femaleBios, FEMALE_IMAGES, 1e6, 'Male'));
+    const maleSeeders = maleNames.map((name, i) => () => buildUser(i, name, 'Male', maleBios, MALE_IMAGES, 2e6, 'Female'));
+    const addFemaleSeeders = additionalFemaleNames.map((name, i) => () => buildUser(i, name, 'Female', biDirectFemale, FEMALE_IMAGES, 3e6, 'Male', i < 5 ? 'Only Sex' : 'True Relationship'));
+    const addMaleSeeders = additionalMaleNames.map((name, i) => () => buildUser(i, name, 'Male', biDirectMale, MALE_IMAGES, 4e6, 'Female', i < 5 ? 'Only Sex' : 'True Relationship'));
 
-    const batchSize = 10;
-    for (let i = 0; i < allUsers.length; i += batchSize) {
-      await Promise.all(allUsers.slice(i, i + batchSize));
+    const allTasks = [...femaleSeeders, ...maleSeeders, ...addFemaleSeeders, ...addMaleSeeders];
+
+    // Execute in chunks of 4 (well within connectionLimit = 10)
+    for (let i = 0; i < allTasks.length; i += 4) {
+      const batch = allTasks.slice(i, i + 4).map(task => task());
+      await Promise.all(batch);
     }
 
-    console.log('Seeded 60 users (20 female, 20 male, 10 additional female, 10 additional male).');
+    console.log('[seeder] Seeded users configuration complete.');
   }
-
-  console.log('Seed complete!');
+  console.log('[seeder] Seed runtime script complete!');
 }
