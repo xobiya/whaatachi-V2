@@ -8,95 +8,55 @@ on:
       - '.github/workflows/deploy-cpanel.yml'
   workflow_dispatch:
 
-env:
-  TARGET_PATH: /home/diredakg/repositories/whaatachi
-
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout Codebase
+        uses: actions/checkout@v4
 
-      - name: Setup Node.js
+      - name: Setup Node.js Environment
         uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: 'npm'
           cache-dependency-path: backend/package-lock.json
 
-      - name: Install local dependencies
+      - name: Install Local Dependencies
         run: npm ci
         working-directory: backend
 
-      - name: Build backend codebase
+      - name: Build Backend Codebase
         run: npm run build
         working-directory: backend
 
-      - name: Create deploy archive
+      - name: Prepare Clean Production Package
         working-directory: backend
         run: |
+          # 1. Create an isolated directory for clean mirroring
           mkdir -p deploy-pkg
-          
-          # Copy compiled output
           mkdir -p deploy-pkg/dist
+          
+          # 2. Copy over the compiled esbuild output file
           if [ -d "dist" ]; then cp -r dist/* deploy-pkg/dist/; fi
           
-          # Copy manifests and entry file
+          # 3. Copy application manifest manifests and entry files
           cp package.json deploy-pkg/
           cp package-lock.json deploy-pkg/
           cp deploy.js deploy-pkg/
           
-          # Package cleanly
-          tar czf ../deploy.tar.gz -C deploy-pkg .
-          rm -rf deploy-pkg
+          # 4. UNCOMMENT lines below if your database files/seeders need to go to cPanel:
+          # cp -r prisma/ deploy-pkg/prisma/ 2>/dev/null || true
+          # cp -r src/database/ deploy-pkg/src/database/ 2>/dev/null || true
 
-      - name: Upload archive package to cPanel
-        uses: appleboy/scp-action@v0.1.7
+      - name: Sync Production Build via SFTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
-          host: ${{ secrets.CPANEL_SSH_HOST }}
+          server: ${{ secrets.CPANEL_SSH_HOST }}
           username: ${{ secrets.CPANEL_SSH_USER }}
-          key: ${{ secrets.CPANEL_SSH_KEY }}
-          source: deploy.tar.gz
-          target: ${{ env.TARGET_PATH }}
-          strip_components: 0
-
-      - name: Safely Extract & Restart via SSH
-        uses: appleboy/ssh-action@v1.2.2
-        with:
-          host: ${{ secrets.CPANEL_SSH_HOST }}
-          username: ${{ secrets.CPANEL_SSH_USER }}
-          key: ${{ secrets.CPANEL_SSH_KEY }}
-          script: |
-            # Navigate cleanly to target folder
-            cd ${{ env.TARGET_PATH }} || exit 1
-            
-            echo "Current Directory: $(pwd)"
-            
-            if [ -f "deploy.tar.gz" ]; then
-                echo "Archive found! Preparing clean extract..."
-                
-                # Safely cache the archive out of the directory temporarily
-                mv deploy.tar.gz ../tmp_deploy.tar.gz
-                
-                # Clean up existing files except hidden systems configurations
-                find . -maxdepth 1 ! -name '.' ! -name '.git' -exec rm -rf {} +
-                
-                # Restore and extract
-                mv ../tmp_deploy.tar.gz ./deploy.tar.gz
-                tar xzf deploy.tar.gz
-                rm deploy.tar.gz
-                
-                echo "Running production installation..."
-                npm install --production
-                
-                # Trigger hot-reload
-                mkdir -p tmp
-                touch tmp/restart.txt
-                
-                echo "Deployment successfully executed!"
-            else
-                echo "CRITICAL: deploy.tar.gz didn't land here."
-                echo "Checking home root directory context instead..."
-                ls -la ~
-                exit 1
-            fi
+          password: ${{ secrets.CPANEL_FTP_PASSWORD }}
+          local-dir: ./backend/deploy-pkg/
+          # Absolute or relative path mapping to your cPanel Node app root folder
+          server-dir: ./repositories/whaatachi/
+          # Wipes out stale files on cPanel to keep directories clean and match GitHub exactly
+          dangerous-clean-slate: true
