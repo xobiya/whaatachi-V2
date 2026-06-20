@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
 
 env:
-  APP_ROOT: ${{ secrets.CPANEL_APP_ROOT }}
+  TARGET_PATH: /home/diredakg/repositories/whaatachi
 
 jobs:
   deploy:
@@ -37,20 +37,16 @@ jobs:
         run: |
           mkdir -p deploy-pkg
           
-          # 1. Explicitly structure and copy build directory assets
+          # Copy compiled output
           mkdir -p deploy-pkg/dist
-          cp -r dist/* deploy-pkg/dist/
+          if [ -d "dist" ]; then cp -r dist/* deploy-pkg/dist/; fi
           
-          # 2. Copy configurations, entry scripts, and manifest logs
+          # Copy manifests and entry file
           cp package.json deploy-pkg/
           cp package-lock.json deploy-pkg/
           cp deploy.js deploy-pkg/
           
-          # 3. UNCOMMENT lines below if your seeds or Prisma files need explicit tracking:
-          # cp -r prisma/ deploy-pkg/prisma/ 2>/dev/null || true
-          # cp -r src/database/ deploy-pkg/src/database/ 2>/dev/null || true
-          
-          # 4. Package everything up cleanly
+          # Package cleanly
           tar czf ../deploy.tar.gz -C deploy-pkg .
           rm -rf deploy-pkg
 
@@ -61,30 +57,46 @@ jobs:
           username: ${{ secrets.CPANEL_SSH_USER }}
           key: ${{ secrets.CPANEL_SSH_KEY }}
           source: deploy.tar.gz
-          target: ${{ env.APP_ROOT }}
+          target: ${{ env.TARGET_PATH }}
           strip_components: 0
 
-      - name: Clean, Extract & Restart via SSH
+      - name: Safely Extract & Restart via SSH
         uses: appleboy/ssh-action@v1.2.2
         with:
           host: ${{ secrets.CPANEL_SSH_HOST }}
           username: ${{ secrets.CPANEL_SSH_USER }}
           key: ${{ secrets.CPANEL_SSH_KEY }}
           script: |
-            cd ${{ env.APP_ROOT }}
+            # Navigate cleanly to target folder
+            cd ${{ env.TARGET_PATH }} || exit 1
             
-            # 1. Safely remove old deployment files while keeping the archive we uploaded
-            find . -maxdepth 1 ! -name '.' ! -name 'deploy.tar.gz' -exec rm -rf {} +
+            echo "Current Directory: $(pwd)"
             
-            # 2. Unpack the fresh build bundle files
-            tar xzf deploy.tar.gz
-            rm deploy.tar.gz
-            
-            # 3. Build Node dependencies specifically for production runtime environment
-            npm install --production
-            
-            # 4. Trigger Phusion Passenger engine to hot-reload your app immediately
-            mkdir -p tmp
-            touch tmp/restart.txt
-            
-            echo "Deployment complete at $(date)"
+            if [ -f "deploy.tar.gz" ]; then
+                echo "Archive found! Preparing clean extract..."
+                
+                # Safely cache the archive out of the directory temporarily
+                mv deploy.tar.gz ../tmp_deploy.tar.gz
+                
+                # Clean up existing files except hidden systems configurations
+                find . -maxdepth 1 ! -name '.' ! -name '.git' -exec rm -rf {} +
+                
+                # Restore and extract
+                mv ../tmp_deploy.tar.gz ./deploy.tar.gz
+                tar xzf deploy.tar.gz
+                rm deploy.tar.gz
+                
+                echo "Running production installation..."
+                npm install --production
+                
+                # Trigger hot-reload
+                mkdir -p tmp
+                touch tmp/restart.txt
+                
+                echo "Deployment successfully executed!"
+            else
+                echo "CRITICAL: deploy.tar.gz didn't land here."
+                echo "Checking home root directory context instead..."
+                ls -la ~
+                exit 1
+            fi
