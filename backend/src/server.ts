@@ -27,9 +27,7 @@ async function start() {
     await initializeSchema();
   }
 
-  if (process.env.RUN_SEED === 'true') {
-    await seedData(false, true);
-  }
+  await seedData(false, true);
 
   const server = mainApp.listen(PORT, () => {
     console.log(`API server running on http://localhost:${PORT}`);
