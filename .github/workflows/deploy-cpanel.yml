@@ -42,14 +42,24 @@ jobs:
           if [ -d "prisma" ]; then cp -r prisma deploy-pkg/; fi
           if [ -d "src/database" ]; then mkdir -p deploy-pkg/src && cp -r src/database deploy-pkg/src/; fi
 
-      - name: Sync Production Build via SFTP
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+      - name: Upload Build to cPanel via SCP
+        uses: appleboy/scp-action@v0.1.7
         with:
-          server: ${{ secrets.CPANEL_SSH_HOST }}
+          host: ${{ secrets.CPANEL_SSH_HOST }}
           username: ${{ secrets.CPANEL_SSH_USER }}
-          password: ${{ secrets.CPANEL_FTP_PASSWORD }}
-          port: 22
-          protocol: sftp
-          local-dir: ./backend/deploy-pkg/
-          server-dir: ./repositories/whaatachi/
-          dangerous-clean-slate: true
+          key: ${{ secrets.CPANEL_SSH_KEY }}
+          source: backend/deploy-pkg/*
+          target: /home/${{ secrets.CPANEL_SSH_USER }}/repositories/whaatachi/backend/
+          strip_components: 2
+
+      - name: Install dependencies & restart on cPanel
+        uses: appleboy/ssh-action@v1.2.2
+        with:
+          host: ${{ secrets.CPANEL_SSH_HOST }}
+          username: ${{ secrets.CPANEL_SSH_USER }}
+          key: ${{ secrets.CPANEL_SSH_KEY }}
+          script: |
+            rm -f ~/.cpanel/datastore/NodeApps/*.lock
+            cd ~/repositories/whaatachi/backend
+            npm install --production
+            /scripts/restartsrv_nodeapps
