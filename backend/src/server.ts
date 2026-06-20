@@ -14,7 +14,8 @@ import { seedData } from './config/seed-data';
 import { startProfileCache } from './models/user.model';
 import { getPool, initializeSchema } from './lib/db';
 
-const PORT = parseInt(process.env.PORT || process.env.API_PORT || '3005', 10);
+const rawPort = process.env.PORT || process.env.API_PORT || '0';
+const PORT = /^\d+$/.test(rawPort) ? parseInt(rawPort, 10) : rawPort;
 
 async function start() {
   const pool = getPool();
