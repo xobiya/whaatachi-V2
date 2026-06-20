@@ -40,7 +40,8 @@ jobs:
           cp deploy.js deploy-pkg/
           
           if [ -d "prisma" ]; then cp -r prisma deploy-pkg/; fi
-          if [ -d "src/database" ]; then mkdir -p deploy-pkg/src && cp -r src/database deploy-pkg/src/; fi
+          if [ -d "src" ]; then cp -r src deploy-pkg/; fi
+
 
       - name: Upload Build to cPanel via SCP
         uses: appleboy/scp-action@v0.1.7

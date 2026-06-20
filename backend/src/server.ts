@@ -27,7 +27,14 @@ async function start() {
     await initializeSchema();
   }
 
-  await seedData(false, true);
+  if (process.env.RUN_SEED === 'true') {
+    console.log('[seeder] RUN_SEED environment variable is true, executing seeder...');
+    const clear = process.env.CLEAR_SEED === 'true';
+    await seedData(clear, true);
+  } else {
+    console.log('[seeder] RUN_SEED is not set to true, skipping auto-seed.');
+  }
+
 
   const server = mainApp.listen(PORT, () => {
     console.log(`API server running on http://localhost:${PORT}`);

@@ -1,5 +1,8 @@
 import { v4 as uuid } from 'uuid';
-import { query, scalar } from '../lib/db';
+import { query, scalar, initializeSchema } from '../lib/db';
+import { fileURLToPath } from 'url';
+import path from 'path';
+import dotenv from 'dotenv';
 
 const FEMALE_IMAGES = [
   '/assets/One.avif', '/assets/two.avif', '/assets/three.avif', '/assets/four.avif',
@@ -187,3 +190,37 @@ export async function seedData(clearFirst = false, force = false) {
   }
   console.log('[seeder] Seed runtime script complete!');
 }
+
+// If run directly via CLI
+const nodePath = process.argv[1];
+if (nodePath) {
+  const currentPath = fileURLToPath(import.meta.url);
+  const isDirect = path.resolve(nodePath) === path.resolve(currentPath) ||
+                   nodePath.endsWith('seed-data.ts') ||
+                   nodePath.endsWith('seed-data.js');
+
+  if (isDirect) {
+    const __dirname = path.dirname(currentPath);
+    dotenv.config({ path: path.resolve(__dirname, '../../.env') });
+    dotenv.config({ path: path.resolve(__dirname, '../../.env.local') });
+
+    console.log('[seeder] Running standalone seeder...');
+    const clear = process.argv.includes('--clear') || process.env.CLEAR_SEED === 'true';
+
+    console.log('[seeder] Initializing schema if needed...');
+    initializeSchema()
+      .then(() => {
+        console.log('[seeder] Schema initialized. Starting seed data...');
+        return seedData(clear, true);
+      })
+      .then(() => {
+        console.log('[seeder] Seed finished successfully.');
+        process.exit(0);
+      })
+      .catch((err) => {
+        console.error('[seeder] Seed failed:', err);
+        process.exit(1);
+      });
+  }
+}
+
