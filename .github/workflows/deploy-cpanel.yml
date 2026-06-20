@@ -49,8 +49,9 @@ jobs:
           host: ${{ secrets.CPANEL_SSH_HOST }}
           username: ${{ secrets.CPANEL_SSH_USER }}
           key: ${{ secrets.CPANEL_SSH_KEY }}
+          port: ${{ secrets.CPANEL_SSH_PORT || 22 }}
           source: backend/deploy-pkg/*
-          target: /home/${{ secrets.CPANEL_SSH_USER }}/repositories/whaatachi/backend/
+          target: /home/${{ secrets.CPANEL_SSH_USER }}/repositories/whaatachi
           strip_components: 2
 
       - name: Install dependencies & restart on cPanel
@@ -59,8 +60,9 @@ jobs:
           host: ${{ secrets.CPANEL_SSH_HOST }}
           username: ${{ secrets.CPANEL_SSH_USER }}
           key: ${{ secrets.CPANEL_SSH_KEY }}
+          port: ${{ secrets.CPANEL_SSH_PORT || 22 }}
           script: |
             rm -f ~/.cpanel/datastore/NodeApps/*.lock
-            cd ~/repositories/whaatachi/backend
+            cd ~/repositories/whaatachi
             npm install --production
             /scripts/restartsrv_nodeapps
