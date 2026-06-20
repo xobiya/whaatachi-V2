@@ -17,17 +17,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: 'npm'
           cache-dependency-path: backend/package-lock.json
 
-      - name: Install dependencies
+      - name: Install local dependencies
         run: npm ci
         working-directory: backend
 
-      - name: Build backend
+      - name: Build backend codebase
         run: npm run build
         working-directory: backend
 
@@ -35,12 +36,25 @@ jobs:
         working-directory: backend
         run: |
           mkdir -p deploy-pkg
-          # We only package the compiled code (dist) and required runtime scripts
-          cp -r dist package.json package-lock.json deploy.js deploy-pkg/
+          
+          # 1. Explicitly structure and copy build directory assets
+          mkdir -p deploy-pkg/dist
+          cp -r dist/* deploy-pkg/dist/
+          
+          # 2. Copy configurations, entry scripts, and manifest logs
+          cp package.json deploy-pkg/
+          cp package-lock.json deploy-pkg/
+          cp deploy.js deploy-pkg/
+          
+          # 3. UNCOMMENT lines below if your seeds or Prisma files need explicit tracking:
+          # cp -r prisma/ deploy-pkg/prisma/ 2>/dev/null || true
+          # cp -r src/database/ deploy-pkg/src/database/ 2>/dev/null || true
+          
+          # 4. Package everything up cleanly
           tar czf ../deploy.tar.gz -C deploy-pkg .
           rm -rf deploy-pkg
 
-      - name: Upload archive to cPanel
+      - name: Upload archive package to cPanel
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.CPANEL_SSH_HOST }}
@@ -59,17 +73,17 @@ jobs:
           script: |
             cd ${{ env.APP_ROOT }}
             
-            # 1. Clear out old code files safely while keeping the archive we just uploaded
+            # 1. Safely remove old deployment files while keeping the archive we uploaded
             find . -maxdepth 1 ! -name '.' ! -name 'deploy.tar.gz' -exec rm -rf {} +
             
-            # 2. Unpack the fresh build artifacts
+            # 2. Unpack the fresh build bundle files
             tar xzf deploy.tar.gz
             rm deploy.tar.gz
             
-            # 3. Only install production dependencies (much lighter on cPanel resources)
+            # 3. Build Node dependencies specifically for production runtime environment
             npm install --production
             
-            # 4. Tell Phusion Passenger to automatically hot-reload your application
+            # 4. Trigger Phusion Passenger engine to hot-reload your app immediately
             mkdir -p tmp
             touch tmp/restart.txt
             
