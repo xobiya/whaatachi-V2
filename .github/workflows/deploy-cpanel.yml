@@ -4,7 +4,7 @@ on:
   push:
     branches: [main]
     paths:
-      - 'backend/**'
+      - '**'
       - '.github/workflows/deploy-cpanel.yml'
   workflow_dispatch:
 
@@ -20,34 +20,28 @@ jobs:
         with:
           node-version: 22
           cache: 'npm'
-          cache-dependency-path: backend/package-lock.json
+          cache-dependency-path: package-lock.json
 
+      # CRITICAL FIX: This installs esbuild onto the GitHub runner environment
       - name: Install Local Dependencies
         run: npm ci
-        working-directory: backend
 
+      # Now esbuild will be available, preventing the "command not found" error
       - name: Build Backend Codebase
         run: npm run build
-        working-directory: backend
 
       - name: Prepare Clean Production Package
-        working-directory: backend
         run: |
-          # 1. Create an isolated directory for clean mirroring
           mkdir -p deploy-pkg
           mkdir -p deploy-pkg/dist
           
-          # 2. Copy over the compiled esbuild output file
           if [ -d "dist" ]; then cp -r dist/* deploy-pkg/dist/; fi
-          
-          # 3. Copy application manifest manifests and entry files
           cp package.json deploy-pkg/
           cp package-lock.json deploy-pkg/
           cp deploy.js deploy-pkg/
           
-          # 4. UNCOMMENT lines below if your database files/seeders need to go to cPanel:
-          # cp -r prisma/ deploy-pkg/prisma/ 2>/dev/null || true
-          # cp -r src/database/ deploy-pkg/src/database/ 2>/dev/null || true
+          if [ -d "prisma" ]; then cp -r prisma deploy-pkg/; fi
+          if [ -d "src/database" ]; then mkdir -p deploy-pkg/src && cp -r src/database deploy-pkg/src/; fi
 
       - name: Sync Production Build via SFTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
@@ -55,8 +49,8 @@ jobs:
           server: ${{ secrets.CPANEL_SSH_HOST }}
           username: ${{ secrets.CPANEL_SSH_USER }}
           password: ${{ secrets.CPANEL_FTP_PASSWORD }}
-          local-dir: ./backend/deploy-pkg/
-          # Absolute or relative path mapping to your cPanel Node app root folder
+          port: 22
+          protocol: sftp
+          local-dir: ./deploy-pkg/
           server-dir: ./repositories/whaatachi/
-          # Wipes out stale files on cPanel to keep directories clean and match GitHub exactly
           dangerous-clean-slate: true
