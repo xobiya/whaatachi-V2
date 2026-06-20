@@ -35,6 +35,7 @@ jobs:
         working-directory: backend
         run: |
           mkdir -p deploy-pkg
+          # We only package the compiled code (dist) and required runtime scripts
           cp -r dist package.json package-lock.json deploy.js deploy-pkg/
           tar czf ../deploy.tar.gz -C deploy-pkg .
           rm -rf deploy-pkg
@@ -49,7 +50,7 @@ jobs:
           target: ${{ env.APP_ROOT }}
           strip_components: 0
 
-      - name: Extract, install & restart via SSH
+      - name: Clean, Extract & Restart via SSH
         uses: appleboy/ssh-action@v1.2.2
         with:
           host: ${{ secrets.CPANEL_SSH_HOST }}
@@ -57,8 +58,19 @@ jobs:
           key: ${{ secrets.CPANEL_SSH_KEY }}
           script: |
             cd ${{ env.APP_ROOT }}
+            
+            # 1. Clear out old code files safely while keeping the archive we just uploaded
+            find . -maxdepth 1 ! -name '.' ! -name 'deploy.tar.gz' -exec rm -rf {} +
+            
+            # 2. Unpack the fresh build artifacts
             tar xzf deploy.tar.gz
             rm deploy.tar.gz
+            
+            # 3. Only install production dependencies (much lighter on cPanel resources)
             npm install --production
-            npm run build
+            
+            # 4. Tell Phusion Passenger to automatically hot-reload your application
+            mkdir -p tmp
+            touch tmp/restart.txt
+            
             echo "Deployment complete at $(date)"
