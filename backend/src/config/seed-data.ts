@@ -194,13 +194,11 @@ export async function seedData(clearFirst = false, force = false) {
 // If run directly via CLI
 const nodePath = process.argv[1];
 if (nodePath) {
-  const currentPath = fileURLToPath(import.meta.url);
-  const isDirect = path.resolve(nodePath) === path.resolve(currentPath) ||
-                   nodePath.endsWith('seed-data.ts') ||
+  const isDirect = nodePath.endsWith('seed-data.ts') ||
                    nodePath.endsWith('seed-data.js');
 
   if (isDirect) {
-    const __dirname = path.dirname(currentPath);
+    const __dirname = path.dirname(fileURLToPath(import.meta.url));
     dotenv.config({ path: path.resolve(__dirname, '../../.env') });
     dotenv.config({ path: path.resolve(__dirname, '../../.env.local') });
 
