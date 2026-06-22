@@ -1867,7 +1867,7 @@ export default function AdminPanel({
                                 setIsUploadingNew(true);
                                 const reader = new FileReader();
                                 reader.onload = (ev) => {
-                                  const img = new Image();
+                                  const img = new window.Image();
                                   img.onload = () => {
                                     let w = img.naturalWidth;
                                     let h = img.naturalHeight;
@@ -2129,7 +2129,7 @@ export default function AdminPanel({
                                 setIsUploadingEdit(true);
                                 const reader = new FileReader();
                                 reader.onload = (ev) => {
-                                  const img = new Image();
+                                  const img = new window.Image();
                                   img.onload = () => {
                                     let w = img.naturalWidth;
                                     let h = img.naturalHeight;
