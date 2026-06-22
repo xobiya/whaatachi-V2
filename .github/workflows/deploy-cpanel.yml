@@ -29,19 +29,14 @@ jobs:
         working-directory: backend
 
       - name: Prepare Clean Production Package
-        working-directory: backend
         run: |
-          mkdir -p deploy-pkg
           mkdir -p deploy-pkg/dist
-          
-          if [ -d "dist" ]; then cp -r dist/* deploy-pkg/dist/; fi
-          cp package.json deploy-pkg/
-          cp package-lock.json deploy-pkg/
-          cp deploy.js deploy-pkg/
-          
-          if [ -d "prisma" ]; then cp -r prisma deploy-pkg/; fi
-          if [ -d "src" ]; then cp -r src deploy-pkg/; fi
-
+          if [ -d "backend/dist" ]; then cp -r backend/dist/* deploy-pkg/dist/; fi
+          cp backend/package.json deploy-pkg/
+          cp backend/package-lock.json deploy-pkg/
+          cp backend/deploy.js deploy-pkg/
+          if [ -d "backend/prisma" ]; then cp -r backend/prisma deploy-pkg/; fi
+          if [ -d "backend/src" ]; then cp -r backend/src deploy-pkg/; fi
 
       - name: Upload Build to cPanel via SCP
         uses: appleboy/scp-action@v0.1.7
@@ -50,9 +45,9 @@ jobs:
           username: ${{ secrets.CPANEL_SSH_USER }}
           key: ${{ secrets.CPANEL_SSH_KEY }}
           port: ${{ secrets.CPANEL_SSH_PORT || 22 }}
-          source: backend/deploy-pkg/*
+          source: deploy-pkg/
           target: /home/${{ secrets.CPANEL_SSH_USER }}/repositories/whaatachi/
-          strip_components: 2
+          strip_components: 1
 
       - name: Install dependencies & restart on cPanel
         uses: appleboy/ssh-action@v1.2.2
