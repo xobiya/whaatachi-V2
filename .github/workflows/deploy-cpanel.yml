@@ -37,6 +37,16 @@ jobs:
             package-lock.json \
             deploy.js
 
+      - name: Ensure target directory exists on cPanel
+        uses: appleboy/ssh-action@v1.2.2
+        with:
+          host: ${{ secrets.CPANEL_SSH_HOST }}
+          username: ${{ secrets.CPANEL_SSH_USER }}
+          key: ${{ secrets.CPANEL_SSH_KEY }}
+          port: ${{ secrets.CPANEL_SSH_PORT || 22 }}
+          script: |
+            mkdir -p /home/${{ secrets.CPANEL_SSH_USER }}/repositories/whaatachi
+
       - name: Upload Tarball to cPanel
         uses: appleboy/scp-action@v0.1.7
         with:
@@ -47,7 +57,7 @@ jobs:
           source: deploy.tar.gz
           target: /home/${{ secrets.CPANEL_SSH_USER }}/repositories/whaatachi/
 
-      - name: Extract & Restart on cPanel
+      - name: Verify upload and extract on cPanel
         uses: appleboy/ssh-action@v1.2.2
         with:
           host: ${{ secrets.CPANEL_SSH_HOST }}
@@ -55,10 +65,18 @@ jobs:
           key: ${{ secrets.CPANEL_SSH_KEY }}
           port: ${{ secrets.CPANEL_SSH_PORT || 22 }}
           script: |
-            rm -f ~/.cpanel/datastore/NodeApps/*.lock
+            echo "=== Directory contents before extract ==="
+            ls -la /home/${{ secrets.CPANEL_SSH_USER }}/repositories/whaatachi/
+            echo "=== Checking for tarball ==="
+            test -f /home/${{ secrets.CPANEL_SSH_USER }}/repositories/whaatachi/deploy.tar.gz && echo "tarball FOUND" || echo "tarball MISSING"
             cd /home/${{ secrets.CPANEL_SSH_USER }}/repositories/whaatachi
             rm -rf dist package.json package-lock.json deploy.js
-            tar -xzf deploy.tar.gz
-            rm deploy.tar.gz
-            npm install --production
-            /scripts/restartsrv_nodeapps
+            tar -xzf deploy.tar.gz && echo "extract OK" || echo "extract FAILED"
+            rm -f deploy.tar.gz
+            echo "=== Directory contents after extract ==="
+            ls -la /home/${{ secrets.CPANEL_SSH_USER }}/repositories/whaatachi/
+            echo "=== Installing dependencies ==="
+            npm install --production && echo "npm install OK" || echo "npm install FAILED"
+            echo "=== Restarting Node.js app ==="
+            rm -f ~/.cpanel/datastore/NodeApps/*.lock
+            /scripts/restartsrv_nodeapps && echo "restart OK" || echo "restart FAILED"
