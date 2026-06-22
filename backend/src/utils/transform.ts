@@ -1,6 +1,10 @@
 import { Profile, PaymentRequest, UserRow, PaymentRow } from '../types';
 
-export function userRowToProfile(row: UserRow): Profile {
+export function userRowToProfile(row: UserRow, baseUrl?: string): Profile {
+  let img = row.image ?? '';
+  if (img && img.startsWith('data:') && baseUrl) {
+    img = `${baseUrl}/api/profiles/${row.id || (row as any)._id}/image`;
+  }
   return {
     id: row.id || (row as any)._id,
     name: row.name,
@@ -10,7 +14,7 @@ export function userRowToProfile(row: UserRow): Profile {
     bio: row.bio ?? '',
     gender: row.gender,
     lookingFor: row.lookingFor ?? undefined,
-    image: row.image ?? '',
+    image: img,
     status: row.status ?? 'Offline',
     relationshipIntent: (row.relationshipIntent as Profile['relationshipIntent']) ?? 'Friendship',
     interests: Array.isArray(row.interests) ? row.interests.map((i: any) => i.interest ?? i) : [],
@@ -24,13 +28,15 @@ export function userRowToProfile(row: UserRow): Profile {
   };
 }
 
-export function paymentRowToPayment(row: PaymentRow): PaymentRequest {
+export function paymentRowToPayment(row: PaymentRow, baseUrl?: string): PaymentRequest {
+  const pImage = row.profileId && baseUrl && row.profileImage ? `${baseUrl}/api/profiles/${row.profileId}/image` : (row.profileImage ?? '');
+  const rImage = row.id && row.receiptImage && baseUrl ? `${baseUrl}/api/payments/${row.id}/receipt` : (row.receiptImage ?? undefined);
   return {
     id: row.id || (row as any)._id,
     userId: row.userId,
     profileId: row.profileId,
     profileName: row.profileName,
-    profileImage: row.profileImage ?? '',
+    profileImage: pImage,
     senderName: row.senderName,
     senderPhone: row.senderPhone,
     transactionId: row.transactionId,
@@ -38,7 +44,7 @@ export function paymentRowToPayment(row: PaymentRow): PaymentRequest {
     amount: row.amount,
     timestamp: row.createdAt,
     status: row.status,
-    receiptImage: row.receiptImage ?? undefined,
+    receiptImage: rImage,
   };
 }
 

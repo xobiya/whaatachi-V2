@@ -31,10 +31,49 @@ router.post('/', authenticate, validatePayment, async (req: AuthRequest, res: Re
       res.status(500).json({ error: 'Failed to create payment' });
       return;
     }
-    res.status(201).json({ payment: paymentRowToPayment(created) });
+
+    const host = req.get('host');
+    const protocol = req.secure || req.headers['x-forwarded-proto'] === 'https' ? 'https' : 'http';
+    const baseUrl = `${protocol}://${host}`;
+
+    res.status(201).json({ payment: paymentRowToPayment(created, baseUrl) });
   } catch (err: any) {
     console.error('Submit payment error:', err);
     res.status(500).json({ error: 'Failed to submit payment' });
+  }
+});
+
+router.get('/:id/receipt', authenticate, async (req: AuthRequest, res: Response) => {
+  try {
+    const payment = await paymentModel.findPaymentById(String(req.params.id));
+    if (!payment || !payment.receiptImage) {
+      res.status(404).send('Not found');
+      return;
+    }
+
+    // Only the user who paid or an admin can view the receipt
+    if (payment.userId !== req.userId && !req.isAdmin) {
+      res.status(403).send('Not authorized');
+      return;
+    }
+
+    const imgStr = payment.receiptImage;
+    const match = imgStr.match(/^data:([^;]+);base64,(.+)$/);
+    if (match) {
+      const contentType = match[1];
+      const data = Buffer.from(match[2], 'base64');
+      res.setHeader('Content-Type', contentType);
+      res.setHeader('Cache-Control', 'public, max-age=86400');
+      res.send(data);
+    } else {
+      const data = Buffer.from(imgStr, 'base64');
+      res.setHeader('Content-Type', 'image/jpeg');
+      res.setHeader('Cache-Control', 'public, max-age=86400');
+      res.send(data);
+    }
+  } catch (err) {
+    console.error('Receipt fetch error:', err);
+    res.status(500).send('Error');
   }
 });
 
@@ -43,7 +82,12 @@ router.get('/', authenticate, async (req: AuthRequest, res: Response) => {
     const rows = req.isAdmin
       ? await paymentModel.findAllPayments()
       : await paymentModel.findPaymentsByUser(req.userId!);
-    const payments = rows.map((r: any) => paymentRowToPayment(r));
+
+    const host = req.get('host');
+    const protocol = req.secure || req.headers['x-forwarded-proto'] === 'https' ? 'https' : 'http';
+    const baseUrl = `${protocol}://${host}`;
+
+    const payments = rows.map((r: any) => paymentRowToPayment(r, baseUrl));
     res.json({ payments });
   } catch (err: any) {
     console.error('Get payments error:', err);
@@ -63,7 +107,11 @@ router.put('/:id/approve', authenticate, adminOnly, async (req: AuthRequest, res
 
     await userModel.verifyUser(payment.userId);
 
-    res.json({ payment: paymentRowToPayment(payment as any) });
+    const host = req.get('host');
+    const protocol = req.secure || req.headers['x-forwarded-proto'] === 'https' ? 'https' : 'http';
+    const baseUrl = `${protocol}://${host}`;
+
+    res.json({ payment: paymentRowToPayment(payment as any, baseUrl) });
   } catch (err: any) {
     console.error('Approve payment error:', err);
     res.status(500).json({ error: 'Failed to approve payment' });
@@ -80,7 +128,11 @@ router.put('/:id/reject', authenticate, adminOnly, async (req: AuthRequest, res:
       return;
     }
 
-    res.json({ payment: paymentRowToPayment(payment as any) });
+    const host = req.get('host');
+    const protocol = req.secure || req.headers['x-forwarded-proto'] === 'https' ? 'https' : 'http';
+    const baseUrl = `${protocol}://${host}`;
+
+    res.json({ payment: paymentRowToPayment(payment as any, baseUrl) });
   } catch (err: any) {
     console.error('Reject payment error:', err);
     res.status(500).json({ error: 'Failed to reject payment' });

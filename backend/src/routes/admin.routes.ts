@@ -106,7 +106,12 @@ router.post('/profiles', authenticate, adminOnly, async (req: AuthRequest, res: 
     }
 
     const user = await userModel.findUserById(id);
-    res.status(201).json({ user: userRowToProfile(user) });
+
+    const host = req.get('host');
+    const protocol = req.secure || req.headers['x-forwarded-proto'] === 'https' ? 'https' : 'http';
+    const baseUrl = `${protocol}://${host}`;
+
+    res.status(201).json({ user: userRowToProfile(user, baseUrl) });
   } catch (err: any) {
     console.error('Admin create user error:', err);
     res.status(500).json({ error: 'Failed to create user' });

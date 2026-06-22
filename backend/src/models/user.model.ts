@@ -160,7 +160,7 @@ function toProfileDoc(doc: any) {
     bio: doc.bio ?? null,
     gender: doc.gender,
     lookingFor: doc.lookingFor ?? null,
-    image: doc.image ?? null,
+    image: doc.image ? `/api/profiles/${doc.id}/image` : null,
     status: doc.status ?? 'Offline',
     relationshipIntent: doc.relationshipIntent ?? null,
     interests,
@@ -221,6 +221,64 @@ export async function getAllProfiles() {
   return { profiles: cache?.rows ?? [], total: cache?.total ?? 0 };
 }
 
+export async function getProfilesFiltered(filters: {
+  gender?: string;
+  lookingFor?: string;
+  city?: string;
+  intent?: string;
+  search?: string;
+  minAge?: number;
+  maxAge?: number;
+  page?: number;
+  limit?: number;
+}) {
+  const { profiles } = await getAllProfiles();
+  let list = [...profiles];
+
+  if (filters.gender) {
+    list = list.filter(p => p.gender === filters.gender);
+  }
+  if (filters.lookingFor) {
+    list = list.filter(p => p.lookingFor === filters.lookingFor);
+  }
+  if (filters.city && filters.city.toLowerCase() !== 'all') {
+    const c = filters.city.toLowerCase();
+    list = list.filter(p => p.city?.toLowerCase() === c);
+  }
+  if (filters.intent && filters.intent.toLowerCase() !== 'all') {
+    list = list.filter(p => p.relationshipIntent === filters.intent);
+  }
+  if (filters.search) {
+    const s = filters.search.toLowerCase();
+    list = list.filter(p =>
+      p.name?.toLowerCase().includes(s) ||
+      p.city?.toLowerCase().includes(s) ||
+      p.bio?.toLowerCase().includes(s) ||
+      (Array.isArray(p.interests) && p.interests.some((i: string) => i.toLowerCase().includes(s)))
+    );
+  }
+  if (filters.minAge !== undefined && !isNaN(filters.minAge)) {
+    list = list.filter(p => p.age !== null && p.age >= filters.minAge!);
+  }
+  if (filters.maxAge !== undefined && !isNaN(filters.maxAge)) {
+    list = list.filter(p => p.age !== null && p.age <= filters.maxAge!);
+  }
+
+  const filteredTotal = list.length;
+
+  // Pagination
+  const page = Math.max(1, filters.page || 1);
+  const limit = Math.max(1, filters.limit || 1000);
+  const start = (page - 1) * limit;
+  const end = start + limit;
+  const paginated = list.slice(start, end);
+
+  return {
+    profiles: paginated,
+    total: filteredTotal,
+  };
+}
+
 function normalizePhone(phone?: string): string | undefined {
   return phone ? phone.replace(/\s+/g, '') : undefined;
 }
@@ -251,7 +309,7 @@ export async function createUser(data: Record<string, any>) {
   }
 
   cachedAllProfiles = null;
-  await refreshProfileCache();
+  refreshProfileCache();
 
   return findUserById(id);
 }
@@ -297,14 +355,14 @@ export async function updateUser(id: string, data: Record<string, any>) {
   }
 
   cachedAllProfiles = null;
-  await refreshProfileCache();
+  refreshProfileCache();
   return findUserById(id);
 }
 
 export async function verifyUser(userId: string) {
   await query('UPDATE User SET verified = 1 WHERE id = ?', [userId]);
   cachedAllProfiles = null;
-  await refreshProfileCache();
+  refreshProfileCache();
 }
 
 export async function toggleUserVerification(userId: string) {
@@ -313,7 +371,7 @@ export async function toggleUserVerification(userId: string) {
   const newVal = user.verified ? 0 : 1;
   await query('UPDATE User SET verified = ? WHERE id = ?', [newVal, userId]);
   cachedAllProfiles = null;
-  await refreshProfileCache();
+  refreshProfileCache();
   return { verified: newVal === 1 };
 }
 
@@ -327,7 +385,7 @@ export async function deleteUser(id: string) {
   await query('DELETE FROM UserInterest WHERE userId = ?', [id]);
   await query('DELETE FROM User WHERE id = ?', [id]);
   cachedAllProfiles = null;
-  await refreshProfileCache();
+  refreshProfileCache();
   return { id };
 }
 

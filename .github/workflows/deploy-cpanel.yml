@@ -28,28 +28,26 @@ jobs:
         run: npm run build
         working-directory: backend
 
-      - name: Prepare Clean Production Package
+      - name: Package Deployment Tarball
         run: |
-          mkdir -p deploy-pkg/dist
-          if [ -d "backend/dist" ]; then cp -r backend/dist/* deploy-pkg/dist/; fi
-          cp backend/package.json deploy-pkg/
-          cp backend/package-lock.json deploy-pkg/
-          cp backend/deploy.js deploy-pkg/
-          if [ -d "backend/prisma" ]; then cp -r backend/prisma deploy-pkg/; fi
-          if [ -d "backend/src" ]; then cp -r backend/src deploy-pkg/; fi
+          cd backend
+          tar -czf ../deploy.tar.gz \
+            dist/ \
+            package.json \
+            package-lock.json \
+            deploy.js
 
-      - name: Upload Build to cPanel via SCP
+      - name: Upload Tarball to cPanel
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.CPANEL_SSH_HOST }}
           username: ${{ secrets.CPANEL_SSH_USER }}
           key: ${{ secrets.CPANEL_SSH_KEY }}
           port: ${{ secrets.CPANEL_SSH_PORT || 22 }}
-          source: deploy-pkg/
+          source: deploy.tar.gz
           target: /home/${{ secrets.CPANEL_SSH_USER }}/repositories/whaatachi/
-          strip_components: 1
 
-      - name: Install dependencies & restart on cPanel
+      - name: Extract & Restart on cPanel
         uses: appleboy/ssh-action@v1.2.2
         with:
           host: ${{ secrets.CPANEL_SSH_HOST }}
@@ -59,5 +57,8 @@ jobs:
           script: |
             rm -f ~/.cpanel/datastore/NodeApps/*.lock
             cd /home/${{ secrets.CPANEL_SSH_USER }}/repositories/whaatachi
+            rm -rf dist package.json package-lock.json deploy.js
+            tar -xzf deploy.tar.gz
+            rm deploy.tar.gz
             npm install --production
             /scripts/restartsrv_nodeapps

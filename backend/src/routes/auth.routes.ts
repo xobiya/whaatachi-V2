@@ -34,8 +34,12 @@ router.post('/register', validateRegister, async (req: AuthRequest, res: Respons
       return;
     }
 
+    const host = req.get('host');
+    const protocol = req.secure || req.headers['x-forwarded-proto'] === 'https' ? 'https' : 'http';
+    const baseUrl = `${protocol}://${host}`;
+
     const token = generateToken({ id });
-    res.status(201).json({ token, user: userRowToProfile(created) });
+    res.status(201).json({ token, user: userRowToProfile(created, baseUrl) });
   } catch (err: any) {
     console.error('Register error:', err);
     if (err?.code === 'P2002') {
@@ -79,8 +83,12 @@ router.post('/login', validateLogin, async (req: AuthRequest, res: Response) => 
       return;
     }
 
+    const host = req.get('host');
+    const protocol = req.secure || req.headers['x-forwarded-proto'] === 'https' ? 'https' : 'http';
+    const baseUrl = `${protocol}://${host}`;
+
     const token = generateToken({ id: found.id });
-    res.json({ token, user: userRowToProfile(found as any) });
+    res.json({ token, user: userRowToProfile(found as any, baseUrl) });
   } catch (err: any) {
     console.error('Login error:', err);
     res.status(500).json({ error: 'Login failed' });
@@ -102,7 +110,12 @@ router.get('/me', optionalAuthenticate, async (req: AuthRequest, res: Response) 
       res.json({ user: null });
       return;
     }
-    res.json({ user: userRowToProfile(user as any) });
+
+    const host = req.get('host');
+    const protocol = req.secure || req.headers['x-forwarded-proto'] === 'https' ? 'https' : 'http';
+    const baseUrl = `${protocol}://${host}`;
+
+    res.json({ user: userRowToProfile(user as any, baseUrl) });
   } catch (err: any) {
     console.error('Get me error:', err);
     res.status(500).json({ error: 'Failed to fetch user' });
