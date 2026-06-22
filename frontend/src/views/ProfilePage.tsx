@@ -62,6 +62,7 @@ export default function ProfilePage({ profile, isUnlocked, pendingPayment, userG
   const [editTelegram, setEditTelegram] = useState(profile.contactInfo.telegram);
   const [editInstagram, setEditInstagram] = useState(profile.contactInfo.instagram || '');
   const [editEmail, setEditEmail] = useState(profile.contactInfo.email);
+  const [isUploading, setIsUploading] = useState(false);
 
   const handleSave = () => {
     if (onSaveProfile) {
@@ -117,8 +118,34 @@ export default function ProfilePage({ profile, isUnlocked, pendingPayment, userG
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    setIsUploading(true);
     const reader = new FileReader();
-    reader.onload = ev => setEditImage(ev.target?.result as string);
+    reader.onload = ev => {
+      const img = new Image();
+      img.onload = () => {
+        let w = img.naturalWidth;
+        let h = img.naturalHeight;
+        const MAX = 800;
+        if (w > MAX || h > MAX) {
+          if (w > h) { h = Math.round(h * MAX / w); w = MAX; }
+          else { w = Math.round(w * MAX / h); h = MAX; }
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = w; canvas.height = h;
+        const ctx = canvas.getContext('2d')!;
+        ctx.drawImage(img, 0, 0, w, h);
+        const compressed = canvas.toDataURL('image/jpeg', 0.7);
+        setEditImage(compressed);
+        setIsUploading(false);
+      };
+      img.onerror = () => {
+        setIsUploading(false);
+      };
+      img.src = ev.target?.result as string;
+    };
+    reader.onerror = () => {
+      setIsUploading(false);
+    };
     reader.readAsDataURL(file);
   };
 
@@ -166,8 +193,17 @@ export default function ProfilePage({ profile, isUnlocked, pendingPayment, userG
               />
               {editing && (
                 <div className="absolute inset-0 bg-black/55 flex flex-col items-center justify-center text-white text-[10px] font-bold gap-1 transition-opacity">
-                  <Camera className="h-5 w-5 text-[#C9A84C]" />
-                  <span>{t('profile.upload-photo')}</span>
+                  {isUploading ? (
+                    <div className="flex flex-col items-center gap-1.5">
+                      <div className="w-5 h-5 border-2 border-t-transparent border-[#C9A84C] rounded-full animate-spin" />
+                      <span>{t('profile.uploading') || 'Uploading...'}</span>
+                    </div>
+                  ) : (
+                    <>
+                      <Camera className="h-5 w-5 text-[#C9A84C]" />
+                      <span>{t('profile.upload-photo')}</span>
+                    </>
+                  )}
                 </div>
               )}
             </div>
@@ -558,10 +594,20 @@ export default function ProfilePage({ profile, isUnlocked, pendingPayment, userG
           <button 
             type="button"
             onClick={handleSave} 
-            className="flex-1 py-3 bg-[#EB317A] hover:bg-[#F04B8E] text-white font-extrabold text-xs rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1.5 shadow-md shadow-[#EB317A]/15"
+            disabled={isUploading}
+            className="flex-1 py-3 bg-[#EB317A] hover:bg-[#F04B8E] disabled:opacity-50 disabled:cursor-not-allowed text-white font-extrabold text-xs rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1.5 shadow-md shadow-[#EB317A]/15"
           >
-            <Check className="h-4 w-4" />
-            {t('profile.save-profile')}
+            {isUploading ? (
+              <>
+                <div className="w-4 h-4 border-2 border-t-transparent border-white rounded-full animate-spin" />
+                <span>Saving...</span>
+              </>
+            ) : (
+              <>
+                <Check className="h-4 w-4" />
+                {t('profile.save-profile')}
+              </>
+            )}
           </button>
         </div>
       )}

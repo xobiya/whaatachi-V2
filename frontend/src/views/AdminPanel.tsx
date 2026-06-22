@@ -226,6 +226,8 @@ export default function AdminPanel({
   const [newProfileInstagram, setNewProfileInstagram] = useState('');
   const [newProfilePhone, setNewProfilePhone] = useState('');
   const [newProfileInterests, setNewProfileInterests] = useState('Coffee, Music, Literature');
+  const [isUploadingNew, setIsUploadingNew] = useState(false);
+  const [isUploadingEdit, setIsUploadingEdit] = useState(false);
 
   const handleAuthSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -1858,23 +1860,52 @@ export default function AdminPanel({
                           <input
                             type="file"
                             accept="image/*"
+                            disabled={isUploadingNew}
                             onChange={(e) => {
                               const file = e.target.files?.[0];
                               if (file) {
+                                setIsUploadingNew(true);
                                 const reader = new FileReader();
                                 reader.onload = (ev) => {
-                                  if (ev.target?.result) setNewProfileImage(ev.target.result as string);
+                                  const img = new Image();
+                                  img.onload = () => {
+                                    let w = img.naturalWidth;
+                                    let h = img.naturalHeight;
+                                    const MAX = 800;
+                                    if (w > MAX || h > MAX) {
+                                      if (w > h) { h = Math.round(h * MAX / w); w = MAX; }
+                                      else { w = Math.round(w * MAX / h); h = MAX; }
+                                    }
+                                    const canvas = document.createElement('canvas');
+                                    canvas.width = w; canvas.height = h;
+                                    const ctx = canvas.getContext('2d')!;
+                                    ctx.drawImage(img, 0, 0, w, h);
+                                    const compressed = canvas.toDataURL('image/jpeg', 0.7);
+                                    setNewProfileImage(compressed);
+                                    setIsUploadingNew(false);
+                                  };
+                                  img.onerror = () => {
+                                    setIsUploadingNew(false);
+                                  };
+                                  img.src = ev.target?.result as string;
+                                };
+                                reader.onerror = () => {
+                                  setIsUploadingNew(false);
                                 };
                                 reader.readAsDataURL(file);
                               }
                             }}
                             className="hidden"
                           />
-                          <svg className="h-5 w-5 text-gray-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
-                          </svg>
+                          {isUploadingNew ? (
+                            <div className="w-5 h-5 border-2 border-t-transparent border-pink-500 rounded-full animate-spin shrink-0" />
+                          ) : (
+                            <svg className="h-5 w-5 text-gray-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
+                            </svg>
+                          )}
                           <span className="text-xs text-gray-500 font-medium truncate">
-                            {newProfileImage?.startsWith('data:') ? 'Photo uploaded' : 'Upload photo...'}
+                            {isUploadingNew ? 'Processing photo...' : (newProfileImage?.startsWith('data:') ? 'Photo uploaded' : 'Upload photo...')}
                           </span>
                         </label>
                         {newProfileImage?.startsWith('data:') && (
@@ -1977,8 +2008,10 @@ export default function AdminPanel({
                       </button>
                       <button
                         type="submit"
-                        className="px-4 py-2 bg-pink-600 hover:bg-pink-700 text-white font-extrabold rounded-xl transition-colors"
+                        disabled={isUploadingNew}
+                        className="px-4 py-2 bg-pink-600 hover:bg-pink-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-extrabold rounded-xl transition-colors flex items-center gap-1.5"
                       >
+                        {isUploadingNew && <div className="w-3.5 h-3.5 border-2 border-t-transparent border-white rounded-full animate-spin" />}
                         Create & Verify Instant
                       </button>
                     </div>
@@ -2089,23 +2122,52 @@ export default function AdminPanel({
                           <input
                             type="file"
                             accept="image/*"
+                            disabled={isUploadingEdit}
                             onChange={(e) => {
                               const file = e.target.files?.[0];
                               if (file) {
+                                setIsUploadingEdit(true);
                                 const reader = new FileReader();
                                 reader.onload = (ev) => {
-                                  if (ev.target?.result) setEditingProfile({ ...editingProfile, image: ev.target.result as string });
+                                  const img = new Image();
+                                  img.onload = () => {
+                                    let w = img.naturalWidth;
+                                    let h = img.naturalHeight;
+                                    const MAX = 800;
+                                    if (w > MAX || h > MAX) {
+                                      if (w > h) { h = Math.round(h * MAX / w); w = MAX; }
+                                      else { w = Math.round(w * MAX / h); h = MAX; }
+                                    }
+                                    const canvas = document.createElement('canvas');
+                                    canvas.width = w; canvas.height = h;
+                                    const ctx = canvas.getContext('2d')!;
+                                    ctx.drawImage(img, 0, 0, w, h);
+                                    const compressed = canvas.toDataURL('image/jpeg', 0.7);
+                                    setEditingProfile({ ...editingProfile, image: compressed });
+                                    setIsUploadingEdit(false);
+                                  };
+                                  img.onerror = () => {
+                                    setIsUploadingEdit(false);
+                                  };
+                                  img.src = ev.target?.result as string;
+                                };
+                                reader.onerror = () => {
+                                  setIsUploadingEdit(false);
                                 };
                                 reader.readAsDataURL(file);
                               }
                             }}
                             className="hidden"
                           />
-                          <svg className="h-5 w-5 text-gray-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
-                          </svg>
+                          {isUploadingEdit ? (
+                            <div className="w-5 h-5 border-2 border-t-transparent border-pink-500 rounded-full animate-spin shrink-0" />
+                          ) : (
+                            <svg className="h-5 w-5 text-gray-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
+                            </svg>
+                          )}
                           <span className="text-xs text-gray-500 font-medium truncate">
-                            {editingProfile.image?.startsWith('data:') ? 'Photo uploaded' : 'Change photo...'}
+                            {isUploadingEdit ? 'Processing photo...' : (editingProfile.image?.startsWith('data:') ? 'Photo uploaded' : 'Change photo...')}
                           </span>
                         </label>
                         {editingProfile.image && (
@@ -2165,8 +2227,10 @@ export default function AdminPanel({
                       </button>
                       <button
                         type="submit"
-                        className="px-4 py-2 bg-pink-600 hover:bg-pink-700 text-white font-extrabold rounded-xl transition-all"
+                        disabled={isUploadingEdit}
+                        className="px-4 py-2 bg-pink-600 hover:bg-pink-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-extrabold rounded-xl transition-all flex items-center gap-1.5"
                       >
+                        {isUploadingEdit && <div className="w-3.5 h-3.5 border-2 border-t-transparent border-white rounded-full animate-spin" />}
                         Save Updated Values
                       </button>
                     </div>

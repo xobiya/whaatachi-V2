@@ -37,6 +37,7 @@ export default function PaymentModal({
   const [uploadedFileName, setUploadedFileName] = useState<string | null>(null);
   const [uploadedFileData, setUploadedFileData] = useState<string | null>(null);
   const [uploadTouched, setUploadTouched] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [showPaymentForm, setShowPaymentForm] = useState(false);
 
@@ -47,6 +48,7 @@ export default function PaymentModal({
       setUploadTouched(false);
       setError('');
       setSubmitting(false);
+      setIsUploading(false);
     }
   }, [isOpen]);
 
@@ -58,6 +60,7 @@ export default function PaymentModal({
     if (file) {
       setUploadedFileName(file.name);
       setError('');
+      setIsUploading(true);
       const reader = new FileReader();
       reader.onload = ev => {
         const img = new Image();
@@ -74,8 +77,15 @@ export default function PaymentModal({
           const ctx = canvas.getContext('2d')!;
           ctx.drawImage(img, 0, 0, w, h);
           setUploadedFileData(canvas.toDataURL('image/jpeg', 0.75));
+          setIsUploading(false);
+        };
+        img.onerror = () => {
+          setIsUploading(false);
         };
         img.src = ev.target?.result as string;
+      };
+      reader.onerror = () => {
+        setIsUploading(false);
       };
       reader.readAsDataURL(file);
     }
@@ -248,13 +258,28 @@ export default function PaymentModal({
 
                   <div className={`border border-dashed rounded-xl p-3 bg-[#F8F4ED] dark:bg-[#1A1118] flex items-center justify-between text-xs ${uploadTouched && !uploadedFileName ? 'border-[#EB317A]' : 'border-[#EDE6D9] dark:border-[#C9A84C]/15'}`}>
                     <div className="flex items-center gap-2">
-                      {uploadedFileName ? <File className="h-5 w-5 text-[#EB317A]" /> : <Upload className="h-5 w-5 text-gray-400" />}
+                      {isUploading ? (
+                        <div className="w-5 h-5 border-2 border-t-transparent border-[#EB317A] rounded-full animate-spin" />
+                      ) : uploadedFileName ? (
+                        <File className="h-5 w-5 text-[#EB317A]" />
+                      ) : (
+                        <Upload className="h-5 w-5 text-gray-400" />
+                      )}
                       <div>
-                        <p className="font-bold text-gray-700 dark:text-gray-300">{uploadedFileName || t('payment.upload-slip')}</p>
-                        <p className="text-[10px] text-gray-400">{uploadedFileName ? 'File selected' : 'Upload receipt (required)'}</p>
+                        <p className="font-bold text-gray-700 dark:text-gray-300">
+                          {isUploading ? 'Processing receipt...' : (uploadedFileName || t('payment.upload-slip'))}
+                        </p>
+                        <p className="text-[10px] text-gray-400">
+                          {isUploading ? 'Compressing image...' : (uploadedFileName ? 'File selected' : 'Upload receipt (required)')}
+                        </p>
                       </div>
                     </div>
-                    <button type="button" onClick={() => fileInputRef.current?.click()} className="bg-white dark:bg-[#120A0E] border border-[#EDE6D9] dark:border-[#C9A84C]/10 rounded-md px-2 py-1 font-semibold text-gray-500 dark:text-gray-400 cursor-pointer hover:bg-gray-50 dark:hover:bg-[#1A1118] text-[10px]">
+                    <button
+                      type="button"
+                      disabled={isUploading}
+                      onClick={() => fileInputRef.current?.click()}
+                      className="bg-white dark:bg-[#120A0E] border border-[#EDE6D9] dark:border-[#C9A84C]/10 rounded-md px-2 py-1 font-semibold text-gray-500 dark:text-gray-400 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 dark:hover:bg-[#1A1118] text-[10px]"
+                    >
                       {t('payment.choose')}
                     </button>
                     <input type="file" ref={fileInputRef} accept="image/*" className="hidden" onChange={handleFileChange} />
@@ -264,9 +289,14 @@ export default function PaymentModal({
             )}
 
             {(showPaymentForm || userGender === 'Female') && (
-            <button type="submit" disabled={submitting} className="w-full py-3.5 bg-[#EB317A] hover:bg-[#F04B8E] text-white rounded-xl text-sm font-bold shadow-lg shadow-[#EB317A]/20 transition-all flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer shrink-0">
+            <button type="submit" disabled={submitting || isUploading} className="w-full py-3.5 bg-[#EB317A] hover:bg-[#F04B8E] text-white rounded-xl text-sm font-bold shadow-lg shadow-[#EB317A]/20 transition-all flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer shrink-0">
               {submitting ? (
                 <span>{t('payment.verifying')}</span>
+              ) : isUploading ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-t-transparent border-white rounded-full animate-spin" />
+                  <span>Processing Receipt...</span>
+                </>
               ) : userGender === 'Female' ? (
                 <>
                   <span>{t('payment.verify-free')}</span>

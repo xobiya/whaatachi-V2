@@ -239,7 +239,7 @@ function AppContent() {
           });
         }
       }).catch((err) => console.error('Background profiles poll error:', err));
-    }, 60000);
+    }, 10000);
 
     return () => clearInterval(interval);
   }, [auth.state.isLoggedIn]);

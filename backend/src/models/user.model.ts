@@ -251,6 +251,7 @@ export async function createUser(data: Record<string, any>) {
   }
 
   cachedAllProfiles = null;
+  await refreshProfileCache();
 
   return findUserById(id);
 }
@@ -296,11 +297,14 @@ export async function updateUser(id: string, data: Record<string, any>) {
   }
 
   cachedAllProfiles = null;
+  await refreshProfileCache();
   return findUserById(id);
 }
 
 export async function verifyUser(userId: string) {
   await query('UPDATE User SET verified = 1 WHERE id = ?', [userId]);
+  cachedAllProfiles = null;
+  await refreshProfileCache();
 }
 
 export async function toggleUserVerification(userId: string) {
@@ -308,6 +312,8 @@ export async function toggleUserVerification(userId: string) {
   if (!user) return null;
   const newVal = user.verified ? 0 : 1;
   await query('UPDATE User SET verified = ? WHERE id = ?', [newVal, userId]);
+  cachedAllProfiles = null;
+  await refreshProfileCache();
   return { verified: newVal === 1 };
 }
 
@@ -320,6 +326,8 @@ export async function deleteUser(id: string) {
   if (!existing) return null;
   await query('DELETE FROM UserInterest WHERE userId = ?', [id]);
   await query('DELETE FROM User WHERE id = ?', [id]);
+  cachedAllProfiles = null;
+  await refreshProfileCache();
   return { id };
 }
 
