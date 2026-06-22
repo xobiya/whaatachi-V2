@@ -37,12 +37,14 @@
 @keyframes scaleIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
 @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
 @keyframes spin { to { transform: rotate(360deg); } }
+@keyframes progressPulse { 0%, 100% { width: 30%; } 50% { width: 70%; } }
 
 .animate-fade-in { animation: fadeIn 0.6s ease-out forwards; }
 .animate-slide-up { animation: slideUp 0.5s ease-out forwards; }
 .animate-scale-in { animation: scaleIn 0.3s ease-out forwards; }
 .animate-shimmer { background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.1) 50%, transparent 100%); background-size: 200% 100%; animation: shimmer 2s infinite; }
 .animate-spin { animation: spin 0.8s linear infinite; }
+.animate-progress { animation: progressPulse 1.5s ease-in-out infinite; }
 
 .stagger-1 { animation-delay: 0.1s; }
 .stagger-2 { animation-delay: 0.2s; }
