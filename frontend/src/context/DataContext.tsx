@@ -1,30 +1,5 @@
-import React, { createContext, useContext, useReducer, useEffect } from 'react';
+import React, { createContext, useContext, useReducer } from 'react';
 import { Profile, PaymentRequest } from '../types';
-
-const PROFILES_CACHE_KEY = 'whaatachi_profiles_cache';
-const UNLOCKED_IDS_KEY = 'whaatachi_unlocked_ids';
-const PAYMENTS_CACHE_KEY = 'whaatachi_payments_cache';
-
-function loadCachedProfiles(): Profile[] {
-  try {
-    const cached = localStorage.getItem(PROFILES_CACHE_KEY);
-    return cached ? JSON.parse(cached) : [];
-  } catch { return []; }
-}
-
-function loadCachedUnlockedIds(): string[] {
-  try {
-    const cached = localStorage.getItem(UNLOCKED_IDS_KEY);
-    return cached ? JSON.parse(cached) : [];
-  } catch { return []; }
-}
-
-function loadCachedPayments(): PaymentRequest[] {
-  try {
-    const cached = localStorage.getItem(PAYMENTS_CACHE_KEY);
-    return cached ? JSON.parse(cached) : [];
-  } catch { return []; }
-}
 
 interface DataState {
   profiles: Profile[];
@@ -88,9 +63,9 @@ function dataReducer(state: DataState, action: DataAction): DataState {
 }
 
 const initialDataState: DataState = {
-  profiles: loadCachedProfiles(),
-  unlockedIds: loadCachedUnlockedIds(),
-  allPayments: loadCachedPayments(),
+  profiles: [],
+  unlockedIds: [],
+  allPayments: [],
   viewingProfile: null,
   activeUnlockTarget: null,
   isPaymentModalOpen: false,
@@ -100,38 +75,6 @@ const DataContext = createContext<{ state: DataState; dispatch: React.Dispatch<D
 
 export function DataProvider({ children }: { children: React.ReactNode }) {
   const [state, dispatch] = useReducer(dataReducer, initialDataState);
-
-  // Lazy write to localStorage via requestIdleCallback
-  useEffect(() => {
-    const idleCallback = typeof window !== 'undefined' && window.requestIdleCallback
-      ? window.requestIdleCallback
-      : (cb: any) => window.setTimeout(cb, 1);
-    const idleCancel = typeof window !== 'undefined' && window.cancelIdleCallback
-      ? window.cancelIdleCallback
-      : (id: any) => window.clearTimeout(id);
-
-    const id = idleCallback(() => {
-      try {
-        localStorage.setItem(PROFILES_CACHE_KEY, JSON.stringify(state.profiles));
-        localStorage.setItem(UNLOCKED_IDS_KEY, JSON.stringify(state.unlockedIds));
-        localStorage.setItem(PAYMENTS_CACHE_KEY, JSON.stringify(state.allPayments));
-      } catch { /* noop */ }
-    });
-    return () => idleCancel(id as any);
-  }, [state.profiles, state.unlockedIds, state.allPayments]);
-
-  // Synchronous flush on page unload to guarantee cache survives refresh
-  useEffect(() => {
-    const flush = () => {
-      try {
-        localStorage.setItem(PROFILES_CACHE_KEY, JSON.stringify(state.profiles));
-        localStorage.setItem(UNLOCKED_IDS_KEY, JSON.stringify(state.unlockedIds));
-        localStorage.setItem(PAYMENTS_CACHE_KEY, JSON.stringify(state.allPayments));
-      } catch { /* noop */ }
-    };
-    window.addEventListener('beforeunload', flush);
-    return () => window.removeEventListener('beforeunload', flush);
-  }, [state.profiles, state.unlockedIds, state.allPayments]);
 
   return <DataContext.Provider value={{ state, dispatch }}>{children}</DataContext.Provider>;
 }

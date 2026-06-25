@@ -568,6 +568,15 @@ function AppContent() {
     );
   }
 
+  // ── Loading while checking session — prevent flash of OnboardingFlow on refresh ──
+  if (isCheckingSession) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-[#FFFCF8] dark:bg-[#120A0E]">
+        <div className="w-10 h-10 border-2 border-[#EB317A] border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
   // ── Onboarding (no header/footer) — shown when not logged in ──
   if (!auth.state.isLoggedIn && ui.state.currentView === 'home') {
     return (

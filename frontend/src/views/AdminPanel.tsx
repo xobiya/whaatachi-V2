@@ -99,33 +99,25 @@ export default function AdminPanel({
   // Dashboard stats from API
   const [apiStats, setApiStats] = useState<any>(null);
 
-  // Check for existing admin session + fetch data on mount
+  // Check for existing admin session on mount — verify token validity without fetching data
   useEffect(() => {
     if (!api.hasAdminSession()) return;
     api.fetchAdminStats()
-      .then((res) => {
+      .then(() => {
         setIsAuthenticated(true);
         setUserRole('admin');
-        setApiStats(res.stats);
-        return api.fetchAdminPayments();
-      })
-      .then((res) => {
-        if (res && Array.isArray(res.payments)) {
-          setAllPayments(res.payments);
-        }
       })
       .catch(() => {
-        // Admin token is invalid/expired — clear stale session
         api.clearAdminToken();
         setIsAuthenticated(false);
       });
   }, []);
 
-  // Real-time polling for payments & stats (every 30 seconds when authenticated)
+  // Poll payments & stats every 30s when authenticated — first call fires immediately
   useEffect(() => {
     if (!isAuthenticated) return;
 
-    const interval = setInterval(async () => {
+    const fetchData = async () => {
       try {
         const [payRes, statsRes] = await Promise.allSettled([
           api.fetchAdminPayments(),
@@ -143,7 +135,6 @@ export default function AdminPanel({
               }
               existingMap.set(p.id, p);
             }
-            // Also detect new payments not in existing
             if (payRes.value.payments.length !== prev.length) changed = true;
             return changed ? Array.from(existingMap.values()) : prev;
           });
@@ -155,8 +146,10 @@ export default function AdminPanel({
       } catch (err) {
         console.error('Admin polling error:', err);
       }
-    }, 30000);
+    };
 
+    fetchData();
+    const interval = setInterval(fetchData, 30000);
     return () => clearInterval(interval);
   }, [isAuthenticated]);
 
@@ -239,16 +232,6 @@ export default function AdminPanel({
       }
       setIsAuthenticated(true);
       setUserRole('admin');
-      // Fetch payments using admin-specific endpoint
-      api.fetchAdminPayments().then(res => {
-        if (res && Array.isArray(res.payments)) {
-          setAllPayments(res.payments);
-        }
-      }).catch(err => console.error('Failed to fetch payments after login:', err));
-      // Fetch stats
-      api.fetchAdminStats().then(res => {
-        if (res?.stats) setApiStats(res.stats);
-      }).catch(() => {});
     } catch {
       setError('Invalid administrative passcode.');
     }
