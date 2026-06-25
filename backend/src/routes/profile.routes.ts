@@ -1,4 +1,5 @@
 import { Router, Response } from 'express';
+import path from 'path';
 import * as userModel from '../models/user.model';
 import { authenticate, AuthRequest } from '../middleware/auth';
 import { userRowToProfile } from '../utils/transform';
@@ -20,17 +21,7 @@ router.get('/', async (req: AuthRequest, res: Response) => {
       limit: limit ? parseInt(String(limit), 10) : undefined,
     };
     const result = await userModel.getProfilesFiltered(filters);
-
-    const host = req.get('host');
-    const protocol = req.secure || req.headers['x-forwarded-proto'] === 'https' ? 'https' : 'http';
-    const baseUrl = `${protocol}://${host}`;
-
-    const mappedProfiles = result.profiles.map(p => ({
-      ...p,
-      image: p.image && p.image.startsWith('/api/') ? `${baseUrl}${p.image}` : p.image
-    }));
-
-    res.json({ profiles: mappedProfiles, total: result.total });
+    res.json({ profiles: result.profiles, total: result.total });
   } catch (err: any) {
     console.error('[profiles] error:', err?.message || err);
     if (!res.headersSent) {
@@ -52,13 +43,22 @@ router.get('/:id/image', async (req: AuthRequest, res: Response) => {
     }
 
     const imgStr = user.image;
-    const match = imgStr.match(/^data:([^;]+);base64,(.+)$/);
-    if (match) {
-      const contentType = match[1];
-      const data = Buffer.from(match[2], 'base64');
+    const dataMatch = imgStr.match(/^data:([^;]+);base64,(.+)$/);
+    if (dataMatch) {
+      const contentType = dataMatch[1];
+      const data = Buffer.from(dataMatch[2], 'base64');
       res.setHeader('Content-Type', contentType);
       res.setHeader('Cache-Control', 'public, max-age=86400');
       res.send(data);
+    } else if (imgStr.startsWith('/')) {
+      const publicDir = path.join(process.cwd(), 'public');
+      const resolved = path.resolve(publicDir, imgStr.slice(1));
+      if (!resolved.startsWith(path.resolve(publicDir))) {
+        res.status(403).send('Forbidden');
+        return;
+      }
+      res.setHeader('Cache-Control', 'public, max-age=86400');
+      res.sendFile(resolved);
     } else {
       const data = Buffer.from(imgStr, 'base64');
       res.setHeader('Content-Type', 'image/jpeg');
@@ -78,11 +78,7 @@ router.get('/:id', async (req: AuthRequest, res: Response) => {
       res.status(404).json({ error: 'Profile not found' });
       return;
     }
-    const host = req.get('host');
-    const protocol = req.secure || req.headers['x-forwarded-proto'] === 'https' ? 'https' : 'http';
-    const baseUrl = `${protocol}://${host}`;
-
-    res.json({ profile: userRowToProfile(user as any, baseUrl) });
+    res.json({ profile: userRowToProfile(user as any) });
   } catch (err: any) {
     console.error('Get profile error:', err);
     res.status(500).json({ error: 'Failed to fetch profile' });
@@ -111,11 +107,7 @@ router.put('/:id', authenticate, async (req: AuthRequest, res: Response) => {
       return;
     }
 
-    const host = req.get('host');
-    const protocol = req.secure || req.headers['x-forwarded-proto'] === 'https' ? 'https' : 'http';
-    const baseUrl = `${protocol}://${host}`;
-
-    res.json({ user: userRowToProfile(user as any, baseUrl) });
+    res.json({ user: userRowToProfile(user as any) });
   } catch (err: any) {
     console.error('Update profile error:', err);
     res.status(500).json({ error: 'Failed to update profile' });

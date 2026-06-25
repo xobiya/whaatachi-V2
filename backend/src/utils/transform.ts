@@ -1,10 +1,10 @@
 import { Profile, PaymentRequest, UserRow, PaymentRow } from '../types';
 
 export function userRowToProfile(row: UserRow, baseUrl?: string): Profile {
-  let img = row.image ?? '';
-  if (img && img.startsWith('data:') && baseUrl) {
-    img = `${baseUrl}/api/profiles/${row.id || (row as any)._id}/image`;
-  }
+  const userId = row.id || (row as any)._id;
+  // Return a relative URL so the frontend Vite proxy routes it correctly.
+  // Absolute URLs (e.g. http://localhost:3005/...) bypass the proxy and fail CORS.
+  let img = row.image ? `/api/profiles/${userId}/image` : '';
   return {
     id: row.id || (row as any)._id,
     name: row.name,
@@ -29,8 +29,9 @@ export function userRowToProfile(row: UserRow, baseUrl?: string): Profile {
 }
 
 export function paymentRowToPayment(row: PaymentRow, baseUrl?: string): PaymentRequest {
-  const pImage = row.profileId && baseUrl && row.profileImage ? `${baseUrl}/api/profiles/${row.profileId}/image` : (row.profileImage ?? '');
-  const rImage = row.id && row.receiptImage && baseUrl ? `${baseUrl}/api/payments/${row.id}/receipt` : (row.receiptImage ?? undefined);
+  // Use relative URLs so the frontend proxy routes them correctly (avoids CORS issues in dev).
+  const pImage = row.profileId && row.profileImage ? `/api/profiles/${row.profileId}/image` : (row.profileImage ?? '');
+  const rImage = row.id && row.receiptImage ? `/api/payments/${row.id}/receipt` : (row.receiptImage ?? undefined);
   return {
     id: row.id || (row as any)._id,
     userId: row.userId,
