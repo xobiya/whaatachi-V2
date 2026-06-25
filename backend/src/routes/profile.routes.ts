@@ -1,12 +1,28 @@
 import { Router, Response } from 'express';
 import path from 'path';
 import * as userModel from '../models/user.model';
-import { authenticate, AuthRequest } from '../middleware/auth';
+import * as paymentModel from '../models/payment.model';
+import { authenticate, optionalAuthenticate, AuthRequest } from '../middleware/auth';
 import { userRowToProfile } from '../utils/transform';
 
 const router = Router();
 
-router.get('/', async (req: AuthRequest, res: Response) => {
+function maskPhone(val: string | null) {
+  if (!val) return '';
+  const digits = val.replace(/\D/g, '');
+  if (digits.length >= 9) return digits.slice(0, 2) + 'XX XXX' + digits.slice(-3);
+  return val.slice(0, 3) + '***';
+}
+
+function maskHandle(val: string | null) {
+  if (!val || val === '---') return '---';
+  const at = val.startsWith('@') ? '@' : '';
+  const body = val.replace(/^@/, '');
+  if (body.length <= 2) return at + body + '***';
+  return at + body.slice(0, 2) + '...';
+}
+
+router.get('/', optionalAuthenticate, async (req: AuthRequest, res: Response) => {
   try {
     const { gender, lookingFor, city, intent, search, minAge, maxAge, page, limit } = req.query;
     const filters = {
@@ -21,7 +37,39 @@ router.get('/', async (req: AuthRequest, res: Response) => {
       limit: limit ? parseInt(String(limit), 10) : undefined,
     };
     const result = await userModel.getProfilesFiltered(filters);
-    res.json({ profiles: result.profiles, total: result.total });
+
+    let showAll = false;
+    if (req.isAdmin) {
+      showAll = true;
+    } else if (req.userId) {
+      const currentUser = await userModel.findUserById(req.userId);
+      if (currentUser) {
+        if (currentUser.gender === 'Female' || currentUser.verified === 1 || currentUser.verified === true) {
+          showAll = true;
+        } else {
+          showAll = await paymentModel.hasApprovedPayment(req.userId);
+        }
+      }
+    }
+
+    const responseProfiles = result.profiles.map((p: any) => {
+      const allowed = showAll || (req.userId && req.userId === p.id);
+      if (allowed) {
+        return p;
+      } else {
+        return {
+          ...p,
+          contactInfo: {
+            phone: maskPhone(p.contactInfo.phone),
+            telegram: maskHandle(p.contactInfo.telegram),
+            instagram: maskHandle(p.contactInfo.instagram),
+            email: maskHandle(p.contactInfo.email),
+          }
+        };
+      }
+    });
+
+    res.json({ profiles: responseProfiles, total: result.total });
   } catch (err: any) {
     console.error('[profiles] error:', err?.message || err);
     if (!res.headersSent) {
@@ -71,14 +119,41 @@ router.get('/:id/image', async (req: AuthRequest, res: Response) => {
   }
 });
 
-router.get('/:id', async (req: AuthRequest, res: Response) => {
+router.get('/:id', optionalAuthenticate, async (req: AuthRequest, res: Response) => {
   try {
     const user = await userModel.findUserById(String(req.params.id));
     if (!user) {
       res.status(404).json({ error: 'Profile not found' });
       return;
     }
-    res.json({ profile: userRowToProfile(user as any) });
+    const profile = userRowToProfile(user as any);
+
+    let allowed = false;
+    if (req.isAdmin) {
+      allowed = true;
+    } else if (req.userId && req.userId === profile.id) {
+      allowed = true;
+    } else if (req.userId) {
+      const currentUser = await userModel.findUserById(req.userId);
+      if (currentUser) {
+        if (currentUser.gender === 'Female' || currentUser.verified === 1 || currentUser.verified === true) {
+          allowed = true;
+        } else {
+          allowed = await paymentModel.hasApprovedPayment(req.userId);
+        }
+      }
+    }
+
+    if (!allowed) {
+      profile.contactInfo = {
+        phone: maskPhone(profile.contactInfo.phone),
+        telegram: maskHandle(profile.contactInfo.telegram),
+        instagram: maskHandle(profile.contactInfo.instagram),
+        email: maskHandle(profile.contactInfo.email),
+      };
+    }
+
+    res.json({ profile });
   } catch (err: any) {
     console.error('Get profile error:', err);
     res.status(500).json({ error: 'Failed to fetch profile' });

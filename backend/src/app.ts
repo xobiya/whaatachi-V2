@@ -18,6 +18,9 @@ app.use((req, res, next) => {
   const allowed = [
     'https://whaatachi.vercel.app',
     'https://whaatachi.lovable.app',
+    'http://localhost:5173',
+    'http://localhost:3000',
+    'http://localhost:4173',
     ...(process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(',') : []),
   ];
   if (origin && (allowed.includes(origin) || /\.vercel\.app$/.test(origin))) {

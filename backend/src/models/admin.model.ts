@@ -10,13 +10,6 @@ export async function findOrCreateAdmin(passcode: string) {
     const hashed = await bcrypt.hash(passcode, 10);
     await query('INSERT INTO Admin (username, password) VALUES (?, ?)', [ADMIN_USERNAME, hashed]);
     admin = await getRow<any>('SELECT * FROM Admin WHERE username = ?', [ADMIN_USERNAME]);
-  } else {
-    const storedMatch = await bcrypt.compare(passcode, admin.password);
-    if (!storedMatch) {
-      const hashed = await bcrypt.hash(passcode, 10);
-      await query('UPDATE Admin SET password = ? WHERE id = ?', [hashed, admin.id]);
-      admin.password = hashed;
-    }
   }
 
   return {

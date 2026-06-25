@@ -83,29 +83,34 @@ function AppContent() {
       if (path === '/admin') {
         auth.dispatch({ type: 'SET_USER_ROLE', payload: 'admin' });
         ui.dispatch({ type: 'SET_CURRENT_VIEW', payload: 'admin' });
-      } else if (path === '/history') {
-        ui.dispatch({ type: 'SET_CURRENT_VIEW', payload: 'history' });
-      } else if (path === '/dashboard') {
-        ui.dispatch({ type: 'SET_CURRENT_VIEW', payload: 'dashboard' });
-      } else if (path === '/browse') {
-        ui.dispatch({ type: 'SET_CURRENT_VIEW', payload: 'browse' });
-      } else if (path === '/faq') {
-        ui.dispatch({ type: 'SET_CURRENT_VIEW', payload: 'faq' });
-      } else if (path === '/stories') {
-        ui.dispatch({ type: 'SET_CURRENT_VIEW', payload: 'stories' });
-      } else if (path === '/blog') {
-        ui.dispatch({ type: 'SET_CURRENT_VIEW', payload: 'blog' });
-      } else if (path === '/support') {
-        ui.dispatch({ type: 'SET_CURRENT_VIEW', payload: 'support' });
-      } else if (path === '/profile') {
-        if (auth.state.currentUser) {
-          data.dispatch({ type: 'SET_VIEWING_PROFILE', payload: auth.state.currentUser });
-          ui.dispatch({ type: 'SET_CURRENT_VIEW', payload: 'profile' });
-        } else {
+      } else {
+        if (!api.hasAdminSession()) {
+          auth.dispatch({ type: 'SET_USER_ROLE', payload: 'user' });
+        }
+        if (path === '/history') {
+          ui.dispatch({ type: 'SET_CURRENT_VIEW', payload: 'history' });
+        } else if (path === '/dashboard') {
+          ui.dispatch({ type: 'SET_CURRENT_VIEW', payload: 'dashboard' });
+        } else if (path === '/browse') {
+          ui.dispatch({ type: 'SET_CURRENT_VIEW', payload: 'browse' });
+        } else if (path === '/faq') {
+          ui.dispatch({ type: 'SET_CURRENT_VIEW', payload: 'faq' });
+        } else if (path === '/stories') {
+          ui.dispatch({ type: 'SET_CURRENT_VIEW', payload: 'stories' });
+        } else if (path === '/blog') {
+          ui.dispatch({ type: 'SET_CURRENT_VIEW', payload: 'blog' });
+        } else if (path === '/support') {
+          ui.dispatch({ type: 'SET_CURRENT_VIEW', payload: 'support' });
+        } else if (path === '/profile') {
+          if (auth.state.currentUser) {
+            data.dispatch({ type: 'SET_VIEWING_PROFILE', payload: auth.state.currentUser });
+            ui.dispatch({ type: 'SET_CURRENT_VIEW', payload: 'profile' });
+          } else {
+            ui.dispatch({ type: 'SET_CURRENT_VIEW', payload: 'home' });
+          }
+        } else if (path === '/') {
           ui.dispatch({ type: 'SET_CURRENT_VIEW', payload: 'home' });
         }
-      } else if (path === '/') {
-        ui.dispatch({ type: 'SET_CURRENT_VIEW', payload: 'home' });
       }
     };
 
@@ -277,6 +282,10 @@ function AppContent() {
   };
 
   const handleApprovePayment = async (paymentId: string) => {
+    if (auth.state.userRole !== 'admin') {
+      triggerNotification('info', 'Unauthorized operation.');
+      return;
+    }
     try {
       await api.approvePayment(paymentId);
       const payment = data.state.allPayments.find(p => p.id === paymentId);
@@ -285,9 +294,11 @@ function AppContent() {
       data.dispatch({ type: 'UPDATE_PAYMENT', payload: { id: paymentId, status: 'Approved' } });
       data.dispatch({ type: 'ADD_UNLOCK', payload: payment.profileId });
 
-      const profile = data.state.profiles.find(p => p.id === payment.profileId);
-      if (profile) {
-        data.dispatch({ type: 'UPDATE_PROFILE', payload: { ...profile, verified: true } });
+      if (auth.state.currentUser && auth.state.currentUser.id === payment.userId) {
+        auth.dispatch({
+          type: 'SET_CURRENT_USER',
+          payload: { ...auth.state.currentUser, verified: true }
+        });
       }
       triggerNotification('success', ui.t('app.notify.approved').replace('{name}', payment.profileName));
     } catch {
@@ -296,6 +307,10 @@ function AppContent() {
   };
 
   const handleRejectPayment = async (paymentId: string) => {
+    if (auth.state.userRole !== 'admin') {
+      triggerNotification('info', 'Unauthorized operation.');
+      return;
+    }
     try {
       await api.rejectPayment(paymentId);
       data.dispatch({ type: 'UPDATE_PAYMENT', payload: { id: paymentId, status: 'Rejected' } });
@@ -306,6 +321,10 @@ function AppContent() {
   };
 
   const handleRevokePayment = async (paymentId: string) => {
+    if (auth.state.userRole !== 'admin') {
+      triggerNotification('info', 'Unauthorized operation.');
+      return;
+    }
     try {
       await api.rejectPayment(paymentId);
       const payment = data.state.allPayments.find(p => p.id === paymentId);

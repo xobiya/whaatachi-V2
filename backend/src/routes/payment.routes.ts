@@ -43,6 +43,16 @@ router.post('/', authenticate, validatePayment, async (req: AuthRequest, res: Re
   }
 });
 
+router.get('/check', authenticate, async (req: AuthRequest, res: Response) => {
+  try {
+    const hasPaid = await paymentModel.hasApprovedPayment(req.userId!);
+    res.json({ hasPaid });
+  } catch (err: any) {
+    console.error('Check payment error:', err);
+    res.status(500).json({ error: 'Failed to check payment status' });
+  }
+});
+
 router.get('/:id/receipt', authenticate, async (req: AuthRequest, res: Response) => {
   try {
     const payment = await paymentModel.findPaymentById(String(req.params.id));
@@ -139,14 +149,5 @@ router.put('/:id/reject', authenticate, adminOnly, async (req: AuthRequest, res:
   }
 });
 
-router.get('/check', authenticate, async (req: AuthRequest, res: Response) => {
-  try {
-    const hasPaid = await paymentModel.hasApprovedPayment(req.userId!);
-    res.json({ hasPaid });
-  } catch (err: any) {
-    console.error('Check payment error:', err);
-    res.status(500).json({ error: 'Failed to check payment status' });
-  }
-});
 
 export default router;

@@ -78,5 +78,14 @@ jobs:
             echo "=== Installing dependencies ==="
             npm install --production && echo "npm install OK" || echo "npm install FAILED"
             echo "=== Restarting Node.js app ==="
+            # Stop Node.js app(s) first to release locks
+            /scripts/restartsrv_nodeapps stop 2>/dev/null || true
+            sleep 2
+            # Remove all lock files to prevent "Can't acquire lock" errors
             rm -f ~/.cpanel/datastore/NodeApps/*.lock
-            /scripts/restartsrv_nodeapps && echo "restart OK" || echo "restart FAILED"
+            sleep 1
+            # Kill any lingering node processes for this app
+            pkill -f "node.*repositories/whaatachi" 2>/dev/null || true
+            sleep 2
+            # Restart the Node.js app service
+            /scripts/restartsrv_nodeapps start && echo "restart OK" || /scripts/restartsrv_nodeapps && echo "restart OK" || echo "restart FAILED"

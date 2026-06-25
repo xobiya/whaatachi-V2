@@ -136,7 +136,16 @@ export async function seedData(clearFirst = false, force = false) {
   if (userCount === 0 || force) {
     console.log(`[seeder] Starting execution. Current user count: ${userCount}`);
 
-    async function buildUser(i, name, gender, bioPool, imgPool, phoneBase, lookingFor, intentOverride) {
+    async function buildUser(
+      i: number,
+      name: string,
+      gender: 'Male' | 'Female',
+      bioPool: string[],
+      imgPool: string[],
+      phoneBase: number,
+      lookingFor: 'Male' | 'Female',
+      intentOverride?: string
+    ) {
       const parts = name.split(' ');
       const id = uuid();
       const interests = pickN(INTERESTS_POOL, i * 3 + (gender === 'Female' ? 0 : 1), 3);
@@ -167,8 +176,8 @@ export async function seedData(clearFirst = false, force = false) {
           `INSERT IGNORE INTO UserInterest (userId, interest) VALUES ${placeholders}`,
           flat
         );
-      } catch (err) {
-        console.error(`[seeder] Error inserting user ${name}:`, err.message);
+      } catch (err: any) {
+        console.error(`[seeder] Error inserting user ${name}:`, err?.message || err);
       }
     }
 
