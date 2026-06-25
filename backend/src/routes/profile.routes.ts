@@ -1,10 +1,12 @@
 import { Router, Response } from 'express';
 import path from 'path';
+import { fileURLToPath } from 'url';
 import * as userModel from '../models/user.model';
 import * as paymentModel from '../models/payment.model';
 import { authenticate, optionalAuthenticate, AuthRequest } from '../middleware/auth';
 import { userRowToProfile } from '../utils/transform';
 
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const router = Router();
 
 function maskPhone(val: string | null) {
@@ -99,7 +101,7 @@ router.get('/:id/image', async (req: AuthRequest, res: Response) => {
       res.setHeader('Cache-Control', 'public, max-age=86400');
       res.send(data);
     } else if (imgStr.startsWith('/')) {
-      const publicDir = path.join(process.cwd(), 'public');
+      const publicDir = path.resolve(__dirname, '../../public');
       const resolved = path.resolve(publicDir, imgStr.slice(1));
       if (!resolved.startsWith(path.resolve(publicDir))) {
         res.status(403).send('Forbidden');

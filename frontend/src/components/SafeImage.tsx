@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { ImageOff } from 'lucide-react';
 
 interface SafeImageProps {
-  src: string;
+  src?: string | null;
   alt: string;
   className?: string;
   wrapperClassName?: string;
@@ -14,7 +14,18 @@ interface SafeImageProps {
 export default function SafeImage({
   src, alt, className = '', wrapperClassName = '', referrerPolicy, loading = 'lazy', onClick
 }: SafeImageProps) {
-  const [status, setStatus] = useState<'loading' | 'loaded' | 'error'>('loading');
+  const [status, setStatus] = useState<'loading' | 'loaded' | 'error'>(src ? 'loading' : 'error');
+
+  if (!src) {
+    return (
+      <div className={`relative overflow-hidden ${wrapperClassName}`}>
+        <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-100 dark:bg-[#1A1118] gap-1.5">
+          <ImageOff className="h-5 w-5 text-gray-400 dark:text-gray-600" />
+          <span className="text-[10px] text-gray-400 dark:text-gray-500 font-bold uppercase tracking-wider">No Photo</span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={`relative overflow-hidden ${wrapperClassName}`}>

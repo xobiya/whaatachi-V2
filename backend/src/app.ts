@@ -2,7 +2,11 @@ import express from 'express';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import rateLimit from 'express-rate-limit';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import { getPool } from './lib/db';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 import { errorHandler, notFoundHandler } from './middleware/errorHandler';
 import authRoutes from './routes/auth.routes';
@@ -32,9 +36,10 @@ app.use((req, res, next) => {
   if (req.method === 'OPTIONS') return res.status(204).end();
   next();
 });
-app.use(helmet());
+app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
 
 app.use(morgan('short'));
+app.use('/assets', express.static(path.resolve(__dirname, '../public/assets'), { maxAge: '1d' }));
 app.use(express.json({ limit: '10mb' }));
 
 const limiter = rateLimit({
