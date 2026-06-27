@@ -1,6 +1,7 @@
 import React, { useState, useRef, useMemo } from 'react';
 import { ArrowLeft, MapPin, ShieldCheck, Phone, Instagram, Mail, Lock, Sparkles, Star, Crown, Heart, Edit3, Check, X, Plus, User, Camera, Calendar } from 'lucide-react';
 import TelegramIcon from '../components/TelegramIcon';
+import SafeImage from '../components/SafeImage';
 import { Profile, PaymentRequest } from '../types';
 import { useUIContext } from '../context/UIContext';
 
@@ -185,10 +186,11 @@ export default function ProfilePage({ profile, isUnlocked, pendingPayment, userG
               className={`w-24 h-24 sm:w-32 sm:h-32 rounded-full overflow-hidden border-4 border-[#C9A84C] dark:border-[#C9A84C]/80 shadow-lg relative bg-gray-100 dark:bg-[#120A0E] ${editing ? 'cursor-pointer' : ''}`}
               onClick={editing ? () => fileInputRef.current?.click() : undefined}
             >
-              <img 
-                src={editing ? editImage : profile.image} 
-                alt={editing ? editName : profile.name} 
-                className="w-full h-full object-cover" 
+              <SafeImage
+                src={editing ? editImage : profile.image}
+                alt={editing ? editName : profile.name}
+                className="w-full h-full object-cover"
+                wrapperClassName="w-full h-full"
                 referrerPolicy="no-referrer"
               />
               {editing && (

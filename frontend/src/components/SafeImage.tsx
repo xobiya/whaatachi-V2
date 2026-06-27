@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ImageOff } from 'lucide-react';
 
 interface SafeImageProps {
@@ -15,6 +15,10 @@ export default function SafeImage({
   src, alt, className = '', wrapperClassName = '', referrerPolicy, loading = 'lazy', onClick
 }: SafeImageProps) {
   const [status, setStatus] = useState<'loading' | 'loaded' | 'error'>(src ? 'loading' : 'error');
+
+  useEffect(() => {
+    setStatus(src ? 'loading' : 'error');
+  }, [src]);
 
   if (!src) {
     return (
