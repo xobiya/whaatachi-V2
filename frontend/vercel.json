@@ -1,5 +1,6 @@
 {
   "rewrites": [
+    { "source": "/api/:path*", "destination": "https://api.diredawarashotel.com/api/:path*" },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
 }

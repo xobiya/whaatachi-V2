@@ -148,8 +148,16 @@ function rowToUserWithInterests(row: any) {
   return { ...row, interests };
 }
 
+function getPublicBase(): string {
+  const raw = process.env.PUBLIC_API_URL || '';
+  return raw.replace(/\/+$/, ''); // strip trailing slash
+}
+
 function toProfileDoc(doc: any) {
   const interests = doc.interests?.map((i: any) => i.interest) ?? [];
+  const base = getPublicBase();
+  // Absolute URL when PUBLIC_API_URL is set (production: Vercel frontend + cPanel backend).
+  // Relative URL in local dev (no PUBLIC_API_URL) — routed correctly via the Vite proxy.
   return {
     id: doc.id,
     _id: doc.id,
@@ -160,7 +168,7 @@ function toProfileDoc(doc: any) {
     bio: doc.bio ?? null,
     gender: doc.gender,
     lookingFor: doc.lookingFor ?? null,
-    image: doc.image ? `/api/profiles/${doc.id}/image` : null,
+    image: doc.image ? `${base}/api/profiles/${doc.id}/image` : null,
     status: doc.status ?? 'Offline',
     relationshipIntent: doc.relationshipIntent ?? null,
     interests,

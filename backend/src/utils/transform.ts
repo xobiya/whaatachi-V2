@@ -1,10 +1,21 @@
 import { Profile, PaymentRequest, UserRow, PaymentRow } from '../types';
 
+/**
+ * Returns the public base URL of the backend API.
+ * In production (cPanel), set PUBLIC_API_URL e.g. "https://api.whaatachi.com"
+ * In local dev, leave unset — relative URLs work fine via the Vite proxy.
+ */
+function getPublicBase(): string {
+  const raw = process.env.PUBLIC_API_URL || '';
+  return raw.replace(/\/+$/, ''); // strip trailing slash
+}
+
 export function userRowToProfile(row: UserRow, baseUrl?: string): Profile {
   const userId = row.id || (row as any)._id;
-  // Return a relative URL so the frontend Vite proxy routes it correctly.
-  // Absolute URLs (e.g. http://localhost:3005/...) bypass the proxy and fail CORS.
-  let img = row.image ? `/api/profiles/${userId}/image` : '';
+  const base = baseUrl ?? getPublicBase();
+  // In production PUBLIC_API_URL is set → absolute URL so Vercel frontend hits the cPanel backend.
+  // In local dev PUBLIC_API_URL is unset → relative URL routed correctly by Vite proxy.
+  const img = row.image ? `${base}/api/profiles/${userId}/image` : '';
   return {
     id: row.id || (row as any)._id,
     name: row.name,
@@ -29,9 +40,10 @@ export function userRowToProfile(row: UserRow, baseUrl?: string): Profile {
 }
 
 export function paymentRowToPayment(row: PaymentRow, baseUrl?: string): PaymentRequest {
-  // Use relative URLs so the frontend proxy routes them correctly (avoids CORS issues in dev).
-  const pImage = row.profileId && row.profileImage ? `/api/profiles/${row.profileId}/image` : (row.profileImage ?? '');
-  const rImage = row.id && row.receiptImage ? `/api/payments/${row.id}/receipt` : (row.receiptImage ?? undefined);
+  const base = baseUrl ?? getPublicBase();
+  // Use absolute URLs in production so the Vercel frontend can reach the cPanel backend.
+  const pImage = row.profileId && row.profileImage ? `${base}/api/profiles/${row.profileId}/image` : (row.profileImage ?? '');
+  const rImage = row.id && row.receiptImage ? `${base}/api/payments/${row.id}/receipt` : (row.receiptImage ?? undefined);
   return {
     id: row.id || (row as any)._id,
     userId: row.userId,
